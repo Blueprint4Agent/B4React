@@ -1,15 +1,15 @@
 # Frontend Test Engineering Guide
 
-This document defines frontend test architecture and execution rules for `src/frontend`.
+This document defines frontend test architecture and execution rules for this repository.
 
 ## 0) Scope and Priority
 
-- Scope: everything under `src/frontend/src/tests` and `src/frontend/tests`.
+- Scope: everything under `src/tests` and `tests`.
 - Read order before frontend test work:
 
 1. Root `AGENTS.md`
-2. `src/frontend/FRONTEND.md`
-3. This document (`src/frontend/TEST.md`)
+2. `FRONTEND.md`
+3. This document (`TEST.md`)
 
 ## 1) Test Pyramid (De Facto)
 
@@ -22,7 +22,7 @@ This document defines frontend test architecture and execution rules for `src/fr
 
 Frontend scenario tests must track backend `full-system` sequence from:
 
-1. `src/backend/TEST.md` (`## 8.1) Seeded Full-System Scenario Sequence`)
+1. [B4FastAPI test guide](https://github.com/Blueprint4Agent/B4FastAPI/blob/main/src/backend/TEST.md) (`## 8.1) Seeded Full-System Scenario Sequence`)
 
 Alignment policy:
 
@@ -33,7 +33,7 @@ Alignment policy:
 ## 2) Current Test Layout
 
 ```text
-src/frontend/
+
   src/
     tests/
       unit/
@@ -86,56 +86,56 @@ src/frontend/
 Run all Vitest suites:
 
 ```bash
-cd src/frontend
+cd B4React
 npm run test
 ```
 
 Run unit tests only:
 
 ```bash
-cd src/frontend
+cd B4React
 npm run test:unit
 ```
 
 Run component tests only:
 
 ```bash
-cd src/frontend
+cd B4React
 npm run test:component
 ```
 
 Run integration tests only:
 
 ```bash
-cd src/frontend
+cd B4React
 npm run test:integration
 ```
 
 Run full test matrix in sequence (unit -> component -> integration -> e2e):
 
 ```bash
-cd src/frontend
+cd B4React
 npm run test:all
 ```
 
 Run Vitest in watch mode:
 
 ```bash
-cd src/frontend
+cd B4React
 npm run test:watch
 ```
 
 Run E2E route smoke:
 
 ```bash
-cd src/frontend
+cd B4React
 npm run test:e2e
 ```
 
 Run E2E with UI mode:
 
 ```bash
-cd src/frontend
+cd B4React
 npm run test:e2e:ui
 ```
 
@@ -245,7 +245,7 @@ Backend-only (not frontend-reachable) branches remain backend-owned:
 Before commit:
 
 ```bash
-cd src/frontend
+cd B4React
 npm run format
 npm run format:check
 npm run test

@@ -1,201 +1,63 @@
-# Frontend Quick Guide
+# B4React
 
-This guide is for human contributors working on `src/frontend`.
-For full engineering constraints, follow `src/frontend/FRONTEND.md`.
-Localized docs rule: place translations under `docs/<locale>/frontend/`.
-Current locale example (`ko`): `docs/ko/frontend/README.md`, `docs/ko/frontend/FRONTEND.md`, `docs/ko/frontend/TEST.md`.
+Shared React + TypeScript frontend for compatible B4 API providers. The source history
+was extracted from B4FastAPI's `src/frontend` with `git subtree split`.
 
-## 1) Setup
+[한국어](notes/ko/README.md) · [Engineering guide](FRONTEND.md) · [Test guide](TEST.md)
 
-```bash
-cd src/frontend
-npm ci
+## Development
+
+Use Node.js 24 and npm. From this repository:
+
+```sh
+make install init
+make dev
+make check test build
 ```
 
-## 2) Run Dev Server
+Vite runs on port 5173. Set `VITE_API_BASE_URL` in `.env` for your backend.
+The default development API port is 8000; other web builds use the current origin.
+A Spring Boot provider on port 8080 needs `VITE_API_BASE_URL=http://localhost:8080`
+and must implement the same [API contract](contracts/README.md), including auth and SSE behavior.
+Cross-origin deployments require backend CORS and cookie configuration.
 
-```bash
-cd src/frontend
-npm run dev
+## Contract and builds
+
+`contracts/openapi.json` is a committed snapshot; `contracts/source.json` records its origin.
+`make api-generate` generates `src/api/generated/openapi.ts`; `make api-check` detects drift.
+Generation never fetches a running backend and never reads a parent repository.
+`build:sync` and `build:strict` are compatibility aliases that regenerate from this local snapshot.
+
+`make build` writes only `dist/`. A consuming backend owns static-file packaging.
+In B4FastAPI, `make frontend-package` builds and copies the result into the backend;
+`make build` includes that packaging step. Independent hosting can deploy `dist/` directly.
+
+## Submodule usage
+
+Backend repositories embed this repository at `src/frontend` and pin a commit:
+
+```sh
+git clone --recurse-submodules https://github.com/Blueprint4Agent/B4FastAPI.git
+# Existing backend checkout:
+git submodule update --init --recursive
 ```
 
-Default local URL:
+Develop frontend changes on a named branch in B4React and merge its PR first.
+Then update the consuming backend's gitlink in a separate PR and run its contract checks.
+Do not use `git submodule update --remote` in CI. Backend and frontend releases are independent.
+A backend may keep using an older compatible frontend commit.
 
-- `http://localhost:5173`
+## Desktop
 
-The browser remains the default frontend target. To run the same React application in the
-optional Tauri desktop shell:
+`make desktop-dev` and `make desktop-build` require Rust and platform Tauri dependencies.
+For packaged apps, set `VITE_API_BASE_URL` to the deployed API origin at build time.
+The server must allow the webview origin in its CORS configuration.
+The existing B4FastAPI desktop bundle identifier and product name are preserved to
+avoid changing installed application identity during extraction. Backend repositories
+currently own desktop release workflows. Authentication and data operations require
+connectivity; recovery revalidates session/config and restarts realtime subscriptions.
 
-```bash
-cd src/frontend
-npm run tauri:dev
-```
+## Contributions
 
-The launcher automatically adds `~/.cargo/bin` to the command PATH when Rust is
-installed there but the current shell has not loaded it. From the repository root,
-the equivalent command is `make frontend-desktop-dev`.
-
-Tauri development requires the Rust toolchain. The local desktop shell connects to
-`http://localhost:8000` by default. Set `VITE_API_BASE_URL` when a different API is required.
-The desktop shell is currently online-first: static UI assets open offline, but authentication,
-API key management, realtime events, and server data require FastAPI connectivity. Offline
-data caching and synchronization are separate features and are not provided by the shell.
-The packaged desktop runtime actively checks `GET /health/ready` on startup and every 30 seconds.
-Failed checks use exponential backoff with jitter (up to 30 seconds), and the desktop UI shows an
-offline status beside the app-navbar profile control or standalone titlebar theme control. The
-compact status provides an immediate retry action. Browser builds do not run this desktop probe.
-Landing and server-unavailable pages share the same public navbar with a centered title and theme
-control. Symmetric navbar columns and a reserved connectivity-status width keep the title fixed
-when retry changes the status label. Manual retry clicks keep the compact disconnected label in
-place and delay heavier loading affordances so short server checks do not flicker.
-When connectivity returns, the app revalidates its authentication session and configuration, and
-authenticated realtime subscriptions restart. This reconnect behavior does not queue offline
-mutations or resolve data conflicts. Desktop sign-out from the profile menu is disabled while the
-server is disconnected so the app does not clear the local session and route to login during an
-outage.
-If the application has never loaded `/config` successfully, it keeps protected routes locked and
-shows the server-unavailable page. Missing configuration is never interpreted as
-`login_enabled=false`; login-disabled navigation is allowed only after an explicit server response.
-In Tauri, native window controls share the same title bar area as landing, authentication, and
-in-app navigation. The browser frontend keeps its existing navigation layout.
-
-API base URL behavior:
-
-- If `VITE_API_BASE_URL` is set, frontend uses that value. Local loopback aliases
-  (`localhost`, `127.0.0.1`, and `::1`) are aligned with the current frontend host so
-  authentication cookies remain same-site.
-- If not set and current port is `5173` (Vite dev), frontend defaults to `http(s)://<current-host>:8000`.
-- Otherwise, frontend defaults to current page origin (same-origin), useful for backend static serving mode.
-
-For a packaged desktop build, set `VITE_API_BASE_URL` to the deployed FastAPI origin before
-running `npm run tauri -- build`. The backend must also allow the packaged Tauri webview origin
-through its CORS policy when browser-enforced HTTP requests are used. The macOS packaged origin
-is `tauri://localhost`; include it in `CORS_ORIGINS` and restart FastAPI after changing the env.
-The GitHub desktop build workflow accepts `api_base_url` on manual runs, then falls back to
-`DESKTOP_API_BASE_URL`, then `http://localhost:8000`.
-
-## 3) API Type Generation
-
-Frontend API contracts are generated from backend OpenAPI:
-
-```bash
-cd src/frontend
-npm run generate:api
-```
-
-Server-optional sync (uses existing generated file when backend is unavailable):
-
-```bash
-cd src/frontend
-npm run api:sync
-```
-
-Generated target:
-
-- `src/api/generated/openapi.ts`
-
-To generate from the versioned contract without a running server, run at the repository root:
-
-```bash
-make contract-export
-make frontend-api-generate
-make contract-check
-make frontend-typecheck
-```
-
-SSE and readiness types are also generated. See `contracts/README.md` for behavior
-that cannot be represented by generated TypeScript alone.
-
-## 4) Format / Check
-
-```bash
-cd src/frontend
-npm run format
-npm run format:check
-```
-
-## 5) Test
-
-```bash
-cd src/frontend
-npm run test
-```
-
-Run by layer:
-
-```bash
-cd src/frontend
-npm run test:unit
-npm run test:component
-npm run test:integration
-```
-
-Run full matrix (unit -> component -> integration -> e2e):
-
-```bash
-cd src/frontend
-npm run test:all
-```
-
-E2E smoke:
-
-```bash
-cd src/frontend
-npm run test:e2e
-```
-
-## 6) Build
-
-```bash
-cd src/frontend
-npm run build
-```
-
-Build only the shared web assets for the desktop shell without copying them into FastAPI:
-
-```bash
-npm run build:desktop
-```
-
-Optional API contract refresh + build:
-
-```bash
-cd src/frontend
-npm run build:sync
-```
-
-Strict API contract refresh from backend + build:
-
-```bash
-cd src/frontend
-npm run build:strict
-```
-
-Notes:
-
-- `npm run build` is server-independent by default (no OpenAPI fetch).
-- `npm run build:sync` performs optional OpenAPI refresh before build (fallback to existing generated file on fetch failure).
-- `npm run build:strict` requires successful OpenAPI refresh from `localhost:8000` before build.
-
-## 7) Core Frontend Rules (Summary)
-
-- API flow: `generated -> api/<domain> -> hooks/api/<domain> -> pages`
-- Domain set rule: `<domain>Api.ts` + `<domain>Error.ts` + `use<Domain>Api.ts` must stay 1:1:1
-- Authenticated realtime stream (`/api/v1/events/stream`) should use fetch streaming in `api/events` domain (bearer header required)
-- Domain hooks are called in page layer, not in feature components
-- Feature components receive state/actions via props
-- Reusable components belong to `src/components/ui/*` (category folders)
-- Domain-specific components belong to `src/components/features/<domain>/*`
-- All CSS is managed in `src/styles/app.css`
-- New reusable UI components must be showcased in `src/pages/main/ShowCasePage.tsx`
-
-## 8) Before Commit
-
-```bash
-cd src/frontend
-npm run format
-npm run format:check
-npm run test
-npx tsc --noEmit
-npm run build
-```
+Follow [AGENTS.md](AGENTS.md). Every new commit includes a worklog, with
+`make check test build` results. Imported history predates this repository's worklog policy.

@@ -1,18 +1,18 @@
 {
-    "name": "blueprint4fastapi-frontend",
+    "name": "b4react",
     "private": true,
     "version": "0.1.0",
     "type": "module",
     "scripts": {
         "dev": "vite",
         "dev:tauri": "node scripts/start-tauri-dev.mjs",
-        "generate:api": "openapi-typescript http://localhost:8000/openapi.json -o src/api/generated/openapi.ts && prettier src/api/generated/openapi.ts --write",
-        "generate:api:contract": "openapi-typescript ../../contracts/openapi.json -o src/api/generated/openapi.ts && prettier src/api/generated/openapi.ts --write",
-        "generate:api:optional": "node scripts/generate-openapi.mjs",
+        "generate:api": "node scripts/generate-api.mjs",
+        "generate:api:contract": "npm run generate:api",
+        "generate:api:optional": "npm run generate:api",
         "api:sync:strict": "npm run generate:api",
         "api:sync": "npm run generate:api:optional",
         "build:web": "tsc && vite build",
-        "build": "npm run build:web && node ./scripts/copy-to-backend.mjs",
+        "build": "npm run build:web",
         "build:desktop": "npm run build:web",
         "build:sync": "npm run api:sync && npm run build",
         "build:strict": "npm run api:sync:strict && npm run build",
@@ -28,7 +28,9 @@
         "test:e2e": "playwright test",
         "test:e2e:ui": "playwright test --ui",
         "format": "prettier . --write",
-        "format:check": "prettier . --check"
+        "format:check": "prettier . --check",
+        "api:check": "node scripts/generate-api.mjs --check",
+        "typecheck": "tsc --noEmit"
     },
     "dependencies": {
         "@tauri-apps/api": "^2.11.1",

@@ -4,12 +4,12 @@ This guide exists because the project is optimized for agentic coding patterns, 
 
 ## 0) Scope and Priority
 
-- Scope: everything under `src/frontend`.
+- Scope: everything under this repository.
 - Read order before frontend work:
 
 1. Root `AGENTS.md`
-2. This document (`src/frontend/FRONTEND.md`)
-3. Test guide (`src/frontend/TEST.md`) when adding/changing tests
+2. This document (`FRONTEND.md`)
+3. Test guide (`TEST.md`) when adding/changing tests
 
 - Priority on conflicts:
 
@@ -20,7 +20,7 @@ This guide exists because the project is optimized for agentic coding patterns, 
 ## 0.1) Frontend Project Structure
 
 ```text
-src/frontend/
+
   src/
     api/          # generated + domain API/error
     hooks/        # api hooks + app hooks
@@ -122,7 +122,7 @@ Avoid one-off button spacing, inline pagination styles, page-local control CSS, 
 ## 1) Formatting and Linting
 
 - Prettier is the formatting source of truth for frontend code.
-- Required before commit (run in `src/frontend`):
+- Required before commit (run in this repository):
 
 1. `npm run format`
 2. `npm run format:check`
@@ -156,11 +156,11 @@ Avoid one-off button spacing, inline pagination styles, page-local control CSS, 
 
 ## 3) API Contract Rule (`generate:api`, Required)
 
-- Backend OpenAPI is the source of truth for API contracts.
+- The pinned `contracts/openapi.json` is the source for generated API types; backend providers must satisfy this contract.
 - Generation sources:
 
-1. Versioned baseline: `contracts/openapi.json` — run root `make contract-export`, then `make frontend-api-generate`
-2. Running server: `http://localhost:8000/openapi.json` — existing `npm run generate:api`
+1. Versioned baseline: `contracts/openapi.json` — run `make api-generate`
+2. To adopt a contract, update the local snapshot and `contracts/source.json` in a B4React PR; no running server is required.
 3. SSE and readiness use generated types too; behavioral contracts are recorded in `contracts/README.md`
 
 - Required generated file:
@@ -171,10 +171,10 @@ Avoid one-off button spacing, inline pagination styles, page-local control CSS, 
 
 1. Use generated types from `src/api/generated/openapi.ts` in API/hook/page layers.
 2. Do not maintain duplicate handwritten contract types for OpenAPI-backed endpoints.
-3. If backend API schema changes, export the baseline and run root `make frontend-api-generate` before API call site edits.
+3. If backend API schema changes, update the pinned local baseline and run `make api-generate` before API call site edits.
 4. `npm run build` is server-independent by default (no OpenAPI fetch during build).
-5. Use `npm run build:sync` for optional API refresh + build.
-6. Use `npm run build:strict` (or `npm run generate:api`) when strict OpenAPI refresh from backend is required.
+5. Use `npm run build:sync` for local contract regeneration + build.
+6. Use `npm run build:strict` (or `npm run generate:api`) when strict OpenAPI refresh from the pinned contract is required.
 
 ## 4) Domain API/Error/Hook Rule (1:1:1, Required)
 
@@ -191,7 +191,7 @@ Avoid one-off button spacing, inline pagination styles, page-local control CSS, 
 2. API key router domain -> `src/api/apiKey/apiKeyApi.ts` + `src/api/apiKey/apiKeyError.ts` + `src/hooks/api/apiKey/useApiKeyApi.ts`
 3. Events router domain -> `src/api/events/eventsApi.ts` + `src/api/events/eventsError.ts` + `src/hooks/api/events/useEventsApi.ts`
 
-- When a new backend router/domain is added, frontend must add the same domain 1:1:1 set in the same work cycle.
+- When adopting a new contract domain, add the same domain 1:1:1 set in the B4React change and coordinate the provider update.
 - Do not place domain error parsing/mapping in `src/utils`; keep it inside each domain API folder.
 - API interface chain is mandatory:
 
@@ -297,11 +297,11 @@ Avoid one-off button spacing, inline pagination styles, page-local control CSS, 
 - Production build:
 
 1. `npm run build`
-2. `npm run build:sync` (optional backend OpenAPI refresh)
-3. `npm run build:strict` (requires backend OpenAPI endpoint)
-4. `npm run build:desktop` builds shared assets without copying them to FastAPI
+2. `npm run build:sync` (local contract regeneration)
+3. `npm run build:strict` (uses the pinned contract)
+4. `npm run build:desktop` builds shared assets into `dist/`, like the web build
 
-- The build pipeline includes copying frontend artifacts into backend static path through `scripts/copy-to-backend.mjs`.
+- The build pipeline only writes `dist/`. Consuming backend repositories own copying or packaging these artifacts.
 
 ## 8) Internationalization Rule (Required)
 
