@@ -16,8 +16,8 @@ import {
     ThemeToggleButton,
     UserAvatar,
 } from "../../components/ui";
-import { useApiKeyApi, type APIKeyRecord } from "../../hooks/api/apiKey/useApiKeyApi";
-import { useApiKeyRealtimeSubscription } from "../../hooks/realtime/apiKey/useApiKeyRealtimeSubscription";
+import type { APIKeyRecord } from "../../hooks/api/apiKey/useApiKeyApi";
+import { useApiKeys } from "../../hooks/api/apiKey/useApiKeys";
 import { useAuthContext } from "../../hooks/useAuth";
 import { useAppConfig } from "../../hooks/useFeatures";
 import { useTheme } from "../../hooks/useTheme";
@@ -38,14 +38,6 @@ type SupportedLanguageId = (typeof SUPPORTED_LANGUAGE_IDS)[number];
 export function SettingsPage() {
     const { t, i18n } = useTranslation();
     const { user, updateProfile } = useAuthContext();
-    const {
-        createApiKey,
-        deleteApiKey,
-        listApiKeys,
-        updateApiKeyStatus,
-        extractAPIKeyErrorDetail,
-        resolveAPIKeyErrorMessage,
-    } = useApiKeyApi();
     const { data: appConfig } = useAppConfig();
     const { themeMode, setThemeMode } = useTheme();
     const [activeMenu, setActiveMenu] = useState<SettingsMenuKey>("profile");
@@ -53,25 +45,31 @@ export function SettingsPage() {
     const [profileImageInput, setProfileImageInput] = useState<string | null>(null);
     const [saveBusy, setSaveBusy] = useState(false);
     const [saveFeedback, setSaveFeedback] = useState<SaveFeedback>(null);
-    const [apiKeyItems, setApiKeyItems] = useState<APIKeyRecord[]>([]);
-    const [apiKeyLoading, setApiKeyLoading] = useState(true);
-    const [apiKeyErrorMessage, setApiKeyErrorMessage] = useState<string | null>(null);
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [newApiKeyName, setNewApiKeyName] = useState("");
     const [newApiKeyExpiryOption, setNewApiKeyExpiryOption] = useState<APIKeyExpiryOption>(
         DEFAULT_API_KEY_EXPIRY_OPTION,
     );
-    const [createBusy, setCreateBusy] = useState(false);
-    const [createErrorMessage, setCreateErrorMessage] = useState<string | null>(null);
     const [createdSecret, setCreatedSecret] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [deactivateTarget, setDeactivateTarget] = useState<APIKeyRecord | null>(null);
-    const [deactivateBusy, setDeactivateBusy] = useState(false);
-    const [toggleBusyId, setToggleBusyId] = useState<number | null>(null);
     const loginEnabled = appConfig?.login_enabled === true;
 
     const showProfile = activeMenu === "profile";
     const showDevelopers = activeMenu === "developers";
+    const {
+        items: apiKeyItems,
+        loading: apiKeyLoading,
+        errorMessage: apiKeyErrorMessage,
+        createBusy,
+        createErrorMessage,
+        deleteBusy: deactivateBusy,
+        toggleBusyId,
+        create: createKey,
+        deleteKey,
+        setEnabled: toggleKey,
+        clearCreateError,
+    } = useApiKeys({ ownerId: user?.id, enabled: showDevelopers, realtimeEnabled: loginEnabled });
     const HeaderIcon = showProfile ? UserRound : showDevelopers ? Code2 : SlidersHorizontal;
     const settingsMenuItems = [
         { key: "profile", label: t("settings.menu.profile"), icon: UserRound },
@@ -103,33 +101,10 @@ export function SettingsPage() {
         }
         return provider.toUpperCase();
     };
-    const resolveApiKeyErrorMessage = useCallback(
-        (error: unknown, fallbackKey: string) => {
-            const detail = extractAPIKeyErrorDetail(error);
-            return resolveAPIKeyErrorMessage(t, detail, fallbackKey);
-        },
-        [extractAPIKeyErrorDetail, resolveAPIKeyErrorMessage, t],
-    );
-
-    const loadApiKeys = useCallback(async () => {
-        setApiKeyLoading(true);
-        setApiKeyErrorMessage(null);
-        try {
-            const response = await listApiKeys();
-            setApiKeyItems(response.items);
-        } catch (nextError) {
-            setApiKeyErrorMessage(
-                resolveApiKeyErrorMessage(nextError, "settings.developers.listLoadError"),
-            );
-        } finally {
-            setApiKeyLoading(false);
-        }
-    }, [listApiKeys, resolveApiKeyErrorMessage]);
-
     const openCreateModal = useCallback(() => {
         setCreateModalOpen(true);
-        setCreateErrorMessage(null);
-    }, []);
+        clearCreateError();
+    }, [clearCreateError]);
 
     const closeCreateModal = useCallback(() => {
         if (createBusy) {
@@ -138,58 +113,28 @@ export function SettingsPage() {
         setCreateModalOpen(false);
         setNewApiKeyName("");
         setNewApiKeyExpiryOption(DEFAULT_API_KEY_EXPIRY_OPTION);
-        setCreateErrorMessage(null);
-    }, [createBusy]);
+        clearCreateError();
+    }, [createBusy, clearCreateError]);
 
     const handleToggleStatus = useCallback(
-        (apiKeyId: number, enabled: boolean) => {
-            setToggleBusyId(apiKeyId);
-            setApiKeyErrorMessage(null);
-            void updateApiKeyStatus(apiKeyId, enabled)
-                .then((updated) => {
-                    setApiKeyItems((prev) =>
-                        prev.map((row) => (row.id === updated.id ? updated : row)),
-                    );
-                })
-                .catch((nextError) => {
-                    setApiKeyErrorMessage(
-                        resolveApiKeyErrorMessage(nextError, "settings.developers.updateError"),
-                    );
-                })
-                .finally(() => {
-                    setToggleBusyId(null);
-                });
+        (id: number, enabled: boolean) => {
+            void toggleKey(id, enabled);
         },
-        [resolveApiKeyErrorMessage, updateApiKeyStatus],
+        [toggleKey],
     );
 
     const handleCreateApiKey = useCallback(() => {
-        const trimmedName = newApiKeyName.trim();
-        if (!trimmedName) {
-            return;
-        }
-
-        setCreateBusy(true);
-        setCreateErrorMessage(null);
-        void createApiKey(trimmedName, resolveAPIKeyExpiresAt(newApiKeyExpiryOption))
-            .then((result) => {
-                setApiKeyItems((prev) => [result.key, ...prev]);
-                setCreateModalOpen(false);
-                setNewApiKeyName("");
-                setNewApiKeyExpiryOption(DEFAULT_API_KEY_EXPIRY_OPTION);
-                setCreateErrorMessage(null);
-                setCreatedSecret(result.api_key);
-                setCopied(false);
-            })
-            .catch((nextError) => {
-                setCreateErrorMessage(
-                    resolveApiKeyErrorMessage(nextError, "settings.developers.createError"),
-                );
-            })
-            .finally(() => {
-                setCreateBusy(false);
-            });
-    }, [createApiKey, newApiKeyExpiryOption, newApiKeyName, resolveApiKeyErrorMessage]);
+        const name = newApiKeyName.trim();
+        if (!name) return;
+        void createKey(name, resolveAPIKeyExpiresAt(newApiKeyExpiryOption)).then((secret) => {
+            if (!secret) return;
+            setCreateModalOpen(false);
+            setNewApiKeyName("");
+            setNewApiKeyExpiryOption(DEFAULT_API_KEY_EXPIRY_OPTION);
+            setCreatedSecret(secret);
+            setCopied(false);
+        });
+    }, [createKey, newApiKeyName, newApiKeyExpiryOption]);
 
     const closeSecretModal = useCallback(() => {
         setCreatedSecret(null);
@@ -213,25 +158,18 @@ export function SettingsPage() {
     }, [deactivateBusy]);
 
     const confirmDelete = useCallback(() => {
-        if (!deactivateTarget) {
-            return;
-        }
-        setDeactivateBusy(true);
-        setApiKeyErrorMessage(null);
-        void deleteApiKey(deactivateTarget.id)
-            .then((deleted) => {
-                setApiKeyItems((prev) => prev.filter((item) => item.id !== deleted.id));
-                setDeactivateTarget(null);
-            })
-            .catch((nextError) => {
-                setApiKeyErrorMessage(
-                    resolveApiKeyErrorMessage(nextError, "settings.developers.deactivateError"),
-                );
-            })
-            .finally(() => {
-                setDeactivateBusy(false);
-            });
-    }, [deactivateTarget, deleteApiKey, resolveApiKeyErrorMessage]);
+        if (!deactivateTarget) return;
+        void deleteKey(deactivateTarget.id).then((deleted) => {
+            if (deleted) setDeactivateTarget(null);
+        });
+    }, [deactivateTarget, deleteKey]);
+
+    useEffect(() => {
+        setCreatedSecret(null);
+        setCopied(false);
+        setCreateModalOpen(false);
+        setDeactivateTarget(null);
+    }, [user?.id]);
 
     useEffect(() => {
         setNameInput(user?.name ?? "");
@@ -243,37 +181,6 @@ export function SettingsPage() {
         setNameInput(user?.name ?? "");
         setProfileImageInput(user?.profile_image_url ?? null);
     }, [activeMenu]);
-
-    useEffect(() => {
-        void loadApiKeys();
-    }, [loadApiKeys]);
-
-    const handleRealtimeAPIKeyCreated = useCallback((created: APIKeyRecord) => {
-        const id = created.id;
-        setApiKeyItems((prev) => {
-            if (prev.some((item) => item.id === id)) {
-                return prev.map((item) => (item.id === id ? created : item));
-            }
-            return [created, ...prev];
-        });
-    }, []);
-
-    const handleRealtimeAPIKeyStatusUpdated = useCallback((updated: APIKeyRecord) => {
-        const id = updated.id;
-        setApiKeyItems((prev) => prev.map((item) => (item.id === id ? updated : item)));
-    }, []);
-
-    const handleRealtimeAPIKeyDeleted = useCallback((deleted: APIKeyRecord) => {
-        const id = deleted.id;
-        setApiKeyItems((prev) => prev.filter((item) => item.id !== id));
-    }, []);
-
-    useApiKeyRealtimeSubscription({
-        enabled: loginEnabled && showDevelopers,
-        onCreated: handleRealtimeAPIKeyCreated,
-        onStatusUpdated: handleRealtimeAPIKeyStatusUpdated,
-        onDeleted: handleRealtimeAPIKeyDeleted,
-    });
 
     const toDataUrl = (file: File): Promise<string> =>
         new Promise((resolve, reject) => {

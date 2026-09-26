@@ -129,9 +129,6 @@ describe("SettingsPage developers scenario", () => {
 
         // When: settings profile page is rendered.
         renderWithRouter(<SettingsPage />, "/settings");
-        await waitFor(() => {
-            expect(listApiKeysMock).toHaveBeenCalled();
-        });
 
         // Then: admin role badge is visible.
         expect(screen.getByText("Admin")).toBeInTheDocument();
@@ -146,9 +143,6 @@ describe("SettingsPage developers scenario", () => {
 
         // When: settings profile page is rendered.
         renderWithRouter(<SettingsPage />, "/settings");
-        await waitFor(() => {
-            expect(listApiKeysMock).toHaveBeenCalled();
-        });
 
         // Then: admin badge is not rendered for regular user.
         expect(screen.queryByText("Admin")).not.toBeInTheDocument();
@@ -166,17 +160,17 @@ describe("SettingsPage developers scenario", () => {
 
         // Then: first page renders six cards and keeps later keys off-screen.
         await waitFor(() => {
-            expect(screen.getByText("API Key 1")).toBeInTheDocument();
+            expect(screen.getByText("API Key 7")).toBeInTheDocument();
         });
         expect(screen.getByText("API Key 6")).toBeInTheDocument();
-        expect(screen.queryByText("API Key 7")).not.toBeInTheDocument();
+        expect(screen.queryByText("API Key 1")).not.toBeInTheDocument();
 
         // When: user selects the next numbered page.
         await user.click(screen.getByRole("button", { name: "2" }));
 
         // Then: the second page renders the remaining card.
-        expect(screen.getByText("API Key 7")).toBeInTheDocument();
-        expect(screen.queryByText("API Key 1")).not.toBeInTheDocument();
+        expect(screen.getByText("API Key 1")).toBeInTheDocument();
+        expect(screen.queryByText("API Key 7")).not.toBeInTheDocument();
         expect(container.querySelectorAll(".developer-key-card--placeholder")).toHaveLength(5);
     });
 
@@ -219,27 +213,19 @@ describe("SettingsPage developers scenario", () => {
                 key: created,
             };
         });
-        updateApiKeyStatusMock
-            .mockResolvedValueOnce({
-                id: 101,
-                name: FULL_SYSTEM_SCENARIO.apiKey.primaryName,
-                key_prefix: "sk_live_abcd",
-                created_at: "2026-04-30T12:00:00Z",
+        updateApiKeyStatusMock.mockImplementation(async (apiKeyId: number, enabled: boolean) => {
+            const existing = mockedApiKeyItems.find((item) => item.id === apiKeyId);
+            if (!existing) throw new Error("Mock API key not found.");
+            const updated = {
+                ...existing,
                 request_count: 1,
-                last_used_at: null,
-                expires_at: null,
-                revoked_at: "2026-04-30T12:10:00Z",
-            })
-            .mockResolvedValueOnce({
-                id: 101,
-                name: FULL_SYSTEM_SCENARIO.apiKey.primaryName,
-                key_prefix: "sk_live_abcd",
-                created_at: "2026-04-30T12:00:00Z",
-                request_count: 1,
-                last_used_at: null,
-                expires_at: null,
-                revoked_at: null,
-            });
+                revoked_at: enabled ? null : "2026-04-30T12:10:00Z",
+            };
+            mockedApiKeyItems = mockedApiKeyItems.map((item) =>
+                item.id === apiKeyId ? updated : item,
+            );
+            return updated;
+        });
         deleteApiKeyMock.mockImplementation(async (apiKeyId: number) => {
             mockedApiKeyItems = mockedApiKeyItems.filter((item) => item.id !== apiKeyId);
             return { id: apiKeyId };
