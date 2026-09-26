@@ -30,4 +30,10 @@ desktop-dev: ## Run Tauri development shell
 desktop-build: ## Build Tauri packages (requires Rust and platform dependencies)
 	$(NPM) run tauri -- build
 git-governance-check: ## Validate branch, commit, worklog, and PR metadata
-	COMMIT_TITLE="$(COMMIT_TITLE)" COMMIT_BODY_FILE="$(COMMIT_BODY_FILE)" PR_TITLE="$(PR_TITLE)" PR_BODY_FILE="$(PR_BODY_FILE)" MERGE_METHOD="$(MERGE_METHOD)" ALLOW_NON_MERGE_METHOD="$(ALLOW_NON_MERGE_METHOD)" bash ./scripts/validate-git-governance.sh
+	bash ./scripts/validate-git-governance.sh
+
+export COMMIT_TITLE COMMIT_BODY_FILE PR_TITLE PR_BODY_FILE MERGE_METHOD ALLOW_NON_MERGE_METHOD
+
+.PHONY: git-governance-pr-check
+git-governance-pr-check: ## Validate actual PR metadata and every authored commit
+	bash ./scripts/validate-git-governance.sh --event-file "$(GITHUB_EVENT_PATH)"
