@@ -71,3 +71,12 @@ Python 3 표준 라이브러리만 사용합니다. 구체적인 절차는 [AGEN
 main은 PR과 Git governance 및 저장소별 코드 검사를 요구합니다. 1인 작업을 지원해
 필수 승인 수는 0이며, 자동 검사는 사람의 설계 리뷰를 의미하지 않습니다.
 워크로그를 작업 시작 시 작성하는지는 절차로 관리하고, CI는 커밋된 기록을 검증합니다.
+
+## 아키텍처 검사
+
+`make architecture-check`로 문서화된 계층 의존성 규칙을 검사합니다.
+`make check`와 필수 PR CI에서도 실행하며 위반 파일·줄 번호를 출력합니다.
+Page·Component의 런타임 API import와 Component의 도메인 API 훅 import를 금지하고,
+명시적인 타입 전용 import는 허용합니다. 브라우저 HTTP 호출은 src/api에서 담당합니다.
+TypeScript가 tsconfig를 사용해 별칭과 재내보내기를 해석합니다. 간접 래퍼 호출과
+상태 소유권 등 설계 판단은 별도 리뷰가 필요합니다. FRONTEND.md를 참고하세요.
