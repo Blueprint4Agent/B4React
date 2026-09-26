@@ -14,7 +14,7 @@ dev: ## Start browser development server
 	$(NPM) run dev
 build: ## Build local dist artifacts
 	$(NPM) run build
-check: api-check ## Check generated types, formatting, and TypeScript
+check: architecture-check api-check ## Check generated types, formatting, and TypeScript
 	$(NPM) run format:check
 	$(NPM) run typecheck
 test: ## Run unit, component, and integration tests
@@ -37,3 +37,7 @@ export COMMIT_TITLE COMMIT_BODY_FILE PR_TITLE PR_BODY_FILE MERGE_METHOD ALLOW_NO
 .PHONY: git-governance-pr-check
 git-governance-pr-check: ## Validate actual PR metadata and every authored commit
 	bash ./scripts/validate-git-governance.sh --event-file "$(GITHUB_EVENT_PATH)"
+
+.PHONY: architecture-check
+architecture-check: ## Check pages/components runtime dependency boundaries
+	node scripts/check-architecture.mjs

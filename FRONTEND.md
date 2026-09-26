@@ -321,3 +321,24 @@ Avoid one-off button spacing, inline pagination styles, page-local control CSS, 
 7. Prettier format and check completed (`npm run format`, `npm run format:check`)
 8. Frontend automated tests completed (`npm run test`)
 9. Type checking completed (`npx tsc --noEmit` or `npm run build`, where build includes `tsc`)
+
+## Automated Layer Boundaries
+
+`make architecture-check` uses the installed TypeScript compiler and tsconfig module
+resolution. It runs in `make check`, standalone frontend CI, and the parent repository's
+required Frontend checks job through `make frontend-architecture-check`.
+
+- Pages and components cannot import runtime values from src/api.
+- Components (including features/layout/ui) cannot import runtime domain hooks from
+  src/hooks/api; pages own their invocation and pass state/actions through props.
+- Explicit import type, inline type imports and type-only exports remain allowed.
+- Named re-exports/barrel aliases are resolved to their original declarations;
+  namespace/star/dynamic module imports are also inspected.
+- DOM fetch/XMLHttpRequest references and axios/openapi-fetch runtime imports are
+  rejected in pages/components. Local callbacks named fetch are not DOM globals.
+- Computed runtime import paths and runtime import-equals are rejected in UI code.
+
+The checker inspects static dependencies; it does not prove loading/error-state
+ownership or detect arbitrary helper wrappers, reflection or every HTTP library.
+Keep such architectural decisions in the worklog and review. This task does not
+add showcase completeness or visual checks. No new runtime/tool dependencies.

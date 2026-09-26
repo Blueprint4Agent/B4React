@@ -78,3 +78,12 @@ Python 3 standard library is required. See AGENTS.md for the complete workflow.
 Main requires a PR, Git governance and repository code checks. Required approval
 count is zero for solo maintenance; successful CI does not imply human design review.
 Writing the plan at task start is procedural; CI verifies committed evidence.
+
+## Architecture checks
+
+Run `make architecture-check` to validate the documented static layer boundaries.
+It also runs in `make check` and required PR CI. Errors include file/line locations.
+Pages/components cannot import runtime APIs; components cannot import runtime domain
+hooks. Explicit type-only imports remain legal. Browser HTTP belongs in src/api.
+TypeScript resolves aliases/barrels using tsconfig. Indirect wrappers and architectural
+state ownership still require review; see FRONTEND.md.
