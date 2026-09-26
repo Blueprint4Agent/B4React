@@ -342,3 +342,20 @@ The checker inspects static dependencies; it does not prove loading/error-state
 ownership or detect arbitrary helper wrappers, reflection or every HTTP library.
 Keep such architectural decisions in the worklog and review. This task does not
 add showcase completeness or visual checks. No new runtime/tool dependencies.
+
+## API Key State Reconciliation
+
+SettingsPage invokes useApiKeys for list/loading/errors/mutations. The existing
+useApiKeyApi is a transport facade consumed by the state hook. Pages retain modal,
+input, clipboard and one-time secret state; feature components receive props.
+HTTP and SSE records share an ID-based upsert, preserving server list ordering.
+Every connection (including reconnect) and developer-tab activation refetches the
+list. Desktop offline pauses new work; recovery refetches. Events and mutation
+completion also reconcile against the server. Sequence/revision guards reject stale
+list responses; account change/unmount invalidates old async results.
+Background reloads preserve visible items. Concurrent duplicate mutations of each
+operation kind are guarded; status toggles are serialized and controls disabled
+while a toggle is in flight. Switching settings tabs does not discard a pending
+create response/one-time secret. Account change clears secret/modal state.
+Redis pub/sub has no replay and is best-effort: these refetches recover missed
+changes on reconnect/activation, but do not provide continuous or durable delivery.

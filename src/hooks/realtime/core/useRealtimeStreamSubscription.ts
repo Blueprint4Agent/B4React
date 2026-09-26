@@ -5,6 +5,7 @@ import { useServerConnectivity } from "../../connectivity/useServerConnectivity"
 
 type UseRealtimeStreamSubscriptionOptions = {
     enabled: boolean;
+    subscriptionKey?: number | string;
     onEvent: (event: RealtimeEvent) => void;
 };
 
@@ -12,6 +13,7 @@ const REALTIME_RECONNECT_DELAY_MS = 2000;
 
 export function useRealtimeStreamSubscription({
     enabled,
+    subscriptionKey,
     onEvent,
 }: UseRealtimeStreamSubscriptionOptions): void {
     const { streamRealtimeEvents, normalizeEventsStreamError } = useEventsApi();
@@ -50,7 +52,9 @@ export function useRealtimeStreamSubscription({
 
             void streamRealtimeEvents({
                 signal: controller.signal,
-                onEvent,
+                onEvent: (event) => {
+                    if (active && !controller.signal.aborted) onEvent(event);
+                },
                 onError: (streamError) => {
                     const detail = normalizeEventsStreamError(streamError);
                     if (detail.message) {
@@ -80,5 +84,12 @@ export function useRealtimeStreamSubscription({
             active = false;
             cleanup();
         };
-    }, [connectivityEnabled, enabled, normalizeEventsStreamError, onEvent, streamRealtimeEvents]);
+    }, [
+        connectivityEnabled,
+        enabled,
+        subscriptionKey,
+        normalizeEventsStreamError,
+        onEvent,
+        streamRealtimeEvents,
+    ]);
 }

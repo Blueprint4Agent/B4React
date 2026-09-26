@@ -7,6 +7,8 @@ import { useRealtimeStreamSubscription } from "../core/useRealtimeStreamSubscrip
 
 type UseAPIKeyRealtimeSubscriptionOptions = {
     enabled: boolean;
+    ownerId: number | undefined;
+    onConnected: () => void;
     onCreated: (apiKey: APIKeyRecord) => void;
     onStatusUpdated: (apiKey: APIKeyRecord) => void;
     onDeleted: (apiKey: APIKeyRecord) => void;
@@ -33,18 +35,25 @@ function extractAPIKeyRecord(event: RealtimeEvent): APIKeyRecord | null {
 
 export function useApiKeyRealtimeSubscription({
     enabled,
+    ownerId,
+    onConnected,
     onCreated,
     onStatusUpdated,
     onDeleted,
 }: UseAPIKeyRealtimeSubscriptionOptions): void {
     const handleEvent = useCallback(
         (event: RealtimeEvent) => {
+            if (event.type === "connected") {
+                onConnected();
+                return;
+            }
             if (!isAPIKeyRealtimeEventType(event.type)) {
                 return;
             }
 
             const apiKey = extractAPIKeyRecord(event);
             if (!apiKey) {
+                onConnected();
                 return;
             }
 
@@ -59,11 +68,12 @@ export function useApiKeyRealtimeSubscription({
             }
             onDeleted(apiKey);
         },
-        [onCreated, onDeleted, onStatusUpdated],
+        [onConnected, onCreated, onDeleted, onStatusUpdated],
     );
 
     useRealtimeStreamSubscription({
         enabled,
+        subscriptionKey: ownerId,
         onEvent: handleEvent,
     });
 }

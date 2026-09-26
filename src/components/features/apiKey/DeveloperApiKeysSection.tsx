@@ -77,7 +77,7 @@ function DeveloperApiKeyList({
                             <div className="developer-key-card__controls">
                                 <ToggleSwitch
                                     checked={isActive}
-                                    disabled={toggleBusyId === item.id}
+                                    disabled={toggleBusyId !== null}
                                     onCheckedChange={(nextChecked) => {
                                         onToggleStatus(item.id, nextChecked);
                                     }}
