@@ -1,14 +1,7 @@
-<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="0" y="0" width="96" height="96" rx="16" fill="#111111"/>
-  <text
-    x="48"
-    y="56"
-    text-anchor="middle"
-    font-family="Space Grotesk, Arial, sans-serif"
-    font-size="28"
-    font-weight="700"
-    fill="#FFFFFF"
-  >
-    B4A
-  </text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="#17191f">
+<defs><mask id="head-cutout"><rect x="16" y="28" width="76" height="64" rx="27" fill="white"/><circle cx="19" cy="62" r="18" fill="black"/><rect x="40" y="43" width="59" height="40" rx="15" fill="black"/></mask></defs>
+<rect x="31" y="9" width="9" height="27" rx="4.5"/>
+<rect x="16" y="28" width="76" height="64" rx="27" mask="url(#head-cutout)"/>
+<circle cx="19" cy="62" r="14"/>
+<rect x="45" y="48" width="49" height="30" rx="10"/>
 </svg>

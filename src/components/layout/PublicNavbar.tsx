@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import { startDesktopWindowDrag } from "../../utils/desktopWindow";
-import { BrandMark } from "../ui";
+import { BrandBanner } from "../ui";
 import { ConnectivityStatus } from "./ConnectivityStatus";
 
 type PublicNavbarProps = {
@@ -20,7 +20,7 @@ export function PublicNavbar({ ariaLabel }: PublicNavbarProps) {
         >
             <div className="public-nav__inner" data-tauri-drag-region>
                 <div className="public-nav__brand" data-tauri-drag-region>
-                    <BrandMark className="brand-mark--nav" />
+                    <BrandBanner />
                 </div>
                 <p className="public-nav__title">{t("landing.eyebrow")}</p>
                 <div className="public-nav__actions">

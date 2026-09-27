@@ -5,6 +5,7 @@ export { PrimaryCard } from "./cards/PrimaryCard";
 export { KeyValueCard } from "./cards/KeyValueCard";
 export { ValidationCard } from "./cards/ValidationCard";
 export type { ValidationRule } from "./cards/ValidationCard";
+export { BrandBanner } from "./display/BrandBanner";
 export { BrandMark } from "./display/BrandMark";
 export { UserAvatar } from "./display/UserAvatar";
 export { DropdownMenu } from "./dropdowns/DropdownMenu";

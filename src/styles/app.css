@@ -2049,11 +2049,74 @@ html[data-theme="dark"] .brand-mark__asset--dark {
     }
 }
 
-.brand-mark__asset img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.brand-mark {
+    flex-shrink: 0;
+}
+.brand-mark--tile {
+    padding: 0;
+    border-radius: 24%;
+    background: var(--input-bg);
+}
+.brand-mark__asset {
+    object-fit: contain;
+}
+.brand-mark.brand-mark[data-brand-tone="light"] .brand-mark__asset--light,
+.brand-mark.brand-mark[data-brand-tone="dark"] .brand-mark__asset--dark {
     display: block;
+}
+.brand-mark.brand-mark[data-brand-tone="light"] .brand-mark__asset--dark,
+.brand-mark.brand-mark[data-brand-tone="dark"] .brand-mark__asset--light {
+    display: none;
+}
+.brand-mark--tile[data-brand-tone="light"] {
+    background: #eef0f3;
+}
+.brand-mark--tile[data-brand-tone="dark"] {
+    background: #272930;
+}
+.brand-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+}
+.brand-banner .brand-mark {
+    width: 40px;
+    height: 40px;
+    padding: 5px;
+}
+.brand-banner__wordmark {
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+}
+.brand-banner[data-brand-tone="light"] {
+    color: #17191f;
+}
+.brand-banner[data-brand-tone="dark"] {
+    color: #f5f5f7;
+}
+.brand-preview {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px;
+    border-radius: 12px;
+}
+.brand-preview--light {
+    background: #ffffff;
+}
+.brand-preview--dark {
+    background: #17191f;
+}
+.brand-preview > .brand-mark {
+    width: 44px;
+    height: 44px;
+    padding: 5px;
+}
+.brand-preview > .brand-mark--plain {
+    padding: 0;
 }
 
 .brand-mark--login {
@@ -4147,4 +4210,22 @@ input {
     width: 28px;
     height: 28px;
     flex-shrink: 0;
+}
+
+.brand-mark--tile .brand-mark__asset {
+    width: 78%;
+    height: 78%;
+}
+.brand-banner .brand-mark,
+.brand-preview > .brand-mark {
+    padding: 0;
+}
+
+.brand-showcase .showcase-item__preview {
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.brand-preview {
+    flex-wrap: wrap;
+    max-width: 100%;
 }

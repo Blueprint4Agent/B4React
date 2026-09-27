@@ -498,3 +498,7 @@ are an inline-style exception; scroll/resize/content changes update placement.
 Shared UserAvatar crops photos into circles and falls back to initials on load errors.
 
 Guest settings expose only General and Appearance. Shared section resolution normalizes account-only guest URLs to General; no account API work starts.
+
+BrandMark uses robot SVG assets with adaptive light/dark tones and plain/tile variants. BrandBanner composes the mark and localized B4A wordmark; both palettes are showcased. Expanded sidebar retains its text-only header. The favicon uses the same silhouette with system color-scheme adaptation.
+
+Transparent plain marks are the default, including banners and favicon. Rounded tiles remain optional. Matching PNGs (512px mark/tile; 1024×320 banner) and SVGs live under public/icons/b4a-\*.

@@ -13,6 +13,7 @@ import { OAuthProviderButton } from "../../components/features/auth/OAuthProvide
 import { useTheme } from "../../hooks/useTheme";
 import {
     BrandMark,
+    BrandBanner,
     Button,
     DropdownMenu,
     FormCheckbox,
@@ -135,8 +136,19 @@ export function ShowCasePage() {
                                     </span>
                                 </div>
                             </ShowcaseItem>
-                            <ShowcaseItem component="BrandMark">
+                            <ShowcaseItem component="BrandMark" className="brand-showcase">
                                 <BrandMark />
+                                <BrandBanner />
+                                {(["light", "dark"] as const).map((tone) => (
+                                    <div
+                                        className={`brand-preview brand-preview--${tone}`}
+                                        key={tone}
+                                    >
+                                        <BrandMark variant="plain" tone={tone} />
+                                        <BrandMark variant="tile" tone={tone} />
+                                        <BrandBanner tone={tone} />
+                                    </div>
+                                ))}
                             </ShowcaseItem>
                             <ShowcaseItem component="ThemeToggleButton">
                                 <ThemeToggleButton
