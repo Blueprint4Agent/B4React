@@ -96,7 +96,7 @@
     },
     "signup": {
         "title": "Sign up",
-        "subtitle": "Create a starter account for local development.",
+        "subtitle": "Create your account to get started.",
         "configLoading": "Loading server configuration. Please try again in a moment.",
         "fields": {
             "name": "Name",
@@ -384,5 +384,25 @@
         "platform": {
             "current": "Your keyboard"
         }
+    },
+    "authDialog": {
+        "title": "Log in or sign up",
+        "subtitle": "Sign in to manage your profile and API keys.",
+        "continue": "Continue",
+        "close": "Close",
+        "guestTitle": "Start your own project",
+        "guestDescription": "Log in to manage your profile and API keys.",
+        "login": "Log in",
+        "or": "or",
+        "changeEmail": "Change email",
+        "closeBackdrop": "Close modal backdrop",
+        "ruleMet": "Requirement met",
+        "rulePending": "Requirement not yet met",
+        "preview": "Preview authentication dialog",
+        "buttonPrimary": "Continue",
+        "buttonSecondary": "Secondary action",
+        "buttonLoading": "Please wait",
+        "buttonDisabled": "Unavailable",
+        "entry": "Log in / Sign up"
     }
 }

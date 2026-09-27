@@ -1,20 +1,15 @@
+import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { FormEvent, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { ErrorCard, WarningCard } from "../../components/ui/status/StatusCard";
-import {
-    Button,
-    InputField,
-    PanelCard,
-    ValidationCard,
-    type ValidationRule,
-} from "../../components/ui";
+import { Button, InputField, ValidationCard, type ValidationRule } from "../../components/ui";
 import { useAuthApi } from "../../hooks/api/auth/useAuthApi";
 import { useAppConfig } from "../../hooks/useFeatures";
 import { isValidPassword } from "../../utils/validation";
 
-export function ResetPasswordPage() {
+export function ResetPasswordPage({ embedded = false }: { embedded?: boolean }) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { resetPassword, extractApiDetail, resolveAuthErrorMessage } = useAuthApi();
@@ -129,50 +124,49 @@ export function ResetPasswordPage() {
     };
 
     return (
-        <main className="page auth-page">
-            <PanelCard
-                className="auth-panel"
-                title={t("resetPassword.title")}
-                subtitle={t("resetPassword.subtitle")}
-            >
-                <form onSubmit={onSubmit} className="form" noValidate>
-                    <InputField
-                        label={t("resetPassword.passwordLabel")}
-                        type="password"
-                        autoComplete="new-password"
-                        value={password}
-                        onValueChange={setPassword}
-                    />
-                    <ValidationCard title={t("signup.validation.password")} rules={passwordRules} />
-                    <InputField
-                        label={t("resetPassword.confirmPasswordLabel")}
-                        type="password"
-                        autoComplete="new-password"
-                        value={confirmPassword}
-                        onValueChange={setConfirmPassword}
-                    />
-                    <ValidationCard title={t("signup.validation.confirm")} rules={confirmRules} />
-                    {warningMessage ? (
-                        <WarningCard title={t("cards.warningTitle")} message={warningMessage} />
-                    ) : null}
-                    {errorMessage ? (
-                        <ErrorCard title={t("cards.errorTitle")} message={errorMessage} />
-                    ) : null}
-                    <Button
-                        type="submit"
-                        loading={submitting}
-                        disabled={configLoading || !emailEnabled || passwordMismatch}
-                    >
-                        {t("resetPassword.submitIdle")}
-                    </Button>
-                </form>
-                <p className="muted auth-footer">
-                    {t("resetPassword.loginPrompt")}{" "}
-                    <Link to="/login" className="text-link">
-                        {t("resetPassword.loginLink")}
-                    </Link>
-                </p>
-            </PanelCard>
-        </main>
+        <AuthPageFrame
+            embedded={embedded}
+            title={t("resetPassword.title")}
+            subtitle={t("resetPassword.subtitle")}
+        >
+            <form onSubmit={onSubmit} className="form" noValidate>
+                <InputField
+                    label={t("resetPassword.passwordLabel")}
+                    type="password"
+                    autoComplete="new-password"
+                    value={password}
+                    onValueChange={setPassword}
+                />
+                <ValidationCard title={t("signup.validation.password")} rules={passwordRules} />
+                <InputField
+                    label={t("resetPassword.confirmPasswordLabel")}
+                    type="password"
+                    autoComplete="new-password"
+                    value={confirmPassword}
+                    onValueChange={setConfirmPassword}
+                />
+                <ValidationCard title={t("signup.validation.confirm")} rules={confirmRules} />
+                {warningMessage ? (
+                    <WarningCard title={t("cards.warningTitle")} message={warningMessage} />
+                ) : null}
+                {errorMessage ? (
+                    <ErrorCard title={t("cards.errorTitle")} message={errorMessage} />
+                ) : null}
+                <Button
+                    appearance={embedded ? "pill" : "default"}
+                    type="submit"
+                    loading={submitting}
+                    disabled={configLoading || !emailEnabled || passwordMismatch}
+                >
+                    {t("resetPassword.submitIdle")}
+                </Button>
+            </form>
+            <p className="muted auth-footer">
+                {t("resetPassword.loginPrompt")}{" "}
+                <Link to="/login" className="text-link">
+                    {t("resetPassword.loginLink")}
+                </Link>
+            </p>
+        </AuthPageFrame>
     );
 }

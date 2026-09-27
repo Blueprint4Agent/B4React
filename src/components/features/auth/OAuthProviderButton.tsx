@@ -35,7 +35,7 @@ export function OAuthProviderButton({
     const logos = PROVIDER_LOGOS[provider];
 
     return (
-        <Button type="button" disabled={disabled} onClick={onClick}>
+        <Button appearance="pill-secondary" type="button" disabled={disabled} onClick={onClick}>
             <span className="oauth-provider-button__content">
                 <span className="oauth-provider-button__logo-wrap" aria-hidden="true">
                     <img

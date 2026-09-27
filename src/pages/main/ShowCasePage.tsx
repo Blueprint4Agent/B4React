@@ -1,3 +1,4 @@
+import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { useTranslation } from "react-i18next";
 import { KeyRound, SlidersHorizontal, UserRound } from "lucide-react";
 import { useState } from "react";
@@ -60,6 +61,8 @@ export function ShowCasePage() {
     const [sampleUnchecked, setSampleUnchecked] = useState(false);
     const [sampleMenu, setSampleMenu] = useState("profile");
     const [sampleToggle, setSampleToggle] = useState(true);
+    const [authPreviewOpen, setAuthPreviewOpen] = useState(false);
+    const [previewEmail, setPreviewEmail] = useState("");
     const [sampleModalOpen, setSampleModalOpen] = useState(false);
     const [sampleCardPage, setSampleCardPage] = useState(1);
     const sampleCards = Array.from({ length: 13 }, (_, index) => ({
@@ -139,6 +142,22 @@ export function ShowCasePage() {
                         <div className="showcase-catalog__row">
                             <ShowcaseItem component="Button">
                                 <Button>Primary button</Button>
+                            </ShowcaseItem>
+                            <ShowcaseItem component="Button (pill variants)">
+                                <div className="showcase-catalog__stack">
+                                    <Button appearance="pill">
+                                        {t("authDialog.buttonPrimary")}
+                                    </Button>
+                                    <Button appearance="pill-secondary">
+                                        {t("authDialog.buttonSecondary")}
+                                    </Button>
+                                    <Button appearance="pill" loading>
+                                        {t("authDialog.buttonLoading")}
+                                    </Button>
+                                    <Button appearance="pill-secondary" disabled>
+                                        {t("authDialog.buttonDisabled")}
+                                    </Button>
+                                </div>
                             </ShowcaseItem>
                             <ShowcaseItem component="Button (loading)">
                                 <Button loading>Loading button</Button>
@@ -303,6 +322,41 @@ export function ShowCasePage() {
                     <div className="showcase-catalog__section-card">
                         <h3>Modal</h3>
                         <div className="showcase-catalog__row">
+                            <ShowcaseItem component="AuthPageFrame + Modal">
+                                <Button
+                                    appearance="pill-secondary"
+                                    onClick={() => setAuthPreviewOpen(true)}
+                                >
+                                    {t("authDialog.preview")}
+                                </Button>
+                                {authPreviewOpen ? (
+                                    <AuthPageFrame
+                                        embedded
+                                        title={t("authDialog.title")}
+                                        subtitle={t("authDialog.subtitle")}
+                                        onClose={() => setAuthPreviewOpen(false)}
+                                    >
+                                        <div className="form">
+                                            <InputField
+                                                label={t("login.fields.email")}
+                                                type="email"
+                                                value={previewEmail}
+                                                onValueChange={setPreviewEmail}
+                                            />
+                                            <WarningCard
+                                                title={t("cards.warningTitle")}
+                                                message={t("auth.errors.invalidEmail")}
+                                            />
+                                            <Button
+                                                appearance="pill"
+                                                onClick={() => setAuthPreviewOpen(false)}
+                                            >
+                                                {t("authDialog.continue")}
+                                            </Button>
+                                        </div>
+                                    </AuthPageFrame>
+                                ) : null}
+                            </ShowcaseItem>
                             <ShowcaseItem component="Modal + ModalButton">
                                 <ModalButton
                                     variant="save"

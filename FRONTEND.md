@@ -444,3 +444,30 @@ DropdownMenu matches its trigger width and opens 4px below it; long labels wrap.
 
 Dropdown triggers and items use 32px minimum heights, 13px regular text and 8px
 horizontal padding; coarse pointers retain 44px targets.
+
+## Guest showcase and authentication dialogs
+
+The root route opens the public showcase; `/welcome` retains the landing page.
+The shared app shell remains visible for guests. Its profile menu offers existing
+settings and a login call-to-action, with no billing/help or unsupported providers.
+`/login` and `/signup` overlay the showcase with the shared Modal and page-owned
+auth hooks. Login presents configured Google/GitHub providers and an email-first
+step, then existing password/session/error/recovery behavior. Disabled providers
+stay hidden. Settings remains protected when login is enabled; unavailable config
+still fails closed. Logout returns to the public showcase.
+Auth dialogs opt into Escape dismissal, focus containment and restoration. Modal
+backdrops use a single transparent 6px blur without a dark color overlay, preserving
+underlying light/dark palette. Shared PanelCard supports a title owned by its dialog.
+
+The profile footer trigger reserves 5px inner padding in the collapsed 40px control,
+and 7px/10px padding in the expanded 44px row. Touch minimums remain 44px.
+
+All account creation, password recovery/reset, sent-confirmation and email
+verification pages compose AuthPageFrame. It owns shared dialog chrome while pages
+keep dynamic titles, route state and domain hooks. Button exposes pill and
+pill-secondary appearances; the auth pages, OAuth buttons and showcase use these
+same variants. Showcase includes enabled/loading/disabled variants and an interactive
+auth-frame preview. Status cards use a compact icon/message layout (alert for errors
+and warnings, status for information); validation criteria use neutral pending marks
+and accessible met/pending labels. Anonymous auth-enabled profile triggers use the
+localized login/signup entry label.

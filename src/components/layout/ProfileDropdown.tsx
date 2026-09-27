@@ -8,6 +8,7 @@ import { APP_SHORTCUTS, shortcutAriaKeys } from "../../utils/keyboardShortcuts";
 
 type ProfileDropdownProps = {
     expanded?: boolean;
+    showLogin?: boolean;
     avatarLabel?: string;
     avatarImageUrl?: string | null;
     busy: boolean;
@@ -21,6 +22,7 @@ type ProfileDropdownProps = {
 
 export function ProfileDropdown({
     expanded = false,
+    showLogin = false,
     avatarLabel,
     avatarImageUrl,
     busy,
@@ -82,7 +84,7 @@ export function ProfileDropdown({
                 ref={triggerRef}
                 type="button"
                 className="profile-menu__trigger"
-                aria-label={t("nav.aria.openMenu")}
+                aria-label={t(showLogin ? "authDialog.entry" : "nav.aria.openMenu")}
                 aria-haspopup="dialog"
                 aria-controls={menuOpen ? popupId : undefined}
                 aria-expanded={menuOpen}
@@ -110,21 +112,26 @@ export function ProfileDropdown({
                     role="dialog"
                     aria-label={t("nav.profileMenu")}
                 >
-                    <div className="profile-menu__identity">
-                        {avatarLabel ? (
-                            <UserAvatar
-                                className="profile-menu__avatar"
-                                imageUrl={avatarImageUrl}
-                                label={avatarLabel}
-                            />
-                        ) : (
-                            <UserRound className="profile-menu__guest-avatar" aria-hidden="true" />
-                        )}
-                        <div className="profile-menu__identity-text">
-                            <p className="profile-menu__name">{displayName}</p>
-                            {email ? <p className="profile-menu__email">{email}</p> : null}
+                    {!showLogin ? (
+                        <div className="profile-menu__identity">
+                            {avatarLabel ? (
+                                <UserAvatar
+                                    className="profile-menu__avatar"
+                                    imageUrl={avatarImageUrl}
+                                    label={avatarLabel}
+                                />
+                            ) : (
+                                <UserRound
+                                    className="profile-menu__guest-avatar"
+                                    aria-hidden="true"
+                                />
+                            )}
+                            <div className="profile-menu__identity-text">
+                                <p className="profile-menu__name">{displayName}</p>
+                                {email ? <p className="profile-menu__email">{email}</p> : null}
+                            </div>
                         </div>
-                    </div>
+                    ) : null}
                     <Link
                         to="/settings"
                         className="profile-menu__item"
@@ -137,6 +144,15 @@ export function ProfileDropdown({
                         <span>{t("nav.settings")}</span>
                         <KeyboardShortcut keys={APP_SHORTCUTS.openSettings} />
                     </Link>
+                    {showLogin ? (
+                        <div className="profile-menu__guest-cta">
+                            <p>{t("authDialog.guestTitle")}</p>
+                            <p>{t("authDialog.guestDescription")}</p>
+                            <Link className="profile-menu__login" to="/login">
+                                {t("authDialog.login")}
+                            </Link>
+                        </div>
+                    ) : null}
                     {showLogout ? (
                         <button
                             type="button"

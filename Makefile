@@ -44,4 +44,4 @@ architecture-check: ## Check pages/components runtime dependency boundaries
 
 .PHONY: test-ui
 test-ui: ## Check component layout and tooltip behavior in Chromium
-	$(NPM) run test:e2e -- tests/e2e/component-layout.spec.ts
+	$(NPM) run test:e2e -- tests/e2e/component-layout.spec.ts tests/e2e/auth-smoke.spec.ts

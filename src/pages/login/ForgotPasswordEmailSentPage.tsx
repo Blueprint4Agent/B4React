@@ -1,7 +1,8 @@
+import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { Button, PanelCard } from "../../components/ui";
+import { Button } from "../../components/ui";
 import { InfoCard, WarningCard } from "../../components/ui/status/StatusCard";
 import { useAppConfig } from "../../hooks/useFeatures";
 
@@ -9,7 +10,7 @@ type ForgotPasswordSentState = {
     email?: string;
 };
 
-export function ForgotPasswordEmailSentPage() {
+export function ForgotPasswordEmailSentPage({ embedded = false }: { embedded?: boolean }) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { data: appConfig, loading: configLoading } = useAppConfig();
@@ -20,45 +21,46 @@ export function ForgotPasswordEmailSentPage() {
     const showDisabled = !configLoading && !emailEnabled;
 
     return (
-        <main className="page auth-page">
-            <PanelCard
-                className="auth-panel"
-                title={
-                    showDisabled ? t("forgotPassword.disabledTitle") : t("forgotPassword.sentTitle")
-                }
-                subtitle={
-                    showDisabled
-                        ? t("forgotPassword.disabled")
-                        : t("forgotPassword.sentSubtitle", {
-                              email: email || t("forgotPassword.noEmail"),
-                          })
-                }
-            >
-                {showDisabled ? (
-                    <WarningCard
-                        title={t("cards.warningTitle")}
-                        message={t("forgotPassword.disabled")}
-                    />
-                ) : (
-                    <InfoCard
-                        title={t("cards.infoTitle")}
-                        message={t("forgotPassword.sentDescription")}
-                    />
-                )}
-                <div className="auth-actions signup-email-sent__actions">
-                    {!showDisabled ? (
-                        <Button
-                            type="button"
-                            onClick={() => navigate("/forgot-password", { replace: true })}
-                        >
-                            {t("forgotPassword.backToRequest")}
-                        </Button>
-                    ) : null}
-                    <Button type="button" onClick={() => navigate("/login", { replace: true })}>
-                        {t("forgotPassword.backToLogin")}
+        <AuthPageFrame
+            embedded={embedded}
+            title={showDisabled ? t("forgotPassword.disabledTitle") : t("forgotPassword.sentTitle")}
+            subtitle={
+                showDisabled
+                    ? t("forgotPassword.disabled")
+                    : t("forgotPassword.sentSubtitle", {
+                          email: email || t("forgotPassword.noEmail"),
+                      })
+            }
+        >
+            {showDisabled ? (
+                <WarningCard
+                    title={t("cards.warningTitle")}
+                    message={t("forgotPassword.disabled")}
+                />
+            ) : (
+                <InfoCard
+                    title={t("cards.infoTitle")}
+                    message={t("forgotPassword.sentDescription")}
+                />
+            )}
+            <div className="auth-actions signup-email-sent__actions">
+                {!showDisabled ? (
+                    <Button
+                        appearance={embedded ? "pill" : "default"}
+                        type="button"
+                        onClick={() => navigate("/forgot-password", { replace: true })}
+                    >
+                        {t("forgotPassword.backToRequest")}
                     </Button>
-                </div>
-            </PanelCard>
-        </main>
+                ) : null}
+                <Button
+                    appearance={embedded ? "pill" : "default"}
+                    type="button"
+                    onClick={() => navigate("/login", { replace: true })}
+                >
+                    {t("forgotPassword.backToLogin")}
+                </Button>
+            </div>
+        </AuthPageFrame>
     );
 }

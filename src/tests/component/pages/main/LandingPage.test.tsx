@@ -30,14 +30,14 @@ describe("LandingPage", () => {
         expect(within(nav).queryByRole("group", { name: "Theme mode" })).not.toBeInTheDocument();
     });
 
-    it("marks landing as started and routes to login when login is enabled", async () => {
+    it("marks landing as started and routes to showcase when login is enabled", async () => {
         renderLanding(true);
 
         const user = userEvent.setup();
         await user.click(screen.getByRole("button", { name: "Get started" }));
 
         await waitFor(() => {
-            expect(screen.getByTestId("location")).toHaveTextContent("/login");
+            expect(screen.getByTestId("location")).toHaveTextContent("/show-case");
         });
         expect(window.localStorage.getItem("b4fastapi:landing:v1:started")).toBe("true");
     });

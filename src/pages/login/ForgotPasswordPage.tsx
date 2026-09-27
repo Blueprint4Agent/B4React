@@ -1,13 +1,14 @@
+import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 
-import { Button, InlineMessage, InputField, PanelCard } from "../../components/ui";
+import { Button, InlineMessage, InputField } from "../../components/ui";
 import { useAuthApi } from "../../hooks/api/auth/useAuthApi";
 import { useAppConfig } from "../../hooks/useFeatures";
 import { isValidEmail } from "../../utils/validation";
 
-export function ForgotPasswordPage() {
+export function ForgotPasswordPage({ embedded = false }: { embedded?: boolean }) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { requestPasswordReset, extractApiDetail, resolveAuthErrorMessage } = useAuthApi();
@@ -66,39 +67,41 @@ export function ForgotPasswordPage() {
     };
 
     return (
-        <main className="page auth-page">
-            <PanelCard
-                className="auth-panel"
-                title={t("forgotPassword.title")}
-                subtitle={t("forgotPassword.subtitle")}
-            >
-                <form onSubmit={onSubmit} className="form" noValidate>
-                    <InputField
-                        label={t("forgotPassword.emailLabel")}
-                        type="email"
-                        autoComplete="email"
-                        value={email}
-                        onValueChange={(value) => {
-                            setEmail(value);
-                            if (warningMessage || errorMessage) {
-                                setWarningMessage("");
-                                setErrorMessage("");
-                            }
-                        }}
-                    />
-                    {warningMessage ? <InlineMessage>{warningMessage}</InlineMessage> : null}
-                    {errorMessage ? <InlineMessage>{errorMessage}</InlineMessage> : null}
-                    <Button type="submit" disabled={submitting || configLoading || !emailEnabled}>
-                        {t("forgotPassword.submitIdle")}
-                    </Button>
-                </form>
-                <p className="muted auth-footer">
-                    {t("forgotPassword.loginPrompt")}{" "}
-                    <Link to="/login" className="text-link">
-                        {t("forgotPassword.loginLink")}
-                    </Link>
-                </p>
-            </PanelCard>
-        </main>
+        <AuthPageFrame
+            embedded={embedded}
+            title={t("forgotPassword.title")}
+            subtitle={t("forgotPassword.subtitle")}
+        >
+            <form onSubmit={onSubmit} className="form" noValidate>
+                <InputField
+                    label={t("forgotPassword.emailLabel")}
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onValueChange={(value) => {
+                        setEmail(value);
+                        if (warningMessage || errorMessage) {
+                            setWarningMessage("");
+                            setErrorMessage("");
+                        }
+                    }}
+                />
+                {warningMessage ? <InlineMessage>{warningMessage}</InlineMessage> : null}
+                {errorMessage ? <InlineMessage>{errorMessage}</InlineMessage> : null}
+                <Button
+                    appearance={embedded ? "pill" : "default"}
+                    type="submit"
+                    disabled={submitting || configLoading || !emailEnabled}
+                >
+                    {t("forgotPassword.submitIdle")}
+                </Button>
+            </form>
+            <p className="muted auth-footer">
+                {t("forgotPassword.loginPrompt")}{" "}
+                <Link to="/login" className="text-link">
+                    {t("forgotPassword.loginLink")}
+                </Link>
+            </p>
+        </AuthPageFrame>
     );
 }

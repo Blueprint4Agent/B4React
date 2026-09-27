@@ -1,17 +1,10 @@
+import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { FormEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 
-import { OAuthOptionsCard } from "../../components/features/auth/OAuthOptionsCard";
 import { OAuthProviderButton } from "../../components/features/auth/OAuthProviderButton";
-import {
-    BrandMark,
-    Button,
-    FormCheckbox,
-    InputField,
-    InlineMessage,
-    PanelCard,
-} from "../../components/ui";
+import { Button, FormCheckbox, InputField, InlineMessage } from "../../components/ui";
 import { useAuthContext } from "../../hooks/useAuth";
 import { useAuthApi, type OAuthProvider } from "../../hooks/api/auth/useAuthApi";
 import { useAppConfig } from "../../hooks/useFeatures";
@@ -21,7 +14,8 @@ const REMEMBER_EMAIL_STORAGE_KEY = "template_remember_email";
 const REMEMBER_EMAIL_ENABLED_STORAGE_KEY = "template_remember_email_enabled";
 const REMEMBER_ME_ENABLED_STORAGE_KEY = "template_remember_me_enabled";
 
-export function LoginPage() {
+export function LoginPage({ embedded = false }: { embedded?: boolean }) {
+    const [passwordStep, setPasswordStep] = useState(!embedded);
     const { t } = useTranslation();
     const { login } = useAuthContext();
     const {
@@ -79,7 +73,11 @@ export function LoginPage() {
             }
             try {
                 const payload = await getOAuthProviders();
-                setOAuthProviders(payload.providers);
+                setOAuthProviders(
+                    payload.providers.filter(
+                        (item) => item.provider === "google" || item.provider === "github",
+                    ),
+                );
             } catch {
                 setOAuthProviders([]);
             }
@@ -108,6 +106,11 @@ export function LoginPage() {
         }
         if (!isValidEmail(email)) {
             setEmailErrorMessage(t("auth.errors.invalidEmail"));
+            setSubmitting(false);
+            return;
+        }
+        if (!passwordStep) {
+            setPasswordStep(true);
             setSubmitting(false);
             return;
         }
@@ -186,51 +189,67 @@ export function LoginPage() {
     };
 
     return (
-        <main className="page auth-page">
-            <div className="auth-panel-stack">
-                <BrandMark className="brand-mark--login" />
-                <PanelCard
-                    className="auth-panel"
-                    title={t("login.title")}
-                    subtitle={t("login.subtitle")}
-                >
-                    {loginEnabled ? (
-                        <form onSubmit={onSubmit} className="form" noValidate>
-                            <InputField
-                                label={t("login.fields.email")}
-                                type="email"
-                                autoComplete="email"
-                                value={email}
-                                onValueChange={(value) => {
-                                    setEmail(value);
-                                    if (emailErrorMessage || resendMessage || showResendButton) {
-                                        setEmailErrorMessage("");
-                                        setResendMessage("");
-                                        setShowResendButton(false);
-                                    }
-                                }}
+        <AuthPageFrame
+            embedded={embedded}
+            title={t(embedded ? "authDialog.title" : "login.title")}
+            subtitle={t(embedded ? "authDialog.subtitle" : "login.subtitle")}
+        >
+            {loginEnabled && oauthProviders.length > 0 ? (
+                <div className="auth-dialog-social">
+                    <div className="oauth-provider-list">
+                        {oauthProviders.map((item) => (
+                            <OAuthProviderButton
+                                key={item.provider}
+                                provider={item.provider}
+                                label={t(`login.oauth.providers.${item.provider}`)}
+                                startPath={item.start_path}
                             />
-                            {emailErrorMessage ? (
-                                <InlineMessage>{emailErrorMessage}</InlineMessage>
-                            ) : null}
-                            {showResendButton ? (
-                                <div className="login-inline-actions">
-                                    <Button
-                                        type="button"
-                                        loading={resending}
-                                        onClick={onResendVerification}
-                                    >
-                                        {t("auth.actions.resendVerification")}
-                                    </Button>
-                                </div>
-                            ) : null}
-                            {resendMessage ? (
-                                <InlineMessage tone="info">{resendMessage}</InlineMessage>
-                            ) : null}
+                        ))}
+                    </div>
+                    <div className="auth-dialog-divider">
+                        <span>{t("authDialog.or")}</span>
+                    </div>
+                </div>
+            ) : null}
+            {loginEnabled ? (
+                <form onSubmit={onSubmit} className="form" noValidate>
+                    <InputField
+                        label={t("login.fields.email")}
+                        type="email"
+                        autoComplete="email"
+                        value={email}
+                        onValueChange={(value) => {
+                            setEmail(value);
+                            if (emailErrorMessage || resendMessage || showResendButton) {
+                                setEmailErrorMessage("");
+                                setResendMessage("");
+                                setShowResendButton(false);
+                            }
+                        }}
+                    />
+                    {emailErrorMessage ? <InlineMessage>{emailErrorMessage}</InlineMessage> : null}
+                    {showResendButton ? (
+                        <div className="login-inline-actions">
+                            <Button
+                                appearance={embedded ? "pill" : "default"}
+                                type="button"
+                                loading={resending}
+                                onClick={onResendVerification}
+                            >
+                                {t("auth.actions.resendVerification")}
+                            </Button>
+                        </div>
+                    ) : null}
+                    {resendMessage ? (
+                        <InlineMessage tone="info">{resendMessage}</InlineMessage>
+                    ) : null}
+                    {passwordStep ? (
+                        <>
                             <InputField
                                 label={t("login.fields.password")}
                                 type="password"
                                 autoComplete="current-password"
+                                autoFocus={embedded}
                                 value={password}
                                 onValueChange={(value) => {
                                     setPassword(value);
@@ -254,45 +273,35 @@ export function LoginPage() {
                                     label={t("login.rememberMe")}
                                 />
                             </div>
-                            <Button type="submit" loading={submitting}>
-                                {t("login.submitIdle")}
-                            </Button>
-                        </form>
-                    ) : (
-                        <div className="form">
-                            <InlineMessage>{t("auth.errors.loginDisabled")}</InlineMessage>
-                        </div>
-                    )}
-                    <p className="muted auth-footer">
-                        {t("login.signupPrompt")}{" "}
-                        <Link to="/signup" className="text-link">
-                            {t("login.signupLink")}
-                        </Link>
-                    </p>
-                    {!configLoading && emailEnabled ? (
-                        <p className="muted">
-                            {t("login.forgotPasswordPrompt")}{" "}
-                            <Link to="/forgot-password" className="text-link">
-                                {t("login.forgotPasswordLink")}
-                            </Link>
-                        </p>
+                        </>
                     ) : null}
-                    {loginEnabled && oauthProviders.length > 0 ? (
-                        <OAuthOptionsCard title={t("login.oauth.divider")}>
-                            <div className="oauth-provider-list">
-                                {oauthProviders.map((item) => (
-                                    <OAuthProviderButton
-                                        key={item.provider}
-                                        provider={item.provider}
-                                        label={t(`login.oauth.providers.${item.provider}`)}
-                                        startPath={item.start_path}
-                                    />
-                                ))}
-                            </div>
-                        </OAuthOptionsCard>
-                    ) : null}
-                </PanelCard>
-            </div>
-        </main>
+                    <Button
+                        appearance={embedded ? "pill" : "default"}
+                        type="submit"
+                        loading={submitting}
+                    >
+                        {t(passwordStep ? "login.submitIdle" : "authDialog.continue")}
+                    </Button>
+                </form>
+            ) : (
+                <div className="form">
+                    <InlineMessage>{t("auth.errors.loginDisabled")}</InlineMessage>
+                </div>
+            )}
+            <p className="muted auth-footer">
+                {t("login.signupPrompt")}{" "}
+                <Link to="/signup" className="text-link">
+                    {t("login.signupLink")}
+                </Link>
+            </p>
+            {!configLoading && emailEnabled ? (
+                <p className="muted">
+                    {t("login.forgotPasswordPrompt")}{" "}
+                    <Link to="/forgot-password" className="text-link">
+                        {t("login.forgotPasswordLink")}
+                    </Link>
+                </p>
+            ) : null}
+        </AuthPageFrame>
     );
 }

@@ -58,7 +58,8 @@ export function AppSidebar({
     const [busy, setBusy] = useState(false);
     const loginEnabled = appConfig?.login_enabled === true;
     const logoutBlocked = isDesktop && status !== "online";
-    const displayName = user?.name?.trim() || user?.email || t("nav.guest");
+    const displayName =
+        user?.name?.trim() || user?.email || t(loginEnabled ? "authDialog.entry" : "nav.guest");
     const onLogout = async () => {
         if (logoutBlocked) {
             void checkNow();
@@ -67,7 +68,7 @@ export function AppSidebar({
         setBusy(true);
         try {
             await logout();
-            navigate(loginEnabled ? "/login" : "/show-case", { replace: true });
+            navigate("/show-case", { replace: true });
         } finally {
             setBusy(false);
         }
@@ -221,6 +222,7 @@ export function AppSidebar({
                     logoutDisabled={logoutBlocked}
                     logoutDisabledTitle={t("nav.logoutUnavailable")}
                     showLogout={Boolean(user) && loginEnabled}
+                    showLogin={!user && loginEnabled}
                 />
             </div>
             {expanded && onWidthChange && onResizingChange ? (
