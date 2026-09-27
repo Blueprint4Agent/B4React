@@ -518,3 +518,7 @@ duplicated designs; browser layout checks and visual review remain required.
 See [component audit](notes/component-audit.md) for retained and removed components.
 
 Actual LoadingPage and ShowCaseNotFoundPage now share PageStateFrame, compact PanelCard chrome, localized copy and shared actions. Startup loading uses the same composition; only the catalog loading preview exposes a return button. The UI harness also requires runtime exports in ui files to be exposed through the public barrel.
+
+Profile account switching requires an authenticated identity and explicitly enabled login. Disabled or unavailable login configuration renders a static identity with settings, without switch/add-account controls.
+
+Recent history identifies accounts by normalized email across email/Google/GitHub login. Keep only the most recent successful method per identity. Reading existing storage collapses legacy provider-specific duplicates; deletion removes that identity regardless of method. This only changes local history, not server OAuth linking.

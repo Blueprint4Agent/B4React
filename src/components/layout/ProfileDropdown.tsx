@@ -11,6 +11,7 @@ import { APP_SHORTCUTS, shortcutAriaKeys } from "../../utils/keyboardShortcuts";
 type ProfileDropdownProps = {
     expanded?: boolean;
     showLogin?: boolean;
+    allowAccountSwitching?: boolean;
     avatarLabel?: string;
     avatarImageUrl?: string | null;
     busy: boolean;
@@ -25,6 +26,7 @@ type ProfileDropdownProps = {
 export function ProfileDropdown({
     expanded = false,
     showLogin = false,
+    allowAccountSwitching = false,
     avatarLabel,
     avatarImageUrl,
     busy,
@@ -41,8 +43,8 @@ export function ProfileDropdown({
     const [accountsOpen, setAccountsOpen] = useState(false);
     const accounts = useRecentAccounts();
     useEffect(() => {
-        if (!menuOpen) setAccountsOpen(false);
-    }, [menuOpen]);
+        if (!menuOpen || !allowAccountSwitching) setAccountsOpen(false);
+    }, [menuOpen, allowAccountSwitching]);
     const triggerRef = useRef<HTMLButtonElement>(null);
     const popupRef = useRef<HTMLDivElement>(null);
     const popupId = useId();
@@ -121,6 +123,24 @@ export function ProfileDropdown({
         };
     }, [menuOpen]);
 
+    const identity = (
+        <>
+            {avatarLabel ? (
+                <UserAvatar
+                    className="profile-menu__avatar"
+                    imageUrl={avatarImageUrl}
+                    label={avatarLabel}
+                />
+            ) : (
+                <UserRound className="profile-menu__guest-avatar" aria-hidden="true" />
+            )}
+            <div className="profile-menu__identity-text">
+                <p className="profile-menu__name">{displayName}</p>
+                {email ? <p className="profile-menu__email">{email}</p> : null}
+            </div>
+        </>
+    );
+
     return (
         <div
             className="profile-menu"
@@ -165,7 +185,7 @@ export function ProfileDropdown({
                     role="dialog"
                     aria-label={t("nav.profileMenu")}
                 >
-                    {!showLogin ? (
+                    {!showLogin && allowAccountSwitching ? (
                         <button
                             type="button"
                             className="profile-menu__identity profile-menu__identity-button"
@@ -177,22 +197,7 @@ export function ProfileDropdown({
                             disabled={!email}
                             onClick={() => setAccountsOpen((value) => !value)}
                         >
-                            {avatarLabel ? (
-                                <UserAvatar
-                                    className="profile-menu__avatar"
-                                    imageUrl={avatarImageUrl}
-                                    label={avatarLabel}
-                                />
-                            ) : (
-                                <UserRound
-                                    className="profile-menu__guest-avatar"
-                                    aria-hidden="true"
-                                />
-                            )}
-                            <div className="profile-menu__identity-text">
-                                <p className="profile-menu__name">{displayName}</p>
-                                {email ? <p className="profile-menu__email">{email}</p> : null}
-                            </div>
+                            {identity}
                             {email ? (
                                 <ChevronRight
                                     className="profile-menu__chevron"
@@ -201,7 +206,10 @@ export function ProfileDropdown({
                             ) : null}
                         </button>
                     ) : null}
-                    {accountsOpen && email
+                    {!showLogin && !allowAccountSwitching ? (
+                        <div className="profile-menu__identity">{identity}</div>
+                    ) : null}
+                    {allowAccountSwitching && accountsOpen && email
                         ? createPortal(
                               <div
                                   className="profile-menu__accounts"

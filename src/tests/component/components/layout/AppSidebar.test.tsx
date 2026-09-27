@@ -7,6 +7,7 @@ import { renderWithRouter } from "../../../utils/renderWithRouter";
 
 const checkNowMock = vi.fn();
 const logoutMock = vi.fn();
+let loginEnabled: boolean | undefined = true;
 let connectivityStatus = "offline";
 
 vi.mock("../../../../hooks/useAuth", () => ({
@@ -17,7 +18,7 @@ vi.mock("../../../../hooks/useAuth", () => ({
 }));
 
 vi.mock("../../../../hooks/useFeatures", () => ({
-    useAppConfig: () => ({ data: { login_enabled: true } }),
+    useAppConfig: () => ({ data: { login_enabled: loginEnabled } }),
 }));
 
 vi.mock("../../../../hooks/useTheme", () => ({
@@ -34,6 +35,7 @@ vi.mock("../../../../hooks/connectivity/useServerConnectivity", () => ({
 
 describe("AppSidebar", () => {
     beforeEach(() => {
+        loginEnabled = true;
         connectivityStatus = "offline";
         checkNowMock.mockReset();
         checkNowMock.mockResolvedValue(undefined);
@@ -97,5 +99,38 @@ describe("AppSidebar", () => {
         expect(logoutButton).toBeDisabled();
         await user.click(logoutButton);
         expect(logoutMock).not.toHaveBeenCalled();
+    });
+    it.each([false, undefined])(
+        "hides account switching when login availability is %s",
+        async (enabled) => {
+            // Given: a bootstrap/cached identity with login disabled or config unavailable.
+            loginEnabled = enabled;
+            const user = userEvent.setup();
+            renderWithRouter(<AppSidebar expanded={false} onToggleExpanded={() => undefined} />);
+            // When: opening the profile menu.
+            await user.click(screen.getByRole("button", { name: "Open profile menu" }));
+            // Then: identity and settings remain, but account authentication actions are absent.
+            expect(screen.getByText("user@example.com")).toBeInTheDocument();
+            expect(screen.getByRole("link", { name: "Settings" })).toBeInTheDocument();
+            expect(
+                screen.queryByRole("button", { name: "Switch account" }),
+            ).not.toBeInTheDocument();
+            expect(screen.queryByText("Add account")).not.toBeInTheDocument();
+            expect(screen.queryByText("Sign out")).not.toBeInTheDocument();
+        },
+    );
+
+    it("retains switching and add account when login is enabled", async () => {
+        // Given: login is explicitly enabled.
+        const user = userEvent.setup();
+        renderWithRouter(<AppSidebar expanded={false} onToggleExpanded={() => undefined} />);
+        // When: opening account switching.
+        await user.click(screen.getByRole("button", { name: "Open profile menu" }));
+        await user.click(screen.getByRole("button", { name: "Switch account" }));
+        // Then: the existing add-account route remains available.
+        expect(screen.getByRole("link", { name: "Add account" })).toHaveAttribute(
+            "href",
+            "/login?switch=1",
+        );
     });
 });

@@ -336,3 +336,72 @@ for (const width of [320, 1440]) {
         }
     });
 }
+
+for (const width of [390, 1440]) {
+    test(`disabled login hides account switching for the bootstrap identity at ${width}px`, async ({
+        page,
+    }) => {
+        // Given: disabled login still supplies a bootstrap administrator.
+        await page.setViewportSize({ width, height: 850 });
+        await page.route("**/config", (route) =>
+            route.fulfill({
+                json: {
+                    ...guestConfig,
+                    login_enabled: false,
+                    bootstrap_access_token: "bootstrap-token",
+                    bootstrap_user: {
+                        id: 1,
+                        email: "demo@example.com",
+                        name: "Demo",
+                        role: "admin",
+                        is_verified: true,
+                        created_at: "2026-01-01T00:00:00Z",
+                        oauth_providers: [],
+                    },
+                },
+            }),
+        );
+        // When: opening the profile menu.
+        await page.goto("/");
+        await page.locator(".profile-menu__trigger").click();
+        const menu = page.locator(".profile-menu__dropdown");
+        // Then: static identity/settings fit and no account authentication controls appear.
+        await expect(menu).toContainText("demo@example.com");
+        await expect(menu.getByRole("link", { name: "Settings" })).toBeVisible();
+        await expect(menu.getByRole("button", { name: "Switch account" })).toHaveCount(0);
+        await expect(page.getByRole("link", { name: "Add account" })).toHaveCount(0);
+        await expect(menu).not.toContainText("Sign out");
+        const bounds = (await menu.boundingBox())!;
+        expect(bounds.x).toBeGreaterThanOrEqual(0);
+        expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
+    });
+}
+
+test("legacy Google and GitHub history for the same email renders once", async ({ page }) => {
+    // Given: the same account was remembered with both OAuth providers.
+    await page.addInitScript(() =>
+        localStorage.setItem(
+            "blueprint_recent_accounts_v1",
+            JSON.stringify([
+                {
+                    email: "same@example.com",
+                    name: "Same account",
+                    provider: "google",
+                    lastUsed: Date.now() - 1000,
+                },
+                {
+                    email: "same@example.com",
+                    name: "Same account",
+                    provider: "github",
+                    lastUsed: Date.now(),
+                },
+            ]),
+        ),
+    );
+    // When: opening login.
+    await page.goto("/login");
+    // Then: the latest method is shown in a single account row.
+    const rows = page.locator(".auth-dialog .recent-accounts li");
+    await expect(rows).toHaveCount(1);
+    await expect(rows).toContainText("GitHub");
+});

@@ -28,6 +28,41 @@ describe("recent account history", () => {
         expect(records[0].name).toBe("Updated");
         expect(Object.keys(records[0]).sort()).toEqual(["email", "lastUsed", "name", "provider"]);
     });
+    it("keeps one identity across Google, GitHub and email using the latest login method", () => {
+        // Given/When: the same account signs in through different linked providers.
+        rememberAccount({ email: "same@example.com", name: "Google", provider: "google" });
+        rememberAccount({ email: "SAME@example.com", name: "GitHub", provider: "github" });
+        // Then: a single record retains the latest successful login method.
+        expect(readRecentAccounts()).toHaveLength(1);
+        expect(readRecentAccounts()[0]).toMatchObject({ name: "GitHub", provider: "github" });
+        rememberAccount({ email: "same@example.com", name: "Email", provider: "email" });
+        expect(readRecentAccounts()).toHaveLength(1);
+        expect(readRecentAccounts()[0].provider).toBe("email");
+        removeRecentAccount({ email: "same@example.com", provider: "google" });
+        expect(readRecentAccounts()).toEqual([]);
+    });
+    it("migrates provider-specific history to one row per email, preserving distinct accounts", () => {
+        // Given: browser history saved before email-based deduplication.
+        const now = Date.now();
+        localStorage.setItem(
+            RECENT_ACCOUNTS_KEY,
+            JSON.stringify([
+                { email: "same@example.com", name: "Old", provider: "google", lastUsed: now - 100 },
+                { email: "SAME@example.com", name: "New", provider: "github", lastUsed: now },
+                {
+                    email: "other@example.com",
+                    name: "Other",
+                    provider: "google",
+                    lastUsed: now - 50,
+                },
+            ]),
+        );
+        // When/Then: reading normalizes storage and keeps the latest method for each account.
+        const records = readRecentAccounts();
+        expect(records).toHaveLength(2);
+        expect(records[0]).toMatchObject({ name: "New", provider: "github" });
+        expect(JSON.parse(localStorage.getItem(RECENT_ACCOUNTS_KEY)!)).toEqual(records);
+    });
     it("rejects corrupt/expired metadata and removes expired data from storage", () => {
         localStorage.setItem(RECENT_ACCOUNTS_KEY, "not-json");
         expect(readRecentAccounts()).toEqual([]);
