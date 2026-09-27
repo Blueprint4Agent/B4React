@@ -96,3 +96,56 @@ test("disabled OAuth leaves only the existing email flow", async ({ page }) => {
     await expect(dialog.getByRole("button", { name: /Continue with/ })).toHaveCount(0);
     await expect(dialog.getByLabel("Email", { exact: true })).toBeVisible();
 });
+
+test("password recovery stays in the auth dialog through validation and sent state", async ({
+    page,
+}) => {
+    // Given: the real page flow with a mocked existing recovery endpoint.
+    await page.route("**/api/v1/auth/forgot-password", (route) =>
+        route.fulfill({ json: { message: "Request accepted" } }),
+    );
+    await page.goto("/forgot-password");
+    let dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: /Send/i }).click();
+    await expect(dialog).toContainText("Email is required.");
+    await dialog.getByLabel("Email", { exact: true }).fill("guest@example.com");
+    await dialog.getByRole("button", { name: /Send/i }).click();
+    // Then: completion is contained in the same modal style with compact info feedback.
+    await expect(page).toHaveURL(/\/forgot-password\/email-sent$/);
+    dialog = page.getByRole("dialog");
+    await expect(dialog.locator(".status-card--info")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page).toHaveURL(/\/show-case$/);
+});
+
+test("signup rules and recovery errors use the compact shared feedback", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 850 });
+    await page.goto("/signup");
+    const panel = page.locator(".auth-dialog .ui-modal__panel");
+    await expect(panel).toBeVisible();
+    await expect(panel.locator(".validation-card").first()).toHaveCSS("border-top-width", "0px");
+    await page.getByRole("dialog").getByLabel("Password", { exact: true }).fill("ValidPass123!");
+    await expect(panel.locator(".validation-card--ok")).not.toHaveCount(0);
+    // When: a recovery link lacks its required token.
+    await page.goto("/reset-password");
+    await page.getByRole("dialog").getByRole("button", { name: /Reset/i }).click();
+    await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
+    await expect(page.getByRole("dialog").locator(".status-card__icon")).toBeVisible();
+});
+
+test("showcase exposes the shared pill buttons and auth frame", async ({ page }) => {
+    await page.goto("/show-case");
+    await expect(page.locator(".profile-menu__trigger")).toHaveAttribute(
+        "aria-label",
+        "Log in / Sign up",
+    );
+    await page.getByRole("button", { name: "Preview authentication dialog" }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.getByRole("alert")).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Continue", exact: true })).toHaveClass(
+        /ui-button--pill/,
+    );
+    await dialog.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+});

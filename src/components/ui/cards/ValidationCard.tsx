@@ -1,4 +1,5 @@
-import { Check, X } from "lucide-react";
+import { Check, Circle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export type ValidationRule = {
     isValid: boolean;
@@ -11,6 +12,7 @@ type ValidationCardProps = {
 };
 
 export function ValidationCard({ rules, title }: ValidationCardProps) {
+    const { t } = useTranslation();
     const isComplete = rules.length > 0 && rules.every((rule) => rule.isValid);
 
     return (
@@ -30,12 +32,19 @@ export function ValidationCard({ rules, title }: ValidationCardProps) {
                             aria-hidden="true"
                         >
                             {rule.isValid ? (
-                                <Check className="validation-card__icon" strokeWidth={2.4} />
+                                <Check className="validation-card__icon" strokeWidth={1.8} />
                             ) : (
-                                <X className="validation-card__icon" strokeWidth={2.4} />
+                                <Circle className="validation-card__icon" strokeWidth={1.8} />
                             )}
                         </span>
-                        <span className="validation-card__label">{rule.label}</span>
+                        <span className="validation-card__label">
+                            {rule.label}
+                            <span className="sr-only">
+                                {" "}
+                                —{" "}
+                                {t(rule.isValid ? "authDialog.ruleMet" : "authDialog.rulePending")}
+                            </span>
+                        </span>
                     </div>
                 ))}
             </div>

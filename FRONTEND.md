@@ -461,3 +461,13 @@ underlying light/dark palette. Shared PanelCard supports a title owned by its di
 
 The profile footer trigger reserves 5px inner padding in the collapsed 40px control,
 and 7px/10px padding in the expanded 44px row. Touch minimums remain 44px.
+
+All account creation, password recovery/reset, sent-confirmation and email
+verification pages compose AuthPageFrame. It owns shared dialog chrome while pages
+keep dynamic titles, route state and domain hooks. Button exposes pill and
+pill-secondary appearances; the auth pages, OAuth buttons and showcase use these
+same variants. Showcase includes enabled/loading/disabled variants and an interactive
+auth-frame preview. Status cards use a compact icon/message layout (alert for errors
+and warnings, status for information); validation criteria use neutral pending marks
+and accessible met/pending labels. Anonymous auth-enabled profile triggers use the
+localized login/signup entry label.

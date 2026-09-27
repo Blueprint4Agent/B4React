@@ -1,23 +1,17 @@
+import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { FormEvent, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 
 import { InlineMessage } from "../../components/ui/status/InlineMessage";
 import { ErrorCard, WarningCard } from "../../components/ui/status/StatusCard";
-import {
-    Button,
-    InputField,
-    PanelCard,
-    ValidationCard,
-    type ValidationRule,
-} from "../../components/ui";
+import { Button, InputField, ValidationCard, type ValidationRule } from "../../components/ui";
 import { useAuthContext } from "../../hooks/useAuth";
 import { useAuthApi } from "../../hooks/api/auth/useAuthApi";
 import { useAppConfig } from "../../hooks/useFeatures";
 import { isValidEmail, isValidPassword } from "../../utils/validation";
 
 export function SignupPage({ embedded = false }: { embedded?: boolean }) {
-    const Container = embedded ? "div" : "main";
     const { t } = useTranslation();
     const { signup } = useAuthContext();
     const { extractApiDetail, resolveAuthErrorMessage } = useAuthApi();
@@ -166,110 +160,109 @@ export function SignupPage({ embedded = false }: { embedded?: boolean }) {
     };
 
     return (
-        <Container className={embedded ? "auth-dialog-content" : "page auth-page"}>
-            <PanelCard
-                className="auth-panel"
-                title={embedded ? undefined : t("signup.title")}
-                subtitle={embedded ? undefined : t("signup.subtitle")}
-            >
-                <form onSubmit={onSubmit} className="form" noValidate>
-                    <InputField
-                        label={t("signup.fields.name")}
-                        type="text"
-                        autoComplete="name"
-                        minLength={2}
-                        maxLength={50}
-                        value={name}
-                        onValueChange={(value) => {
-                            setName(value);
-                            if (nameErrorMessage) {
-                                setNameErrorMessage("");
-                            }
-                            if (warningMessage || errorMessage) {
-                                setWarningMessage("");
-                                setErrorMessage("");
-                            }
-                        }}
-                    />
-                    {nameErrorMessage ? <InlineMessage>{nameErrorMessage}</InlineMessage> : null}
-                    <InputField
-                        label={t("signup.fields.email")}
-                        type="email"
-                        autoComplete="email"
-                        value={email}
-                        onValueChange={(value) => {
-                            setEmail(value);
-                            if (emailErrorMessage) {
-                                setEmailErrorMessage("");
-                            }
-                            if (warningMessage || errorMessage) {
-                                setWarningMessage("");
-                                setErrorMessage("");
-                            }
-                        }}
-                    />
-                    {emailErrorMessage ? <InlineMessage>{emailErrorMessage}</InlineMessage> : null}
-                    <ValidationCard title={t("signup.validation.email")} rules={emailRules} />
-                    <InputField
-                        label={t("signup.fields.password")}
-                        type="password"
-                        autoComplete="new-password"
-                        value={password}
-                        onValueChange={(value) => {
-                            setPassword(value);
-                            if (passwordErrorMessage) {
-                                setPasswordErrorMessage("");
-                            }
-                            if (warningMessage || errorMessage) {
-                                setWarningMessage("");
-                                setErrorMessage("");
-                            }
-                        }}
-                    />
-                    {passwordErrorMessage ? (
-                        <InlineMessage>{passwordErrorMessage}</InlineMessage>
-                    ) : null}
-                    <ValidationCard title={t("signup.validation.password")} rules={passwordRules} />
-                    <InputField
-                        label={t("signup.fields.confirmPassword")}
-                        type="password"
-                        autoComplete="new-password"
-                        value={confirmPassword}
-                        onValueChange={(value) => {
-                            setConfirmPassword(value);
-                            if (confirmPasswordErrorMessage) {
-                                setConfirmPasswordErrorMessage("");
-                            }
-                            if (warningMessage || errorMessage) {
-                                setWarningMessage("");
-                                setErrorMessage("");
-                            }
-                        }}
-                    />
-                    {confirmPasswordErrorMessage ? (
-                        <InlineMessage>{confirmPasswordErrorMessage}</InlineMessage>
-                    ) : null}
-                    <ValidationCard title={t("signup.validation.confirm")} rules={confirmRules} />
-                    {hasFeedback && warningMessage ? (
-                        <WarningCard title={t("cards.warningTitle")} message={warningMessage} />
-                    ) : null}
-                    {hasFeedback && errorMessage ? (
-                        <ErrorCard title={t("cards.errorTitle")} message={errorMessage} />
-                    ) : null}
-                    <Button
-                        type="submit"
-                        disabled={submitting || passwordMismatch || configLoading}
-                    >
-                        {t("signup.submitIdle")}
-                    </Button>
-                </form>
-                <p className="muted auth-footer">
-                    {t("signup.loginPrompt")}{" "}
-                    <Link to="/login" className="text-link">
-                        {t("signup.loginLink")}
-                    </Link>
-                </p>
-            </PanelCard>
-        </Container>
+        <AuthPageFrame
+            embedded={embedded}
+            title={t("signup.title")}
+            subtitle={t("signup.subtitle")}
+        >
+            <form onSubmit={onSubmit} className="form" noValidate>
+                <InputField
+                    label={t("signup.fields.name")}
+                    type="text"
+                    autoComplete="name"
+                    minLength={2}
+                    maxLength={50}
+                    value={name}
+                    onValueChange={(value) => {
+                        setName(value);
+                        if (nameErrorMessage) {
+                            setNameErrorMessage("");
+                        }
+                        if (warningMessage || errorMessage) {
+                            setWarningMessage("");
+                            setErrorMessage("");
+                        }
+                    }}
+                />
+                {nameErrorMessage ? <InlineMessage>{nameErrorMessage}</InlineMessage> : null}
+                <InputField
+                    label={t("signup.fields.email")}
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onValueChange={(value) => {
+                        setEmail(value);
+                        if (emailErrorMessage) {
+                            setEmailErrorMessage("");
+                        }
+                        if (warningMessage || errorMessage) {
+                            setWarningMessage("");
+                            setErrorMessage("");
+                        }
+                    }}
+                />
+                {emailErrorMessage ? <InlineMessage>{emailErrorMessage}</InlineMessage> : null}
+                <ValidationCard title={t("signup.validation.email")} rules={emailRules} />
+                <InputField
+                    label={t("signup.fields.password")}
+                    type="password"
+                    autoComplete="new-password"
+                    value={password}
+                    onValueChange={(value) => {
+                        setPassword(value);
+                        if (passwordErrorMessage) {
+                            setPasswordErrorMessage("");
+                        }
+                        if (warningMessage || errorMessage) {
+                            setWarningMessage("");
+                            setErrorMessage("");
+                        }
+                    }}
+                />
+                {passwordErrorMessage ? (
+                    <InlineMessage>{passwordErrorMessage}</InlineMessage>
+                ) : null}
+                <ValidationCard title={t("signup.validation.password")} rules={passwordRules} />
+                <InputField
+                    label={t("signup.fields.confirmPassword")}
+                    type="password"
+                    autoComplete="new-password"
+                    value={confirmPassword}
+                    onValueChange={(value) => {
+                        setConfirmPassword(value);
+                        if (confirmPasswordErrorMessage) {
+                            setConfirmPasswordErrorMessage("");
+                        }
+                        if (warningMessage || errorMessage) {
+                            setWarningMessage("");
+                            setErrorMessage("");
+                        }
+                    }}
+                />
+                {confirmPasswordErrorMessage ? (
+                    <InlineMessage>{confirmPasswordErrorMessage}</InlineMessage>
+                ) : null}
+                <ValidationCard title={t("signup.validation.confirm")} rules={confirmRules} />
+                {hasFeedback && warningMessage ? (
+                    <WarningCard title={t("cards.warningTitle")} message={warningMessage} />
+                ) : null}
+                {hasFeedback && errorMessage ? (
+                    <ErrorCard title={t("cards.errorTitle")} message={errorMessage} />
+                ) : null}
+                <Button
+                    appearance={embedded ? "pill" : "default"}
+                    type="submit"
+                    disabled={submitting || passwordMismatch || configLoading}
+                >
+                    {t("signup.submitIdle")}
+                </Button>
+            </form>
+            <p className="muted auth-footer">
+                {t("signup.loginPrompt")}{" "}
+                <Link to="/login" className="text-link">
+                    {t("signup.loginLink")}
+                </Link>
+            </p>
+        </AuthPageFrame>
     );
 }

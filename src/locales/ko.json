@@ -96,7 +96,7 @@
     },
     "signup": {
         "title": "회원가입",
-        "subtitle": "로컬 개발용 기본 계정을 생성하세요.",
+        "subtitle": "계정을 만들고 나만의 프로젝트를 시작하세요.",
         "configLoading": "서버 설정을 불러오는 중입니다. 잠시 후 다시 시도해주세요.",
         "fields": {
             "name": "이름",
@@ -395,6 +395,14 @@
         "login": "로그인",
         "or": "또는",
         "changeEmail": "이메일 변경",
-        "closeBackdrop": "모달 배경 닫기"
+        "closeBackdrop": "모달 배경 닫기",
+        "ruleMet": "조건 충족",
+        "rulePending": "아직 충족되지 않은 조건",
+        "preview": "인증 모달 미리보기",
+        "buttonPrimary": "계속",
+        "buttonSecondary": "보조 작업",
+        "buttonLoading": "처리 중",
+        "buttonDisabled": "사용 불가",
+        "entry": "로그인/회원가입"
     }
 }

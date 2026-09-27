@@ -3816,3 +3816,126 @@ input {
 .auth-dialog-social .oauth-provider-button__logo--github {
     filter: invert(1);
 }
+
+/* Shared authentication controls, also demonstrated in the showcase. */
+.ui-button.ui-button--pill,
+.ui-button.ui-button--pill-secondary {
+    min-height: 40px;
+    height: auto;
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 400;
+}
+.ui-button.ui-button--pill-secondary {
+    background: var(--input-bg);
+    color: var(--text);
+    border: 0.5px solid var(--panel-border);
+}
+.ui-button.ui-button--pill-secondary:hover {
+    background: color-mix(in oklab, var(--text) 12%, var(--popover-bg));
+}
+.ui-button--pill-secondary .oauth-provider-button__logo-wrap,
+.ui-button--pill-secondary .oauth-provider-button__logo {
+    width: 20px;
+    height: 20px;
+}
+.ui-button--pill-secondary .oauth-provider-button__logo--github {
+    filter: invert(1);
+}
+.status-card,
+.auth-panel .status-card {
+    grid-template-columns: 16px minmax(0, 1fr);
+    align-items: start;
+    gap: 8px;
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    width: 100%;
+}
+.status-card__icon {
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+}
+.status-card__content {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+.status-card__title {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0;
+}
+.status-card__message,
+.auth-panel .status-card__message {
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+.status-card.status-card--compact {
+    padding: 6px 8px;
+    gap: 6px;
+}
+.status-card.status-card--compact .status-card__message {
+    font-size: 12px;
+    line-height: 1.4;
+}
+.validation-card,
+.auth-panel .validation-card {
+    border: 0;
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--text) 4%, transparent);
+    width: 100%;
+    padding: 10px 12px;
+    gap: 6px;
+}
+.validation-card__title {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+}
+.validation-card__list {
+    gap: 4px;
+}
+.validation-card__item,
+.auth-panel .validation-card__item {
+    font-size: 12px;
+    line-height: 1.4;
+    gap: 6px;
+    align-items: flex-start;
+}
+.validation-card__mark,
+.auth-panel .validation-card__mark {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    border: 0;
+    background: transparent;
+}
+.validation-card__mark--no {
+    color: var(--text-soft);
+}
+.validation-card__mark--ok {
+    color: var(--info-text);
+}
+.auth-dialog-content .auth-panel .status-card,
+.auth-dialog-content .auth-panel .validation-card {
+    max-width: none;
+}
+.auth-dialog-content .signup-email-sent__description {
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0;
+}
+.auth-dialog-content .text-link {
+    font-weight: 500;
+}
+@media (pointer: coarse) {
+    .ui-button.ui-button--pill,
+    .ui-button.ui-button--pill-secondary {
+        min-height: 44px;
+    }
+}

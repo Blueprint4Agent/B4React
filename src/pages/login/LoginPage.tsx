@@ -1,16 +1,10 @@
+import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { FormEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 
 import { OAuthProviderButton } from "../../components/features/auth/OAuthProviderButton";
-import {
-    BrandMark,
-    Button,
-    FormCheckbox,
-    InputField,
-    InlineMessage,
-    PanelCard,
-} from "../../components/ui";
+import { Button, FormCheckbox, InputField, InlineMessage } from "../../components/ui";
 import { useAuthContext } from "../../hooks/useAuth";
 import { useAuthApi, type OAuthProvider } from "../../hooks/api/auth/useAuthApi";
 import { useAppConfig } from "../../hooks/useFeatures";
@@ -21,7 +15,6 @@ const REMEMBER_EMAIL_ENABLED_STORAGE_KEY = "template_remember_email_enabled";
 const REMEMBER_ME_ENABLED_STORAGE_KEY = "template_remember_me_enabled";
 
 export function LoginPage({ embedded = false }: { embedded?: boolean }) {
-    const Container = embedded ? "div" : "main";
     const [passwordStep, setPasswordStep] = useState(!embedded);
     const { t } = useTranslation();
     const { login } = useAuthContext();
@@ -196,121 +189,119 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
     };
 
     return (
-        <Container className={embedded ? "auth-dialog-content" : "page auth-page"}>
-            <div className="auth-panel-stack">
-                {!embedded ? <BrandMark className="brand-mark--login" /> : null}
-                <PanelCard
-                    className="auth-panel"
-                    title={embedded ? undefined : t("login.title")}
-                    subtitle={embedded ? undefined : t("login.subtitle")}
-                >
-                    {loginEnabled && oauthProviders.length > 0 ? (
-                        <div className="auth-dialog-social">
-                            <div className="oauth-provider-list">
-                                {oauthProviders.map((item) => (
-                                    <OAuthProviderButton
-                                        key={item.provider}
-                                        provider={item.provider}
-                                        label={t(`login.oauth.providers.${item.provider}`)}
-                                        startPath={item.start_path}
-                                    />
-                                ))}
-                            </div>
-                            <div className="auth-dialog-divider">
-                                <span>{t("authDialog.or")}</span>
-                            </div>
+        <AuthPageFrame
+            embedded={embedded}
+            title={t(embedded ? "authDialog.title" : "login.title")}
+            subtitle={t(embedded ? "authDialog.subtitle" : "login.subtitle")}
+        >
+            {loginEnabled && oauthProviders.length > 0 ? (
+                <div className="auth-dialog-social">
+                    <div className="oauth-provider-list">
+                        {oauthProviders.map((item) => (
+                            <OAuthProviderButton
+                                key={item.provider}
+                                provider={item.provider}
+                                label={t(`login.oauth.providers.${item.provider}`)}
+                                startPath={item.start_path}
+                            />
+                        ))}
+                    </div>
+                    <div className="auth-dialog-divider">
+                        <span>{t("authDialog.or")}</span>
+                    </div>
+                </div>
+            ) : null}
+            {loginEnabled ? (
+                <form onSubmit={onSubmit} className="form" noValidate>
+                    <InputField
+                        label={t("login.fields.email")}
+                        type="email"
+                        autoComplete="email"
+                        value={email}
+                        onValueChange={(value) => {
+                            setEmail(value);
+                            if (emailErrorMessage || resendMessage || showResendButton) {
+                                setEmailErrorMessage("");
+                                setResendMessage("");
+                                setShowResendButton(false);
+                            }
+                        }}
+                    />
+                    {emailErrorMessage ? <InlineMessage>{emailErrorMessage}</InlineMessage> : null}
+                    {showResendButton ? (
+                        <div className="login-inline-actions">
+                            <Button
+                                appearance={embedded ? "pill" : "default"}
+                                type="button"
+                                loading={resending}
+                                onClick={onResendVerification}
+                            >
+                                {t("auth.actions.resendVerification")}
+                            </Button>
                         </div>
                     ) : null}
-                    {loginEnabled ? (
-                        <form onSubmit={onSubmit} className="form" noValidate>
+                    {resendMessage ? (
+                        <InlineMessage tone="info">{resendMessage}</InlineMessage>
+                    ) : null}
+                    {passwordStep ? (
+                        <>
                             <InputField
-                                label={t("login.fields.email")}
-                                type="email"
-                                autoComplete="email"
-                                value={email}
+                                label={t("login.fields.password")}
+                                type="password"
+                                autoComplete="current-password"
+                                autoFocus={embedded}
+                                value={password}
                                 onValueChange={(value) => {
-                                    setEmail(value);
-                                    if (emailErrorMessage || resendMessage || showResendButton) {
-                                        setEmailErrorMessage("");
-                                        setResendMessage("");
-                                        setShowResendButton(false);
+                                    setPassword(value);
+                                    if (passwordErrorMessage) {
+                                        setPasswordErrorMessage("");
                                     }
                                 }}
                             />
-                            {emailErrorMessage ? (
-                                <InlineMessage>{emailErrorMessage}</InlineMessage>
+                            {passwordErrorMessage ? (
+                                <InlineMessage>{passwordErrorMessage}</InlineMessage>
                             ) : null}
-                            {showResendButton ? (
-                                <div className="login-inline-actions">
-                                    <Button
-                                        type="button"
-                                        loading={resending}
-                                        onClick={onResendVerification}
-                                    >
-                                        {t("auth.actions.resendVerification")}
-                                    </Button>
-                                </div>
-                            ) : null}
-                            {resendMessage ? (
-                                <InlineMessage tone="info">{resendMessage}</InlineMessage>
-                            ) : null}
-                            {passwordStep ? (
-                                <>
-                                    <InputField
-                                        label={t("login.fields.password")}
-                                        type="password"
-                                        autoComplete="current-password"
-                                        autoFocus={embedded}
-                                        value={password}
-                                        onValueChange={(value) => {
-                                            setPassword(value);
-                                            if (passwordErrorMessage) {
-                                                setPasswordErrorMessage("");
-                                            }
-                                        }}
-                                    />
-                                    {passwordErrorMessage ? (
-                                        <InlineMessage>{passwordErrorMessage}</InlineMessage>
-                                    ) : null}
-                                    <div className="login-remember-options">
-                                        <FormCheckbox
-                                            checked={rememberEmail}
-                                            onCheckedChange={setRememberEmail}
-                                            label={t("login.rememberEmail")}
-                                        />
-                                        <FormCheckbox
-                                            checked={rememberMe}
-                                            onCheckedChange={setRememberMe}
-                                            label={t("login.rememberMe")}
-                                        />
-                                    </div>
-                                </>
-                            ) : null}
-                            <Button type="submit" loading={submitting}>
-                                {t(passwordStep ? "login.submitIdle" : "authDialog.continue")}
-                            </Button>
-                        </form>
-                    ) : (
-                        <div className="form">
-                            <InlineMessage>{t("auth.errors.loginDisabled")}</InlineMessage>
-                        </div>
-                    )}
-                    <p className="muted auth-footer">
-                        {t("login.signupPrompt")}{" "}
-                        <Link to="/signup" className="text-link">
-                            {t("login.signupLink")}
-                        </Link>
-                    </p>
-                    {!configLoading && emailEnabled ? (
-                        <p className="muted">
-                            {t("login.forgotPasswordPrompt")}{" "}
-                            <Link to="/forgot-password" className="text-link">
-                                {t("login.forgotPasswordLink")}
-                            </Link>
-                        </p>
+                            <div className="login-remember-options">
+                                <FormCheckbox
+                                    checked={rememberEmail}
+                                    onCheckedChange={setRememberEmail}
+                                    label={t("login.rememberEmail")}
+                                />
+                                <FormCheckbox
+                                    checked={rememberMe}
+                                    onCheckedChange={setRememberMe}
+                                    label={t("login.rememberMe")}
+                                />
+                            </div>
+                        </>
                     ) : null}
-                </PanelCard>
-            </div>
-        </Container>
+                    <Button
+                        appearance={embedded ? "pill" : "default"}
+                        type="submit"
+                        loading={submitting}
+                    >
+                        {t(passwordStep ? "login.submitIdle" : "authDialog.continue")}
+                    </Button>
+                </form>
+            ) : (
+                <div className="form">
+                    <InlineMessage>{t("auth.errors.loginDisabled")}</InlineMessage>
+                </div>
+            )}
+            <p className="muted auth-footer">
+                {t("login.signupPrompt")}{" "}
+                <Link to="/signup" className="text-link">
+                    {t("login.signupLink")}
+                </Link>
+            </p>
+            {!configLoading && emailEnabled ? (
+                <p className="muted">
+                    {t("login.forgotPasswordPrompt")}{" "}
+                    <Link to="/forgot-password" className="text-link">
+                        {t("login.forgotPasswordLink")}
+                    </Link>
+                </p>
+            ) : null}
+        </AuthPageFrame>
     );
 }

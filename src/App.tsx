@@ -1,12 +1,11 @@
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
-import { Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
+import { useState, type ReactNode } from "react";
+import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 
 import { AppLayout } from "./components/layout/AppLayout";
 import { useAuthContext } from "./hooks/useAuth";
 import { useAppConfig } from "./hooks/useFeatures";
 import { useTheme } from "./hooks/useTheme";
-import { Modal } from "./components/ui";
 import { ForgotPasswordEmailSentPage } from "./pages/login/ForgotPasswordEmailSentPage";
 import { ForgotPasswordPage } from "./pages/login/ForgotPasswordPage";
 import { LoginPage } from "./pages/login/LoginPage";
@@ -70,25 +69,19 @@ function NotFoundRoute({
     );
 }
 
-function AuthDialogRoute({ signup = false }: { signup?: boolean }) {
-    const { t } = useTranslation();
-    const navigate = useNavigate();
+function AuthDialogRoute({
+    children,
+    guestOnly = false,
+}: {
+    children: ReactNode;
+    guestOnly?: boolean;
+}) {
     const { user, loading } = useAuthContext();
-    if (!loading && user) return <Navigate to="/show-case" replace />;
+    if (guestOnly && !loading && user) return <Navigate to="/show-case" replace />;
     return (
         <>
             <ShowCasePage />
-            <Modal
-                open
-                title={t(signup ? "signup.title" : "authDialog.title")}
-                description={t(signup ? "signup.subtitle" : "authDialog.subtitle")}
-                onClose={() => navigate("/show-case", { replace: true })}
-                className="auth-dialog"
-                returnFocusSelector=".profile-menu__trigger"
-                keyboardDismissible
-            >
-                {signup ? <SignupPage embedded /> : <LoginPage embedded />}
-            </Modal>
+            {children}
         </>
     );
 }
@@ -136,48 +129,6 @@ export function App() {
             <Route path="/welcome" element={<LandingPage loginEnabled={loginEnabled} />} />
             <Route path="/loading" element={<LoadingPage />} />
             <Route
-                path="/signup/email-sent"
-                element={
-                    loginEnabled ? <SignupEmailSentPage /> : <Navigate to="/show-case" replace />
-                }
-            />
-            <Route
-                path="/forgot-password"
-                element={
-                    loginEnabled ? <ForgotPasswordPage /> : <Navigate to="/show-case" replace />
-                }
-            />
-            <Route
-                path="/forgot-password/email-sent"
-                element={
-                    loginEnabled ? (
-                        <ForgotPasswordEmailSentPage />
-                    ) : (
-                        <Navigate to="/show-case" replace />
-                    )
-                }
-            />
-            <Route
-                path="/reset-password"
-                element={
-                    loginEnabled ? <ResetPasswordPage /> : <Navigate to="/show-case" replace />
-                }
-            />
-            <Route
-                path="/reset-password/success"
-                element={
-                    loginEnabled ? (
-                        <ResetPasswordSuccessPage />
-                    ) : (
-                        <Navigate to="/show-case" replace />
-                    )
-                }
-            />
-            <Route
-                path="/verify-email"
-                element={loginEnabled ? <VerifyEmailPage /> : <Navigate to="/show-case" replace />}
-            />
-            <Route
                 element={
                     <AppLayout>
                         <Outlet />
@@ -191,14 +142,94 @@ export function App() {
                 <Route
                     path="/login"
                     element={
-                        loginEnabled ? <AuthDialogRoute /> : <Navigate to="/show-case" replace />
+                        loginEnabled ? (
+                            <AuthDialogRoute guestOnly>
+                                <LoginPage embedded />
+                            </AuthDialogRoute>
+                        ) : (
+                            <Navigate to="/show-case" replace />
+                        )
                     }
                 />
                 <Route
                     path="/signup"
                     element={
                         loginEnabled ? (
-                            <AuthDialogRoute signup />
+                            <AuthDialogRoute guestOnly>
+                                <SignupPage embedded />
+                            </AuthDialogRoute>
+                        ) : (
+                            <Navigate to="/show-case" replace />
+                        )
+                    }
+                />
+                <Route
+                    path="/signup/email-sent"
+                    element={
+                        loginEnabled ? (
+                            <AuthDialogRoute>
+                                <SignupEmailSentPage embedded />
+                            </AuthDialogRoute>
+                        ) : (
+                            <Navigate to="/show-case" replace />
+                        )
+                    }
+                />
+                <Route
+                    path="/forgot-password"
+                    element={
+                        loginEnabled ? (
+                            <AuthDialogRoute>
+                                <ForgotPasswordPage embedded />
+                            </AuthDialogRoute>
+                        ) : (
+                            <Navigate to="/show-case" replace />
+                        )
+                    }
+                />
+                <Route
+                    path="/forgot-password/email-sent"
+                    element={
+                        loginEnabled ? (
+                            <AuthDialogRoute>
+                                <ForgotPasswordEmailSentPage embedded />
+                            </AuthDialogRoute>
+                        ) : (
+                            <Navigate to="/show-case" replace />
+                        )
+                    }
+                />
+                <Route
+                    path="/reset-password"
+                    element={
+                        loginEnabled ? (
+                            <AuthDialogRoute>
+                                <ResetPasswordPage embedded />
+                            </AuthDialogRoute>
+                        ) : (
+                            <Navigate to="/show-case" replace />
+                        )
+                    }
+                />
+                <Route
+                    path="/reset-password/success"
+                    element={
+                        loginEnabled ? (
+                            <AuthDialogRoute>
+                                <ResetPasswordSuccessPage embedded />
+                            </AuthDialogRoute>
+                        ) : (
+                            <Navigate to="/show-case" replace />
+                        )
+                    }
+                />
+                <Route
+                    path="/verify-email"
+                    element={
+                        loginEnabled ? (
+                            <AuthDialogRoute>
+                                <VerifyEmailPage embedded />
+                            </AuthDialogRoute>
                         ) : (
                             <Navigate to="/show-case" replace />
                         )

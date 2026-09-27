@@ -84,7 +84,7 @@ export function ProfileDropdown({
                 ref={triggerRef}
                 type="button"
                 className="profile-menu__trigger"
-                aria-label={t("nav.aria.openMenu")}
+                aria-label={t(showLogin ? "authDialog.entry" : "nav.aria.openMenu")}
                 aria-haspopup="dialog"
                 aria-controls={menuOpen ? popupId : undefined}
                 aria-expanded={menuOpen}

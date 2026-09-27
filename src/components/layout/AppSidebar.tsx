@@ -58,7 +58,8 @@ export function AppSidebar({
     const [busy, setBusy] = useState(false);
     const loginEnabled = appConfig?.login_enabled === true;
     const logoutBlocked = isDesktop && status !== "online";
-    const displayName = user?.name?.trim() || user?.email || t("nav.guest");
+    const displayName =
+        user?.name?.trim() || user?.email || t(loginEnabled ? "authDialog.entry" : "nav.guest");
     const onLogout = async () => {
         if (logoutBlocked) {
             void checkNow();

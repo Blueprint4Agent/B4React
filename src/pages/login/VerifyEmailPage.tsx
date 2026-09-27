@@ -1,14 +1,15 @@
+import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { ErrorCard } from "../../components/ui/status/StatusCard";
-import { Button, PanelCard } from "../../components/ui";
+import { Button } from "../../components/ui";
 import { useAuthApi } from "../../hooks/api/auth/useAuthApi";
 
 type VerifyStatus = "loading" | "success" | "error";
 
-export function VerifyEmailPage() {
+export function VerifyEmailPage({ embedded = false }: { embedded?: boolean }) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { verifyEmail, extractApiDetail, resolveAuthErrorMessage } = useAuthApi();
@@ -44,54 +45,56 @@ export function VerifyEmailPage() {
 
     if (status === "loading") {
         return (
-            <main className="page auth-page">
-                <PanelCard
-                    className="auth-panel"
-                    title={t("verifyEmail.loadingTitle")}
-                    subtitle={t("verifyEmail.loadingSubtitle")}
-                >
-                    <p className="muted">{t("verifyEmail.loadingDescription")}</p>
-                </PanelCard>
-            </main>
+            <AuthPageFrame
+                embedded={embedded}
+                title={t("verifyEmail.loadingTitle")}
+                subtitle={t("verifyEmail.loadingSubtitle")}
+            >
+                <p className="muted">{t("verifyEmail.loadingDescription")}</p>
+            </AuthPageFrame>
         );
     }
 
     if (status === "error") {
         return (
-            <main className="page auth-page">
-                <PanelCard
-                    className="auth-panel"
-                    title={t("verifyEmail.errorTitle")}
-                    subtitle={t("verifyEmail.errorSubtitle")}
-                >
-                    <ErrorCard
-                        title={t("cards.errorTitle")}
-                        message={errorMessage || t("verifyEmail.errors.fallback")}
-                    />
-                    <div className="verify-email__actions">
-                        <Button type="button" onClick={() => navigate("/login", { replace: true })}>
-                            {t("verifyEmail.backToLogin")}
-                        </Button>
-                    </div>
-                </PanelCard>
-            </main>
+            <AuthPageFrame
+                embedded={embedded}
+                title={t("verifyEmail.errorTitle")}
+                subtitle={t("verifyEmail.errorSubtitle")}
+            >
+                <ErrorCard
+                    title={t("cards.errorTitle")}
+                    message={errorMessage || t("verifyEmail.errors.fallback")}
+                />
+                <div className="verify-email__actions">
+                    <Button
+                        appearance={embedded ? "pill" : "default"}
+                        type="button"
+                        onClick={() => navigate("/login", { replace: true })}
+                    >
+                        {t("verifyEmail.backToLogin")}
+                    </Button>
+                </div>
+            </AuthPageFrame>
         );
     }
 
     return (
-        <main className="page auth-page">
-            <PanelCard
-                className="auth-panel"
-                title={t("verifyEmail.successTitle")}
-                subtitle={t("verifyEmail.successSubtitle")}
-            >
-                <p className="muted">{t("verifyEmail.successDescription")}</p>
-                <div className="verify-email__actions">
-                    <Button type="button" onClick={() => navigate("/login", { replace: true })}>
-                        {t("verifyEmail.backToLogin")}
-                    </Button>
-                </div>
-            </PanelCard>
-        </main>
+        <AuthPageFrame
+            embedded={embedded}
+            title={t("verifyEmail.successTitle")}
+            subtitle={t("verifyEmail.successSubtitle")}
+        >
+            <p className="muted">{t("verifyEmail.successDescription")}</p>
+            <div className="verify-email__actions">
+                <Button
+                    appearance={embedded ? "pill" : "default"}
+                    type="button"
+                    onClick={() => navigate("/login", { replace: true })}
+                >
+                    {t("verifyEmail.backToLogin")}
+                </Button>
+            </div>
+        </AuthPageFrame>
     );
 }

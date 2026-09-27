@@ -270,3 +270,6 @@ Guest auth browser tests run through `make test-ui`: public entry, profile login
 configured/disabled providers, email-first validation, signup overlay, protected
 settings, Escape/focus containment and responsive bounds. Existing component tests
 continue verifying login success/errors/resend and API-key modal actions.
+
+Recovery browser checks cover empty-email validation, sent confirmation, signup
+criteria, missing reset token feedback and the shared showcase auth preview.
