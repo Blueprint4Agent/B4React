@@ -50,3 +50,7 @@ test-ui: ## Check component layout and tooltip behavior in Chromium
 ui-composition-check: ## Verify shared styling and rendered showcase coverage
 	node scripts/check-ui-composition.mjs
 	node --test scripts/check-ui-composition.test.mjs
+
+.PHONY: test-routes
+test-routes: build ## Verify production lazy-route loading and recovery in Chromium
+	$(NPM) run test:e2e -- --config playwright.production.config.ts

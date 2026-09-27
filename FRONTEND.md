@@ -540,3 +540,7 @@ are introduced. No new shared UI exports are needed; showcase contracts remain i
 ## Shared application configuration
 
 AppConfigProvider owns one in-memory snapshot and in-flight /config request per app instance. useAppConfig consumers and auth ensureConfig share it, including StrictMode startup. Explicit reload coalesces concurrent callers. Failed startup stays unavailable, never login-disabled. No snapshot/token is persisted. ConnectivityRecovery reloads config before revalidating auth; failed recovery preserves the session. App retry also restores auth from the shared snapshot. Page navigation does not refetch config.
+
+## Route loading
+
+Secondary settings/admin/auth/welcome screens use module-level React.lazy. Showcase and shared chrome remain eager. RouteBoundary keeps the shell mounted during Suspense and shows localized explicit reload/home actions after chunk or render failure. Auth overlays have a nested boundary to retain their showcase backdrop. Reload is deliberate because rejected lazy imports remain cached; never auto-reload on errors. Keep older hashed assets available during deployment transitions. `make test-routes` builds and exercises actual production chunks, including delayed and failed downloads. See [React lazy](https://react.dev/reference/react/lazy).

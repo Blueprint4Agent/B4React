@@ -563,5 +563,10 @@
         "bootstrap": "기본 관리자",
         "filterRole": "역할 필터",
         "filterStatus": "계정 상태 필터"
+    },
+    "routeLoad": {
+        "title": "페이지를 불러올 수 없습니다",
+        "description": "페이지를 불러오지 못했습니다. 새로고침하여 다시 시도하거나 쇼케이스로 돌아가세요.",
+        "reload": "페이지 새로고침"
     }
 }
