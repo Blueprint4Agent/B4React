@@ -1,27 +1,62 @@
 import { useTranslation } from "react-i18next";
-import { useState, type ReactNode } from "react";
+import { lazy, useState, type ReactNode } from "react";
 import { Navigate, Outlet, Route, Routes, useSearchParams } from "react-router-dom";
 
 import { AppLayout } from "./components/layout/AppLayout";
 import { useAuthContext } from "./hooks/useAuth";
 import { useAppConfig } from "./hooks/useFeatures";
 import { useTheme } from "./hooks/useTheme";
-import { ForgotPasswordEmailSentPage } from "./pages/login/ForgotPasswordEmailSentPage";
-import { ForgotPasswordPage } from "./pages/login/ForgotPasswordPage";
-import { LoginPage } from "./pages/login/LoginPage";
-import { ResetPasswordPage } from "./pages/login/ResetPasswordPage";
-import { ResetPasswordSuccessPage } from "./pages/login/ResetPasswordSuccessPage";
-import { SignupEmailSentPage } from "./pages/login/SignupEmailSentPage";
-import { SignupPage } from "./pages/login/SignupPage";
-import { VerifyEmailPage } from "./pages/login/VerifyEmailPage";
 import { LoadingPage } from "./pages/main/LoadingPage";
-import { LandingPage } from "./pages/main/LandingPage";
 import { ShowCaseNotFoundPage } from "./pages/main/ShowCaseNotFoundPage";
 import { ShowCasePage } from "./pages/main/ShowCasePage";
-import { AdminPage } from "./pages/admin/AdminPage";
-import { SettingsPage } from "./pages/settings/SettingsPage";
 import { ServerUnavailablePage } from "./pages/main/ServerUnavailablePage";
 import { useServerConnectivity } from "./hooks/connectivity/useServerConnectivity";
+
+import { RouteBoundary } from "./components/layout/RouteBoundary";
+
+const ForgotPasswordEmailSentPage = lazy(() =>
+    import("./pages/login/ForgotPasswordEmailSentPage").then((module) => ({
+        default: module.ForgotPasswordEmailSentPage,
+    })),
+);
+const ForgotPasswordPage = lazy(() =>
+    import("./pages/login/ForgotPasswordPage").then((module) => ({
+        default: module.ForgotPasswordPage,
+    })),
+);
+const LoginPage = lazy(() =>
+    import("./pages/login/LoginPage").then((module) => ({ default: module.LoginPage })),
+);
+const ResetPasswordPage = lazy(() =>
+    import("./pages/login/ResetPasswordPage").then((module) => ({
+        default: module.ResetPasswordPage,
+    })),
+);
+const ResetPasswordSuccessPage = lazy(() =>
+    import("./pages/login/ResetPasswordSuccessPage").then((module) => ({
+        default: module.ResetPasswordSuccessPage,
+    })),
+);
+const SignupEmailSentPage = lazy(() =>
+    import("./pages/login/SignupEmailSentPage").then((module) => ({
+        default: module.SignupEmailSentPage,
+    })),
+);
+const SignupPage = lazy(() =>
+    import("./pages/login/SignupPage").then((module) => ({ default: module.SignupPage })),
+);
+const VerifyEmailPage = lazy(() =>
+    import("./pages/login/VerifyEmailPage").then((module) => ({ default: module.VerifyEmailPage })),
+);
+const LandingPage = lazy(() =>
+    import("./pages/main/LandingPage").then((module) => ({ default: module.LandingPage })),
+);
+const AdminPage = lazy(() =>
+    import("./pages/admin/AdminPage").then((module) => ({ default: module.AdminPage })),
+);
+const SettingsPage = lazy(() =>
+    import("./pages/settings/SettingsPage").then((module) => ({ default: module.SettingsPage })),
+);
 
 function NotFoundRoute({
     loginEnabled,
@@ -65,7 +100,7 @@ function AuthDialogRoute({
     return (
         <>
             <ShowCasePage />
-            {children}
+            <RouteBoundary fallback={<LoadingPage />}>{children}</RouteBoundary>
         </>
     );
 }
@@ -112,12 +147,21 @@ export function App() {
     return (
         <Routes>
             <Route path="/" element={<Navigate to="/show-case" replace />} />
-            <Route path="/welcome" element={<LandingPage loginEnabled={loginEnabled} />} />
+            <Route
+                path="/welcome"
+                element={
+                    <RouteBoundary fallback={<LoadingPage />}>
+                        <LandingPage loginEnabled={loginEnabled} />
+                    </RouteBoundary>
+                }
+            />
             <Route path="/loading" element={<LoadingPage />} />
             <Route
                 element={
                     <AppLayout>
-                        <Outlet />
+                        <RouteBoundary fallback={<LoadingPage />}>
+                            <Outlet />
+                        </RouteBoundary>
                     </AppLayout>
                 }
             >

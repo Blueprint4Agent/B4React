@@ -563,5 +563,10 @@
         "bootstrap": "Bootstrap",
         "filterRole": "Filter by role",
         "filterStatus": "Filter by account status"
+    },
+    "routeLoad": {
+        "title": "Unable to load this page",
+        "description": "The page could not load. Reload to try again or return to the showcase.",
+        "reload": "Reload page"
     }
 }
