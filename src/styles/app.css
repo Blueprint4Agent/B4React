@@ -1234,9 +1234,9 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 .profile-menu__trigger {
     border: 1px solid transparent;
     border-radius: var(--radius-pill);
-    width: var(--rail-control-size);
-    height: var(--rail-control-size);
-    padding: 0;
+    width: max(40px, var(--rail-control-size));
+    height: max(40px, var(--rail-control-size));
+    padding: 5px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1695,15 +1695,14 @@ html[data-theme="dark"] .ui-toggle__track--on {
     display: grid;
     place-items: center;
     padding: 1rem;
-    backdrop-filter: blur(3px);
 }
 
 .ui-modal__backdrop {
     position: absolute;
     inset: 0;
     border: 0;
-    background: rgba(8, 12, 20, 0.56);
-    backdrop-filter: blur(2px);
+    background: transparent;
+    backdrop-filter: blur(6px);
 }
 
 .ui-modal__panel {
@@ -2874,9 +2873,9 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
     width: 100%;
     justify-content: flex-start;
     gap: var(--space-2);
-    padding-inline: var(--space-2);
+    padding: 7px 10px;
     border-radius: var(--radius-control);
-    height: var(--sidebar-row-height);
+    height: 44px;
 }
 
 .profile-menu__avatar {
@@ -3643,4 +3642,177 @@ input {
     .ui-dropdown {
         --dropdown-height: 2.75rem;
     }
+}
+
+/* Guest authentication shares the showcase shell and existing auth forms. */
+.profile-menu__guest-cta {
+    margin-top: 8px;
+    border-top: 0.5px solid var(--panel-border);
+    padding: 12px 8px 4px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.profile-menu__guest-cta p {
+    margin: 0 0 8px;
+    font-weight: 400;
+}
+.profile-menu__guest-cta p:first-child {
+    font-weight: 500;
+    color: var(--text);
+}
+.profile-menu__guest-cta p:nth-child(2) {
+    color: var(--text-soft);
+}
+.profile-menu__login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--control-height);
+    width: 100%;
+    margin-top: 12px;
+    border: 0.5px solid var(--panel-border);
+    border-radius: 999px;
+    background: var(--input-bg);
+    color: var(--text);
+    text-decoration: none;
+}
+.profile-menu__login:hover {
+    background: color-mix(in oklab, var(--text) 12%, transparent);
+}
+.auth-dialog .ui-modal__panel {
+    width: min(420px, 100%);
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    min-height: 0;
+    padding: 28px;
+    gap: 24px;
+    border-radius: 20px;
+    background: var(--popover-bg);
+    outline: none;
+}
+.auth-dialog .ui-modal__header {
+    position: relative;
+    text-align: center;
+    justify-content: center;
+    padding: 8px 20px 0;
+}
+.auth-dialog .ui-modal__header h2 {
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.35;
+}
+.auth-dialog .ui-modal__header p {
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: 12px;
+}
+.auth-dialog .ui-modal__close {
+    position: absolute;
+    top: -16px;
+    right: -16px;
+    border: 0;
+    background: transparent;
+}
+.auth-dialog .ui-modal__body {
+    display: block;
+}
+.auth-dialog-content .auth-panel-stack {
+    width: 100%;
+    gap: 0;
+}
+.auth-dialog-content .auth-panel {
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+}
+.auth-dialog-content .form {
+    margin: 0;
+    gap: 12px;
+}
+.auth-dialog-content .form-field,
+.auth-dialog-content .ui-inline-message,
+.auth-dialog-content .auth-panel .ui-button {
+    width: 100%;
+    max-width: none;
+}
+.auth-dialog-content .auth-panel .ui-button {
+    min-height: 40px;
+    height: auto;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 400;
+}
+.auth-dialog-content .form-field input {
+    height: 40px;
+    border-radius: 12px;
+    font-size: 14px;
+    padding: 8px 12px;
+}
+.auth-dialog-content .auth-footer,
+.auth-dialog-content .auth-panel > .muted {
+    margin: 16px 0 0;
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.5;
+}
+.auth-dialog-social .oauth-provider-list {
+    gap: 10px;
+}
+.auth-dialog-social .ui-button {
+    background: var(--input-bg);
+    color: var(--text);
+    border: 0.5px solid var(--panel-border);
+}
+.auth-dialog-social .ui-button:hover {
+    background: color-mix(in oklab, var(--text) 12%, var(--panel));
+}
+.auth-dialog-divider {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    color: var(--text-soft);
+    font-size: 12px;
+    margin: 20px 0;
+}
+.auth-dialog-divider::before,
+.auth-dialog-divider::after {
+    content: "";
+    height: 0.5px;
+    flex: 1;
+    background: var(--panel-border);
+}
+.auth-dialog-content .login-remember-options {
+    flex-wrap: wrap;
+    gap: 8px 16px;
+}
+@media (max-width: 480px) {
+    .auth-dialog .ui-modal__panel {
+        padding: 24px 20px;
+    }
+    .auth-dialog .ui-modal__close {
+        right: -8px;
+        top: -12px;
+    }
+}
+@media (pointer: coarse) {
+    .auth-dialog-content .auth-panel .ui-button,
+    .auth-dialog-content .form-field input,
+    .auth-dialog .ui-modal__close {
+        min-height: 44px;
+    }
+    .auth-dialog .ui-modal__close {
+        min-width: 44px;
+    }
+}
+
+.auth-dialog-social .oauth-provider-button__logo-wrap,
+.auth-dialog-social .oauth-provider-button__logo {
+    width: 20px;
+    height: 20px;
+}
+.auth-dialog-social .oauth-provider-button__logo--github {
+    filter: invert(1);
 }

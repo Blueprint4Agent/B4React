@@ -67,7 +67,7 @@ export function AppSidebar({
         setBusy(true);
         try {
             await logout();
-            navigate(loginEnabled ? "/login" : "/show-case", { replace: true });
+            navigate("/show-case", { replace: true });
         } finally {
             setBusy(false);
         }
@@ -221,6 +221,7 @@ export function AppSidebar({
                     logoutDisabled={logoutBlocked}
                     logoutDisabledTitle={t("nav.logoutUnavailable")}
                     showLogout={Boolean(user) && loginEnabled}
+                    showLogin={!user && loginEnabled}
                 />
             </div>
             {expanded && onWidthChange && onResizingChange ? (

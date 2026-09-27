@@ -16,7 +16,8 @@ import { useAuthApi } from "../../hooks/api/auth/useAuthApi";
 import { useAppConfig } from "../../hooks/useFeatures";
 import { isValidEmail, isValidPassword } from "../../utils/validation";
 
-export function SignupPage() {
+export function SignupPage({ embedded = false }: { embedded?: boolean }) {
+    const Container = embedded ? "div" : "main";
     const { t } = useTranslation();
     const { signup } = useAuthContext();
     const { extractApiDetail, resolveAuthErrorMessage } = useAuthApi();
@@ -165,11 +166,11 @@ export function SignupPage() {
     };
 
     return (
-        <main className="page auth-page">
+        <Container className={embedded ? "auth-dialog-content" : "page auth-page"}>
             <PanelCard
                 className="auth-panel"
-                title={t("signup.title")}
-                subtitle={t("signup.subtitle")}
+                title={embedded ? undefined : t("signup.title")}
+                subtitle={embedded ? undefined : t("signup.subtitle")}
             >
                 <form onSubmit={onSubmit} className="form" noValidate>
                     <InputField
@@ -269,6 +270,6 @@ export function SignupPage() {
                     </Link>
                 </p>
             </PanelCard>
-        </main>
+        </Container>
     );
 }

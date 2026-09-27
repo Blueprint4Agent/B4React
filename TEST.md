@@ -265,3 +265,8 @@ API-key browser checks cover populated table metadata/statuses, horizontal conta
 Keyboard shortcut unit checks cover platform formatting, exact modifiers and
 input/composition/modal exclusions. Browser checks exercise Mac/Windows/Linux
 shortcuts and verify dropdown-to-trigger alignment at mobile and desktop widths.
+
+Guest auth browser tests run through `make test-ui`: public entry, profile login,
+configured/disabled providers, email-first validation, signup overlay, protected
+settings, Escape/focus containment and responsive bounds. Existing component tests
+continue verifying login success/errors/resend and API-key modal actions.

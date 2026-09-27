@@ -384,5 +384,17 @@
         "platform": {
             "current": "Your keyboard"
         }
+    },
+    "authDialog": {
+        "title": "Log in or sign up",
+        "subtitle": "Sign in to manage your profile and API keys.",
+        "continue": "Continue",
+        "close": "Close",
+        "guestTitle": "Start your own project",
+        "guestDescription": "Log in to manage your profile and API keys.",
+        "login": "Log in",
+        "or": "or",
+        "changeEmail": "Change email",
+        "closeBackdrop": "Close modal backdrop"
     }
 }

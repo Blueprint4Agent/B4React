@@ -384,5 +384,17 @@
         "platform": {
             "current": "현재 키보드"
         }
+    },
+    "authDialog": {
+        "title": "로그인 또는 회원가입",
+        "subtitle": "로그인하고 프로필과 API 키를 관리하세요.",
+        "continue": "계속",
+        "close": "닫기",
+        "guestTitle": "나만의 프로젝트를 시작하세요",
+        "guestDescription": "로그인하고 프로필과 API 키를 관리하세요.",
+        "login": "로그인",
+        "or": "또는",
+        "changeEmail": "이메일 변경",
+        "closeBackdrop": "모달 배경 닫기"
     }
 }

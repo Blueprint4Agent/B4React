@@ -2,7 +2,6 @@ import { FormEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 
-import { OAuthOptionsCard } from "../../components/features/auth/OAuthOptionsCard";
 import { OAuthProviderButton } from "../../components/features/auth/OAuthProviderButton";
 import {
     BrandMark,
@@ -21,7 +20,9 @@ const REMEMBER_EMAIL_STORAGE_KEY = "template_remember_email";
 const REMEMBER_EMAIL_ENABLED_STORAGE_KEY = "template_remember_email_enabled";
 const REMEMBER_ME_ENABLED_STORAGE_KEY = "template_remember_me_enabled";
 
-export function LoginPage() {
+export function LoginPage({ embedded = false }: { embedded?: boolean }) {
+    const Container = embedded ? "div" : "main";
+    const [passwordStep, setPasswordStep] = useState(!embedded);
     const { t } = useTranslation();
     const { login } = useAuthContext();
     const {
@@ -79,7 +80,11 @@ export function LoginPage() {
             }
             try {
                 const payload = await getOAuthProviders();
-                setOAuthProviders(payload.providers);
+                setOAuthProviders(
+                    payload.providers.filter(
+                        (item) => item.provider === "google" || item.provider === "github",
+                    ),
+                );
             } catch {
                 setOAuthProviders([]);
             }
@@ -108,6 +113,11 @@ export function LoginPage() {
         }
         if (!isValidEmail(email)) {
             setEmailErrorMessage(t("auth.errors.invalidEmail"));
+            setSubmitting(false);
+            return;
+        }
+        if (!passwordStep) {
+            setPasswordStep(true);
             setSubmitting(false);
             return;
         }
@@ -186,14 +196,31 @@ export function LoginPage() {
     };
 
     return (
-        <main className="page auth-page">
+        <Container className={embedded ? "auth-dialog-content" : "page auth-page"}>
             <div className="auth-panel-stack">
-                <BrandMark className="brand-mark--login" />
+                {!embedded ? <BrandMark className="brand-mark--login" /> : null}
                 <PanelCard
                     className="auth-panel"
-                    title={t("login.title")}
-                    subtitle={t("login.subtitle")}
+                    title={embedded ? undefined : t("login.title")}
+                    subtitle={embedded ? undefined : t("login.subtitle")}
                 >
+                    {loginEnabled && oauthProviders.length > 0 ? (
+                        <div className="auth-dialog-social">
+                            <div className="oauth-provider-list">
+                                {oauthProviders.map((item) => (
+                                    <OAuthProviderButton
+                                        key={item.provider}
+                                        provider={item.provider}
+                                        label={t(`login.oauth.providers.${item.provider}`)}
+                                        startPath={item.start_path}
+                                    />
+                                ))}
+                            </div>
+                            <div className="auth-dialog-divider">
+                                <span>{t("authDialog.or")}</span>
+                            </div>
+                        </div>
+                    ) : null}
                     {loginEnabled ? (
                         <form onSubmit={onSubmit} className="form" noValidate>
                             <InputField
@@ -227,35 +254,40 @@ export function LoginPage() {
                             {resendMessage ? (
                                 <InlineMessage tone="info">{resendMessage}</InlineMessage>
                             ) : null}
-                            <InputField
-                                label={t("login.fields.password")}
-                                type="password"
-                                autoComplete="current-password"
-                                value={password}
-                                onValueChange={(value) => {
-                                    setPassword(value);
-                                    if (passwordErrorMessage) {
-                                        setPasswordErrorMessage("");
-                                    }
-                                }}
-                            />
-                            {passwordErrorMessage ? (
-                                <InlineMessage>{passwordErrorMessage}</InlineMessage>
+                            {passwordStep ? (
+                                <>
+                                    <InputField
+                                        label={t("login.fields.password")}
+                                        type="password"
+                                        autoComplete="current-password"
+                                        autoFocus={embedded}
+                                        value={password}
+                                        onValueChange={(value) => {
+                                            setPassword(value);
+                                            if (passwordErrorMessage) {
+                                                setPasswordErrorMessage("");
+                                            }
+                                        }}
+                                    />
+                                    {passwordErrorMessage ? (
+                                        <InlineMessage>{passwordErrorMessage}</InlineMessage>
+                                    ) : null}
+                                    <div className="login-remember-options">
+                                        <FormCheckbox
+                                            checked={rememberEmail}
+                                            onCheckedChange={setRememberEmail}
+                                            label={t("login.rememberEmail")}
+                                        />
+                                        <FormCheckbox
+                                            checked={rememberMe}
+                                            onCheckedChange={setRememberMe}
+                                            label={t("login.rememberMe")}
+                                        />
+                                    </div>
+                                </>
                             ) : null}
-                            <div className="login-remember-options">
-                                <FormCheckbox
-                                    checked={rememberEmail}
-                                    onCheckedChange={setRememberEmail}
-                                    label={t("login.rememberEmail")}
-                                />
-                                <FormCheckbox
-                                    checked={rememberMe}
-                                    onCheckedChange={setRememberMe}
-                                    label={t("login.rememberMe")}
-                                />
-                            </div>
                             <Button type="submit" loading={submitting}>
-                                {t("login.submitIdle")}
+                                {t(passwordStep ? "login.submitIdle" : "authDialog.continue")}
                             </Button>
                         </form>
                     ) : (
@@ -277,22 +309,8 @@ export function LoginPage() {
                             </Link>
                         </p>
                     ) : null}
-                    {loginEnabled && oauthProviders.length > 0 ? (
-                        <OAuthOptionsCard title={t("login.oauth.divider")}>
-                            <div className="oauth-provider-list">
-                                {oauthProviders.map((item) => (
-                                    <OAuthProviderButton
-                                        key={item.provider}
-                                        provider={item.provider}
-                                        label={t(`login.oauth.providers.${item.provider}`)}
-                                        startPath={item.start_path}
-                                    />
-                                ))}
-                            </div>
-                        </OAuthOptionsCard>
-                    ) : null}
                 </PanelCard>
             </div>
-        </main>
+        </Container>
     );
 }
