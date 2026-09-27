@@ -21,6 +21,7 @@ export function Tooltip({
 }: TooltipProps) {
     const [open, setOpen] = useState(false);
     const dismissedRef = useRef(false);
+    const keyboardFocusRef = useRef(false);
     const triggerRef = useRef<HTMLSpanElement>(null);
     const tooltipRef = useRef<HTMLSpanElement>(null);
     const id = useId();
@@ -96,18 +97,26 @@ export function Tooltip({
                 setOpen(false);
             }
         };
+        const dismissOnWindowBlur = () => {
+            dismissedRef.current = true;
+            keyboardFocusRef.current = false;
+            setOpen(false);
+        };
         window.addEventListener("keydown", dismiss);
+        window.addEventListener("blur", dismissOnWindowBlur);
         return () => {
             observer.disconnect();
             window.removeEventListener("resize", update);
             window.removeEventListener("scroll", update, true);
             window.removeEventListener("keydown", dismiss);
+            window.removeEventListener("blur", dismissOnWindowBlur);
         };
     }, [visible, side, content]);
 
     const handleBlurCapture = (event: FocusEvent<HTMLSpanElement>) => {
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
             dismissedRef.current = false;
+            keyboardFocusRef.current = false;
             setOpen(false);
         }
     };
@@ -135,10 +144,18 @@ export function Tooltip({
                     event.clientY >= rect.bottom
                 ) {
                     dismissedRef.current = false;
-                    if (!event.currentTarget.contains(document.activeElement)) setOpen(false);
                 }
+                // Always end pointer hover, even when window-exit coordinates are stale.
+                if (!keyboardFocusRef.current) setOpen(false);
             }}
-            onFocusCapture={() => setOpen(true)}
+            onPointerDownCapture={() => {
+                // A click may leave DOM focus behind; it is not keyboard tooltip intent.
+                keyboardFocusRef.current = false;
+            }}
+            onFocusCapture={(event) => {
+                keyboardFocusRef.current = event.target.matches(":focus-visible");
+                if (keyboardFocusRef.current) setOpen(true);
+            }}
             onBlurCapture={handleBlurCapture}
             onClickCapture={() => {
                 dismissedRef.current = true;

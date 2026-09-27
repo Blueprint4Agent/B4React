@@ -111,3 +111,33 @@ for (const width of [320, 390, 1440]) {
         await expect(page.locator(".app-nav__title")).toBeVisible();
     });
 }
+
+test("pointer focus does not keep tooltips open after re-hover", async ({ page }) => {
+    // Given: a button retains focus after a pointer click.
+    const trigger = page.locator('[data-component="Tooltip"] button');
+    await trigger.click();
+    await expect(trigger).toBeFocused();
+    await page.mouse.move(1, 1);
+    // When: re-hovering the still-focused button and leaving it again.
+    await trigger.hover();
+    await expect(page.getByRole("tooltip")).toBeVisible();
+    await page.mouse.move(1, 1);
+    // Then: pointer-acquired focus must not pin the tooltip open.
+    await expect(page.getByRole("tooltip")).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+});
+
+test("keyboard tooltips survive pointer leave but dismiss on window blur", async ({ page }) => {
+    // Given: a keyboard-focused navbar control.
+    const trigger = page.locator(".app-nav__brand");
+    await page.keyboard.press("Tab");
+    await expect(trigger).toBeFocused();
+    await expect(page.getByRole("tooltip")).toBeVisible();
+    // When: hovering and then leaving the keyboard-focused control.
+    await trigger.hover();
+    await page.mouse.move(1, 200);
+    // Then: keyboard focus retains its description, but an inactive window does not.
+    await expect(page.getByRole("tooltip")).toBeVisible();
+    await page.evaluate(() => window.dispatchEvent(new Event("blur")));
+    await expect(page.getByRole("tooltip")).toHaveCount(0);
+});
