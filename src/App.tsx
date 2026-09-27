@@ -120,7 +120,7 @@ export function App() {
             >
                 <Route path="/dashboard" element={<Navigate to="/show-case" replace />} />
                 <Route path="/show-case" element={<ShowCasePage />} />
-                <Route path="/show-case/loading" element={<LoadingPage />} />
+                <Route path="/show-case/loading" element={<LoadingPage preview />} />
                 <Route path="/show-case/404" element={<ShowCaseNotFoundPage />} />
                 <Route
                     path="/login"

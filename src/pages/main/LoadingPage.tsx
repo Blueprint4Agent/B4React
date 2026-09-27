@@ -1,26 +1,30 @@
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { PageStateFrame } from "../../components/layout/PageStateFrame";
+import { BrandMark, Button, Spinner } from "../../components/ui";
 
-import { PanelCard, Spinner } from "../../components/ui";
+type LoadingPageProps = { message?: string; preview?: boolean };
 
-type LoadingPageProps = {
-    message?: string;
-};
-
-export function LoadingPage({ message }: LoadingPageProps) {
+export function LoadingPage({ message, preview = false }: LoadingPageProps) {
     const { t } = useTranslation();
-    const loadingMessage = message ?? t("app.loadingSession");
-
+    const navigate = useNavigate();
     return (
-        <main className="page">
-            <PanelCard
-                title={t("app.loadingTitle")}
-                subtitle={t("app.loadingSubtitle")}
-                className="loading-panel"
-            >
-                <div className="loading-panel__body">
-                    <Spinner size="lg" label={loadingMessage} />
-                </div>
-            </PanelCard>
-        </main>
+        <PageStateFrame
+            title={t("app.loadingTitle")}
+            description={t("app.loadingSubtitle")}
+            illustration={<BrandMark />}
+            actions={
+                preview ? (
+                    <Button
+                        appearance="pill-secondary"
+                        onClick={() => navigate("/show-case", { replace: true })}
+                    >
+                        {t("pageState.back")}
+                    </Button>
+                ) : undefined
+            }
+        >
+            <Spinner size="sm" label={message ?? t("app.loadingSession")} />
+        </PageStateFrame>
     );
 }

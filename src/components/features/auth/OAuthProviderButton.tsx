@@ -1,3 +1,4 @@
+import { OAuthProviderIcon } from "./OAuthProviderIcon";
 import { Button } from "../../ui";
 import { getApiBase } from "../../../utils/apiBase";
 
@@ -7,20 +8,7 @@ type OAuthProviderButtonProps = {
     startPath: string;
     disabled?: boolean;
     onStart?: () => void;
-};
-
-const PROVIDER_LOGOS: Record<
-    OAuthProviderButtonProps["provider"],
-    { light: string; dark: string }
-> = {
-    google: {
-        light: "/icons/google-mark-light.svg",
-        dark: "/icons/google-mark-dark.svg",
-    },
-    github: {
-        light: "/icons/github-mark-light.svg",
-        dark: "/icons/github-mark-dark.svg",
-    },
+    onPreview?: () => void;
 };
 
 export function OAuthProviderButton({
@@ -29,29 +17,22 @@ export function OAuthProviderButton({
     startPath,
     disabled = false,
     onStart,
+    onPreview,
 }: OAuthProviderButtonProps) {
     const onClick = () => {
+        if (onPreview) {
+            onPreview();
+            return;
+        }
         onStart?.();
         const oauthStartUrl = new URL(startPath, `${getApiBase()}/`).toString();
         window.location.assign(oauthStartUrl);
     };
-    const logos = PROVIDER_LOGOS[provider];
 
     return (
         <Button appearance="pill-secondary" type="button" disabled={disabled} onClick={onClick}>
             <span className="oauth-provider-button__content">
-                <span className="oauth-provider-button__logo-wrap" aria-hidden="true">
-                    <img
-                        src={logos.dark}
-                        alt=""
-                        className={`oauth-provider-button__logo oauth-provider-button__logo--dark oauth-provider-button__logo--${provider}`}
-                    />
-                    <img
-                        src={logos.light}
-                        alt=""
-                        className={`oauth-provider-button__logo oauth-provider-button__logo--light oauth-provider-button__logo--${provider}`}
-                    />
-                </span>
+                <OAuthProviderIcon provider={provider} />
                 <span className="oauth-provider-button__label">{label}</span>
             </span>
         </Button>

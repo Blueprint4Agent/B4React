@@ -58,3 +58,7 @@ The desired ruleset is versioned in `.github/main-ruleset.json`. Apply it throug
 GitHub Rulesets after the named CI jobs exist, preserving existing required checks.
 PR conversations must be resolved before merging. Ruleset changes require repository
 administration permission; do not bypass checks when that permission is unavailable.
+
+## Shared UI harness
+
+`make check` and `make architecture-check` include `make ui-composition-check`. Add a rendered showcase example whenever exporting a shared UI value. Keep appearance in `src/styles/app.css`; reuse Button instead of copying its classes. Inline geometry exceptions must be narrowly recorded in the checker and the frontend guide. Review catalog coverage and mobile layout when changing shared controls.

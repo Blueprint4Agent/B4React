@@ -1,10 +1,10 @@
 import { Laptop, Moon, Sun } from "lucide-react";
-import type { ButtonHTMLAttributes } from "react";
+import type { HTMLAttributes } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { ThemeMode } from "../../../hooks/useTheme";
 
-type ThemeToggleButtonProps = Omit<ButtonHTMLAttributes<HTMLDivElement>, "onChange"> & {
+type ThemeToggleButtonProps = Omit<HTMLAttributes<HTMLDivElement>, "onChange"> & {
     onChangeTheme: (mode: ThemeMode) => void;
     themeMode: ThemeMode;
 };

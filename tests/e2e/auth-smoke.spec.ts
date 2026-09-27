@@ -268,3 +268,71 @@ for (const section of ["general", "appearance", "profile", "developers"]) {
         expect(accountRequests).toEqual([]);
     });
 }
+
+for (const width of [320, 1440]) {
+    test(`catalog filters shared previews without account requests at ${width}px`, async ({
+        page,
+    }) => {
+        // Given: a public catalog whose previews must not mutate backend data.
+        await page.setViewportSize({ width, height: 900 });
+        const mutations: string[] = [];
+        page.on("request", (request) => {
+            if (request.method() !== "GET" && /api-keys/.test(request.url()))
+                mutations.push(request.url());
+        });
+        await page.goto("/show-case");
+        const search = page.getByRole("searchbox", { name: "Find a component" });
+        // When: finding a previously missing shared component by name.
+        await search.fill("CopyField");
+        await expect(page.locator("[data-component]")).toHaveCount(1);
+        await expect(page.locator('[data-component="CopyField"]')).toBeVisible();
+        await search.fill("does-not-exist");
+        await expect(page.getByText("No matching components.")).toBeVisible();
+        await page.getByRole("button", { name: "Reset filters" }).click();
+        await page
+            .getByRole("navigation", { name: "Component categories" })
+            .getByRole("button", { name: "API keys", exact: true })
+            .click();
+        const preview = page.locator('[data-component="DeveloperApiKeysSection"]');
+        await expect(preview).toBeVisible();
+        await preview.getByRole("switch").first().click();
+        await expect(preview.getByText("Inactive", { exact: true })).toBeVisible();
+        // Then: local changes remain local, with no horizontal page overflow.
+        expect(mutations).toEqual([]);
+        expect(
+            await page.locator(".app-main").evaluate((node) => node.scrollWidth - node.clientWidth),
+        ).toBeLessThanOrEqual(1);
+        await search.fill("");
+        await page
+            .getByRole("navigation", { name: "Component categories" })
+            .getByRole("button", { name: "Buttons", exact: true })
+            .click();
+        await page.getByRole("button", { name: "Continue with Google", exact: true }).click();
+        await expect(page.getByRole("dialog", { name: "Log in or sign up" })).toBeVisible();
+        await expect(page).toHaveURL(/\/show-case$/);
+    });
+}
+
+for (const width of [320, 1440]) {
+    test(`loading and 404 states are compact and navigable at ${width}px`, async ({ page }) => {
+        // Given: standalone page previews inside the shared shell.
+        await page.setViewportSize({ width, height: 800 });
+        await page.goto("/show-case/loading");
+        await expect(page.locator(".page-state").getByRole("status")).toContainText(
+            "Loading session",
+        );
+        await page.getByRole("button", { name: "Back to components" }).click();
+        await expect(page).toHaveURL(/\/show-case$/);
+        // When: opening both the explicit preview and an unknown route.
+        for (const path of ["/show-case/404", "/missing-example"]) {
+            await page.goto(path);
+            await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
+            const panel = (await page.locator(".page-state__panel").boundingBox())!;
+            expect(panel.x).toBeGreaterThanOrEqual(0);
+            expect(panel.x + panel.width).toBeLessThanOrEqual(width);
+            // Then: the primary recovery action returns to the public catalog.
+            await page.getByRole("button", { name: "Back to components" }).click();
+            await expect(page).toHaveURL(/\/show-case$/);
+        }
+    });
+}

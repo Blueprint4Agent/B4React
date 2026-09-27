@@ -1,7 +1,7 @@
 {
     "app": {
         "loadingTitle": "Loading",
-        "loadingSubtitle": "Please wait while we prepare your session.",
+        "loadingSubtitle": "Preparing your workspace. This will only take a moment.",
         "loadingSession": "Loading session..."
     },
     "desktopWindow": {
@@ -192,8 +192,8 @@
         }
     },
     "showCase": {
-        "title": "ShowCase Page",
-        "subtitle": "This is the ShowCase page. Review these components and instruct the Agent which ones to use for your screen.",
+        "title": "Component library",
+        "subtitle": "Find and try the shared components used throughout the app.",
         "tooltip": {
             "demoTrigger": "Hover this button",
             "demoContent": "This is a reusable tooltip."
@@ -204,7 +204,105 @@
             "email": "Email"
         },
         "logoutIdle": "Sign out",
-        "logoutBusy": "Signing out..."
+        "logoutBusy": "Signing out...",
+        "demo": {
+            "text0": "Primary button",
+            "text1": "Loading button",
+            "text2": "Disabled button",
+            "text3": "Continue with Google",
+            "text4": "Continue with GitHub",
+            "text5": "Demo dropdown",
+            "text6": "Item 1",
+            "text7": "Item 2",
+            "text8": "Item 3",
+            "text9": "Sample menu list",
+            "text10": "Sample input",
+            "text11": "Type something...",
+            "text12": "Checked checkbox",
+            "text13": "Unchecked checkbox",
+            "text14": "Active key",
+            "text15": "Active",
+            "text16": "Inactive",
+            "text17": "Info",
+            "text18": "Name updated successfully.",
+            "text19": "Failed to update your profile. Please try again.",
+            "text20": "Pagination",
+            "text21": "Previous page",
+            "text22": "Next page",
+            "text23": "Open modal",
+            "text24": "Sample modal",
+            "text25": "Reusable modal with modal buttons.",
+            "text26": "Cancel",
+            "text27": "Save",
+            "text28": "This is a modal body content sample.",
+            "text29": "Small spinner",
+            "text30": "Medium spinner",
+            "text31": "Large spinner",
+            "text32": "Open loading page",
+            "text33": "Open 404 page",
+            "text34": "Panel Card",
+            "text35": "Generic container card used across auth screens.",
+            "text36": "Reusable top-level card sample.",
+            "text37": "Information status card example.",
+            "text38": "Warning",
+            "text39": "Warning status card example.",
+            "text40": "Error",
+            "text41": "Error status card example.",
+            "text42": "Validation sample",
+            "text43": "Contains uppercase",
+            "text44": "Contains number",
+            "text45": "Contains special character",
+            "item-1": "Item 1",
+            "item-2": "Item 2",
+            "item-3": "Item 3",
+            "card": "Card {{count}}",
+            "item": "Sample item {{count}}"
+        },
+        "catalog": {
+            "search": "Find a component",
+            "searchPlaceholder": "Button, Avatar, Modal…",
+            "categoriesLabel": "Component categories",
+            "results": "{{count}} sections",
+            "empty": "No matching components.",
+            "reset": "Reset filters",
+            "localOnly": "Preview only. Changes do not affect your account.",
+            "sampleKey": "Sample key",
+            "copy": "Copy sample key",
+            "copied": "Copied",
+            "container": "A compact shared content container.",
+            "categories": {
+                "all": "All",
+                "account": "Account",
+                "api": "API keys",
+                "brand": "Brand & theme",
+                "buttons": "Buttons",
+                "overlays": "Dropdown & tooltip",
+                "navigation": "Navigation",
+                "inputs": "Inputs",
+                "data": "Data & feedback",
+                "dialogs": "Dialogs",
+                "loading": "Loading",
+                "pages": "Page states",
+                "cards": "Cards"
+            },
+            "descriptions": {
+                "all": "",
+                "account": "Avatar, upload and connected accounts.",
+                "api": "Interactive examples with sample data only.",
+                "brand": "Logo variants and appearance controls.",
+                "buttons": "Shared actions and their states.",
+                "overlays": "Anchored menus and contextual hints.",
+                "navigation": "Compact menu selection.",
+                "inputs": "Text fields, checkboxes and switches.",
+                "data": "Statuses, messages and paginated collections.",
+                "dialogs": "Shared dialogs and authentication composition.",
+                "loading": "Loading indicators in three sizes.",
+                "pages": "Open standalone page examples.",
+                "cards": "Containers, account history and validation."
+            },
+            "results_one": "{{count}} section",
+            "results_other": "{{count}} sections"
+        }
     },
     "nav": {
         "profileMenu": "Profile menu",
@@ -420,5 +518,10 @@
         "add": "Add account",
         "switch": "Switch account",
         "current": "Current account"
+    },
+    "pageState": {
+        "back": "Back to components",
+        "notFoundTitle": "Page not found",
+        "notFoundDescription": "This address may have changed or no longer exists. Return to the component library to continue."
     }
 }

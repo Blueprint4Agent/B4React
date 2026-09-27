@@ -1,3 +1,4 @@
+import { OAuthProviderIcon } from "./OAuthProviderIcon";
 import { Button } from "../../ui";
 
 type ConnectedOAuthProvidersCardProps = {
@@ -5,17 +6,6 @@ type ConnectedOAuthProvidersCardProps = {
     providers: string[];
     emptyText: string;
     getProviderLabel: (provider: string) => string;
-};
-
-const CONNECTED_OAUTH_PROVIDER_LOGOS: Record<string, { light: string; dark: string }> = {
-    google: {
-        light: "/icons/google-mark-light.svg",
-        dark: "/icons/google-mark-dark.svg",
-    },
-    github: {
-        light: "/icons/github-mark-light.svg",
-        dark: "/icons/github-mark-dark.svg",
-    },
 };
 
 export function ConnectedOAuthProvidersCard({
@@ -37,23 +27,7 @@ export function ConnectedOAuthProvidersCard({
                             disabled
                         >
                             <span className="settings-oauth-provider-button__content">
-                                {CONNECTED_OAUTH_PROVIDER_LOGOS[provider] ? (
-                                    <span
-                                        className="oauth-provider-button__logo-wrap"
-                                        aria-hidden="true"
-                                    >
-                                        <img
-                                            src={CONNECTED_OAUTH_PROVIDER_LOGOS[provider].dark}
-                                            alt=""
-                                            className={`oauth-provider-button__logo oauth-provider-button__logo--dark oauth-provider-button__logo--${provider}`}
-                                        />
-                                        <img
-                                            src={CONNECTED_OAUTH_PROVIDER_LOGOS[provider].light}
-                                            alt=""
-                                            className={`oauth-provider-button__logo oauth-provider-button__logo--light oauth-provider-button__logo--${provider}`}
-                                        />
-                                    </span>
-                                ) : null}
+                                <OAuthProviderIcon provider={provider} />
                                 <span className="settings-oauth-provider-button__label">
                                     {getProviderLabel(provider)}
                                 </span>
