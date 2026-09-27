@@ -39,7 +39,7 @@ git-governance-pr-check: ## Validate actual PR metadata and every authored commi
 	bash ./scripts/validate-git-governance.sh --event-file "$(GITHUB_EVENT_PATH)"
 
 .PHONY: architecture-check
-architecture-check: ui-composition-check ## Check pages/components runtime dependency boundaries
+architecture-check: ui-composition-check react-performance-check ## Check pages/components runtime dependency boundaries
 	node scripts/check-architecture.mjs
 
 .PHONY: test-ui
@@ -54,3 +54,9 @@ ui-composition-check: ## Verify shared styling and rendered showcase coverage
 .PHONY: test-routes
 test-routes: build ## Verify production lazy-route loading and recovery in Chromium
 	$(NPM) run test:e2e -- --config playwright.production.config.ts
+
+.PHONY: react-performance-check
+react-performance-check: ## Guard config ownership, route splitting, memo boundaries and review policy
+	node scripts/check-react-performance.mjs
+	node --test scripts/check-react-performance.test.mjs
+	python3 -m unittest discover -s scripts -p 'test_*.py'

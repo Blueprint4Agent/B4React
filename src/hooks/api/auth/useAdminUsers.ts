@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useAuthApi } from "./useAuthApi";
 import { useServerConnectivity } from "../../connectivity/useServerConnectivity";
 import type { AdminUserList, AdminUserQuery } from "../../../api/auth/authApi";
-export type { AdminUserQuery } from "../../../api/auth/authApi";
+export type { AdminUserQuery, AdminUserList } from "../../../api/auth/authApi";
 
 type Snapshot = { key: string; data: AdminUserList | null; error: string | null; loading: boolean };
 export function useAdminUsers(ownerId: number | undefined, query: AdminUserQuery) {

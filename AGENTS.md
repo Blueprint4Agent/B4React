@@ -62,3 +62,9 @@ administration permission; do not bypass checks when that permission is unavaila
 ## Shared UI harness
 
 `make check` and `make architecture-check` include `make ui-composition-check`. Add a rendered showcase example whenever exporting a shared UI value. Keep appearance in `src/styles/app.css`; reuse Button instead of copying its classes. Inline geometry exceptions must be narrowly recorded in the checker and the frontend guide. Review catalog coverage and mobile layout when changing shared controls.
+
+## React optimization (default workflow)
+
+Read [state and performance decisions](notes/react-performance.md) before runtime or state-library changes. Establish state ownership first; use React.memo by default at expensive/repeated child boundaries with frequently unchanged props, stable references where useful, and explicit reasons when not applicable. Do not blanket-wrap components or introduce Zustand/Redux without a demonstrated need. Independent optimizations use separate branches/worklogs/PRs.
+
+For runtime/dependency changes, fill State Ownership, Memoization and Performance Evidence in the worklog before implementation and replace planned evidence with actual results. Git governance enforces these sections from the same staged/committed snapshot. `make react-performance-check` is included in check/architecture-check; `make test` protects skipped work and necessary updates; run `make test-routes` for routing/build changes and `make test-ui` for UI changes. Required CI includes production route recovery. Inspect guard failures and update evidence when intentionally changing a protected boundary; do not disable checks merely to pass.

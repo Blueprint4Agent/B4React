@@ -68,12 +68,25 @@ def check_message(message, source):
     return title
 
 
-def check_worklogs(paths, read_file, title, source):
+def check_worklogs(paths, read_file, title, source, changed_paths=None):
     logs = [path for path in paths if WORKLOG.fullmatch(path)]
     require(
         logs,
         f"{source}: add or modify a worklog in this snapshot (untracked files do not count)",
     )
+    runtime_changed = any(
+        (path.startswith("src/") and path.endswith((".ts", ".tsx"))
+         and not path.startswith(("src/tests/", "src/api/generated/")))
+        or path in {"package.json", "package-lock.json", "vite.config.ts"}
+        for path in (changed_paths if changed_paths is not None else paths)
+    )
+    # Policy comes from the same staged/committed snapshot, not today's worktree.
+    # Older commits whose template predates this rule remain valid.
+    try:
+        template = read_file(".github/WORKLOG_TEMPLATE.md")
+    except (KeyError, FileNotFoundError, subprocess.CalledProcessError):
+        template = ""  # Legacy snapshots can predate the shared template.
+    performance_review = runtime_changed and "# Memoization" in template
     matched = False
     for path in logs:
         content = read_file(path)
@@ -83,6 +96,12 @@ def check_worklogs(paths, read_file, title, source):
                 f"{source}: {path} missing/empty {heading}",
             )
         if section(content, "Commit Title", 1) == title:
+            if performance_review:
+                for heading in ("State Ownership", "Memoization", "Performance Evidence"):
+                    require(
+                        substantive(section(content, heading, 1)),
+                        f"{source}: {path} missing/empty {heading} for frontend runtime change",
+                    )
             matched = True
     require(
         matched, f"{source}: no worklog Commit Title matches the actual commit title"
@@ -114,7 +133,11 @@ def check_commit(sha):
         "-r",
         sha,
     ).splitlines()
-    check_worklogs(paths, lambda path: git("show", f"{sha}:{path}"), title, sha[:12])
+    changed_paths = git(
+        "diff-tree", "--root", "--no-commit-id", "--no-renames", "--name-only",
+        "--diff-filter=AMDT", "-r", sha,
+    ).splitlines()
+    check_worklogs(paths, lambda path: git("show", f"{sha}:{path}"), title, sha[:12], changed_paths)
 
 
 def main():
@@ -177,8 +200,11 @@ def main():
         paths = git(
             "diff", "--cached", "--no-renames", "--name-only", "--diff-filter=AM"
         ).splitlines()
+        changed_paths = git(
+            "diff", "--cached", "--no-renames", "--name-only", "--diff-filter=AMDT"
+        ).splitlines()
         check_worklogs(
-            paths, lambda path: git("show", f":{path}"), title, "staged commit"
+            paths, lambda path: git("show", f":{path}"), title, "staged commit", changed_paths
         )
     else:
         check_commit(git("rev-parse", "HEAD"))
