@@ -14,7 +14,7 @@ export const RECENT_ACCOUNTS_EVENT = "blueprint-recent-accounts";
 const isProvider = (value: unknown): value is AccountProvider =>
     value === "email" || value === "google" || value === "github";
 export function accountId(account: Pick<RecentAccount, "email" | "provider">): string {
-    return `${account.provider}:${account.email.toLowerCase()}`;
+    return account.email.trim().toLowerCase();
 }
 export function readRecentAccounts(): RecentAccount[] {
     try {

@@ -222,6 +222,7 @@ export function AppSidebar({
                     onLogout={() => void onLogout()}
                     logoutDisabled={logoutBlocked}
                     logoutDisabledTitle={t("nav.logoutUnavailable")}
+                    allowAccountSwitching={Boolean(user) && loginEnabled}
                     showLogout={Boolean(user) && loginEnabled}
                     showLogin={!user && loginEnabled}
                 />
