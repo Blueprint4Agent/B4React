@@ -1,10 +1,17 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { brandHtml, readProjectConfig } from "./scripts/project-config.mjs";
+
+const project = readProjectConfig();
 
 const tauriDevHost = process.env.TAURI_DEV_HOST;
 
 export default defineConfig({
-    plugins: [react()],
+    plugins: [
+        react(),
+        { name: "project-branding", transformIndexHtml: (html) => brandHtml(html, project) },
+    ],
+    define: { __PROJECT_BRAND__: JSON.stringify(project) },
     clearScreen: false,
     server: {
         port: 5173,

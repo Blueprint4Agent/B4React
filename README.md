@@ -106,3 +106,9 @@ Component audit: [English](notes/component-audit.md) · [한국어](notes/ko/com
 Shared UI/style coverage: `make ui-composition-check` (also included in `make check`).
 
 State management and React optimization: [English](notes/react-performance.md) · [한국어](notes/ko/react-performance.md). `make react-performance-check` guards the default workflow; `make test-routes` verifies production chunk recovery.
+
+Project identity: copy `project.example.json` to `project.local.json`, edit public
+name/short_name/identifier, then run `make project-config-check` and rebuild.
+Optional logo paths use files under public/. Generated config and project-brand
+assets are ignored by Git; consuming projects must reproduce them in CI.
+See the project-local branding section in [the frontend guide](FRONTEND.md).

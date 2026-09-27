@@ -290,3 +290,7 @@ API 키 브라우저 검증은 실제 형태의 목록 메타데이터·상태, 
 관리자 패널 테스트는 역할별 메뉴/경로 차단, 검색과 페이지 이동, 빈 결과/오류/재시도, 모바일/데스크톱 화면, 계정 변경 시 오래된 응답 차단과 데스크톱 복구를 검증합니다.
 
 React 성능 검사는 `make react-performance-check` / `make check`에서 정적 규칙·작업 기록 정책의 통과/실패 fixture를 실행합니다. AdminPage 테스트는 검색 초안 입력 중 날짜 포맷 횟수를 확인하고 데이터·언어·로딩·오류 변경의 정상 갱신도 검증합니다. `make test-routes`는 프로덕션 청크의 지연 로딩·셸 유지·새로고침·홈 복구를 확인하며 필수 Frontend checks CI에서도 Chromium으로 실행합니다. 근거와 한계는 [성능 결정](react-performance.md)을 참고하세요.
+
+## 프로젝트 브랜드 검증
+
+`make project-config-check`는 공개 설정, HTML 이스케이프와 Tauri 설정 병합을 확인합니다. `make test-routes`는 프로덕션 빌드의 영어/한국어 제목, 브랜드 문구, 로고와 파비콘도 검증하며 `project.local.json`이 있으면 해당 값을 사용합니다. 부모 저장소 없이 기본/사용자 지정 설정을 모두 검증합니다.

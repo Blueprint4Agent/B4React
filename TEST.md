@@ -288,3 +288,7 @@ Page-state browser tests exercise loading preview exit, actual unknown-route 404
 Admin panel tests cover role-gated menus/routes, paginated search, empty/error/retry states, mobile/desktop containment, stale-account response rejection and desktop recovery.
 
 React performance checks run through `make react-performance-check` / `make check` with positive and negative static/policy fixtures. AdminPage regression tests count date-format work during unrelated search typing and verify data/locale/loading/error updates still render. Production chunk tests run through `make test-routes`, including deferred navigation, retained shell, reload and home recovery. Required Frontend checks CI installs Chromium and runs these production cases. See [performance decisions](notes/react-performance.md) for evidence and limitations.
+
+## Project branding
+
+`make project-config-check` validates optional public identity and checks HTML escaping and Tauri override merging. `make test-routes` also verifies English/Korean title, wordmark, logo and favicon in a production build, using `project.local.json` when present. These checks keep default and customized copies testable without a parent repository.

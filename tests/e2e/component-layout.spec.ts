@@ -1,3 +1,4 @@
+import { readProjectConfig } from "../../scripts/project-config.mjs";
 import { expect, test } from "@playwright/test";
 
 const config = {
@@ -336,7 +337,9 @@ test("shared sidebar resizes, persists, and keeps settings chrome", async ({ pag
     await page.goto("/settings?section=appearance");
     await page.locator(".app-sidebar__toggle").click();
     const sidebar = page.locator(".app-sidebar");
-    await expect(sidebar.locator(".app-sidebar__brand-name")).toHaveText("B4A");
+    await expect(sidebar.locator(".app-sidebar__brand-name")).toHaveText(
+        readProjectConfig()?.short_name ?? "B4A",
+    );
     await expect(page.getByRole("link", { name: "Back to app" })).toBeVisible();
     const separator = page.getByRole("separator", { name: "Resize sidebar" });
     await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(224);

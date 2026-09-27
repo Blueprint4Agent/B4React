@@ -4,6 +4,14 @@ import { initReactI18next } from "react-i18next";
 import en from "./locales/en.json";
 import ko from "./locales/ko.json";
 
+const project = __PROJECT_BRAND__;
+if (project) {
+    for (const locale of [en, ko]) {
+        locale.landing.eyebrow = project.name;
+        locale.nav.brand = project.short_name;
+    }
+}
+
 const SUPPORTED_LANGUAGE_IDS = ["en", "ko"] as const;
 type SupportedLanguageId = (typeof SUPPORTED_LANGUAGE_IDS)[number];
 const LANGUAGE_STORAGE_KEY = "b4a_language";

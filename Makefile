@@ -14,7 +14,7 @@ dev: ## Start browser development server
 	$(NPM) run dev
 build: ## Build local dist artifacts
 	$(NPM) run build
-check: architecture-check api-check ## Check generated types, formatting, and TypeScript
+check: architecture-check api-check project-config-check ## Check generated types, formatting, and TypeScript
 	$(NPM) run format:check
 	$(NPM) run typecheck
 test: ## Run unit, component, and integration tests
@@ -60,3 +60,8 @@ react-performance-check: ## Guard config ownership, route splitting, memo bounda
 	node scripts/check-react-performance.mjs
 	node --test scripts/check-react-performance.test.mjs
 	python3 -m unittest discover -s scripts -p 'test_*.py'
+
+.PHONY: project-config-check
+project-config-check: ## Validate optional public app branding and Tauri identity
+	node --input-type=module -e 'import { readProjectConfig } from "./scripts/project-config.mjs"; readProjectConfig();'
+	node --test scripts/project-config.test.mjs

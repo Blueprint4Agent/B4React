@@ -489,3 +489,21 @@ AppConfigProvider가 앱 인스턴스별 메모리 설정과 진행 중인 /conf
 런타임 변경마다 상태 소유자·소비자·빈도 확인 → 로컬 상태 분리 → 같은 props의 비용 있는 자식에 React.memo 적용 또는 미적용 이유 기록 → 필요한 props·계산 참조 안정화 → 생략한 작업과 필요한 갱신 검증 → 근거 기록 순서로 진행합니다. 현재는 Provider와 도메인 훅을 유지하며 향후 빈번한 화면 간 클라이언트 상태는 Zustand, 복잡한 이벤트 기반 도메인 상태는 Redux Toolkit을 검토합니다. [상태 목록·도입 기준·하네스](react-performance.md)를 참고하세요. `make check`에서 보호된 경계를 검사하고 Git 하네스는 런타임 작업 기록에 State Ownership/Memoization/Performance Evidence를 요구합니다. AdminUserTable은 기존 items 참조와 언어별 날짜 포맷터를 사용해 memo화하며 API 훅은 계속 페이지가 소유합니다.
 
 AvatarUploadField의 파일 선택 label과 제거 Button은 동일한 공통 control-height 토큰을 사용합니다. 설정 화면에서도 높이를 다르게 덮어쓰지 않습니다. 터치 환경의 프로필 버튼은 최소 44px를 유지합니다.
+
+## 프로젝트별 브랜드 설정
+
+`project.example.json`을 Git에서 제외된 `project.local.json`으로 복사하여 공개
+서비스명·짧은 브랜드명·네이티브 앱의 reverse-DNS 식별자를 지정합니다. 선택적인
+logo_url/logo_dark_url은 public의 로컬 이미지 경로입니다. Vite가 검증 후 정적인
+브랜드 정보를 삽입하고 HTML 제목을 이스케이프하며 로고가 있으면 favicon도 교체합니다.
+두 언어 리소스와 기존 BrandMark의 밝은/어두운 이미지 구성을 재사용합니다.
+새 config API나 전역 상태는 추가하지 않습니다.
+
+Tauri 실행기는 dev/build/bundle과 모바일 dev/build에 productName·identifier·창 제목을
+병합하고 기존 창 크기를 유지합니다. 명시적인 CLI config가 우선합니다. npm/Make
+실행기를 사용해야 적용되며 원시 tauri 바이너리 직접 호출은 이 처리를 거치지 않습니다.
+패키지·crate·소스 모듈명과 네이티브 설치 아이콘은 유지합니다. 변경 후 Vite를 재시작하고
+다시 빌드하세요. 부모 저장소는 project.local.json과 public/project-brand/를 생성할 수
+있지만 B4React는 부모 파일을 직접 읽지 않습니다. 원본 공개 설정을 부모에 보관하고
+CI/배포 전에 생성하세요. `make project-config-check`가 검증·HTML·실행기 병합을,
+`make test-routes`가 기본/커스텀 브랜드의 한·영 프로덕션 화면을 확인합니다.

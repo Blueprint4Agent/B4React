@@ -57,7 +57,9 @@ describe("App configuration guard", () => {
         const publicNav = screen.getByRole("banner", {
             name: "Server connection navigation",
         });
-        expect(within(publicNav).getByText("Blueprint4FastAPI")).toBeInTheDocument();
+        expect(
+            within(publicNav).getByText(__PROJECT_BRAND__?.name ?? "Blueprint4FastAPI"),
+        ).toBeInTheDocument();
         expect(within(publicNav).getByRole("status")).toBeInTheDocument();
         expect(
             within(publicNav).queryByRole("group", { name: "Theme mode" }),

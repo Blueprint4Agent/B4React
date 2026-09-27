@@ -550,3 +550,24 @@ Secondary settings/admin/auth/welcome screens use module-level React.lazy. Showc
 For every runtime change: identify state owner/consumers/frequency → isolate local state → apply React.memo at costly children with unchanged props (or record why not) → stabilize relevant props/derivations → verify skipped work and necessary updates → record evidence. Current library decision: keep scoped providers and hooks; prefer evaluating Zustand for future frequent cross-screen client state, Redux Toolkit for complex event-driven domain state. See [state inventory, adoption criteria and harness](notes/react-performance.md). `make check` enforces protected boundaries, and Git governance requires State Ownership/Memoization/Performance Evidence in runtime worklogs. AdminUserTable is memoized with the original items reference and one date formatter per language; the page still owns its API hook.
 
 AvatarUploadField uses the shared control-height token for both its file-selection label and removal Button; settings overrides must not give them different heights. Coarse-pointer profile actions retain their 44px minimum target.
+
+## Project-local branding
+
+Copy `project.example.json` to ignored `project.local.json` to configure public name,
+short wordmark and native reverse-DNS application identifier. Optional logo_url and
+logo_dark_url reference local public image paths. Vite validates the file and embeds
+immutable identity, escapes the HTML title and replaces the favicon when a logo is
+provided. Both locale resources use that identity; BrandMark reuses its existing
+light/dark image composition. No config API schema or runtime store is added.
+
+The Tauri launcher merges productName, identifier and window titles for dev/build/
+bundle (including mobile dev/build), preserving base window geometry. Explicit CLI
+config arguments take precedence. Use npm/Make launchers to apply identity; directly
+invoking a raw tauri binary bypasses this wrapper. Package/crate/source-module names
+and native installer icons stay unchanged. Restart Vite and rebuild after changes.
+
+A consuming repository may generate project.local.json and public/project-brand/
+as build inputs; B4React never reads parent files. Keep public identity source in
+that repository and reproduce these ignored outputs before CI/deployment builds.
+`make project-config-check` tests validation, HTML and launcher overrides;
+`make test-routes` verifies default or custom identity in English/Korean production.
