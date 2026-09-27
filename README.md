@@ -101,3 +101,6 @@ Connection/reconnection, developer-tab activation and desktop recovery reload th
 list. Stale list/account responses are ignored. Modal/input/one-time key state stays
 in SettingsPage; tab changes preserve a pending creation result. Background reloads
 do not blank an already loaded list. Schema contracts remain unchanged.
+
+Component audit: [English](notes/component-audit.md) · [한국어](notes/ko/component-audit.md).
+Shared UI/style coverage: `make ui-composition-check` (also included in `make check`).

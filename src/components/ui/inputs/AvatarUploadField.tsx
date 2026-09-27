@@ -1,3 +1,4 @@
+import { Button } from "../buttons/Button";
 type AvatarUploadFieldProps = {
     accept?: string;
     busy?: boolean;
@@ -34,14 +35,14 @@ export function AvatarUploadField({
                         }}
                     />
                 </label>
-                <button
+                <Button
                     type="button"
                     className="avatar-upload-field__button avatar-upload-field__button--ghost"
                     onClick={onClear}
                     disabled={busy || !canClear}
                 >
                     {clearButtonText}
-                </button>
+                </Button>
             </div>
             {helperText ? <p className="avatar-upload-field__helper">{helperText}</p> : null}
         </div>

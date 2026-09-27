@@ -280,3 +280,7 @@ storage. Browser tests verify history ordering/selection/deletion and opening an
 additional account login while preserving the current authenticated session.
 
 Guest settings browser coverage verifies public General/Appearance, hidden account sections, direct-link normalization and no account requests.
+
+Catalog browser cases cover component-name search, category selection, no-results/reset, local API-key toggling, OAuth preview isolation and mobile overflow. UI composition harness fixtures verify import aliases, missing exports, same-name impostors, inline appearance, extra stylesheets, copied button classes and geometry exceptions.
+
+Page-state browser tests exercise loading preview exit, actual unknown-route 404 recovery and viewport bounds at 320/1440px. Harness fixtures also reject UI exports missing from the public barrel.

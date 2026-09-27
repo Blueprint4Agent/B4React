@@ -340,8 +340,7 @@ required Frontend checks job through `make frontend-architecture-check`.
 
 The checker inspects static dependencies; it does not prove loading/error-state
 ownership or detect arbitrary helper wrappers, reflection or every HTTP library.
-Keep such architectural decisions in the worklog and review. This task does not
-add showcase completeness or visual checks. No new runtime/tool dependencies.
+Keep such architectural decisions in the worklog and review. The UI composition harness below separately checks showcase coverage. No new runtime/tool dependencies.
 
 ## API Key State Reconciliation
 
@@ -406,7 +405,7 @@ Settings opens from the footer profile popup. Expanded popovers match the sideba
 inner width and follow resizing; collapsed popovers clamp to the viewport. The
 popup groups avatar/name/email, settings, and logout when available, with breathing
 room around the logout divider. Hover uses a 12% foreground mix without borders.
-Legacy ThemeToggle/ThemeToggleButton remain showcase-only; actual auth, navbar,
+Legacy ThemeToggleButton remains showcase-only; actual auth, navbar,
 profile, and titlebar surfaces use no old theme toggle.
 
 ## Settings workspace and shared resizing
@@ -502,3 +501,20 @@ Guest settings expose only General and Appearance. Shared section resolution nor
 BrandMark uses robot SVG assets with adaptive light/dark tones and plain/tile variants. BrandBanner composes the mark and localized B4A wordmark; both palettes are showcased. Expanded sidebar retains its text-only header. The favicon uses the same silhouette with system color-scheme adaptation.
 
 Transparent plain marks are the default, including banners and favicon. Rounded tiles remain optional. Matching PNGs (512px mark/tile; 1024×320 banner) and SVGs live under public/icons/b4a-\*.
+
+## Component catalog and shared-style harness
+
+The catalog has localized category/search controls and isolated interactive fixtures.
+Use actual shared UI/feature components; previews must not call account APIs or start OAuth.
+New public UI exports need rendered JSX examples in ShowCasePage or features/showcase.
+`make ui-composition-check` resolves TypeScript symbols, including import aliases, to
+check that coverage; it rejects extra source CSS/SCSS/Sass/Less files, inline JSX
+appearance/style elements and raw buttons copying ui-button classes. It runs through
+architecture-check in child and parent CI. Fixture tests check both acceptance and rejection.
+Dynamic sidebar width and profile account popup coordinates are narrowly allowed
+expressions; tooltip positioning remains DOM geometry managed by the shared overlay.
+This is a static guard, not proof of visual quality or detection of all possible
+duplicated designs; browser layout checks and visual review remain required.
+See [component audit](notes/component-audit.md) for retained and removed components.
+
+Actual LoadingPage and ShowCaseNotFoundPage now share PageStateFrame, compact PanelCard chrome, localized copy and shared actions. Startup loading uses the same composition; only the catalog loading preview exposes a return button. The UI harness also requires runtime exports in ui files to be exposed through the public barrel.

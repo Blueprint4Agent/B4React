@@ -39,9 +39,14 @@ git-governance-pr-check: ## Validate actual PR metadata and every authored commi
 	bash ./scripts/validate-git-governance.sh --event-file "$(GITHUB_EVENT_PATH)"
 
 .PHONY: architecture-check
-architecture-check: ## Check pages/components runtime dependency boundaries
+architecture-check: ui-composition-check ## Check pages/components runtime dependency boundaries
 	node scripts/check-architecture.mjs
 
 .PHONY: test-ui
 test-ui: ## Check component layout and tooltip behavior in Chromium
 	$(NPM) run test:e2e -- tests/e2e/component-layout.spec.ts tests/e2e/auth-smoke.spec.ts
+
+.PHONY: ui-composition-check
+ui-composition-check: ## Verify shared styling and rendered showcase coverage
+	node scripts/check-ui-composition.mjs
+	node --test scripts/check-ui-composition.test.mjs

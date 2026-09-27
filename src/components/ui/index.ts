@@ -27,6 +27,5 @@ export { ToggleSwitch } from "./switches/ToggleSwitch";
 export { ThemePreviewSelector } from "./toggles/ThemePreviewSelector";
 
 export { ThemeToggleButton } from "./toggles/ThemeToggleButton";
-export { ThemeToggle } from "./toggles/ThemeToggle";
 
 export { KeyboardShortcut } from "./navigation/KeyboardShortcut";

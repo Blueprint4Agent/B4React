@@ -1,22 +1,29 @@
 import { useNavigate } from "react-router-dom";
-
-import { Button, PanelCard } from "../../components/ui";
+import { useTranslation } from "react-i18next";
+import { SearchX } from "lucide-react";
+import { PageStateFrame } from "../../components/layout/PageStateFrame";
+import { Button } from "../../components/ui";
 
 export function ShowCaseNotFoundPage() {
     const navigate = useNavigate();
-
+    const { t } = useTranslation();
     return (
-        <section className="page-content">
-            <PanelCard
-                title="404 Not Found"
-                subtitle="The page you are looking for does not exist."
-            >
-                <div className="showcase-not-found__actions">
-                    <Button type="button" onClick={() => navigate("/show-case", { replace: true })}>
-                        Back to Main Page
-                    </Button>
-                </div>
-            </PanelCard>
-        </section>
+        <PageStateFrame
+            title={t("pageState.notFoundTitle")}
+            description={t("pageState.notFoundDescription")}
+            illustration={
+                <>
+                    <span className="page-state__symbol">
+                        <SearchX aria-hidden="true" />
+                    </span>
+                    <span className="page-state__code">404</span>
+                </>
+            }
+            actions={
+                <Button appearance="pill" onClick={() => navigate("/show-case", { replace: true })}>
+                    {t("pageState.back")}
+                </Button>
+            }
+        />
     );
 }
