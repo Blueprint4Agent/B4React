@@ -1,21 +1,28 @@
 type BrandMarkProps = {
     className?: string;
+    variant?: "plain" | "tile";
+    tone?: "auto" | "light" | "dark";
 };
 
-// Replace brand assets under `/public/icons/b4a-mark*` to customize without code changes.
-export function BrandMark({ className }: BrandMarkProps) {
-    const nextClassName = className ? `brand-mark ${className}` : "brand-mark";
-
+export function BrandMark({ className, variant = "plain", tone = "auto" }: BrandMarkProps) {
     return (
-        <span className={nextClassName} aria-hidden="true">
-            <picture className="brand-mark__asset brand-mark__asset--light">
-                <source srcSet="/icons/b4a-mark.svg" type="image/svg+xml" />
-                <img src="/icons/b4a-mark.png" alt="" />
-            </picture>
-            <picture className="brand-mark__asset brand-mark__asset--dark">
-                <source srcSet="/icons/b4a-mark-dark.svg" type="image/svg+xml" />
-                <img src="/icons/b4a-mark-dark.png" alt="" />
-            </picture>
+        <span
+            className={["brand-mark", `brand-mark--${variant}`, className]
+                .filter(Boolean)
+                .join(" ")}
+            data-brand-tone={tone}
+            aria-hidden="true"
+        >
+            <img
+                className="brand-mark__asset brand-mark__asset--light"
+                src="/icons/b4a-mark.svg"
+                alt=""
+            />
+            <img
+                className="brand-mark__asset brand-mark__asset--dark"
+                src="/icons/b4a-mark-dark.svg"
+                alt=""
+            />
         </span>
     );
 }

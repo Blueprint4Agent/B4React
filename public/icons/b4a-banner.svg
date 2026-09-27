@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="#f5f5f7">
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="320" viewBox="0 0 320 100"><g fill="#17191f">
 <defs><mask id="head-cutout"><rect x="16" y="28" width="76" height="64" rx="27" fill="white"/><circle cx="19" cy="62" r="18" fill="black"/><rect x="40" y="43" width="59" height="40" rx="15" fill="black"/></mask></defs>
 <rect x="31" y="9" width="9" height="27" rx="4.5"/>
 <rect x="16" y="28" width="76" height="64" rx="27" mask="url(#head-cutout)"/>
 <circle cx="19" cy="62" r="14"/>
 <rect x="45" y="48" width="49" height="30" rx="10"/>
-</svg>
+</g><text x="123" y="72" fill="#17191f" font-family="Arial, sans-serif" font-size="65" font-weight="600" letter-spacing="-3">B4A</text></svg>
