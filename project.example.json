@@ -1,0 +1,6 @@
+{
+    "version": 1,
+    "name": "My Service",
+    "short_name": "MyApp",
+    "identifier": "com.example.myapp"
+}

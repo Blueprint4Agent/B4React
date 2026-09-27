@@ -26,7 +26,9 @@ describe("LandingPage", () => {
         renderLanding(true);
 
         const nav = screen.getByRole("banner", { name: "Landing navigation" });
-        expect(within(nav).getByText("Blueprint4FastAPI")).toBeInTheDocument();
+        expect(
+            within(nav).getByText(__PROJECT_BRAND__?.name ?? "Blueprint4FastAPI"),
+        ).toBeInTheDocument();
         expect(within(nav).queryByRole("group", { name: "Theme mode" })).not.toBeInTheDocument();
     });
 

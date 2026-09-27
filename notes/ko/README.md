@@ -96,3 +96,9 @@ ID 기준 갱신을 사용하고, 이벤트·변경 완료 후 서버 목록으�
 목록을 유지합니다. API 스키마는 바뀌지 않습니다.
 
 상태 관리·React 최적화: [English](../react-performance.md) · [한국어](react-performance.md). `make react-performance-check`로 기본 작업 규칙을 검사하고 `make test-routes`로 프로덕션 청크 복구를 검증합니다.
+
+프로젝트 이름 설정: `project.example.json`을 `project.local.json`으로 복사하고
+name/short_name/identifier를 수정한 뒤 `make project-config-check`와 빌드를 실행합니다.
+선택적인 로고는 public/ 아래 경로를 사용합니다. 생성 설정·project-brand 파일은 Git에서
+제외하므로 소비 프로젝트의 CI에서 재생성해야 합니다. [가이드](FRONTEND.md)의 프로젝트별
+브랜드 설정을 참고하세요.

@@ -1,8 +1,15 @@
 import { spawn } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { delimiter, join } from "node:path";
 
+import { readProjectConfig, withProjectTauriArgs } from "./project-config.mjs";
+
+const projectArgs = withProjectTauriArgs(
+    process.argv.slice(2),
+    JSON.parse(readFileSync("src-tauri/tauri.conf.json", "utf8")),
+    readProjectConfig(),
+);
 const tauriScriptPath = join(process.cwd(), "node_modules", "@tauri-apps", "cli", "tauri.js");
 const executable = process.platform === "win32" ? process.execPath : "tauri";
 const tauriPath =
@@ -26,8 +33,7 @@ if (existsSync(cargoBin) && !pathEntries.includes(cargoBin)) {
 }
 
 const command = process.platform === "win32" ? executable : tauriPath;
-const args =
-    process.platform === "win32" ? [tauriPath, ...process.argv.slice(2)] : process.argv.slice(2);
+const args = process.platform === "win32" ? [tauriPath, ...projectArgs] : projectArgs;
 
 const child = spawn(command, args, {
     env,
