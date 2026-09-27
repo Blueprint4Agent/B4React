@@ -267,9 +267,16 @@ input/composition/modal exclusions. Browser checks exercise Mac/Windows/Linux
 shortcuts and verify dropdown-to-trigger alignment at mobile and desktop widths.
 
 Guest auth browser tests run through `make test-ui`: public entry, profile login,
-configured/disabled providers, email-first validation, signup overlay, protected
+configured/disabled providers, email-first validation, signup overlay, guest
 settings, Escape/focus containment and responsive bounds. Existing component tests
 continue verifying login success/errors/resend and API-key modal actions.
 
 Recovery browser checks cover empty-email validation, sent confirmation, signup
 criteria, missing reset token feedback and the shared showcase auth preview.
+
+Recent-account tests cover bounded/deduplicated/expired storage, consent, OAuth
+return validation, token-cache clearing, profile image refresh, removal and blocked
+storage. Browser tests verify history ordering/selection/deletion and opening an
+additional account login while preserving the current authenticated session.
+
+Guest settings browser coverage verifies public General/Appearance, hidden account sections, direct-link normalization and no account requests.

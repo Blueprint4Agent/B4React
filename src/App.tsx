@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useState, type ReactNode } from "react";
-import { Navigate, Outlet, Route, Routes } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes, useSearchParams } from "react-router-dom";
 
 import { AppLayout } from "./components/layout/AppLayout";
 import { useAuthContext } from "./hooks/useAuth";
@@ -21,25 +21,6 @@ import { ShowCasePage } from "./pages/main/ShowCasePage";
 import { SettingsPage } from "./pages/settings/SettingsPage";
 import { ServerUnavailablePage } from "./pages/main/ServerUnavailablePage";
 import { useServerConnectivity } from "./hooks/connectivity/useServerConnectivity";
-
-function ProtectedLayout({
-    loginEnabled,
-    configLoading,
-}: {
-    loginEnabled: boolean;
-    configLoading: boolean;
-}) {
-    const { user, loading } = useAuthContext();
-    const { t } = useTranslation();
-    if (loading || configLoading) {
-        return <LoadingPage message={t("app.loadingSession")} />;
-    }
-    if (loginEnabled && !user) {
-        return <Navigate to="/login" replace />;
-    }
-
-    return <Outlet />;
-}
 
 function NotFoundRoute({
     loginEnabled,
@@ -77,7 +58,9 @@ function AuthDialogRoute({
     guestOnly?: boolean;
 }) {
     const { user, loading } = useAuthContext();
-    if (guestOnly && !loading && user) return <Navigate to="/show-case" replace />;
+    const [params] = useSearchParams();
+    if (guestOnly && !loading && user && params.get("switch") !== "1")
+        return <Navigate to="/show-case" replace />;
     return (
         <>
             <ShowCasePage />
@@ -235,16 +218,7 @@ export function App() {
                         )
                     }
                 />
-                <Route
-                    element={
-                        <ProtectedLayout
-                            loginEnabled={loginEnabled}
-                            configLoading={configLoading}
-                        />
-                    }
-                >
-                    <Route path="/settings" element={<SettingsPage />} />
-                </Route>
+                <Route path="/settings" element={<SettingsPage />} />
             </Route>
             <Route
                 path="*"

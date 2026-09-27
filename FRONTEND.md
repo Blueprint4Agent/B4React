@@ -453,7 +453,7 @@ settings and a login call-to-action, with no billing/help or unsupported provide
 `/login` and `/signup` overlay the showcase with the shared Modal and page-owned
 auth hooks. Login presents configured Google/GitHub providers and an email-first
 step, then existing password/session/error/recovery behavior. Disabled providers
-stay hidden. Settings remains protected when login is enabled; unavailable config
+stay hidden. General/Appearance settings are public; Profile/Developers require an account. Unavailable config
 still fails closed. Logout returns to the public showcase.
 Auth dialogs opt into Escape dismissal, focus containment and restoration. Modal
 backdrops use a single transparent 6px blur without a dark color overlay, preserving
@@ -471,3 +471,30 @@ auth-frame preview. Status cards use a compact icon/message layout (alert for er
 and warnings, status for information); validation criteria use neutral pending marks
 and accessible met/pending labels. Anonymous auth-enabled profile triggers use the
 localized login/signup entry label.
+
+## Recent accounts and switching
+
+Remember accounts is opt-in and reuses the existing remember-email preference.
+Successful email login or authenticated OAuth return stores at most five identities
+for 90 days per browser/origin: email, name, provider, last-use time and optional
+profile image. Large uploaded images become 64px thumbnails; unsafe/oversized image
+references are discarded. Profile load/update refreshes saved metadata, while a
+removed record is never recreated by that refresh. Passwords/tokens are excluded.
+Malformed storage is ignored; storage failures never prevent authentication.
+
+RecentAccountList is shared with the showcase and sits immediately before the
+remember-account checkbox. Individual/all deletion and cross-tab refresh are
+supported. Profile identity opens current/recent accounts and Add account. A
+`switch=1` auth route allows a signed-in user to authenticate another identity;
+closing it preserves the current session. Email choices prefill the password step.
+OAuth choices use enabled provider endpoints and clear the old access-token cache
+before navigation; the return restores the server cookie session and records only
+a valid, opted-in provider intent. Provider account selection stays provider-owned.
+This is history, not a multi-session credential store; switching requires authentication.
+
+Account switching renders in a separate body portal beside the profile popup,
+flipping left when needed and clamping to the viewport. Dynamic top/left coordinates
+are an inline-style exception; scroll/resize/content changes update placement.
+Shared UserAvatar crops photos into circles and falls back to initials on load errors.
+
+Guest settings expose only General and Appearance. Shared section resolution normalizes account-only guest URLs to General; no account API work starts.

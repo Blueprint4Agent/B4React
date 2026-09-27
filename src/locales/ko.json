@@ -404,5 +404,21 @@
         "buttonLoading": "처리 중",
         "buttonDisabled": "사용 불가",
         "entry": "로그인/회원가입"
+    },
+    "recentAccounts": {
+        "title": "최근 계정",
+        "clear": "전체 삭제",
+        "select": "{{provider}}로 {{email}} 계정 계속하기",
+        "remove": "이 브라우저에서 {{email}} ({{provider}}) 기록 삭제",
+        "note": "이 브라우저에 저장된 기록이며 다시 로그인해야 합니다.",
+        "providers": {
+            "email": "이메일",
+            "google": "Google",
+            "github": "GitHub"
+        },
+        "remember": "이 브라우저에 계정 기억하기",
+        "add": "계정 추가",
+        "switch": "계정 전환",
+        "current": "현재 계정"
     }
 }

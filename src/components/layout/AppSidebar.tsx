@@ -1,3 +1,4 @@
+import { resolveSettingsSection } from "../../utils/settingsSections";
 import {
     AppWindow,
     ArrowLeft,
@@ -49,10 +50,8 @@ export function AppSidebar({
     const isSettings = useLocation().pathname === "/settings";
     const [searchParams] = useSearchParams();
     const section = searchParams.get("section");
-    const activeSection = ["general", "appearance", "developers"].includes(section ?? "")
-        ? section
-        : "profile";
     const { user, logout } = useAuthContext();
+    const activeSection = resolveSettingsSection(section, Boolean(user));
     const { data: appConfig } = useAppConfig();
     const { checkNow, isDesktop, status } = useServerConnectivity();
     const [busy, setBusy] = useState(false);
@@ -177,37 +176,39 @@ export function AppSidebar({
                 className="app-sidebar__nav"
                 aria-label={t(isSettings ? "settings.menu.title" : "nav.sidebar.aria")}
             >
-                {items.map(({ path, label, icon: Icon, section: itemSection }) => (
-                    <Tooltip
-                        key={path}
-                        content={label}
-                        side="right"
-                        className="app-sidebar__item-tooltip"
-                        disabled={expanded}
-                    >
-                        <NavLink
-                            to={path}
-                            aria-current={
-                                isSettings
-                                    ? itemSection === activeSection
-                                        ? "page"
-                                        : false
-                                    : undefined
-                            }
-                            className={({ isActive }) =>
-                                (isSettings ? itemSection === activeSection : isActive)
-                                    ? "app-sidebar__item app-sidebar__item--active"
-                                    : "app-sidebar__item"
-                            }
-                            aria-label={label}
+                {items
+                    .filter((item) => user || !["profile", "developers"].includes(item.section))
+                    .map(({ path, label, icon: Icon, section: itemSection }) => (
+                        <Tooltip
+                            key={path}
+                            content={label}
+                            side="right"
+                            className="app-sidebar__item-tooltip"
+                            disabled={expanded}
                         >
-                            <Icon aria-hidden="true" />
-                            {expanded ? (
-                                <span className="app-sidebar__item-label">{label}</span>
-                            ) : null}
-                        </NavLink>
-                    </Tooltip>
-                ))}
+                            <NavLink
+                                to={path}
+                                aria-current={
+                                    isSettings
+                                        ? itemSection === activeSection
+                                            ? "page"
+                                            : false
+                                        : undefined
+                                }
+                                className={({ isActive }) =>
+                                    (isSettings ? itemSection === activeSection : isActive)
+                                        ? "app-sidebar__item app-sidebar__item--active"
+                                        : "app-sidebar__item"
+                                }
+                                aria-label={label}
+                            >
+                                <Icon aria-hidden="true" />
+                                {expanded ? (
+                                    <span className="app-sidebar__item-label">{label}</span>
+                                ) : null}
+                            </NavLink>
+                        </Tooltip>
+                    ))}
             </nav>
             <div className="app-sidebar__footer">
                 <ConnectivityStatus placement="sidebar" />

@@ -13,7 +13,7 @@ import { isValidEmail, isValidPassword } from "../../utils/validation";
 
 export function SignupPage({ embedded = false }: { embedded?: boolean }) {
     const { t } = useTranslation();
-    const { signup } = useAuthContext();
+    const { signup, user } = useAuthContext();
     const { extractApiDetail, resolveAuthErrorMessage } = useAuthApi();
     const { data: appConfig, loading: configLoading } = useAppConfig();
     const navigate = useNavigate();
@@ -259,7 +259,7 @@ export function SignupPage({ embedded = false }: { embedded?: boolean }) {
             </form>
             <p className="muted auth-footer">
                 {t("signup.loginPrompt")}{" "}
-                <Link to="/login" className="text-link">
+                <Link to={user ? "/login?switch=1" : "/login"} className="text-link">
                     {t("signup.loginLink")}
                 </Link>
             </p>
