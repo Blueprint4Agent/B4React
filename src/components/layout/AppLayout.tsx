@@ -1,8 +1,9 @@
 import type { CSSProperties, ReactNode } from "react";
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useCallback, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AppSidebar } from "./AppSidebar";
+import { useAppShortcuts } from "../../hooks/useAppShortcuts";
 import { clampSidebarWidth, SIDEBAR_DEFAULT_WIDTH } from "./SidebarResizeHandle";
 
 const SIDEBAR_WIDTH_KEY = "blueprint_sidebar_width";
@@ -32,6 +33,13 @@ export function AppLayout({ children }: AppLayoutProps) {
             /* Keep resizing available when storage is blocked. */
         }
     };
+    const navigate = useNavigate();
+    const toggleSidebar = useCallback(() => {
+        setResizing(false);
+        setExpanded((value) => !value);
+    }, []);
+    const openSettings = useCallback(() => navigate("/settings"), [navigate]);
+    useAppShortcuts({ toggleSidebar, openSettings });
     const isSettings = useLocation().pathname === "/settings";
     return (
         <div
@@ -48,10 +56,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             ) : null}
             <AppSidebar
                 expanded={expanded}
-                onToggleExpanded={() => {
-                    setResizing(false);
-                    setExpanded((value) => !value);
-                }}
+                onToggleExpanded={toggleSidebar}
                 width={sidebarWidth}
                 onWidthChange={onWidthChange}
                 onResizingChange={setResizing}

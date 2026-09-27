@@ -372,5 +372,17 @@
         "system": "System",
         "light": "Light mode",
         "dark": "Dark mode"
+    },
+    "shortcuts": {
+        "keys": {
+            "Command": "Command",
+            "Control": "Control",
+            "Alt": "Alt",
+            "Shift": "Shift",
+            "Meta": "Meta"
+        },
+        "platform": {
+            "current": "Your keyboard"
+        }
     }
 }

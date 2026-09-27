@@ -15,9 +15,10 @@ import { Link, NavLink, useNavigate, useLocation, useSearchParams } from "react-
 import { useAuthContext } from "../../hooks/useAuth";
 import { useServerConnectivity } from "../../hooks/connectivity/useServerConnectivity";
 import { useAppConfig } from "../../hooks/useFeatures";
-import { BrandMark, Tooltip } from "../ui";
+import { BrandMark, KeyboardShortcut, Tooltip } from "../ui";
 import { ConnectivityStatus } from "./ConnectivityStatus";
 import { ProfileDropdown } from "./ProfileDropdown";
+import { APP_SHORTCUTS, shortcutAriaKeys } from "../../utils/keyboardShortcuts";
 import { SidebarResizeHandle, SIDEBAR_DEFAULT_WIDTH } from "./SidebarResizeHandle";
 
 type AppSidebarProps = {
@@ -118,7 +119,15 @@ export function AppSidebar({
                         >
                             <span className="app-sidebar__brand-name">{t("nav.brand")}</span>
                         </Link>
-                        <Tooltip content={t("nav.sidebar.toggleClose")} side="right">
+                        <Tooltip
+                            content={
+                                <span className="ui-shortcut-hint">
+                                    {t("nav.sidebar.toggleClose")}
+                                    <KeyboardShortcut keys={APP_SHORTCUTS.toggleSidebar} />
+                                </span>
+                            }
+                            side="right"
+                        >
                             <button
                                 type="button"
                                 ref={toggleRef}
@@ -126,6 +135,7 @@ export function AppSidebar({
                                 aria-label={t("nav.sidebar.toggleClose")}
                                 aria-expanded={true}
                                 aria-controls="app-sidebar-navigation"
+                                aria-keyshortcuts={shortcutAriaKeys(APP_SHORTCUTS.toggleSidebar)}
                                 onClick={onToggleExpanded}
                             >
                                 <PanelLeftClose aria-hidden="true" />
@@ -133,7 +143,15 @@ export function AppSidebar({
                         </Tooltip>
                     </>
                 ) : (
-                    <Tooltip content={t("nav.sidebar.toggleOpen")} side="right">
+                    <Tooltip
+                        content={
+                            <span className="ui-shortcut-hint">
+                                {t("nav.sidebar.toggleOpen")}
+                                <KeyboardShortcut keys={APP_SHORTCUTS.toggleSidebar} />
+                            </span>
+                        }
+                        side="right"
+                    >
                         <button
                             type="button"
                             ref={toggleRef}
@@ -141,6 +159,7 @@ export function AppSidebar({
                             aria-label={t("nav.sidebar.toggleOpen")}
                             aria-expanded={false}
                             aria-controls="app-sidebar-navigation"
+                            aria-keyshortcuts={shortcutAriaKeys(APP_SHORTCUTS.toggleSidebar)}
                             onClick={onToggleExpanded}
                         >
                             <BrandMark />

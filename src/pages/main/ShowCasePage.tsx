@@ -24,6 +24,7 @@ import {
     Spinner,
     StatusBadge,
     ThemePreviewSelector,
+    KeyboardShortcut,
     ThemeToggleButton,
     Tooltip,
     ToggleSwitch,
@@ -93,6 +94,28 @@ export function ShowCasePage() {
                     <div className="showcase-catalog__section-card">
                         <h3>Brand & Theme</h3>
                         <div className="showcase-catalog__row">
+                            <ShowcaseItem component="KeyboardShortcut">
+                                <div className="showcase-shortcut-examples">
+                                    <span>
+                                        {t("shortcuts.platform.current")}
+                                        <KeyboardShortcut keys={["mod", "shift", "s"]} />
+                                    </span>
+                                    <span>
+                                        macOS
+                                        <KeyboardShortcut
+                                            keys={["mod", "shift", "s"]}
+                                            platform="macos"
+                                        />
+                                    </span>
+                                    <span>
+                                        Windows / Linux
+                                        <KeyboardShortcut
+                                            keys={["mod", "shift", "s"]}
+                                            platform="windows"
+                                        />
+                                    </span>
+                                </div>
+                            </ShowcaseItem>
                             <ShowcaseItem component="BrandMark">
                                 <BrandMark />
                             </ShowcaseItem>
