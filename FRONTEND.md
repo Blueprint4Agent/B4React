@@ -359,3 +359,27 @@ while a toggle is in flight. Switching settings tabs does not discard a pending
 create response/one-time secret. Account change clears secret/modal state.
 Redis pub/sub has no replay and is best-effort: these refetches recover missed
 changes on reconnect/activation, but do not provide continuous or durable delivery.
+
+## Component Geometry and Tooltip Placement
+
+Shared geometry lives in `src/styles/app.css`: use the 4/8/12/16/24/32px spacing
+scale (`--space-*`), 8px control, 12px card, and 16px panel radii. Standard controls
+are 44px high; compact pagination and dialog actions retain their explicit sizes.
+Use 8px label/control and icon/text spacing, 16–24px card padding, and readable
+1.25–1.5 line heights. These are project conventions inspired by the
+[Atlassian spacing foundation](https://atlassian.design/foundations/spacing), not a
+universal compliance standard. Preserve the existing palette and brand.
+
+Sidebar geometry uses shared 64px collapsed / 208px expanded width tokens. On
+mobile, expansion overlays the content instead of reducing its usable width.
+Navbar columns remain symmetric and desktop window-control insets are preserved.
+
+Tooltips measure their actual rendered child control, render in a body portal,
+and flip/clamp within the viewport with an 8px gap and edge inset. Position updates
+on nested scroll, window resize, and trigger/content resize; completely clipped
+anchors hide their tooltip. Computed top/left coordinates are the sole dynamic
+inline-style exception; appearance stays in app.css. Supply one control that
+forwards `aria-describedby`; hover and focus open it, click/Escape dismiss it.
+Light mode uses a black tooltip with white text; dark mode uses a white tooltip
+with black text, including system appearance. `make test-ui` verifies anchor
+placement, inverse theme colors, scrolling, edge collision, and mobile overflow.

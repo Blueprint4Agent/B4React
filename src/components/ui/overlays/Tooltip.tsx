@@ -1,5 +1,6 @@
 import type { FocusEvent, ReactNode } from "react";
-import { useState } from "react";
+import { cloneElement, isValidElement, useId, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 type TooltipSide = "top" | "right" | "bottom" | "left";
 
@@ -19,40 +20,141 @@ export function Tooltip({
     className,
 }: TooltipProps) {
     const [open, setOpen] = useState(false);
+    const dismissedRef = useRef(false);
+    const triggerRef = useRef<HTMLSpanElement>(null);
+    const tooltipRef = useRef<HTMLSpanElement>(null);
+    const id = useId();
+    const visible = open && !disabled;
     const nextClassName = className ? `ui-tooltip ${className}` : "ui-tooltip";
-    const tooltipClassName = open
-        ? `ui-tooltip__content ui-tooltip__content--${side} ui-tooltip__content--open`
-        : `ui-tooltip__content ui-tooltip__content--${side}`;
+
+    useLayoutEffect(() => {
+        if (!visible) return;
+        const wrapper = triggerRef.current;
+        const tooltip = tooltipRef.current;
+        if (!wrapper || !tooltip) return;
+        // Measure the control, never its potentially stretched grid/flex wrapper.
+        const trigger = wrapper.firstElementChild ?? wrapper;
+        const gap = 8;
+        const edge = 8;
+        const opposite: Record<TooltipSide, TooltipSide> = {
+            top: "bottom",
+            bottom: "top",
+            left: "right",
+            right: "left",
+        };
+        const update = () => {
+            const rect = trigger.getBoundingClientRect();
+            const width = tooltip.offsetWidth;
+            const height = tooltip.offsetHeight;
+            const viewportWidth = document.documentElement.clientWidth;
+            const viewportHeight = document.documentElement.clientHeight;
+            const room: Record<TooltipSide, number> = {
+                top: rect.top - edge,
+                bottom: viewportHeight - rect.bottom - edge,
+                left: rect.left - edge,
+                right: viewportWidth - rect.right - edge,
+            };
+            const required = (side === "top" || side === "bottom" ? height : width) + gap;
+            const resolved =
+                room[side] < required && room[opposite[side]] > room[side] ? opposite[side] : side;
+            let left = rect.left + (rect.width - width) / 2;
+            let top = rect.top + (rect.height - height) / 2;
+            if (resolved === "top") top = rect.top - height - gap;
+            if (resolved === "bottom") top = rect.bottom + gap;
+            if (resolved === "left") left = rect.left - width - gap;
+            if (resolved === "right") left = rect.right + gap;
+            tooltip.style.left = `${Math.max(edge, Math.min(left, viewportWidth - width - edge))}px`;
+            tooltip.style.top = `${Math.max(edge, Math.min(top, viewportHeight - height - edge))}px`;
+            tooltip.dataset.side = resolved;
+            let clipped =
+                rect.bottom <= 0 ||
+                rect.top >= viewportHeight ||
+                rect.right <= 0 ||
+                rect.left >= viewportWidth;
+            for (let parent = trigger.parentElement; parent; parent = parent.parentElement) {
+                const style = getComputedStyle(parent);
+                const bounds = parent.getBoundingClientRect();
+                if (/(auto|scroll|hidden|clip)/.test(style.overflowY)) {
+                    clipped ||= rect.bottom <= bounds.top || rect.top >= bounds.bottom;
+                }
+                if (/(auto|scroll|hidden|clip)/.test(style.overflowX)) {
+                    clipped ||= rect.right <= bounds.left || rect.left >= bounds.right;
+                }
+            }
+            tooltip.style.visibility = clipped ? "hidden" : "visible";
+        };
+        update();
+        const observer = new ResizeObserver(update);
+        observer.observe(trigger);
+        observer.observe(wrapper);
+        observer.observe(tooltip);
+        window.addEventListener("resize", update);
+        window.addEventListener("scroll", update, true);
+        const dismiss = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                dismissedRef.current = true;
+                setOpen(false);
+            }
+        };
+        window.addEventListener("keydown", dismiss);
+        return () => {
+            observer.disconnect();
+            window.removeEventListener("resize", update);
+            window.removeEventListener("scroll", update, true);
+            window.removeEventListener("keydown", dismiss);
+        };
+    }, [visible, side, content]);
 
     const handleBlurCapture = (event: FocusEvent<HTMLSpanElement>) => {
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+            dismissedRef.current = false;
             setOpen(false);
         }
     };
+    const describedChildren = isValidElement<{ "aria-describedby"?: string }>(children)
+        ? cloneElement(children, {
+              "aria-describedby":
+                  [children.props["aria-describedby"], visible ? id : undefined]
+                      .filter(Boolean)
+                      .join(" ") || undefined,
+          })
+        : children;
 
     return (
         <span
             className={nextClassName}
             onMouseEnter={() => {
-                setOpen(true);
+                if (!dismissedRef.current) setOpen(true);
             }}
-            onMouseLeave={() => {
-                setOpen(false);
+            onMouseLeave={(event) => {
+                const rect = event.currentTarget.getBoundingClientRect();
+                if (
+                    event.clientX < rect.left ||
+                    event.clientX >= rect.right ||
+                    event.clientY < rect.top ||
+                    event.clientY >= rect.bottom
+                ) {
+                    dismissedRef.current = false;
+                    if (!event.currentTarget.contains(document.activeElement)) setOpen(false);
+                }
             }}
-            onFocusCapture={() => {
-                setOpen(true);
-            }}
+            onFocusCapture={() => setOpen(true)}
             onBlurCapture={handleBlurCapture}
             onClickCapture={() => {
+                dismissedRef.current = true;
                 setOpen(false);
             }}
         >
-            <span className="ui-tooltip__trigger">{children}</span>
-            {disabled ? null : (
-                <span role="tooltip" className={tooltipClassName} aria-hidden={!open}>
-                    {content}
-                </span>
-            )}
+            <span ref={triggerRef} className="ui-tooltip__trigger">
+                {describedChildren}
+            </span>
+            {visible &&
+                createPortal(
+                    <span ref={tooltipRef} id={id} role="tooltip" className="ui-tooltip__content">
+                        {content}
+                    </span>,
+                    document.body,
+                )}
         </span>
     );
 }

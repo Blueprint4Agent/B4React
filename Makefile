@@ -41,3 +41,7 @@ git-governance-pr-check: ## Validate actual PR metadata and every authored commi
 .PHONY: architecture-check
 architecture-check: ## Check pages/components runtime dependency boundaries
 	node scripts/check-architecture.mjs
+
+.PHONY: test-ui
+test-ui: ## Check component layout and tooltip behavior in Chromium
+	$(NPM) run test:e2e -- tests/e2e/component-layout.spec.ts
