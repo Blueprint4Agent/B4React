@@ -469,7 +469,11 @@ for (const [platform, userAgent, modifier] of [
         await expect(page.locator(".app-sidebar")).toHaveClass(/app-sidebar--expanded/);
         await page.keyboard.press(`${modifier}+,`);
         await expect(page).toHaveURL(/\/settings/);
-        await page.getByRole("textbox", { name: "Name", exact: true }).focus();
+        await page.getByRole("link", { name: "Back to app", exact: true }).click();
+        await page
+            .locator(".showcase-catalog input:not([type=checkbox]):not([type=radio])")
+            .first()
+            .focus();
         await page.keyboard.press(`${modifier}+b`);
         // Then: typing context does not toggle the sidebar.
         await expect(page.locator(".app-sidebar")).toHaveClass(/app-sidebar--expanded/);

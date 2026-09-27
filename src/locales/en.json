@@ -404,5 +404,21 @@
         "buttonLoading": "Please wait",
         "buttonDisabled": "Unavailable",
         "entry": "Log in / Sign up"
+    },
+    "recentAccounts": {
+        "title": "Recent accounts",
+        "clear": "Clear all",
+        "select": "Continue as {{email}} with {{provider}}",
+        "remove": "Remove {{email}} ({{provider}}) from this browser",
+        "note": "Saved on this browser. Sign-in is still required.",
+        "providers": {
+            "email": "Email",
+            "google": "Google",
+            "github": "GitHub"
+        },
+        "remember": "Remember accounts on this browser",
+        "add": "Add account",
+        "switch": "Switch account",
+        "current": "Current account"
     }
 }

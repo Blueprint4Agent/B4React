@@ -1261,10 +1261,17 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 }
 
 .user-avatar {
+    display: inline-grid;
+    place-items: center;
+    border-radius: 50%;
+    aspect-ratio: 1;
+    flex-shrink: 0;
+    background: var(--input-bg);
     overflow: hidden;
 }
 
 .user-avatar img {
+    object-position: center;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -3938,4 +3945,206 @@ input {
     .ui-button.ui-button--pill-secondary {
         min-height: 44px;
     }
+}
+
+.recent-accounts {
+    margin-bottom: 4px;
+    min-width: 0;
+}
+.recent-accounts__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.recent-accounts h3 {
+    font-size: 13px;
+    font-weight: 500;
+    margin: 0;
+}
+.recent-accounts__header button {
+    border: 0;
+    background: transparent;
+    color: var(--text-soft);
+    font-size: 12px;
+    padding: 6px;
+    cursor: pointer;
+}
+.recent-accounts ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 4px;
+}
+.recent-accounts li {
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    background: color-mix(in oklab, var(--text) 4%, transparent);
+}
+.recent-accounts li:hover {
+    background: color-mix(in oklab, var(--text) 10%, transparent);
+}
+.recent-accounts__select,
+.recent-accounts__remove {
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+}
+.recent-accounts__select {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+    padding: 8px 10px;
+    text-align: left;
+}
+.recent-accounts__select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.recent-accounts__select > svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+.recent-accounts__identity {
+    min-width: 0;
+    display: grid;
+    gap: 3px;
+}
+.recent-accounts__identity > span {
+    font-size: 13px;
+    font-weight: 500;
+}
+.recent-accounts__identity small {
+    font-size: 11px;
+    color: var(--text-soft);
+}
+.recent-accounts__identity > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.recent-accounts__remove {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    margin-right: 4px;
+    border-radius: 8px;
+}
+.recent-accounts__remove svg {
+    width: 14px;
+    height: 14px;
+}
+.recent-accounts__remove:hover {
+    background: color-mix(in oklab, var(--text) 12%, transparent);
+}
+.recent-accounts > p {
+    margin: 8px 0 0;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--text-soft);
+}
+.profile-menu__identity-button {
+    width: 100%;
+    border: 0;
+    border-bottom: 0.5px solid var(--panel-border);
+    background: transparent;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+    border-radius: 8px;
+}
+.profile-menu__identity-button:hover {
+    background: color-mix(in oklab, var(--text) 12%, transparent);
+}
+.profile-menu__chevron {
+    width: 16px;
+    height: 16px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+.profile-menu__accounts {
+    position: fixed;
+    z-index: 85;
+    max-height: calc(100dvh - 16px);
+    overflow-y: auto;
+    width: 256px;
+    max-width: calc(100vw - 32px);
+    padding: 8px;
+    border-radius: 12px;
+    border: 0.5px solid var(--panel-border);
+    background: var(--popover-bg);
+    box-shadow: var(--shadow);
+}
+.profile-menu__account-current,
+.profile-menu__account-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 8px;
+    min-width: 0;
+    color: var(--text);
+    text-decoration: none;
+    border-radius: 8px;
+}
+.profile-menu__account-link:hover {
+    background: color-mix(in oklab, var(--text) 12%, transparent);
+}
+.profile-menu__account-current > span,
+.profile-menu__account-link > span {
+    min-width: 0;
+    display: grid;
+    gap: 3px;
+}
+.profile-menu__account-current strong,
+.profile-menu__account-link strong {
+    font-size: 13px;
+    font-weight: 500;
+}
+.profile-menu__account-current small,
+.profile-menu__account-link small {
+    font-size: 11px;
+    color: var(--text-soft);
+    overflow-wrap: anywhere;
+}
+.profile-menu__account-current > svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+.profile-menu__account-add {
+    margin-top: 4px;
+}
+.profile-menu__account-add > svg {
+    width: 18px;
+    height: 18px;
+}
+@media (pointer: coarse) {
+    .recent-accounts__remove {
+        width: 44px;
+        height: 44px;
+    }
+    .recent-accounts__header button {
+        min-height: 44px;
+    }
+}
+.recent-accounts__select .user-avatar {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    font-size: 12px;
+}
+.profile-menu__accounts .user-avatar {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
 }

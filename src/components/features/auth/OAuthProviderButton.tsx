@@ -6,6 +6,7 @@ type OAuthProviderButtonProps = {
     label: string;
     startPath: string;
     disabled?: boolean;
+    onStart?: () => void;
 };
 
 const PROVIDER_LOGOS: Record<
@@ -27,8 +28,10 @@ export function OAuthProviderButton({
     label,
     startPath,
     disabled = false,
+    onStart,
 }: OAuthProviderButtonProps) {
     const onClick = () => {
+        onStart?.();
         const oauthStartUrl = new URL(startPath, `${getApiBase()}/`).toString();
         window.location.assign(oauthStartUrl);
     };

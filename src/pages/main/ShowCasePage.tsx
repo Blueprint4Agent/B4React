@@ -1,3 +1,5 @@
+import { RecentAccountList } from "../../components/features/auth/RecentAccountList";
+import type { RecentAccount } from "../../utils/recentAccounts";
 import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { useTranslation } from "react-i18next";
 import { KeyRound, SlidersHorizontal, UserRound } from "lucide-react";
@@ -61,6 +63,20 @@ export function ShowCasePage() {
     const [sampleUnchecked, setSampleUnchecked] = useState(false);
     const [sampleMenu, setSampleMenu] = useState("profile");
     const [sampleToggle, setSampleToggle] = useState(true);
+    const [sampleAccounts, setSampleAccounts] = useState<RecentAccount[]>([
+        {
+            email: "designer@example.com",
+            name: "Designer",
+            provider: "email",
+            lastUsed: Date.now(),
+        },
+        {
+            email: "developer@example.com",
+            name: "Developer",
+            provider: "github",
+            lastUsed: Date.now(),
+        },
+    ]);
     const [authPreviewOpen, setAuthPreviewOpen] = useState(false);
     const [previewEmail, setPreviewEmail] = useState("");
     const [sampleModalOpen, setSampleModalOpen] = useState(false);
@@ -462,6 +478,21 @@ export function ShowCasePage() {
                                 value={user?.email ?? "-"}
                             />
                         </dl>
+                    </ShowcaseItem>
+                    <ShowcaseItem component="RecentAccountList">
+                        <RecentAccountList
+                            accounts={sampleAccounts}
+                            onSelect={(account) => {
+                                setPreviewEmail(account.email);
+                                setAuthPreviewOpen(true);
+                            }}
+                            onRemove={(account) =>
+                                setSampleAccounts((items) =>
+                                    items.filter((item) => item !== account),
+                                )
+                            }
+                            onClear={() => setSampleAccounts([])}
+                        />
                     </ShowcaseItem>
                     <ShowcaseItem component="InfoCard">
                         <InfoCard title="Info" message="Information status card example." />

@@ -72,9 +72,9 @@ for (const width of [390, 1440]) {
         await expect(page.locator(".profile-menu__trigger")).toBeFocused();
     });
 }
-test("settings remains protected and dialog keyboard focus stays contained", async ({ page }) => {
-    // Given: a guest directly requests account settings.
-    await page.goto("/settings");
+test("dialog keyboard focus stays contained", async ({ page }) => {
+    // Given: a guest opens login.
+    await page.goto("/login");
     await expect(page).toHaveURL(/\/login$/);
     const dialog = page.getByRole("dialog", { name: "Log in or sign up" });
     await expect(dialog).toBeVisible();
@@ -149,3 +149,122 @@ test("showcase exposes the shared pill buttons and auth frame", async ({ page })
     await dialog.getByRole("button", { name: "Close", exact: true }).click();
     await expect(page.getByRole("dialog")).toHaveCount(0);
 });
+
+test("remembered accounts can be selected and removed without authenticating", async ({ page }) => {
+    await page.addInitScript(() =>
+        localStorage.setItem(
+            "blueprint_recent_accounts_v1",
+            JSON.stringify([
+                {
+                    email: "saved@example.com",
+                    name: "Saved user",
+                    provider: "email",
+                    lastUsed: Date.now(),
+                },
+            ]),
+        ),
+    );
+    await page.goto("/login");
+    const dialog = page.getByRole("dialog");
+    await dialog.getByRole("button", { name: "Continue as saved@example.com with Email" }).click();
+    const historyBounds = (await dialog.locator(".recent-accounts").boundingBox())!;
+    const rememberBounds = (await dialog
+        .getByText("Remember accounts on this browser", { exact: true })
+        .boundingBox())!;
+    expect(historyBounds.y + historyBounds.height).toBeLessThanOrEqual(rememberBounds.y);
+    await expect(dialog.getByLabel("Email", { exact: true })).toHaveValue("saved@example.com");
+    await expect(dialog.getByLabel("Password", { exact: true })).toBeVisible();
+    await dialog
+        .getByRole("button", { name: "Remove saved@example.com (Email) from this browser" })
+        .click();
+    await expect(dialog.getByRole("region", { name: "Recent accounts" })).toHaveCount(0);
+    expect(
+        await page.evaluate(() => localStorage.getItem("blueprint_recent_accounts_v1")),
+    ).toBeNull();
+});
+
+test("signed-in users add another account and retain the current session until success", async ({
+    page,
+}) => {
+    const user = {
+        id: 1,
+        name: "First account",
+        email: "first@example.com",
+        role: "user",
+        is_verified: true,
+        oauth_providers: [],
+        profile_image_url: null,
+        created_at: "2026-01-01T00:00:00Z",
+    };
+    await page.route("**/api/v1/auth/login", (route) =>
+        route.fulfill({
+            json: {
+                access_token: "fixture-token",
+                refresh_token: "fixture-refresh",
+                token_type: "bearer",
+                user,
+            },
+        }),
+    );
+    await page.goto("/login");
+    let dialog = page.getByRole("dialog");
+    await dialog.getByLabel("Email", { exact: true }).fill(user.email);
+    await dialog.getByText("Remember accounts on this browser", { exact: true }).click();
+    await dialog.getByRole("button", { name: "Continue", exact: true }).click();
+    await dialog.getByLabel("Password", { exact: true }).fill("ValidPass123!");
+    await dialog.getByRole("button", { name: "Sign in", exact: true }).click();
+    await expect(page).toHaveURL(/\/show-case$/);
+    await page.locator(".profile-menu__trigger").click();
+    await page.getByRole("button", { name: "Switch account" }).click();
+    await expect(page.locator(".profile-menu__account-current")).toContainText(user.email);
+    expect(
+        await page
+            .locator(".profile-menu__accounts")
+            .evaluate((element) => element.parentElement === document.body),
+    ).toBe(true);
+    const parentBounds = (await page.locator(".profile-menu__dropdown").boundingBox())!;
+    const accountsBounds = (await page.locator(".profile-menu__accounts").boundingBox())!;
+    expect(accountsBounds.x).toBeGreaterThanOrEqual(parentBounds.x + parentBounds.width + 7);
+    await expect(page.locator(".profile-menu__account-current .user-avatar")).toHaveCSS(
+        "border-radius",
+        "50%",
+    );
+
+    await page.getByRole("link", { name: "Add account", exact: true }).click();
+    await expect(page).toHaveURL(/\/login\?switch=1$/);
+    dialog = page.getByRole("dialog", { name: "Log in or sign up" });
+    await expect(dialog).toBeVisible();
+    // Existing account remains authenticated if the new login is canceled.
+    await dialog.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(page.locator(".profile-menu__trigger")).toHaveAttribute("title", "First account");
+    const records = await page.evaluate(() =>
+        JSON.parse(localStorage.getItem("blueprint_recent_accounts_v1") ?? "[]"),
+    );
+    expect(records).toHaveLength(1);
+    expect(records[0]).toMatchObject({ email: user.email, provider: "email" });
+    expect(JSON.stringify(records)).not.toContain("fixture-token");
+});
+
+for (const section of ["general", "appearance", "profile", "developers"]) {
+    test(`guest settings restrict ${section} to local preferences`, async ({ page }) => {
+        const accountRequests: string[] = [];
+        page.on("request", (request) => {
+            if (/api-keys|auth\/me/.test(request.url())) accountRequests.push(request.url());
+        });
+        await page.goto(`/settings?section=${section}`);
+        const allowed = section === "appearance" ? "appearance" : "general";
+        await expect(page).toHaveURL(new RegExp(`section=${allowed}$`));
+        const nav = page.locator("#app-sidebar-navigation");
+        await expect(nav.getByRole("link", { name: "General", exact: true })).toBeVisible();
+        await expect(nav.getByRole("link", { name: "Appearance", exact: true })).toBeVisible();
+        await expect(nav.getByRole("link", { name: "Profile", exact: true })).toHaveCount(0);
+        await expect(nav.getByRole("link", { name: "Developers", exact: true })).toHaveCount(0);
+        await expect(
+            page.getByRole("heading", {
+                name: allowed === "appearance" ? "Appearance" : "General",
+                exact: true,
+            }),
+        ).toBeVisible();
+        expect(accountRequests).toEqual([]);
+    });
+}

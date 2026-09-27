@@ -1,7 +1,16 @@
+import { RecentAccountList } from "../../components/features/auth/RecentAccountList";
+import { useRecentAccounts } from "../../hooks/useRecentAccounts";
+import {
+    beginOAuthAccountIntent,
+    clearRecentAccounts,
+    removeRecentAccount,
+    type RecentAccount,
+} from "../../utils/recentAccounts";
+import { getApiBase } from "../../utils/apiBase";
 import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import { OAuthProviderButton } from "../../components/features/auth/OAuthProviderButton";
 import { Button, FormCheckbox, InputField, InlineMessage } from "../../components/ui";
@@ -17,7 +26,10 @@ const REMEMBER_ME_ENABLED_STORAGE_KEY = "template_remember_me_enabled";
 export function LoginPage({ embedded = false }: { embedded?: boolean }) {
     const [passwordStep, setPasswordStep] = useState(!embedded);
     const { t } = useTranslation();
-    const { login } = useAuthContext();
+    const { login, user } = useAuthContext();
+    const accounts = useRecentAccounts();
+    const location = useLocation();
+    const handledSelection = useRef<string | null>(null);
     const {
         getOAuthProviders,
         resendVerificationEmail,
@@ -126,7 +138,12 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
         }
 
         try {
-            await login({ email, password, remember_me: rememberMe });
+            await login({
+                email,
+                password,
+                remember_me: rememberMe,
+                remember_account: rememberEmail,
+            });
             try {
                 window.localStorage.setItem(
                     REMEMBER_ME_ENABLED_STORAGE_KEY,
@@ -188,6 +205,42 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
         }
     };
 
+    const selectAccount = (account: RecentAccount) => {
+        if (account.provider === "email") {
+            setEmail(account.email);
+            setPassword("");
+            setPasswordStep(true);
+            setEmailErrorMessage("");
+            setPasswordErrorMessage("");
+            setShowResendButton(false);
+            setResendMessage("");
+        } else {
+            const provider = oauthProviders.find((item) => item.provider === account.provider);
+            if (provider) {
+                beginOAuthAccountIntent(provider.provider, rememberEmail);
+                window.location.assign(new URL(provider.start_path, `${getApiBase()}/`).toString());
+            }
+        }
+    };
+    useEffect(() => {
+        if (handledSelection.current === location.key) return;
+        const state = location.state as {
+            accountEmail?: unknown;
+            accountProvider?: unknown;
+        } | null;
+        if (typeof state?.accountEmail !== "string") return;
+        if (state.accountProvider === "google" || state.accountProvider === "github") {
+            const provider = oauthProviders.find((item) => item.provider === state.accountProvider);
+            if (!provider) return;
+            handledSelection.current = location.key;
+            beginOAuthAccountIntent(provider.provider, rememberEmail);
+            window.location.assign(new URL(provider.start_path, `${getApiBase()}/`).toString());
+        } else {
+            handledSelection.current = location.key;
+            setEmail(state.accountEmail);
+            setPasswordStep(true);
+        }
+    }, [location.key, location.state, oauthProviders, rememberEmail]);
     return (
         <AuthPageFrame
             embedded={embedded}
@@ -203,6 +256,9 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
                                 provider={item.provider}
                                 label={t(`login.oauth.providers.${item.provider}`)}
                                 startPath={item.start_path}
+                                onStart={() =>
+                                    beginOAuthAccountIntent(item.provider, rememberEmail)
+                                }
                             />
                         ))}
                     </div>
@@ -213,6 +269,22 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
             ) : null}
             {loginEnabled ? (
                 <form onSubmit={onSubmit} className="form" noValidate>
+                    <RecentAccountList
+                        accounts={accounts}
+                        onSelect={selectAccount}
+                        onRemove={removeRecentAccount}
+                        onClear={clearRecentAccounts}
+                        availableProviders={[
+                            "email",
+                            ...oauthProviders.map((item) => item.provider),
+                        ]}
+                    />
+
+                    <FormCheckbox
+                        checked={rememberEmail}
+                        onCheckedChange={setRememberEmail}
+                        label={t("recentAccounts.remember")}
+                    />
                     <InputField
                         label={t("login.fields.email")}
                         type="email"
@@ -263,11 +335,6 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
                             ) : null}
                             <div className="login-remember-options">
                                 <FormCheckbox
-                                    checked={rememberEmail}
-                                    onCheckedChange={setRememberEmail}
-                                    label={t("login.rememberEmail")}
-                                />
-                                <FormCheckbox
                                     checked={rememberMe}
                                     onCheckedChange={setRememberMe}
                                     label={t("login.rememberMe")}
@@ -290,7 +357,7 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
             )}
             <p className="muted auth-footer">
                 {t("login.signupPrompt")}{" "}
-                <Link to="/signup" className="text-link">
+                <Link to={user ? "/signup?switch=1" : "/signup"} className="text-link">
                     {t("login.signupLink")}
                 </Link>
             </p>

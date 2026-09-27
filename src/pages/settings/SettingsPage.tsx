@@ -1,3 +1,4 @@
+import { resolveSettingsSection } from "../../utils/settingsSections";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
@@ -27,7 +28,6 @@ type SaveFeedback = {
     tone: "error" | "info";
     source: "name" | "photo";
 } | null;
-type SettingsMenuKey = "profile" | "general" | "appearance" | "developers";
 const MAX_PROFILE_PHOTO_SIZE_MB = 8;
 const MAX_PROFILE_PHOTO_SIZE_BYTES = MAX_PROFILE_PHOTO_SIZE_MB * 1024 * 1024;
 const DEFAULT_API_KEY_EXPIRY_OPTION: APIKeyExpiryOption = "30d";
@@ -36,15 +36,24 @@ type SupportedLanguageId = (typeof SUPPORTED_LANGUAGE_IDS)[number];
 
 export function SettingsPage() {
     const { t, i18n } = useTranslation();
-    const { user, updateProfile } = useAuthContext();
+    const { user, loading: authLoading, updateProfile } = useAuthContext();
     const { data: appConfig } = useAppConfig();
     const { themeMode, setThemeMode } = useTheme();
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const section = searchParams.get("section");
-    const activeMenu: SettingsMenuKey =
-        section === "general" || section === "appearance" || section === "developers"
-            ? section
-            : "profile";
+    const activeMenu = resolveSettingsSection(section, Boolean(user));
+    useEffect(() => {
+        if (!authLoading && !user && section !== activeMenu) {
+            setSearchParams(
+                (previous) => {
+                    const next = new URLSearchParams(previous);
+                    next.set("section", activeMenu);
+                    return next;
+                },
+                { replace: true },
+            );
+        }
+    }, [authLoading, user, section, activeMenu, setSearchParams]);
     const [nameInput, setNameInput] = useState("");
     const [profileImageInput, setProfileImageInput] = useState<string | null>(null);
     const [saveBusy, setSaveBusy] = useState(false);

@@ -108,6 +108,7 @@ describe("LoginPage", () => {
             email: FULL_SYSTEM_SCENARIO.principal.email,
             password: FULL_SYSTEM_SCENARIO.auth.validPassword,
             remember_me: false,
+            remember_account: false,
         });
         expect(navigateMock).toHaveBeenCalledWith("/show-case", { replace: true });
     });
@@ -121,7 +122,7 @@ describe("LoginPage", () => {
         // When: remember options are selected and login succeeds.
         await user.type(screen.getByLabelText("Email"), FULL_SYSTEM_SCENARIO.principal.email);
         await user.type(screen.getByLabelText("Password"), FULL_SYSTEM_SCENARIO.auth.validPassword);
-        await user.click(screen.getByLabelText("Remember email"));
+        await user.click(screen.getByLabelText("Remember accounts on this browser"));
         await user.click(screen.getByLabelText("Remember me"));
         await user.click(screen.getByRole("button", { name: "Sign in" }));
 
@@ -130,6 +131,7 @@ describe("LoginPage", () => {
             email: FULL_SYSTEM_SCENARIO.principal.email,
             password: FULL_SYSTEM_SCENARIO.auth.validPassword,
             remember_me: true,
+            remember_account: true,
         });
         expect(window.localStorage.getItem("template_remember_email_enabled")).toBe("true");
         expect(window.localStorage.getItem("template_remember_email")).toBe(
@@ -152,7 +154,7 @@ describe("LoginPage", () => {
 
         // Then: email and checkbox states are restored.
         expect(screen.getByLabelText("Email")).toHaveValue(FULL_SYSTEM_SCENARIO.principal.email);
-        expect(screen.getByLabelText("Remember email")).toBeChecked();
+        expect(screen.getByLabelText("Remember accounts on this browser")).toBeChecked();
         expect(screen.getByLabelText("Remember me")).toBeChecked();
     });
 

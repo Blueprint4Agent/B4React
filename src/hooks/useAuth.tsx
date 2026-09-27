@@ -1,4 +1,10 @@
 import {
+    rememberAccount,
+    updateRememberedProfile,
+    removeRecentAccount,
+    completeOAuthAccountIntent,
+} from "../utils/recentAccounts";
+import {
     createContext,
     useCallback,
     useContext,
@@ -17,7 +23,12 @@ import { clearAccessToken, getAccessToken, setAccessToken } from "../store/sessi
 type AuthContextValue = {
     user: RoleAwareUser | null;
     loading: boolean;
-    login: (input: { email: string; password: string; remember_me: boolean }) => Promise<void>;
+    login: (input: {
+        email: string;
+        password: string;
+        remember_me: boolean;
+        remember_account?: boolean;
+    }) => Promise<void>;
     signup: (input: { email: string; name: string; password: string }) => Promise<void>;
     updateProfile: (input: { name?: string; profile_image_url?: string | null }) => Promise<void>;
     logout: () => Promise<void>;
@@ -41,6 +52,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = useAuthApi();
     const [user, setUser] = useState<RoleAwareUser | null>(null);
     const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        if (user) void updateRememberedProfile(user);
+    }, [user]);
     const refreshInFlightRef = useRef<Promise<void> | null>(null);
 
     const refreshSession = useCallback(async () => {
@@ -52,6 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const refreshResult = await refreshAuth();
             setAccessToken(refreshResult.access_token);
             const nextUser = await me();
+            completeOAuthAccountIntent(nextUser);
             setUser(nextUser);
         })();
 
@@ -80,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (token) {
                 try {
                     const nextUser = await me();
+                    completeOAuthAccountIntent(nextUser);
                     setUser(nextUser);
                     return;
                 } catch {
@@ -113,7 +129,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             user,
             loading,
             login: async (input) => {
-                const payload = await loginAuth(input);
+                const { remember_account, ...credentials } = input;
+                const payload = await loginAuth(credentials);
+                if (remember_account)
+                    rememberAccount({
+                        email: payload.user.email,
+                        name: payload.user.name ?? "",
+                        provider: "email",
+                    });
+                else removeRecentAccount({ email: payload.user.email, provider: "email" });
                 setAccessToken(payload.access_token);
                 setUser(payload.user);
             },
