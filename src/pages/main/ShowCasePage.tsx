@@ -5,7 +5,7 @@ import type { RecentAccount } from "../../utils/recentAccounts";
 import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { useTranslation } from "react-i18next";
 import { KeyRound, SlidersHorizontal, UserRound } from "lucide-react";
-import { useState } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
 import {
     ShowcaseItem,
     ShowcaseQuery,
@@ -45,7 +45,10 @@ import {
     ValidationCard,
 } from "../../components/ui";
 
+const StyleStudio = __STYLE_STUDIO__ ? lazy(() => import("../development/StyleStudio")) : null;
+
 export function ShowCasePage() {
+    const previewRoot = useRef<HTMLElement>(null);
     const { t } = useTranslation();
     const [query, setQuery] = useState("");
     const [category, setCategory] = useState("all");
@@ -622,7 +625,12 @@ export function ShowCasePage() {
                 section.names.some((name) => name.toLocaleLowerCase().includes(normalizedQuery))),
     );
     return (
-        <section className="showcase-catalog">
+        <section className="showcase-catalog" ref={previewRoot}>
+            {StyleStudio && (
+                <Suspense fallback={null}>
+                    <StyleStudio previewRoot={previewRoot} />
+                </Suspense>
+            )}
             <header className="showcase-catalog__header">
                 <h1>{t("showCase.title")}</h1>
                 <p>{t("showCase.subtitle")}</p>

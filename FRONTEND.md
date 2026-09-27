@@ -571,3 +571,40 @@ as build inputs; B4React never reads parent files. Keep public identity source i
 that repository and reproduce these ignored outputs before CI/deployment builds.
 `make project-config-check` tests validation, HTML and launcher overrides;
 `make test-routes` verifies default or custom identity in English/Korean production.
+
+## Local showcase style studio
+
+`make style-studio` explicitly starts Vite on loopback with `B4F_STYLE_STUDIO=1`.
+The top of the showcase then displays the connected local root and fixed
+`src/styles/app.css` target. The root is Vite's own resolved project directory;
+it never reads a consuming repository. Normal dev, production and Tauri builds
+exclude the editor and filesystem protocol. Keep the server local; do not proxy
+or expose this developer tool to other users.
+
+Light/dark background, panel, input, text, button and hover colors plus shared
+radius, spacing/padding and base typography are defined by `src/dev/styleTokens.json`.
+The font-family token replaces the repeated Inter family in shared styles; base
+font size/weight/line height apply to inherited text, preserving component-specific
+sizes/weights. The button-hover token retains the default button color initially.
+Lengths use bounded rem values. Colors accept six-digit hex or numeric rgba;
+font choices are allowlisted. Picker changes produce opaque hex, while the text
+field can preserve/edit alpha. Explicit dark and system-dark declarations update
+together. This is a supported-token editor, not an arbitrary CSS/code editor.
+
+The page owns the development API hook and draft; React state stays inside the
+lazy editor so typing does not rerender the catalogue. The preview effect is an
+explicit exception to static appearance ownership: it temporarily overrides only
+the allowlisted CSS custom properties on the showcase root and cleans them up on
+unmount. Actual styling and persisted token definitions remain in app.css. Body
+portals and hardcoded/component-specific appearance outside those tokens are not
+part of this scoped preview. No store or new provider is needed.
+
+The local Vite protocol lives under `/__b4f/style-studio/`, independently of the
+FastAPI OpenAPI contract. It uses the API/error/hook ownership pattern with local
+protocol types, not generated FastAPI types. Reads and writes require loopback,
+same-origin POST and a per-process capability. Apply validates the token schema,
+rejects a changed whole-file hash, saves the previous CSS under ignored
+`.style-studio-backups/`, and atomically replaces app.css. Preview/discard never
+write files; reload explicitly discards the draft. Applied edits are ordinary Git
+working-tree changes and HMR updates. Backups may be restored manually after
+reviewing intervening edits; reset only discards the unsaved preview.
