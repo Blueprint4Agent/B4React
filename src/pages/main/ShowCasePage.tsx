@@ -23,6 +23,7 @@ import {
     PanelCard,
     Spinner,
     StatusBadge,
+    ThemePreviewSelector,
     ThemeToggleButton,
     Tooltip,
     ToggleSwitch,
@@ -97,6 +98,12 @@ export function ShowCasePage() {
                             </ShowcaseItem>
                             <ShowcaseItem component="ThemeToggleButton">
                                 <ThemeToggleButton
+                                    themeMode={themeMode}
+                                    onChangeTheme={setThemeMode}
+                                />
+                            </ShowcaseItem>
+                            <ShowcaseItem component="ThemePreviewSelector">
+                                <ThemePreviewSelector
                                     themeMode={themeMode}
                                     onChangeTheme={setThemeMode}
                                 />

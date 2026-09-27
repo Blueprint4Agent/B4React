@@ -21,6 +21,14 @@ Object.defineProperty(window, "matchMedia", {
     }),
 });
 
+// JSDOM has no layout observer; geometry is covered by Playwright.
+class TestResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+}
+Object.defineProperty(window, "ResizeObserver", { writable: true, value: TestResizeObserver });
+
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
 afterEach(() => {
     cleanup();

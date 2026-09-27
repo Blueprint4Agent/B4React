@@ -1,22 +1,40 @@
-import { AppWindow, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import {
+    AppWindow,
+    ArrowLeft,
+    Code2,
+    SlidersHorizontal,
+    Sun,
+    UserRound,
+    PanelLeftClose,
+    PanelLeftOpen,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 
 import { useAuthContext } from "../../hooks/useAuth";
 import { useServerConnectivity } from "../../hooks/connectivity/useServerConnectivity";
 import { useAppConfig } from "../../hooks/useFeatures";
-import { useTheme } from "../../hooks/useTheme";
 import { BrandMark, Tooltip } from "../ui";
 import { ConnectivityStatus } from "./ConnectivityStatus";
 import { ProfileDropdown } from "./ProfileDropdown";
+import { SidebarResizeHandle, SIDEBAR_DEFAULT_WIDTH } from "./SidebarResizeHandle";
 
 type AppSidebarProps = {
     expanded: boolean;
+    width?: number;
+    onWidthChange?: (width: number) => void;
+    onResizingChange?: (resizing: boolean) => void;
     onToggleExpanded: () => void;
 };
 
-export function AppSidebar({ expanded, onToggleExpanded }: AppSidebarProps) {
+export function AppSidebar({
+    expanded,
+    onToggleExpanded,
+    width = SIDEBAR_DEFAULT_WIDTH,
+    onWidthChange,
+    onResizingChange,
+}: AppSidebarProps) {
     const { t } = useTranslation();
     const toggleRef = useRef<HTMLButtonElement>(null);
     const previousExpanded = useRef(expanded);
@@ -27,10 +45,15 @@ export function AppSidebar({ expanded, onToggleExpanded }: AppSidebarProps) {
         }
     }, [expanded]);
     const navigate = useNavigate();
+    const isSettings = useLocation().pathname === "/settings";
+    const [searchParams] = useSearchParams();
+    const section = searchParams.get("section");
+    const activeSection = ["general", "appearance", "developers"].includes(section ?? "")
+        ? section
+        : "profile";
     const { user, logout } = useAuthContext();
     const { data: appConfig } = useAppConfig();
     const { checkNow, isDesktop, status } = useServerConnectivity();
-    const { themeMode, setThemeMode } = useTheme();
     const [busy, setBusy] = useState(false);
     const loginEnabled = appConfig?.login_enabled === true;
     const logoutBlocked = isDesktop && status !== "online";
@@ -48,7 +71,40 @@ export function AppSidebar({ expanded, onToggleExpanded }: AppSidebarProps) {
             setBusy(false);
         }
     };
-    const items = [{ path: "/show-case", label: t("nav.sidebar.showCase"), icon: AppWindow }];
+    const items = isSettings
+        ? [
+              {
+                  path: "/show-case",
+                  label: t("settings.backToApp"),
+                  icon: ArrowLeft,
+                  section: "back",
+              },
+              {
+                  path: "/settings?section=general",
+                  label: t("settings.menu.general"),
+                  icon: SlidersHorizontal,
+                  section: "general",
+              },
+              {
+                  path: "/settings?section=appearance",
+                  label: t("settings.menu.appearance"),
+                  icon: Sun,
+                  section: "appearance",
+              },
+              {
+                  path: "/settings?section=profile",
+                  label: t("settings.menu.profile"),
+                  icon: UserRound,
+                  section: "profile",
+              },
+              {
+                  path: "/settings?section=developers",
+                  label: t("settings.menu.developers"),
+                  icon: Code2,
+                  section: "developers",
+              },
+          ]
+        : [{ path: "/show-case", label: t("nav.sidebar.showCase"), icon: AppWindow, section: "" }];
 
     return (
         <aside className={expanded ? "app-sidebar app-sidebar--expanded" : "app-sidebar"}>
@@ -99,9 +155,9 @@ export function AppSidebar({ expanded, onToggleExpanded }: AppSidebarProps) {
             <nav
                 id="app-sidebar-navigation"
                 className="app-sidebar__nav"
-                aria-label={t("nav.sidebar.aria")}
+                aria-label={t(isSettings ? "settings.menu.title" : "nav.sidebar.aria")}
             >
-                {items.map(({ path, label, icon: Icon }) => (
+                {items.map(({ path, label, icon: Icon, section: itemSection }) => (
                     <Tooltip
                         key={path}
                         content={label}
@@ -111,8 +167,15 @@ export function AppSidebar({ expanded, onToggleExpanded }: AppSidebarProps) {
                     >
                         <NavLink
                             to={path}
+                            aria-current={
+                                isSettings
+                                    ? itemSection === activeSection
+                                        ? "page"
+                                        : false
+                                    : undefined
+                            }
                             className={({ isActive }) =>
-                                isActive
+                                (isSettings ? itemSection === activeSection : isActive)
                                     ? "app-sidebar__item app-sidebar__item--active"
                                     : "app-sidebar__item"
                             }
@@ -136,13 +199,18 @@ export function AppSidebar({ expanded, onToggleExpanded }: AppSidebarProps) {
                     displayName={displayName}
                     email={user?.email}
                     onLogout={() => void onLogout()}
-                    onChangeTheme={setThemeMode}
                     logoutDisabled={logoutBlocked}
                     logoutDisabledTitle={t("nav.logoutUnavailable")}
                     showLogout={Boolean(user) && loginEnabled}
-                    themeMode={themeMode}
                 />
             </div>
+            {expanded && onWidthChange && onResizingChange ? (
+                <SidebarResizeHandle
+                    width={width}
+                    onWidthChange={onWidthChange}
+                    onResizingChange={onResizingChange}
+                />
+            ) : null}
         </aside>
     );
 }

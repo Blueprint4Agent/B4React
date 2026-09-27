@@ -22,5 +22,8 @@ export { Spinner } from "./status/Spinner";
 export { StatusBadge } from "./status/StatusBadge";
 export { ErrorCard, InfoCard, StatusCard, WarningCard } from "./status/StatusCard";
 export { ToggleSwitch } from "./switches/ToggleSwitch";
+
+export { ThemePreviewSelector } from "./toggles/ThemePreviewSelector";
+
 export { ThemeToggleButton } from "./toggles/ThemeToggleButton";
 export { ThemeToggle } from "./toggles/ThemeToggle";

@@ -74,17 +74,17 @@ describe("DesktopTitleBar", () => {
         const { container } = renderWithRouter(<DesktopTitleBar />, "/login");
 
         expect(container.querySelector(".desktop-titlebar--standalone")).toBeInTheDocument();
-        expect(screen.getByRole("group", { name: "Theme mode" })).toBeInTheDocument();
+        expect(screen.queryByRole("group", { name: "Theme mode" })).not.toBeInTheDocument();
         expect(screen.queryByRole("button", { name: "Close window" })).not.toBeInTheDocument();
     });
 
-    it("places disconnected status beside the standalone theme control", () => {
+    it("keeps disconnected status in the standalone titlebar", () => {
         setTauriUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)");
         const { container } = renderWithRouter(<DesktopTitleBar />, "/login");
 
         const tools = container.querySelector(".desktop-titlebar__tools");
         expect(tools).toContainElement(screen.getByRole("status"));
-        expect(tools).toContainElement(screen.getByRole("group", { name: "Theme mode" }));
+        expect(screen.queryByRole("group", { name: "Theme mode" })).not.toBeInTheDocument();
     });
 
     it("starts native dragging from a standalone navbar surface", () => {
@@ -102,7 +102,7 @@ describe("DesktopTitleBar", () => {
         setTauriUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)");
         renderWithRouter(<DesktopTitleBar />, "/login");
 
-        fireEvent.mouseDown(screen.getByRole("button", { name: "Dark mode" }), { button: 0 });
+        fireEvent.mouseDown(screen.getByRole("button", { name: "Retry now" }), { button: 0 });
 
         expect(startDraggingMock).not.toHaveBeenCalled();
     });
@@ -119,7 +119,7 @@ describe("DesktopTitleBar", () => {
         expect(checkNowMock).toHaveBeenCalledTimes(1);
     });
 
-    it("keeps the theme control in the sidebar on app screens", () => {
+    it("does not render legacy theme controls on app screens", () => {
         setTauriUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)");
         renderWithRouter(<DesktopTitleBar />, "/settings");
 

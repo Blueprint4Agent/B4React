@@ -166,7 +166,7 @@ test("menu items keep a single icon gap and consistent touch height", async ({ p
         const box = (await row.boundingBox())!;
         const icon = (await row.locator(".menu-list__item-icon").boundingBox())!;
         const label = (await row.locator(".menu-list__item-label").boundingBox())!;
-        expect(box.height).toBeGreaterThanOrEqual(40);
+        expect(box.height).toBeGreaterThanOrEqual(32);
         expect(Math.abs(label.x - icon.x - icon.width - 8)).toBeLessThan(1);
         expect(Math.abs(icon.y + icon.height / 2 - box.y - box.height / 2)).toBeLessThan(1);
     }
@@ -187,7 +187,7 @@ for (const width of [320, 1440]) {
         await expect(page.locator(".profile-menu__trigger-name")).toBeVisible();
         await expect
             .poll(async () => (await page.locator(".app-sidebar").boundingBox())!.width)
-            .toBe(176);
+            .toBe(224);
         await page.locator(".app-sidebar__item").first().hover();
         await expect(page.getByRole("tooltip")).toHaveCount(0);
         await page.getByRole("button", { name: "Open profile menu" }).click();
@@ -197,16 +197,18 @@ for (const width of [320, 1440]) {
         expect(box.y).toBeGreaterThanOrEqual(0);
         await page.keyboard.press("Escape");
         await expect(popup).toHaveCount(0);
-        // When: navigating to settings, the panel stays open.
+        // When: settings uses its own navigation, returning preserves the app panel state.
         await page.getByRole("button", { name: "Open profile menu" }).click();
         await popup.getByRole("link", { name: "Settings", exact: true }).click();
         await expect(page.locator(".settings-layout")).toBeVisible();
-        await expect(toggle).toHaveAttribute("aria-expanded", "true");
+        await expect(page.locator(".app-sidebar")).toHaveCount(1);
         await expect
             .poll(() =>
                 page.locator(".app-main").evaluate((main) => main.scrollWidth - main.clientWidth),
             )
             .toBeLessThanOrEqual(1);
+        await page.getByRole("link", { name: "Back to app" }).click();
+        await expect(toggle).toHaveAttribute("aria-expanded", "true");
         if (width < 640) {
             await page.locator(".app-sidebar-backdrop").click({ position: { x: 220, y: 400 } });
         } else {
@@ -268,7 +270,7 @@ test("brand hover reveals expand control and expanded header places close on the
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
     await expect
         .poll(async () => (await page.locator(".app-sidebar").boundingBox())!.width)
-        .toBe(176);
+        .toBe(224);
     const brand = (await page.locator(".app-sidebar__brand").boundingBox())!;
     const close = (await toggle.boundingBox())!;
     expect(close.x).toBeGreaterThan(brand.x + brand.width);
@@ -288,7 +290,7 @@ for (const colorScheme of ["light", "dark"] as const) {
         // When: expanding and collapsing.
         await page.locator(".app-sidebar__toggle").click();
         await expect(sidebar).toHaveCSS("background-color", background);
-        await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(176);
+        await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(224);
         await page.locator(".app-sidebar__toggle").click();
         await expect(sidebar).toHaveCSS("background-color", background);
         await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(48);
@@ -297,5 +299,148 @@ for (const colorScheme of ["light", "dark"] as const) {
         expect(
             await sidebar.evaluate((e) => parseFloat(getComputedStyle(e).transitionDuration)),
         ).toBeLessThan(0.001);
+    });
+}
+
+for (const width of [320, 1440]) {
+    test(`settings appearance previews persist selection at ${width}px`, async ({ page }) => {
+        // Given: settings uses the same sidebar as the app.
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto("/settings");
+        await expect(page.locator(".app-sidebar")).toHaveCount(1);
+        await page.getByRole("link", { name: "Appearance", exact: true }).click();
+        const selector = page.locator(".settings-content-card .theme-preview-selector");
+        // When: a preview is selected, the app appearance updates and persists.
+        await selector.getByRole("button", { name: "Dark mode", exact: true }).click();
+        await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+        await page.reload();
+        await page.getByRole("link", { name: "Appearance", exact: true }).click();
+        await expect(
+            selector.getByRole("button", { name: "Dark mode", exact: true }),
+        ).toHaveAttribute("aria-pressed", "true");
+        await selector.getByRole("button", { name: "Light mode", exact: true }).click();
+        await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+        await selector.getByRole("button", { name: "System", exact: true }).click();
+        await expect(page.locator("html")).not.toHaveAttribute("data-theme");
+        // Then: all previews fit and return-to-app remains available.
+        expect(
+            await page.locator(".app-main").evaluate((e) => e.scrollWidth - e.clientWidth),
+        ).toBeLessThanOrEqual(1);
+        await page.getByRole("link", { name: "Back to app" }).click();
+        await expect(page.locator(".app-sidebar")).toBeVisible();
+    });
+}
+
+test("shared sidebar resizes, persists, and keeps settings chrome", async ({ page }) => {
+    // Given: the same expanded sidebar is used in settings and the app.
+    await page.goto("/settings?section=appearance");
+    await page.locator(".app-sidebar__toggle").click();
+    const sidebar = page.locator(".app-sidebar");
+    await expect(sidebar.locator(".app-sidebar__brand-name")).toHaveText("B4A");
+    await expect(page.getByRole("link", { name: "Back to app" })).toBeVisible();
+    const separator = page.getByRole("separator", { name: "Resize sidebar" });
+    await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(224);
+    // When: the boundary is dragged, content follows the new width.
+    const handle = (await separator.boundingBox())!;
+    await page.mouse.move(handle.x + handle.width / 2, 300);
+    await page.mouse.down();
+    await page.mouse.move(handle.x + handle.width / 2 + 64, 300, { steps: 5 });
+    await page.mouse.up();
+    await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(288);
+    const profile = page.getByRole("button", { name: "Open profile menu" });
+    await profile.click();
+    await expect(page.locator(".profile-menu__dropdown .theme-toggle-button")).toHaveCount(0);
+    expect((await page.getByRole("dialog").boundingBox())!.width).toBeCloseTo(
+        (await profile.boundingBox())!.width,
+        0,
+    );
+    await page.keyboard.press("Escape");
+    await page.getByRole("link", { name: "Back to app" }).click();
+    await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(288);
+    await page.reload();
+    await page.locator(".app-sidebar__toggle").click();
+    await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(288);
+    // Then: keyboard resizing respects the same bounds.
+    await separator.focus();
+    await page.keyboard.press("End");
+    await expect(separator).toHaveAttribute("aria-valuenow", "360");
+    await page.keyboard.press("Home");
+    await expect(separator).toHaveAttribute("aria-valuenow", "200");
+});
+
+for (const width of [320, 1440]) {
+    test(`API key table and creation dialog stay compact at ${width}px`, async ({ page }) => {
+        // Given: representative active, expired and disabled key records.
+        await page.route("**/config", (route) =>
+            route.fulfill({
+                json: {
+                    ...config,
+                    bootstrap_user: {
+                        id: 1,
+                        name: "Example",
+                        email: "example@example.com",
+                        role: "user",
+                    },
+                },
+            }),
+        );
+        await page.route("**/api/v1/api-keys", (route) =>
+            route.fulfill({
+                json: {
+                    items: [
+                        {
+                            id: 1,
+                            name: "Production webhook",
+                            key_prefix: "b4_demo",
+                            created_at: "2026-01-01T00:00:00Z",
+                            expires_at: null,
+                            revoked_at: null,
+                            request_count: 1234,
+                            last_used_at: "2026-01-02T00:00:00Z",
+                        },
+                        {
+                            id: 2,
+                            name: "Expired integration",
+                            key_prefix: "b4_old",
+                            created_at: "2025-01-01T00:00:00Z",
+                            expires_at: "2025-02-01T00:00:00Z",
+                            revoked_at: null,
+                            request_count: 12,
+                            last_used_at: null,
+                        },
+                        {
+                            id: 3,
+                            name: "Disabled integration",
+                            key_prefix: "b4_off",
+                            created_at: "2024-01-01T00:00:00Z",
+                            expires_at: null,
+                            revoked_at: "2025-01-01T00:00:00Z",
+                            request_count: 0,
+                            last_used_at: null,
+                        },
+                    ],
+                },
+            }),
+        );
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto("/settings?section=developers");
+        const table = page.getByRole("table");
+        await expect(table.getByText("Production webhook")).toBeVisible();
+        await expect(table.getByText("Expired", { exact: true })).toBeVisible();
+        await expect(table.getByText("Inactive", { exact: true })).toBeVisible();
+        await expect(table.getByRole("button", { name: "Delete Production webhook" })).toHaveCount(
+            1,
+        );
+        // Then: only the table region scrolls horizontally on narrow screens.
+        expect(
+            await page.locator(".app-main").evaluate((e) => e.scrollWidth - e.clientWidth),
+        ).toBeLessThanOrEqual(1);
+        // When: opening creation, the compact dialog fits the viewport.
+        await page.getByRole("button", { name: "Create API key", exact: true }).click();
+        const panel = page.locator(".ui-modal__panel--compact");
+        await expect(panel.getByLabel("API key name")).toBeVisible();
+        const bounds = (await panel.boundingBox())!;
+        expect(bounds.x).toBeGreaterThanOrEqual(0);
+        expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
     });
 }

@@ -56,7 +56,9 @@ describe("App configuration guard", () => {
         });
         expect(within(publicNav).getByText("Blueprint4FastAPI")).toBeInTheDocument();
         expect(within(publicNav).getByRole("status")).toBeInTheDocument();
-        expect(within(publicNav).getByRole("group", { name: "Theme mode" })).toBeInTheDocument();
+        expect(
+            within(publicNav).queryByRole("group", { name: "Theme mode" }),
+        ).not.toBeInTheDocument();
 
         // When: the user requests another connection attempt.
         const user = userEvent.setup();
