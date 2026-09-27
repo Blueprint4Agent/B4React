@@ -102,12 +102,23 @@ export function Tooltip({
             keyboardFocusRef.current = false;
             setOpen(false);
         };
+        const dismissOutsidePointer = (event: PointerEvent) => {
+            if (
+                !wrapper.contains(event.target as Node) &&
+                !(keyboardFocusRef.current && wrapper.contains(document.activeElement))
+            ) {
+                keyboardFocusRef.current = false;
+                setOpen(false);
+            }
+        };
+        document.addEventListener("pointermove", dismissOutsidePointer);
         window.addEventListener("keydown", dismiss);
         window.addEventListener("blur", dismissOnWindowBlur);
         return () => {
             observer.disconnect();
             window.removeEventListener("resize", update);
             window.removeEventListener("scroll", update, true);
+            document.removeEventListener("pointermove", dismissOutsidePointer);
             window.removeEventListener("keydown", dismiss);
             window.removeEventListener("blur", dismissOnWindowBlur);
         };

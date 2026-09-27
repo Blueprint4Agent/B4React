@@ -228,7 +228,9 @@
         "aria": {
             "goShowCase": "Go to ShowCase page",
             "openMenu": "Open profile menu"
-        }
+        },
+        "guest": "Guest",
+        "brand": "Blueprint"
     },
     "settings": {
         "title": "Settings",

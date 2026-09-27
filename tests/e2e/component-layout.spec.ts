@@ -20,13 +20,13 @@ test.beforeEach(async ({ page }) => {
 
 for (const colorScheme of ["light", "dark"] as const) {
     test(`tooltips anchor to controls and use inverse ${colorScheme} colors`, async ({ page }) => {
-        // When: hovering the navbar logo in system theme.
+        // When: hovering the sidebar logo in system theme.
         await page.emulateMedia({ colorScheme });
-        const brand = page.locator(".app-nav__brand");
+        const brand = page.locator(".app-sidebar__brand");
         await brand.hover();
         const tooltip = page.getByRole("tooltip");
         await expect(tooltip).toBeVisible();
-        // Then: the tooltip sits next to the actual logo, not the stretched navbar column.
+        // Then: the tooltip sits next to the actual logo, not the sidebar wrapper.
         const control = (await brand.boundingBox())!;
         const tip = (await tooltip.boundingBox())!;
         expect(Math.abs(tip.x - control.x - control.width - 8)).toBeLessThan(1);
@@ -44,8 +44,8 @@ for (const colorScheme of ["light", "dark"] as const) {
         );
         await page.keyboard.press("Escape");
         await expect(tooltip).toHaveCount(0);
-        // When: keyboard focus enters the sidebar toggle.
-        const toggle = page.locator(".app-sidebar__toggle");
+        // When: keyboard focus enters the sidebar navigation.
+        const toggle = page.locator(".app-sidebar__item").first();
         await toggle.focus();
         await expect(tooltip).toBeVisible();
         const toggleBox = (await toggle.boundingBox())!;
@@ -54,9 +54,7 @@ for (const colorScheme of ["light", "dark"] as const) {
             Math.abs(sidebarTip.y + sidebarTip.height / 2 - toggleBox.y - toggleBox.height / 2),
         ).toBeLessThan(1);
         await toggle.click();
-        await expect(toggle).toHaveAttribute("aria-expanded", "true");
-        await expect(tooltip).toHaveCount(0);
-        await page.locator(".app-sidebar__item").first().hover();
+        await expect(toggle).toHaveAttribute("aria-current", "page");
         await expect(tooltip).toHaveCount(0);
     });
 }
@@ -81,7 +79,7 @@ test("tooltip follows scrolling and flips away from the viewport edge", async ({
         .toBeLessThan(1);
     await page.locator(".app-main").evaluate((main) => {
         const control = main.querySelector('[data-component="Tooltip"] button')!;
-        main.scrollTop += control.getBoundingClientRect().top - 49;
+        main.scrollTop += control.getBoundingClientRect().top - 8;
     });
     await expect(tooltip).toHaveAttribute("data-side", "bottom");
     await expect(tooltip).toBeVisible();
@@ -92,23 +90,42 @@ test("tooltip follows scrolling and flips away from the viewport edge", async ({
 });
 
 for (const width of [320, 390, 1440]) {
-    test(`showcase and expanded sidebar fit at ${width}px`, async ({ page }) => {
-        // When: viewing the component catalog at mobile and desktop widths.
+    test(`sidebar, profile popover, and settings fit at ${width}px`, async ({ page }) => {
+        // Given: the app uses a persistent rail with no top navigation.
         await page.setViewportSize({ width, height: 900 });
-        // Then: catalog examples stay inside the scrolling content region.
+        await expect(page.locator(".app-nav")).toHaveCount(0);
         await expect
             .poll(() =>
                 page.locator(".app-main").evaluate((main) => main.scrollWidth - main.clientWidth),
             )
             .toBeLessThanOrEqual(1);
-        await page.locator(".app-sidebar__toggle").click();
-        await expect(page.locator(".app-sidebar__toggle")).toHaveAttribute("aria-expanded", "true");
+        const profile = page.getByRole("button", { name: "Open profile menu" });
+        const profileBox = (await profile.boundingBox())!;
+        expect(profileBox.y + profileBox.height).toBeGreaterThan(850);
+        // When: the bottom profile popover opens.
+        await profile.click();
+        const popup = page.getByRole("dialog", { name: "Profile menu" });
+        await expect(popup).toBeVisible();
+        const box = (await popup.boundingBox())!;
+        expect(box.x).toBeGreaterThan(50);
+        expect(box.x + box.width).toBeLessThanOrEqual(width);
+        expect(box.y).toBeGreaterThanOrEqual(0);
+        expect(box.y + box.height).toBeLessThanOrEqual(900);
+        await page.keyboard.press("Escape");
+        await expect(popup).toHaveCount(0);
+        await expect(profile).toBeFocused();
+        // Then: navigation persists on settings, with no horizontal overflow.
+        await page.locator('.app-sidebar__item[href="/settings"]').click();
+        await expect(page.locator(".settings-layout")).toBeVisible();
+        await expect(page.locator('.app-sidebar__item[href="/settings"]')).toHaveAttribute(
+            "aria-current",
+            "page",
+        );
         await expect
             .poll(() =>
                 page.locator(".app-main").evaluate((main) => main.scrollWidth - main.clientWidth),
             )
             .toBeLessThanOrEqual(1);
-        await expect(page.locator(".app-nav__title")).toBeVisible();
     });
 }
 
@@ -128,8 +145,8 @@ test("pointer focus does not keep tooltips open after re-hover", async ({ page }
 });
 
 test("keyboard tooltips survive pointer leave but dismiss on window blur", async ({ page }) => {
-    // Given: a keyboard-focused navbar control.
-    const trigger = page.locator(".app-nav__brand");
+    // Given: a keyboard-focused sidebar control.
+    const trigger = page.locator(".app-sidebar__brand");
     await page.keyboard.press("Tab");
     await expect(trigger).toBeFocused();
     await expect(page.getByRole("tooltip")).toBeVisible();
@@ -141,3 +158,145 @@ test("keyboard tooltips survive pointer leave but dismiss on window blur", async
     await page.evaluate(() => window.dispatchEvent(new Event("blur")));
     await expect(page.getByRole("tooltip")).toHaveCount(0);
 });
+
+test("menu items keep a single icon gap and consistent touch height", async ({ page }) => {
+    // Given: a rendered shared menu list in the showcase.
+    const menu = page.locator('[data-component="MenuList"]');
+    await menu.scrollIntoViewIfNeeded();
+    // Then: each row has predictable geometry, with no compounded icon margin.
+    for (const row of await menu.locator(".menu-list__item").all()) {
+        const box = (await row.boundingBox())!;
+        const icon = (await row.locator(".menu-list__item-icon").boundingBox())!;
+        const label = (await row.locator(".menu-list__item-label").boundingBox())!;
+        expect(box.height).toBeGreaterThanOrEqual(40);
+        expect(Math.abs(label.x - icon.x - icon.width - 8)).toBeLessThan(1);
+        expect(Math.abs(icon.y + icon.height / 2 - box.y - box.height / 2)).toBeLessThan(1);
+    }
+});
+
+for (const width of [320, 1440]) {
+    test(`expanded sidebar shows labels and profile without overflow at ${width}px`, async ({
+        page,
+    }) => {
+        // Given: a compact rail that can expand into a labeled navigation panel.
+        await page.setViewportSize({ width, height: 900 });
+        const toggle = page.locator(".app-sidebar__toggle");
+        await toggle.click();
+        // Then: the expanded panel is compact, and reveals real navigation labels.
+        await expect(toggle).toHaveAttribute("aria-expanded", "true");
+        await expect(page.locator(".app-sidebar__brand-name")).toBeVisible();
+        await expect(page.locator(".app-sidebar__item-label").first()).toBeVisible();
+        await expect(page.locator(".profile-menu__trigger-name")).toBeVisible();
+        await expect
+            .poll(async () => (await page.locator(".app-sidebar").boundingBox())!.width)
+            .toBe(200);
+        await page.locator(".app-sidebar__item").first().hover();
+        await expect(page.getByRole("tooltip")).toHaveCount(0);
+        await page.getByRole("button", { name: "Open profile menu" }).click();
+        const popup = page.getByRole("dialog", { name: "Profile menu" });
+        const box = (await popup.boundingBox())!;
+        expect(box.x + box.width).toBeLessThanOrEqual(width);
+        expect(box.y).toBeGreaterThanOrEqual(0);
+        await page.keyboard.press("Escape");
+        await expect(popup).toHaveCount(0);
+        // When: navigating to settings, the panel stays open.
+        await page.locator('.app-sidebar__item[href="/settings"]').click();
+        await expect(page.locator(".settings-layout")).toBeVisible();
+        await expect(toggle).toHaveAttribute("aria-expanded", "true");
+        await expect
+            .poll(() =>
+                page.locator(".app-main").evaluate((main) => main.scrollWidth - main.clientWidth),
+            )
+            .toBeLessThanOrEqual(1);
+        if (width < 640) {
+            await page.locator(".app-sidebar-backdrop").click({ position: { x: 220, y: 400 } });
+        } else {
+            await toggle.click();
+        }
+        await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    });
+}
+
+test("compact controls preserve touch targets on coarse pointers", async ({ browser }) => {
+    // Given: a touch-enabled narrow viewport.
+    const context = await browser.newContext({
+        viewport: { width: 320, height: 800 },
+        hasTouch: true,
+    });
+    const page = await context.newPage();
+    await page.route("**/config", (route) => route.fulfill({ json: config }));
+    await page.goto("/show-case");
+    // Then: compact rail controls remain large enough to tap.
+    const control = page.locator(".app-sidebar__item").first();
+    await expect(control).toBeVisible();
+    const box = (await control.boundingBox())!;
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    await page.getByRole("button", { name: "Open profile menu" }).tap();
+    const popup = page.getByRole("dialog");
+    await expect(popup).toBeVisible();
+    expect((await popup.boundingBox())!.x + (await popup.boundingBox())!.width).toBeLessThanOrEqual(
+        320,
+    );
+    await context.close();
+});
+
+test("navigation hover is cleared before opening the profile popover", async ({ page }) => {
+    // Given: the pointer remains over a navigation link during a reload.
+    const settings = page.locator('.app-sidebar__item[href="/settings"]');
+    await settings.hover();
+    await page.reload();
+    await expect(page.locator(".showcase-catalog")).toBeVisible();
+    // When: the pointer moves to open the profile popover.
+    await page.getByRole("button", { name: "Open profile menu" }).click();
+    // Then: no tooltip from an old hover is left behind.
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(page.getByRole("tooltip")).toHaveCount(0);
+});
+
+test("brand hover reveals expand control and expanded header places close on the right", async ({
+    page,
+}) => {
+    // Given: a collapsed rail showing its brand.
+    const toggle = page.locator(".app-sidebar__toggle");
+    await expect(toggle.locator(".brand-mark")).toHaveCSS("opacity", "1");
+    // When: hovering the brand and expanding.
+    await toggle.hover();
+    await expect(toggle.locator(".brand-mark")).toHaveCSS("opacity", "0");
+    await expect(toggle.locator(".app-sidebar__expand-icon")).toHaveCSS("opacity", "1");
+    await toggle.click();
+    // Then: brand stays left and a separate close control occupies the right end.
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await expect
+        .poll(async () => (await page.locator(".app-sidebar").boundingBox())!.width)
+        .toBe(200);
+    const brand = (await page.locator(".app-sidebar__brand").boundingBox())!;
+    const close = (await toggle.boundingBox())!;
+    expect(close.x).toBeGreaterThan(brand.x + brand.width);
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+});
+
+for (const colorScheme of ["light", "dark"] as const) {
+    test(`sidebar expansion keeps the same ${colorScheme} surface and supports reduced motion`, async ({
+        page,
+    }) => {
+        // Given: either appearance with the regular width transition enabled.
+        await page.emulateMedia({ colorScheme });
+        const sidebar = page.locator(".app-sidebar");
+        const background = await sidebar.evaluate((e) => getComputedStyle(e).backgroundColor);
+        await expect(sidebar).toHaveCSS("transition-duration", "0.18s");
+        // When: expanding and collapsing.
+        await page.locator(".app-sidebar__toggle").click();
+        await expect(sidebar).toHaveCSS("background-color", background);
+        await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(200);
+        await page.locator(".app-sidebar__toggle").click();
+        await expect(sidebar).toHaveCSS("background-color", background);
+        await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(56);
+        // Then: reduced-motion users get a near-instant transition.
+        await page.emulateMedia({ reducedMotion: "reduce" });
+        expect(
+            await sidebar.evaluate((e) => parseFloat(getComputedStyle(e).transitionDuration)),
+        ).toBeLessThan(0.001);
+    });
+}

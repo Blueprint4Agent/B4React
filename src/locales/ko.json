@@ -228,7 +228,9 @@
         "aria": {
             "goShowCase": "쇼케이스 페이지로 이동",
             "openMenu": "프로필 메뉴 열기"
-        }
+        },
+        "guest": "게스트",
+        "brand": "Blueprint"
     },
     "settings": {
         "title": "설정",

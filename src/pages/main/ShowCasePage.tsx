@@ -160,7 +160,10 @@ export function ShowCasePage() {
                     <div className="showcase-catalog__section-card">
                         <h3>Menu</h3>
                         <div className="showcase-catalog__row">
-                            <ShowcaseItem component="MenuList">
+                            <ShowcaseItem
+                                component="MenuList"
+                                className="showcase-catalog__menu-demo"
+                            >
                                 <MenuList
                                     items={sampleMenuItems}
                                     activeKey={sampleMenu}

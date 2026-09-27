@@ -47,7 +47,7 @@ Alignment policy:
         App.test.tsx
         components/
           layout/
-            AppNavbar.test.tsx
+            AppSidebar.test.tsx
             DesktopTitleBar.test.tsx
         pages/
           login/
@@ -209,7 +209,7 @@ When a new frontend domain is added:
     - Fail-closed protected routing, shared public-navbar structure, and delayed retry loading state when `/config` is unavailable.
 14. `src/tests/integration/hooks/useFeatures.test.tsx`
     - Configuration failure remains distinct from explicit login disablement and recovers on retry.
-15. `src/tests/component/components/layout/AppNavbar.test.tsx`
+15. `src/tests/component/components/layout/AppSidebar.test.tsx`
     - Compact desktop connectivity status placement beside the profile control, stable retry label, and offline logout blocking.
 16. `src/tests/component/pages/main/LandingPage.test.tsx`
     - Shared public-navbar structure and landing navigation behavior.
@@ -251,3 +251,7 @@ npm run format:check
 npm run test
 npm run build
 ```
+
+## Sidebar layout regression coverage
+
+`make test-ui` checks collapsed/expanded desktop and mobile geometry, brand hover and toggle placement, identical light/dark sidebar surfaces, reduced motion, compact tooltip dismissal, profile popover bounds and keyboard escape, menu spacing, and coarse-pointer targets. DesktopTitleBar component tests preserve native app dragging and window controls.

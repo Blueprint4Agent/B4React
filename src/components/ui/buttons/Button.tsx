@@ -20,7 +20,7 @@ export function Button({
         <button type={type} className={nextClassName} disabled={isDisabled} {...props}>
             <span className="ui-button__content">
                 {loading ? <span className="ui-button__spinner" aria-hidden="true" /> : null}
-                <span>{children}</span>
+                <span className="ui-button__label">{children}</span>
             </span>
         </button>
     );

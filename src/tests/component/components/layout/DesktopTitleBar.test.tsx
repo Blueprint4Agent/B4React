@@ -119,10 +119,20 @@ describe("DesktopTitleBar", () => {
         expect(checkNowMock).toHaveBeenCalledTimes(1);
     });
 
-    it("keeps the theme control out of an integrated app navbar", () => {
+    it("keeps the theme control in the sidebar on app screens", () => {
         setTauriUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)");
         renderWithRouter(<DesktopTitleBar />, "/settings");
 
         expect(screen.queryByRole("group", { name: "Theme mode" })).not.toBeInTheDocument();
     });
+});
+
+it("preserves native dragging on the navbar-free app shell", () => {
+    // Given: the app has a sidebar, with a native window strip above it.
+    setTauriUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)");
+    const { container } = renderWithRouter(<DesktopTitleBar />, "/settings");
+    // When: dragging the native window strip.
+    fireEvent.mouseDown(container.querySelector(".desktop-titlebar--app")!, { button: 0 });
+    // Then: native window dragging is still available.
+    expect(startDraggingMock).toHaveBeenCalledTimes(1);
 });
