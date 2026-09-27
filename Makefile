@@ -44,7 +44,7 @@ architecture-check: ui-composition-check ## Check pages/components runtime depen
 
 .PHONY: test-ui
 test-ui: ## Check component layout and tooltip behavior in Chromium
-	$(NPM) run test:e2e -- tests/e2e/component-layout.spec.ts tests/e2e/auth-smoke.spec.ts
+	$(NPM) run test:e2e -- tests/e2e/component-layout.spec.ts tests/e2e/auth-smoke.spec.ts tests/e2e/admin-panel.spec.ts
 
 .PHONY: ui-composition-check
 ui-composition-check: ## Verify shared styling and rendered showcase coverage

@@ -63,7 +63,8 @@
             "oauthIdentityConflict": "This OAuth account is already linked to another user.",
             "oauthSignupFailed": "Could not create an account with OAuth.",
             "oauthProviderRequestFailed": "OAuth provider request failed. Please try again.",
-            "profileUpdateFailed": "Could not update your profile. Please try again."
+            "profileUpdateFailed": "Could not update your profile. Please try again.",
+            "adminUsersFailed": "Could not load users. Please retry."
         }
     },
     "cards": {
@@ -523,5 +524,44 @@
         "back": "Back to components",
         "notFoundTitle": "Page not found",
         "notFoundDescription": "This address may have changed or no longer exists. Return to the component library to continue."
+    },
+    "admin": {
+        "title": "Admin panel",
+        "users": "Users",
+        "description": "Review accounts and their latest successful sign-in.",
+        "search": "Search name or email",
+        "searchAction": "Search",
+        "refresh": "Refresh",
+        "allRoles": "All roles",
+        "allStatuses": "All statuses",
+        "role": "Role",
+        "status": "Account status",
+        "active": "Active",
+        "inactive": "Inactive",
+        "admin": "Administrator",
+        "user": "User",
+        "total": "Total users",
+        "activeTotal": "Active accounts",
+        "adminTotal": "Administrators",
+        "identity": "User",
+        "providers": "Sign-in methods",
+        "joined": "Joined",
+        "lastLogin": "Last sign-in",
+        "never": "No recorded sign-in",
+        "verified": "Email verified",
+        "unverified": "Email unverified",
+        "empty": "No matching users.",
+        "loading": "Loading users…",
+        "loadError": "Could not load users. Please retry.",
+        "count": "{{count}} users",
+        "pagination": "User pages",
+        "previous": "Previous page",
+        "next": "Next page",
+        "readOnly": "Roles are managed by server operators. Active means the account is enabled, not currently online.",
+        "timezone": "Times are shown in your local time zone.",
+        "denied": "Administrator access required.",
+        "bootstrap": "Bootstrap",
+        "filterRole": "Filter by role",
+        "filterStatus": "Filter by account status"
     }
 }

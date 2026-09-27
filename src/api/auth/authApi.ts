@@ -1,4 +1,4 @@
-import type { components } from "../generated/openapi";
+import type { components, operations } from "../generated/openapi";
 import { apiClient, getAuthHeader } from "../http";
 import i18n from "../../i18n";
 
@@ -131,5 +131,22 @@ export async function resetPassword(
     if (error || !data) {
         throw error;
     }
+    return data;
+}
+
+export type AdminUserQuery = NonNullable<
+    operations["admin_users_api_v1_auth_admin_users_get"]["parameters"]["query"]
+>;
+export type AdminUserList = components["schemas"]["AdminUserListResponse"];
+export async function listAdminUsers(
+    query: AdminUserQuery,
+    signal?: AbortSignal,
+): Promise<AdminUserList> {
+    const { data, error } = await apiClient.GET("/api/v1/auth/admin/users", {
+        headers: getAuthHeader(),
+        params: { query },
+        signal,
+    });
+    if (error || !data) throw error;
     return data;
 }

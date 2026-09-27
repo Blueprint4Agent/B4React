@@ -522,3 +522,17 @@ Actual LoadingPage and ShowCaseNotFoundPage now share PageStateFrame, compact Pa
 Profile account switching requires an authenticated identity and explicitly enabled login. Disabled or unavailable login configuration renders a static identity with settings, without switch/add-account controls.
 
 Recent history identifies accounts by normalized email across email/Google/GitHub login. Keep only the most recent successful method per identity. Reading existing storage collapses legacy provider-specific duplicates; deletion removes that identity regardless of method. This only changes local history, not server OAuth linking.
+
+## Administrator workspace
+
+AdminPage at `/admin` reuses AppLayout, the resizable sidebar, settings content frame
+and shared input, dropdown, badge, button and pagination controls. Only users with
+role admin see its profile entry or mount its data hook, including bootstrap admins.
+The auth API provides a paginated read-only directory with name/email search, role
+and account-enabled filters, global counts and last successful login times.
+Roles remain server-command managed. Active is not online presence; times use the
+browser locale/time zone. Never display credential/IP/provider identifiers.
+The typed auth hook clears stale data on owner/query changes or request failure,
+ignores aborted results, pauses desktop requests offline and refetches on recovery,
+focus/visibility and manual refresh. No realtime user events or background polling
+are introduced. No new shared UI exports are needed; showcase contracts remain intact.

@@ -1,6 +1,6 @@
 import { createPortal } from "react-dom";
 import { useRecentAccounts } from "../../hooks/useRecentAccounts";
-import { LogOut, Settings, UserRound, ChevronRight, Check, Plus } from "lucide-react";
+import { LogOut, Settings, Shield, UserRound, ChevronRight, Check, Plus } from "lucide-react";
 import { useEffect, useLayoutEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
@@ -11,6 +11,7 @@ import { APP_SHORTCUTS, shortcutAriaKeys } from "../../utils/keyboardShortcuts";
 type ProfileDropdownProps = {
     expanded?: boolean;
     showLogin?: boolean;
+    showAdmin?: boolean;
     allowAccountSwitching?: boolean;
     avatarLabel?: string;
     avatarImageUrl?: string | null;
@@ -26,6 +27,7 @@ type ProfileDropdownProps = {
 export function ProfileDropdown({
     expanded = false,
     showLogin = false,
+    showAdmin = false,
     allowAccountSwitching = false,
     avatarLabel,
     avatarImageUrl,
@@ -286,6 +288,14 @@ export function ProfileDropdown({
                         <span>{t("nav.settings")}</span>
                         <KeyboardShortcut keys={APP_SHORTCUTS.openSettings} />
                     </Link>
+                    {showAdmin ? (
+                        <Link to="/admin" className="profile-menu__item">
+                            <span className="profile-menu__item-icon" aria-hidden="true">
+                                <Shield />
+                            </span>
+                            <span>{t("admin.title")}</span>
+                        </Link>
+                    ) : null}
                     {showLogin ? (
                         <div className="profile-menu__guest-cta">
                             <p>{t("authDialog.guestTitle")}</p>

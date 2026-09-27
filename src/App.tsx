@@ -18,6 +18,7 @@ import { LoadingPage } from "./pages/main/LoadingPage";
 import { LandingPage } from "./pages/main/LandingPage";
 import { ShowCaseNotFoundPage } from "./pages/main/ShowCaseNotFoundPage";
 import { ShowCasePage } from "./pages/main/ShowCasePage";
+import { AdminPage } from "./pages/admin/AdminPage";
 import { SettingsPage } from "./pages/settings/SettingsPage";
 import { ServerUnavailablePage } from "./pages/main/ServerUnavailablePage";
 import { useServerConnectivity } from "./hooks/connectivity/useServerConnectivity";
@@ -218,6 +219,7 @@ export function App() {
                         )
                     }
                 />
+                <Route path="/admin" element={<AdminPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
             </Route>
             <Route
