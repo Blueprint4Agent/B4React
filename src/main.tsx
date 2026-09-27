@@ -6,6 +6,7 @@ import { App } from "./App";
 import { DesktopTitleBar } from "./components/layout/DesktopTitleBar";
 import { ConnectivityRecovery } from "./hooks/connectivity/ConnectivityRecovery";
 import { ServerConnectivityProvider } from "./hooks/connectivity/useServerConnectivity";
+import { AppConfigProvider } from "./hooks/AppConfigProvider";
 import { AuthProvider } from "./hooks/useAuth";
 import { initializeDesktopRuntime } from "./utils/desktopRuntime";
 import "./i18n";
@@ -18,10 +19,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <BrowserRouter>
             <ServerConnectivityProvider>
                 <DesktopTitleBar />
-                <AuthProvider>
-                    <ConnectivityRecovery />
-                    <App />
-                </AuthProvider>
+                <AppConfigProvider>
+                    <AuthProvider>
+                        <ConnectivityRecovery />
+                        <App />
+                    </AuthProvider>
+                </AppConfigProvider>
             </ServerConnectivityProvider>
         </BrowserRouter>
     </React.StrictMode>,

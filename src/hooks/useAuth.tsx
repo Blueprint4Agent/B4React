@@ -15,9 +15,8 @@ import {
 } from "react";
 
 import type { User } from "../api/auth/authApi";
-import type { AppConfig } from "../api/config/configApi";
 import { useAuthApi } from "./api/auth/useAuthApi";
-import { useConfigApi } from "./api/config/useConfigApi";
+import { useAppConfig } from "./useFeatures";
 import { clearAccessToken, getAccessToken, setAccessToken } from "../store/session";
 
 type AuthContextValue = {
@@ -41,7 +40,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 type RoleAwareUser = User & { role?: "admin" | "user" };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const { getConfig } = useConfigApi();
+    const { ensureConfig } = useAppConfig();
     const {
         refresh: refreshAuth,
         me,
@@ -80,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const revalidateSession = useCallback(async () => {
         try {
-            const config = (await getConfig()) as AppConfig | undefined;
+            const config = await ensureConfig();
             if (config?.login_enabled === false) {
                 if (config.bootstrap_access_token) {
                     setAccessToken(config.bootstrap_access_token);
@@ -108,7 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             clearAccessToken();
             setUser(null);
         }
-    }, [getConfig, me, refreshSession]);
+    }, [ensureConfig, me, refreshSession]);
 
     useEffect(() => {
         // Agent customization note:

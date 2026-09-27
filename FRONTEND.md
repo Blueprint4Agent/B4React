@@ -536,3 +536,7 @@ The typed auth hook clears stale data on owner/query changes or request failure,
 ignores aborted results, pauses desktop requests offline and refetches on recovery,
 focus/visibility and manual refresh. No realtime user events or background polling
 are introduced. No new shared UI exports are needed; showcase contracts remain intact.
+
+## Shared application configuration
+
+AppConfigProvider owns one in-memory snapshot and in-flight /config request per app instance. useAppConfig consumers and auth ensureConfig share it, including StrictMode startup. Explicit reload coalesces concurrent callers. Failed startup stays unavailable, never login-disabled. No snapshot/token is persisted. ConnectivityRecovery reloads config before revalidating auth; failed recovery preserves the session. App retry also restores auth from the shared snapshot. Page navigation does not refetch config.

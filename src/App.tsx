@@ -71,6 +71,7 @@ function AuthDialogRoute({
 }
 
 export function App() {
+    const { revalidateSession } = useAuthContext();
     useTheme();
     const { t } = useTranslation();
     const {
@@ -98,6 +99,7 @@ export function App() {
                     setRetryingConfig(true);
                     void checkNow()
                         .then(() => reloadConfig())
+                        .then(() => revalidateSession())
                         .catch(() => undefined)
                         .finally(() => setRetryingConfig(false));
                 }}
