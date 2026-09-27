@@ -8,6 +8,8 @@ type DropdownItem = {
 
 type DropdownMenuProps = {
     className?: string;
+    disabled?: boolean;
+    fieldLabel?: string;
     items: DropdownItem[];
     label?: string;
     onSelect?: (id: string) => void;
@@ -16,6 +18,8 @@ type DropdownMenuProps = {
 
 export function DropdownMenu({
     className,
+    disabled = false,
+    fieldLabel,
     items,
     label = "Dropdown menu",
     onSelect,
@@ -23,7 +27,9 @@ export function DropdownMenu({
 }: DropdownMenuProps) {
     const [open, setOpen] = useState(false);
     const rootRef = useRef<HTMLDivElement | null>(null);
-    const nextClassName = className ? `ui-dropdown ${className}` : "ui-dropdown";
+    const nextClassName = ["ui-dropdown", fieldLabel && "ui-dropdown--field", className]
+        .filter(Boolean)
+        .join(" ");
 
     useEffect(() => {
         if (!open) return;
@@ -50,9 +56,12 @@ export function DropdownMenu({
 
     return (
         <div className={nextClassName} ref={rootRef}>
+            {fieldLabel && <span className="ui-dropdown__field-label">{fieldLabel}</span>}
             <button
                 type="button"
                 className="ui-dropdown__trigger"
+                disabled={disabled}
+                aria-label={fieldLabel ? `${fieldLabel}: ${triggerLabel}` : undefined}
                 aria-haspopup="menu"
                 aria-expanded={open}
                 onClick={() => setOpen((prev) => !prev)}
@@ -69,7 +78,7 @@ export function DropdownMenu({
                     <ChevronDown />
                 </span>
             </button>
-            {open ? (
+            {open && !disabled ? (
                 <div className="ui-dropdown__menu" role="menu" aria-label={label}>
                     {items.map((item) => (
                         <button

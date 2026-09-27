@@ -6,6 +6,7 @@ export type StyleSnapshot = {
     file: string;
     revision: string;
     values: StyleValues;
+    preview?: Record<"light" | "dark", Record<string, string>>;
     backup?: string | null;
 };
 export type StyleChange = { scope: StyleScope; key: string; value: string };

@@ -1,8 +1,7 @@
 {
     "styleStudio": {
-        "title": "공통 스타일 · 로컬 미리보기",
-        "description": "아래 쇼케이스에 변경을 미리 반영합니다. 파일에 적용을 눌러야 저장됩니다. 쇼케이스 밖에 표시되는 포털 모달은 미리보기 대상에서 제외됩니다.",
-        "connected": "연결된 파일",
+        "title": "스타일 설정",
+        "description": "쇼케이스 컴포넌트에서 바로 확인하세요.",
         "light": "라이트 미리보기",
         "dark": "다크 미리보기",
         "shared": "공통 radius · 폰트 · 여백",
@@ -13,7 +12,7 @@
         "hoverSample": "강조 호버 색상",
         "changes": "변경 내용 확인 ({{count}})",
         "apply": "파일에 적용",
-        "reset": "미리보기 취소",
+        "reset": "미리보기 초기화",
         "reload": "파일 다시 읽기 (초안 버림)",
         "saved": "저장했습니다. HMR로 반영되며 이전 파일은 백업했습니다.",
         "errors": {
@@ -52,6 +51,21 @@
             "lineHeight": "기본 줄 높이"
         },
         "picker": "{{label}} 색상 선택",
-        "defaults": "현재 값"
+        "defaults": "현재 값",
+        "open": "스타일",
+        "close": "스타일 설정 접기",
+        "pending": "저장 전 변경 {{count}}개",
+        "groups": {
+            "colors": "색상",
+            "shape": "모양",
+            "typography": "글꼴",
+            "spacing": "간격"
+        },
+        "fonts": {
+            "0": "Inter",
+            "1": "시스템 글꼴",
+            "2": "명조체",
+            "3": "고정폭"
+        }
     }
 }

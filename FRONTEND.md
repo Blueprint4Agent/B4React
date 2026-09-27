@@ -575,8 +575,7 @@ that repository and reproduce these ignored outputs before CI/deployment builds.
 ## Local showcase style studio
 
 `make style-studio` explicitly starts Vite on loopback with `B4F_STYLE_STUDIO=1`.
-The top of the showcase then displays the connected local root and fixed
-`src/styles/app.css` target. The root is Vite's own resolved project directory;
+A compact fixed right panel edits the existing showcase components. Color, shape, typography and spacing groups collapse independently; apply/reset stay visible. On narrow screens open it with the Styles button. The header reload button discards the draft and rereads the fixed `src/styles/app.css` target; local paths are not displayed. The root is Vite's own resolved project directory;
 it never reads a consuming repository. Normal dev, production and Tauri builds
 exclude the editor and filesystem protocol. Keep the server local; do not proxy
 or expose this developer tool to other users.
@@ -587,14 +586,13 @@ The font-family token replaces the repeated Inter family in shared styles; base
 font size/weight/line height apply to inherited text, preserving component-specific
 sizes/weights. The button-hover token retains the default button color initially.
 Lengths use bounded rem values. Colors accept six-digit hex or numeric rgba;
-font choices are allowlisted. Picker changes produce opaque hex, while the text
-field can preserve/edit alpha. Explicit dark and system-dark declarations update
+font choices are allowlisted. The custom ColorPicker uses a saturation/value plane, rainbow hue strip and thin opacity strip. The plane supports arrow keys and pointer/touch; the two sliders have accessible names. HEX/RGBA entry stays in the field. Explicit dark and system-dark declarations update
 together. This is a supported-token editor, not an arbitrary CSS/code editor.
 
 The page owns the development API hook and draft; React state stays inside the
-lazy editor so typing does not rerender the catalogue. The preview effect is an
+lazy editor so typing does not rerender the catalogue. The editor is a body portal outside the preview boundary, so draft values do not restyle the controls. There are no synthetic preview cards. The preview effect is an
 explicit exception to static appearance ownership: it temporarily overrides only
-the allowlisted CSS custom properties on the showcase root and cleans them up on
+the allowlisted CSS custom properties on the component catalogue container and cleans them up on
 unmount. Actual styling and persisted token definitions remain in app.css. Body
 portals and hardcoded/component-specific appearance outside those tokens are not
 part of this scoped preview. No store or new provider is needed.
@@ -608,3 +606,11 @@ rejects a changed whole-file hash, saves the previous CSS under ignored
 write files; reload explicitly discards the draft. Applied edits are ordinary Git
 working-tree changes and HMR updates. Backups may be restored manually after
 reviewing intervening edits; reset only discards the unsaved preview.
+
+ColorPicker is shared and registered in the catalogue. Its scoped --picker-\* variables carry validated color and pointer geometry; this is an explicit dynamic-style exception. All appearance stays in app.css. The plane supports pointer/touch and arrow keys; named range controls provide keyboard hue and opacity. Escape closes the palette before the editor.
+
+The editor uses the catalogue-owned useTheme and ThemePreviewSelector (system/light/dark). Mode changes update and persist the global app theme, including sidebar/editor and catalogue selectors; system follows OS changes. Token drafts remain scoped to the catalogue. Its icon-only collapse control has a Tooltip; opening/closing and catalogue padding animate together for 180ms, with reduced-motion support. ColorPicker opens an anchored non-modal dropdown below the field, flips when space is insufficient, and closes on outside pointer/Escape. The small square swatch is flush inside the code field.
+
+The preview includes catalogue navigation and the surrounding main background; global mode selection updates the sidebar and editor too. Automatic brand assets follow the preview theme. NumberField provides bounded increment/decrement buttons and units, with a rendered catalogue example. Editor font choices reuse DropdownMenu.
+
+ColorPicker uses only the plane and hue/opacity strips, without presets, duplicate code entry or a confirmation button.

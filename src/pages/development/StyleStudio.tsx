@@ -1,36 +1,65 @@
 import { useEffect, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { useStyleStudioApi, type StyleScope } from "../../hooks/api/styleStudio/useStyleStudioApi";
-import { Button, InputField } from "../../components/ui";
+import { SlidersHorizontal, PanelRightClose, RotateCcw } from "lucide-react";
+import { createPortal } from "react-dom";
+import {
+    Button,
+    NumberField,
+    DropdownMenu,
+    ColorPicker,
+    ThemePreviewSelector,
+    Tooltip,
+} from "../../components/ui";
+import type { ThemeMode, ResolvedTheme } from "../../hooks/useTheme";
 import fields from "../../dev/styleTokens.json";
 import i18n from "../../i18n";
 import en from "../../locales/styleStudio.en.json";
 import ko from "../../locales/styleStudio.ko.json";
 i18n.addResourceBundle("en", "translation", en, true, true);
 i18n.addResourceBundle("ko", "translation", ko, true, true);
-function colorHex(value: string): string {
-    if (/^#[0-9a-fA-F]{6}$/.test(value)) return value;
-    const rgb = /^rgba\((\d+),\s*(\d+),\s*(\d+),/.exec(value);
-    return rgb
-        ? `#${rgb
-              .slice(1, 4)
-              .map((channel) => Math.min(255, Number(channel)).toString(16).padStart(2, "0"))
-              .join("")}`
-        : "#000000";
-}
-
-type StyleStudioProps = { previewRoot: RefObject<HTMLElement | null> };
-export default function StyleStudio({ previewRoot }: StyleStudioProps) {
+type StyleStudioProps = {
+    previewRoot: RefObject<HTMLElement | null>;
+    themeMode: ThemeMode;
+    theme: ResolvedTheme;
+    onChangeTheme: (mode: ThemeMode) => void;
+};
+export default function StyleStudio({
+    previewRoot,
+    themeMode,
+    theme,
+    onChangeTheme,
+}: StyleStudioProps) {
     const { t } = useTranslation();
     const studio = useStyleStudioApi();
-    const [theme, setTheme] = useState<"light" | "dark">("light");
+    const [open, setOpen] = useState(() => window.innerWidth >= 1100);
+    const [present, setPresent] = useState(open);
+    useEffect(() => {
+        if (open) {
+            setPresent(true);
+            return;
+        }
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            setPresent(false);
+            return;
+        }
+        const timer = window.setTimeout(() => setPresent(false), 180);
+        return () => window.clearTimeout(timer);
+    }, [open]);
     useEffect(() => {
         const root = previewRoot.current;
         if (!root || !studio.draft) return;
-        const values = { ...studio.draft.shared, ...studio.draft[theme] };
+        const values = {
+            ...studio.snapshot?.preview?.[theme],
+            ...studio.draft.shared,
+            ...studio.draft[theme],
+        };
         const previous = Object.fromEntries(
             Object.keys(values).map((key) => [key, root.style.getPropertyValue(key)]),
         );
+        const main = root.closest<HTMLElement>(".app-main");
+        const previousBackground = main?.style.getPropertyValue("--style-preview-bg") ?? "";
+        if (main && values["--bg"]) main.style.setProperty("--style-preview-bg", values["--bg"]);
         root.dataset.stylePreview = theme;
         for (const [key, value] of Object.entries(values)) root.style.setProperty(key, value);
         return () => {
@@ -39,131 +68,189 @@ export default function StyleStudio({ previewRoot }: StyleStudioProps) {
                 else root.style.removeProperty(key);
             }
             delete root.dataset.stylePreview;
+            if (main) {
+                if (previousBackground)
+                    main.style.setProperty("--style-preview-bg", previousBackground);
+                else main.style.removeProperty("--style-preview-bg");
+            }
         };
-    }, [studio.draft, theme, previewRoot]);
-    const renderFields = (scope: StyleScope) =>
+    }, [studio.draft, studio.snapshot, theme, previewRoot]);
+    useEffect(() => {
+        const catalogue = previewRoot.current?.closest<HTMLElement>(".showcase-catalog");
+        if (catalogue) catalogue.dataset.styleStudioOpen = String(open);
+        return () => {
+            if (catalogue) delete catalogue.dataset.styleStudioOpen;
+        };
+    }, [open, previewRoot]);
+    const renderFields = (scope: StyleScope, group: string) =>
         fields
-            .filter((field) => (field.scope === "shared") === (scope === "shared"))
+            .filter((field) =>
+                group === "colors"
+                    ? field.scope === "theme"
+                    : group === "shape"
+                      ? field.key.includes("radius") || field.key === "--control-height"
+                      : group === "typography"
+                        ? field.key.startsWith("--font") || field.key === "--line-height"
+                        : field.key.startsWith("--space"),
+            )
             .map((field) => {
                 const value = studio.draft?.[scope][field.key] ?? "";
-                return field.kind === "choice" ? (
-                    <label className="form-field" key={field.key}>
-                        {t(`styleStudio.fields.${field.label}`)}
-                        <select
-                            value={value}
+                if (field.kind === "choice") {
+                    const items = (field.options ?? []).map((option, index) => ({
+                        id: option,
+                        label:
+                            field.key === "--font-family"
+                                ? t(`styleStudio.fonts.${index}`)
+                                : option,
+                    }));
+                    return (
+                        <DropdownMenu
+                            key={field.key}
+                            className="style-studio__dropdown"
+                            fieldLabel={t(`styleStudio.fields.${field.label}`)}
+                            label={t(`styleStudio.fields.${field.label}`)}
+                            triggerLabel={items.find((item) => item.id === value)?.label ?? value}
+                            items={items}
+                            onSelect={(next) => {
+                                if (!studio.busy) studio.edit(scope, field.key, next);
+                            }}
                             disabled={studio.busy}
-                            onChange={(event) => studio.edit(scope, field.key, event.target.value)}
-                        >
-                            {field.options?.map((option) => (
-                                <option key={option} value={option}>
-                                    {option}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                ) : field.kind === "color" ? (
-                    <div className="style-studio__color" key={field.key}>
-                        <InputField
+                        />
+                    );
+                }
+                if (field.kind === "color")
+                    return (
+                        <ColorPicker
+                            key={field.key}
                             label={t(`styleStudio.fields.${field.label}`)}
                             value={value}
                             disabled={studio.busy}
                             onValueChange={(next) => studio.edit(scope, field.key, next)}
                         />
-                        <InputField
-                            className="style-studio__picker"
-                            type="color"
-                            label={t("styleStudio.picker", {
-                                label: t(`styleStudio.fields.${field.label}`),
-                            })}
-                            value={colorHex(value)}
-                            disabled={studio.busy}
-                            onValueChange={(next) => studio.edit(scope, field.key, next)}
-                        />
-                    </div>
-                ) : (
-                    <InputField
+                    );
+                return (
+                    <NumberField
                         key={field.key}
                         label={t(`styleStudio.fields.${field.label}`)}
-                        value={value}
+                        value={value.replace(/rem$/, "")}
+                        min={field.min}
+                        max={field.max}
+                        step={field.kind === "length" ? 0.125 : 0.1}
+                        unit={field.kind === "length" ? "rem" : "×"}
                         disabled={studio.busy}
-                        onValueChange={(next) => studio.edit(scope, field.key, next)}
+                        onValueChange={(next) =>
+                            studio.edit(
+                                scope,
+                                field.key,
+                                next && field.kind === "length" ? `${next}rem` : next,
+                            )
+                        }
                     />
                 );
             });
-    return (
-        <section className="style-studio" aria-label={t("styleStudio.title")}>
-            <h2>{t("styleStudio.title")}</h2>
-            <p>{t("styleStudio.description")}</p>
-            {studio.snapshot && (
-                <p className="style-studio__path">
-                    {t("styleStudio.connected")}:{" "}
-                    <code>
-                        {studio.snapshot.root}/{studio.snapshot.file}
-                    </code>
-                </p>
+    return createPortal(
+        <>
+            {!present && (
+                <Button className="style-studio-launcher" onClick={() => setOpen(true)}>
+                    <SlidersHorizontal size={16} aria-hidden="true" />
+                    <span>{t("styleStudio.open")}</span>
+                    {studio.changes.length ? ` · ${studio.changes.length}` : ""}
+                </Button>
             )}
-            {studio.error && <p role="alert">{t(studio.error)}</p>}
-            {studio.saved && <p role="status">{t("styleStudio.saved")}</p>}
-            {studio.snapshot && studio.draft && (
-                <>
-                    <div className="style-studio__actions">
-                        {(["light", "dark"] as const).map((mode) => (
-                            <Button
-                                key={mode}
-                                aria-pressed={theme === mode}
-                                onClick={() => setTheme(mode)}
-                            >
-                                {t(`styleStudio.${mode}`)}
-                            </Button>
-                        ))}
-                    </div>
-                    <p>{t("styleStudio.colorHelp")}</p>
-                    <div className="style-studio__grid">{renderFields(theme)}</div>
-                    <h3>{t("styleStudio.shared")}</h3>
-                    <p>{t("styleStudio.lengthHelp")}</p>
-                    <div className="style-studio__grid">{renderFields("shared")}</div>
-                    <div className="style-studio__samples">
-                        <div className="style-studio__sample-panel">
-                            <span>{t("styleStudio.sample")}</span>
-                            <Button>{t("styleStudio.sampleButton")}</Button>
-                        </div>
-                        <div className="style-studio__sample-hover">
-                            {t("styleStudio.hoverSample")}
-                        </div>
-                    </div>
-                    <details>
-                        <summary>
-                            {t("styleStudio.changes", { count: studio.changes.length })}
-                        </summary>
-                        <ul>
-                            {studio.changes.map((change) => (
-                                <li key={`${change.scope}:${change.key}`}>
-                                    <code>
-                                        {change.scope} {change.key}:{" "}
-                                        {studio.snapshot?.values[change.scope][change.key]} →{" "}
-                                        {change.value}
-                                    </code>
-                                </li>
-                            ))}
-                        </ul>
-                    </details>
-                </>
-            )}
-            <div className="style-studio__actions">
-                <Button
-                    loading={studio.busy}
-                    disabled={!studio.changes.length}
-                    onClick={() => void studio.apply()}
+            {present && (
+                <aside
+                    className={`style-studio${!open ? " style-studio--closing" : ""}`}
+                    role="region"
+                    aria-label={t("styleStudio.title")}
+                    onKeyDown={(event) => {
+                        if (event.key === "Escape") setOpen(false);
+                    }}
                 >
-                    {t("styleStudio.apply")}
-                </Button>
-                <Button disabled={studio.busy || !studio.changes.length} onClick={studio.reset}>
-                    {t("styleStudio.reset")}
-                </Button>
-                <Button disabled={studio.busy} onClick={() => void studio.load()}>
-                    {t("styleStudio.reload")}
-                </Button>
-            </div>
-        </section>
+                    <header className="style-studio__header">
+                        <div>
+                            <h2>{t("styleStudio.title")}</h2>
+                            <p>{t("styleStudio.description")}</p>
+                        </div>
+                        <div className="style-studio__header-actions">
+                            <Tooltip content={t("styleStudio.reload")} side="left">
+                                <Button
+                                    className="style-studio__icon-button"
+                                    aria-label={t("styleStudio.reload")}
+                                    disabled={studio.busy}
+                                    onClick={() => void studio.load()}
+                                >
+                                    <RotateCcw size={16} aria-hidden="true" />
+                                </Button>
+                            </Tooltip>
+                            <Tooltip content={t("styleStudio.close")} side="left">
+                                <Button
+                                    className="style-studio__icon-button"
+                                    aria-label={t("styleStudio.close")}
+                                    onClick={() => setOpen(false)}
+                                >
+                                    <PanelRightClose size={16} aria-hidden="true" />
+                                </Button>
+                            </Tooltip>
+                        </div>
+                    </header>
+                    <div className="style-studio__themes">
+                        <ThemePreviewSelector themeMode={themeMode} onChangeTheme={onChangeTheme} />
+                    </div>
+                    <div className="style-studio__body">
+                        {studio.error && <p role="alert">{t(studio.error)}</p>}
+                        {studio.saved && <p role="status">{t("styleStudio.saved")}</p>}
+                        {studio.snapshot &&
+                            studio.draft &&
+                            (["colors", "shape", "typography", "spacing"] as const).map((group) => (
+                                <details
+                                    className="style-studio__group"
+                                    key={group}
+                                    open={group === "colors" ? true : undefined}
+                                >
+                                    <summary>{t(`styleStudio.groups.${group}`)}</summary>
+                                    <div className="style-studio__grid">
+                                        {renderFields(group === "colors" ? theme : "shared", group)}
+                                    </div>
+                                </details>
+                            ))}
+                        <details className="style-studio__group">
+                            <summary>
+                                {t("styleStudio.changes", { count: studio.changes.length })}
+                            </summary>
+                            <ul>
+                                {studio.changes.map((change) => (
+                                    <li key={`${change.scope}:${change.key}`}>
+                                        <code>
+                                            {change.scope} {change.key}:{" "}
+                                            {studio.snapshot?.values[change.scope][change.key]} →{" "}
+                                            {change.value}
+                                        </code>
+                                    </li>
+                                ))}
+                            </ul>
+                        </details>
+                    </div>
+                    <footer className="style-studio__footer">
+                        <span>{t("styleStudio.pending", { count: studio.changes.length })}</span>
+                        <div className="style-studio__actions">
+                            <Button
+                                disabled={studio.busy || !studio.changes.length}
+                                onClick={studio.reset}
+                            >
+                                {t("styleStudio.reset")}
+                            </Button>
+                            <Button
+                                loading={studio.busy}
+                                disabled={!studio.changes.length}
+                                onClick={() => void studio.apply()}
+                            >
+                                {t("styleStudio.apply")}
+                            </Button>
+                        </div>
+                    </footer>
+                </aside>
+            )}
+        </>,
+        document.body,
     );
 }

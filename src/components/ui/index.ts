@@ -29,3 +29,7 @@ export { ThemePreviewSelector } from "./toggles/ThemePreviewSelector";
 export { ThemeToggleButton } from "./toggles/ThemeToggleButton";
 
 export { KeyboardShortcut } from "./navigation/KeyboardShortcut";
+
+export { ColorPicker } from "./inputs/ColorPicker";
+
+export { NumberField } from "./inputs/NumberField";

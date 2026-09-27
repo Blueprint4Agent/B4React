@@ -30,7 +30,12 @@ it("keeps draft input local, does not write before apply, and cleans preview on 
         const root = useRef<HTMLElement>(null);
         return (
             <section ref={root} data-testid="preview">
-                <StyleStudio previewRoot={root} />
+                <StyleStudio
+                    previewRoot={root}
+                    themeMode="light"
+                    theme="light"
+                    onChangeTheme={() => undefined}
+                />
                 <Profiler id="catalogue" onRender={() => undefined}>
                     <Catalogue />
                 </Profiler>
@@ -38,10 +43,11 @@ it("keeps draft input local, does not write before apply, and cleans preview on 
         );
     }
     const view = render(<Page />);
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "Styles" }));
     await screen.findByLabelText("Panel background");
     const renders = siblingRender.mock.calls.length;
     // When: editing a style token.
-    const user = userEvent.setup();
     await user.clear(screen.getByLabelText("Panel background"));
     await user.type(screen.getByLabelText("Panel background"), "#123456");
     const root = screen.getByTestId("preview");
