@@ -63,7 +63,6 @@ export function AppSidebar({ expanded, onToggleExpanded }: AppSidebarProps) {
                             className="app-sidebar__brand"
                             aria-label={t("nav.aria.goShowCase")}
                         >
-                            <BrandMark />
                             <span className="app-sidebar__brand-name">{t("nav.brand")}</span>
                         </Link>
                         <Tooltip content={t("nav.sidebar.toggleClose")} side="right">

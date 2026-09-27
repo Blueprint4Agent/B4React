@@ -14,9 +14,10 @@
     --space-6: 1.5rem;
     --space-8: 2rem;
     --control-height: 2.5rem;
-    --rail-control-size: 2.25rem;
-    --sidebar-width: 3.5rem;
-    --sidebar-expanded-width: 12.5rem;
+    --rail-control-size: 2rem;
+    --sidebar-row-height: 2.25rem;
+    --sidebar-width: 3.25rem;
+    --sidebar-expanded-width: 11.5rem;
     --app-top-inset: 0px;
     --popover-bg: #ffffff;
     --tooltip-bg: #101010;
@@ -444,7 +445,7 @@ a {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-4);
+    gap: var(--space-3);
 }
 
 .app-sidebar__brand,
@@ -482,7 +483,7 @@ a {
 }
 
 .app-sidebar__item:hover,
-.app-sidebar__brand:hover,
+.app-sidebar:not(.app-sidebar--expanded) .app-sidebar__brand:hover,
 .app-sidebar__item--active {
     color: var(--text);
     background: color-mix(in oklab, var(--text) 8%, transparent);
@@ -2869,7 +2870,7 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
     }
 
     :root {
-        --sidebar-width: 3.5rem;
+        --sidebar-width: 3.25rem;
     }
 
     .app-sidebar {
@@ -2958,6 +2959,7 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
     :root {
         --sidebar-width: 3.75rem;
         --rail-control-size: 2.75rem;
+        --sidebar-row-height: 2.75rem;
         --control-height: 2.75rem;
     }
 
@@ -2990,8 +2992,8 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
 
 .app-sidebar--expanded .app-sidebar__brand {
     width: auto;
-    gap: var(--space-2);
-    padding-inline: var(--space-1);
+    justify-content: flex-start;
+    padding-inline: var(--space-3);
 }
 
 .app-sidebar__brand-name {
@@ -3035,10 +3037,10 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
 .app-sidebar--expanded .app-sidebar__item {
     justify-content: flex-start;
     gap: var(--space-2);
-    height: var(--control-height);
-    padding: var(--space-2) var(--space-3);
+    height: var(--sidebar-row-height);
+    padding: var(--space-1) var(--space-3);
     font:
-        500 0.875rem/1.25 "Inter",
+        500 0.8125rem/1.25 "Inter",
         system-ui,
         sans-serif;
 }
@@ -3065,7 +3067,7 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
     gap: var(--space-2);
     padding-inline: var(--space-2);
     border-radius: var(--radius-control);
-    height: var(--control-height);
+    height: var(--sidebar-row-height);
 }
 
 .profile-menu__avatar {
