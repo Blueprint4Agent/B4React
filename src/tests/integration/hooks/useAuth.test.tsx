@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { AppConfigProvider } from "../../../hooks/AppConfigProvider";
 import { AuthProvider, useAuthContext } from "../../../hooks/useAuth";
 import { FULL_SYSTEM_SCENARIO } from "../../fixtures/fullSystemScenarioData";
 
@@ -69,9 +70,11 @@ describe("useAuth bootstrap and exception flows", () => {
 
         // When: auth provider initializes.
         render(
-            <AuthProvider>
-                <AuthProbe />
-            </AuthProvider>,
+            <AppConfigProvider>
+                <AuthProvider>
+                    <AuthProbe />
+                </AuthProvider>
+            </AppConfigProvider>,
         );
 
         // Then: refresh-based bootstrap restores the user and a new tab-scoped access token.
@@ -92,9 +95,11 @@ describe("useAuth bootstrap and exception flows", () => {
 
         // When: auth provider initializes.
         render(
-            <AuthProvider>
-                <AuthProbe />
-            </AuthProvider>,
+            <AppConfigProvider>
+                <AuthProvider>
+                    <AuthProbe />
+                </AuthProvider>
+            </AppConfigProvider>,
         );
 
         // Then: provider uses existing token path without refresh call.
@@ -116,9 +121,11 @@ describe("useAuth bootstrap and exception flows", () => {
 
         // When: auth provider initializes.
         render(
-            <AuthProvider>
-                <AuthProbe />
-            </AuthProvider>,
+            <AppConfigProvider>
+                <AuthProvider>
+                    <AuthProbe />
+                </AuthProvider>
+            </AppConfigProvider>,
         );
 
         // Then: provider falls back to logged-out state and clears token.
@@ -138,9 +145,11 @@ describe("useAuth bootstrap and exception flows", () => {
         logoutApiMock.mockRejectedValue(new Error("logout failed"));
 
         render(
-            <AuthProvider>
-                <AuthProbe />
-            </AuthProvider>,
+            <AppConfigProvider>
+                <AuthProvider>
+                    <AuthProbe />
+                </AuthProvider>
+            </AppConfigProvider>,
         );
 
         await waitFor(() => {

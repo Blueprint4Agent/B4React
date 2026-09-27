@@ -1,9 +1,11 @@
 import { useEffect, useRef } from "react";
 
+import { useAppConfig } from "../useFeatures";
 import { useAuthContext } from "../useAuth";
 import { useServerConnectivity } from "./useServerConnectivity";
 
 export function ConnectivityRecovery() {
+    const { reload } = useAppConfig();
     const { revalidateSession } = useAuthContext();
     const { isDesktop, status } = useServerConnectivity();
     const disconnectedRef = useRef(false);
@@ -18,9 +20,11 @@ export function ConnectivityRecovery() {
         }
         if (status === "online" && disconnectedRef.current) {
             disconnectedRef.current = false;
-            void revalidateSession();
+            void reload()
+                .then(() => revalidateSession())
+                .catch(() => undefined);
         }
-    }, [isDesktop, revalidateSession, status]);
+    }, [isDesktop, reload, revalidateSession, status]);
 
     return null;
 }

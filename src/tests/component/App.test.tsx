@@ -8,6 +8,9 @@ import { App } from "../../App";
 const reloadConfigMock = vi.fn();
 const useAppConfigMock = vi.fn();
 const checkNowMock = vi.fn();
+vi.mock("../../hooks/useAuth", () => ({
+    useAuthContext: () => ({ user: null, loading: false, revalidateSession: vi.fn() }),
+}));
 
 vi.mock("../../hooks/useFeatures", () => ({
     useAppConfig: () => useAppConfigMock(),
