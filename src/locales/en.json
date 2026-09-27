@@ -213,7 +213,8 @@
             "showCase": "ShowCase",
             "settings": "Settings",
             "toggleOpen": "Expand sidebar",
-            "toggleClose": "Collapse sidebar"
+            "toggleClose": "Collapse sidebar",
+            "resize": "Resize sidebar"
         },
         "pageTitles": {
             "showCase": "ShowCase Page",

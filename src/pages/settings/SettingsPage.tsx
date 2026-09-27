@@ -1,8 +1,6 @@
-import { ArrowLeft, Code2, SlidersHorizontal, Sun, UserRound } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import { ConnectivityStatus } from "../../components/layout/ConnectivityStatus";
+import { useSearchParams } from "react-router-dom";
 
 import { ConnectedOAuthProvidersCard } from "../../components/features/auth/ConnectedOAuthProvidersCard";
 import { DeveloperApiKeysSection } from "../../components/features/apiKey/DeveloperApiKeysSection";
@@ -12,7 +10,6 @@ import {
     DropdownMenu,
     InlineMessage,
     InputField,
-    MenuList,
     PrimaryCard,
     StatusBadge,
     ThemePreviewSelector,
@@ -42,7 +39,12 @@ export function SettingsPage() {
     const { user, updateProfile } = useAuthContext();
     const { data: appConfig } = useAppConfig();
     const { themeMode, setThemeMode } = useTheme();
-    const [activeMenu, setActiveMenu] = useState<SettingsMenuKey>("profile");
+    const [searchParams] = useSearchParams();
+    const section = searchParams.get("section");
+    const activeMenu: SettingsMenuKey =
+        section === "general" || section === "appearance" || section === "developers"
+            ? section
+            : "profile";
     const [nameInput, setNameInput] = useState("");
     const [profileImageInput, setProfileImageInput] = useState<string | null>(null);
     const [saveBusy, setSaveBusy] = useState(false);
@@ -72,12 +74,6 @@ export function SettingsPage() {
         setEnabled: toggleKey,
         clearCreateError,
     } = useApiKeys({ ownerId: user?.id, enabled: showDevelopers, realtimeEnabled: loginEnabled });
-    const settingsMenuItems = [
-        { key: "general", label: t("settings.menu.general"), icon: SlidersHorizontal },
-        { key: "appearance", label: t("settings.menu.appearance"), icon: Sun },
-        { key: "profile", label: t("settings.menu.profile"), icon: UserRound },
-        { key: "developers", label: t("settings.menu.developers"), icon: Code2 },
-    ] as const;
     const normalizedNameInput = nameInput.trim();
     const normalizedCurrentName = (user?.name ?? "").trim();
     const normalizedProfileImageInput = profileImageInput?.trim() || null;
@@ -278,23 +274,6 @@ export function SettingsPage() {
 
     return (
         <section className="settings-layout">
-            <aside className="settings-navigation">
-                <Link to="/show-case" className="settings-back-link">
-                    <ArrowLeft aria-hidden="true" />
-                    {t("settings.backToApp")}
-                </Link>
-                <p className="settings-navigation__label">{t("settings.title")}</p>
-                <MenuList
-                    items={settingsMenuItems}
-                    activeKey={activeMenu}
-                    onSelect={setActiveMenu}
-                    ariaLabel={t("settings.menu.title")}
-                />
-                <div className="settings-navigation__status">
-                    <ConnectivityStatus placement="sidebar" />
-                </div>
-            </aside>
-
             <PrimaryCard className="settings-content-card">
                 {showProfile ? (
                     <>

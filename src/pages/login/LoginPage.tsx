@@ -2,7 +2,6 @@ import { FormEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 
-import { ThemeToggle } from "../../components/ui/toggles/ThemeToggle";
 import { OAuthOptionsCard } from "../../components/features/auth/OAuthOptionsCard";
 import { OAuthProviderButton } from "../../components/features/auth/OAuthProviderButton";
 import {
@@ -188,7 +187,6 @@ export function LoginPage() {
 
     return (
         <main className="page auth-page">
-            <ThemeToggle />
             <div className="auth-panel-stack">
                 <BrandMark className="brand-mark--login" />
                 <PanelCard

@@ -17,7 +17,7 @@
     --rail-control-size: 2rem;
     --sidebar-row-height: 2rem;
     --sidebar-width: 3rem;
-    --sidebar-expanded-width: 11rem;
+    --sidebar-expanded-width: 14rem;
     --app-top-inset: 0px;
     --popover-bg: #ffffff;
     --tooltip-bg: #101010;
@@ -215,38 +215,6 @@ html[data-tauri-runtime="true"] .desktop-titlebar--integrated {
     pointer-events: auto;
 }
 
-.desktop-titlebar__theme {
-    display: flex;
-    align-items: center;
-}
-
-.desktop-titlebar__theme .theme-toggle,
-.public-nav__actions .theme-toggle {
-    position: static;
-    inset: auto;
-    z-index: auto;
-    box-shadow: none;
-}
-
-.desktop-titlebar__theme .theme-toggle {
-    padding: 0.1rem 0.25rem;
-}
-
-.desktop-titlebar__theme .theme-toggle-button__option {
-    width: 1.35rem;
-    height: 1.35rem;
-}
-
-.desktop-titlebar__theme .theme-toggle-button__option svg {
-    width: 0.78rem;
-    height: 0.78rem;
-}
-
-.desktop-titlebar__theme .theme-toggle-button__title {
-    margin-right: 0.1rem;
-    font-size: 0.68rem;
-}
-
 .desktop-titlebar__button {
     width: 2.9rem;
     height: 100%;
@@ -372,10 +340,6 @@ html[data-tauri-runtime="true"] .page {
     padding-top: calc(var(--nav-height) + 1rem);
 }
 
-html[data-tauri-runtime="true"] .auth-page > .theme-toggle {
-    display: none;
-}
-
 html[data-tauri-runtime="true"][data-tauri-platform="macos"] .public-nav__inner {
     padding-left: 5.25rem;
 }
@@ -386,25 +350,6 @@ html[data-tauri-runtime="true"]:not([data-tauri-platform="macos"]) .public-nav__
 
 html[data-tauri-runtime="true"] .desktop-titlebar__button {
     width: 2.5rem;
-}
-
-html[data-tauri-runtime="true"] .public-nav__actions .theme-toggle {
-    padding: 0.1rem 0.25rem;
-}
-
-html[data-tauri-runtime="true"] .public-nav__actions .theme-toggle-button__option {
-    width: 1.35rem;
-    height: 1.35rem;
-}
-
-html[data-tauri-runtime="true"] .public-nav__actions .theme-toggle-button__option svg {
-    width: 0.78rem;
-    height: 0.78rem;
-}
-
-html[data-tauri-runtime="true"] .public-nav__actions .theme-toggle-button__title {
-    margin-right: 0.1rem;
-    font-size: 0.68rem;
 }
 
 a {
@@ -746,7 +691,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 .menu-list__item.ui-button:hover {
     border-color: transparent;
     transform: none;
-    background: color-mix(in oklab, var(--text) 6%, transparent);
+    background: color-mix(in oklab, var(--text) 12%, transparent);
 }
 
 .menu-list__item.ui-button .ui-button__content {
@@ -1043,10 +988,6 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 
 .settings-general-control {
     margin-top: 0.8rem;
-}
-
-.settings-general-control .theme-toggle-button {
-    width: fit-content;
 }
 
 .settings-general-control .ui-dropdown__trigger {
@@ -1424,7 +1365,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 
 .profile-menu__item:hover {
     border-color: transparent;
-    background: color-mix(in oklab, var(--input-bg) 80%, transparent 20%);
+    background: color-mix(in oklab, var(--text) 12%, transparent);
 }
 
 .profile-menu__item:disabled {
@@ -1433,77 +1374,18 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 }
 
 .profile-menu__logout {
-    margin-top: var(--space-1);
+    margin-top: var(--space-3);
 }
 
 .profile-menu__logout::before {
     content: "";
     position: absolute;
-    inset: -3px 0 auto;
-    border-top: 1px solid var(--panel-border);
+    inset: -7px 0 auto;
+    border-top: 0.5px solid var(--panel-border);
 }
 
 .profile-menu__logout {
     position: relative;
-}
-
-.theme-toggle-button {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.2rem 0.35rem;
-    border-radius: var(--radius-pill);
-    border: 1px solid color-mix(in oklab, var(--panel-border) 82%, transparent 18%);
-    background: color-mix(in oklab, var(--panel) 95%, transparent 5%);
-    gap: 0.24rem;
-}
-
-.theme-toggle-button__title {
-    margin: 0 0.2rem 0 0.25rem;
-    font:
-        600 0.76rem/1 "Inter",
-        system-ui,
-        sans-serif;
-    color: var(--text-soft);
-    white-space: nowrap;
-}
-
-.theme-toggle-button__option {
-    border: 1px solid transparent;
-    border-radius: var(--radius-pill);
-    width: 1.75rem;
-    height: 1.75rem;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.35rem;
-    color: var(--text-soft);
-    background: transparent;
-    cursor: pointer;
-}
-
-.theme-toggle-button__option svg {
-    width: 1.08rem;
-    height: 1.08rem;
-}
-
-.theme-toggle-button__option--active {
-    color: var(--text);
-    border-color: color-mix(in oklab, var(--panel-border) 70%, transparent 30%);
-    background: color-mix(in oklab, var(--input-bg) 82%, transparent 18%);
-}
-
-.profile-menu__item.theme-toggle-button {
-    width: 100%;
-    justify-content: flex-start;
-    padding: var(--space-1) var(--space-2);
-    gap: var(--space-1);
-    border: 1px solid transparent;
-    background: transparent;
-}
-
-.profile-menu__item .theme-toggle-button__title {
-    margin: 0 auto 0 0;
 }
 
 .ui-dropdown {
@@ -1581,7 +1463,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 
 .ui-dropdown__item:hover {
     border-color: transparent;
-    background: color-mix(in oklab, var(--input-bg) 80%, transparent 20%);
+    background: color-mix(in oklab, var(--text) 12%, transparent);
 }
 
 .ui-pagination {
@@ -2159,16 +2041,6 @@ html[data-theme="dark"] .ui-toggle__track--on {
 .copy-field__button svg {
     width: 0.95rem;
     height: 0.95rem;
-}
-
-.theme-toggle {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 10;
-    background: color-mix(in oklab, var(--panel) 94%, transparent 6%);
-    color: var(--text);
-    box-shadow: 0 10px 22px rgba(16, 24, 40, 0.15);
 }
 
 .panel {
@@ -2991,11 +2863,6 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
         --sidebar-row-height: 2.75rem;
         --control-height: 2.75rem;
     }
-
-    .theme-toggle-button__option {
-        width: 2.75rem;
-        height: 2.75rem;
-    }
 }
 
 .app-shell--expanded {
@@ -3117,7 +2984,7 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
 .app-sidebar--expanded .profile-menu__dropdown {
     left: 0;
     bottom: calc(100% + var(--space-2));
-    width: min(14rem, calc(100vw - 2rem));
+    width: 100%;
 }
 
 .app-sidebar-backdrop {
@@ -3211,10 +3078,7 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
     }
 }
 
-/* Settings owns its navigation so the app rail is not duplicated. */
-.app-shell--settings {
-    padding-left: 0;
-}
+/* Settings content uses the same AppSidebar shell as other app routes. */
 
 .app-shell--settings .app-main {
     padding: 0;
@@ -3229,65 +3093,12 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
 
 .settings-layout {
     display: grid;
-    grid-template-columns: 12.5rem minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     width: 100%;
     align-content: start;
     gap: 0;
     min-height: 100%;
     align-items: start;
-}
-
-.settings-navigation {
-    position: sticky;
-    top: 0;
-    height: calc(100dvh - var(--app-top-inset));
-    padding: var(--space-4) var(--space-2);
-    border-right: 0.5px solid var(--panel-border);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-}
-
-.settings-back-link {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    min-height: var(--control-height);
-    padding: var(--space-2);
-    color: var(--text-soft);
-    font-size: 0.8125rem;
-    text-decoration: none;
-    border-radius: var(--radius-control);
-}
-
-.settings-back-link:hover {
-    background: var(--panel);
-    color: var(--text);
-}
-.settings-back-link svg {
-    width: 1rem;
-    height: 1rem;
-    flex-shrink: 0;
-}
-.settings-navigation__label {
-    margin: var(--space-2) var(--space-2) 0;
-    color: var(--text-soft);
-    font-size: 0.75rem;
-}
-.settings-navigation .menu-list {
-    border: 0;
-    padding: 0;
-    box-shadow: none;
-    background: transparent;
-}
-.settings-navigation .menu-list__item {
-    min-height: var(--sidebar-row-height);
-    padding: var(--space-1) var(--space-2);
-    font-size: 0.8125rem;
-}
-.settings-navigation__status {
-    margin-top: auto;
-    padding: var(--space-2);
 }
 
 .settings-content-card {
@@ -3438,32 +3249,6 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
     .settings-layout {
         grid-template-columns: minmax(0, 1fr);
     }
-    .settings-navigation {
-        position: static;
-        height: auto;
-        border-right: 0;
-        border-bottom: 0.5px solid var(--panel-border);
-        padding: var(--space-2);
-        gap: var(--space-2);
-    }
-    .settings-navigation__label {
-        display: none;
-    }
-    .settings-navigation .menu-list__items {
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--space-1);
-    }
-    .settings-navigation .menu-list__item {
-        width: auto;
-    }
-    .settings-navigation__status {
-        margin: 0;
-        padding: 0 var(--space-2);
-    }
-    .settings-navigation__status:empty {
-        display: none;
-    }
     .settings-content-card {
         padding: var(--space-5) var(--space-4);
     }
@@ -3486,4 +3271,228 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
 
 .settings-row .settings-general-control {
     margin-top: 0;
+}
+
+.app-sidebar__item:hover {
+    background: color-mix(in oklab, var(--text) 12%, transparent);
+}
+.sidebar-resize-handle {
+    position: absolute;
+    inset: 0 -3px 0 auto;
+    width: 6px;
+    z-index: 1;
+    cursor: col-resize;
+    touch-action: none;
+}
+.sidebar-resize-handle:hover,
+.sidebar-resize-handle:focus-visible {
+    background: color-mix(in oklab, var(--text) 20%, transparent);
+}
+.app-shell--resizing,
+.app-shell--resizing .app-sidebar {
+    transition: none;
+}
+.app-shell--resizing {
+    user-select: none;
+    cursor: col-resize;
+}
+.app-shell--resizing .sidebar-resize-handle {
+    background: color-mix(in oklab, var(--text) 20%, transparent);
+}
+.app-sidebar__nav {
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+@media (max-width: 640px) {
+    .app-sidebar--expanded {
+        width: min(var(--sidebar-expanded-width), calc(100vw - var(--sidebar-width)));
+    }
+}
+@media (pointer: coarse) {
+    .sidebar-resize-handle {
+        display: none;
+    }
+}
+
+/* Profile uses one photo row and a compact identity group. */
+.settings-profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+.settings-profile-info {
+    width: 100%;
+    gap: 0;
+    border: 0.5px solid var(--panel-border);
+    border-radius: var(--radius-panel);
+    background: var(--panel);
+    overflow: hidden;
+}
+.settings-profile-info > .settings-profile-field-card {
+    padding: var(--space-4);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+.settings-profile-info > .settings-profile-field-card + .settings-profile-field-card {
+    border-top: 0.5px solid var(--panel-border);
+}
+.settings-profile-field-card h2,
+.settings-profile-photo-panel h2 {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+.settings-profile-field-card p {
+    margin-top: var(--space-2);
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+}
+.settings-profile-name-edit {
+    margin-top: var(--space-2);
+}
+.settings-feedback-slot:empty {
+    display: none;
+}
+.settings-profile-photo-panel {
+    order: -1;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr);
+    column-gap: var(--space-4);
+    row-gap: var(--space-2);
+    justify-items: start;
+    text-align: left;
+}
+.settings-profile-photo-panel > h2 {
+    grid-column: 2;
+    grid-row: 1;
+}
+.settings-profile-photo-panel .settings-profile-photo-card__preview {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    width: 4rem;
+    height: 4rem;
+    font-size: 1.25rem;
+}
+.settings-profile-photo-panel .avatar-upload-field {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: left;
+}
+.settings-profile-photo-panel .avatar-upload-field__button {
+    min-height: 2rem;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-control);
+    white-space: nowrap;
+    font-size: 0.8125rem;
+}
+.settings-profile-photo-panel .avatar-upload-field__actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+.settings-profile-photo-panel .avatar-upload-field__helper {
+    text-align: left;
+    font-size: 0.75rem;
+}
+@media (max-width: 440px) {
+    .settings-profile-photo-panel {
+        grid-template-columns: 3rem minmax(0, 1fr);
+        gap: var(--space-2);
+    }
+    .settings-profile-photo-panel .settings-profile-photo-card__preview {
+        width: 3rem;
+        height: 3rem;
+    }
+    .settings-profile-photo-panel .avatar-upload-field {
+        grid-column: 1 / -1;
+        grid-row: 3;
+    }
+}
+@media (pointer: coarse) {
+    .settings-profile-photo-panel .avatar-upload-field__button {
+        min-height: 2.75rem;
+    }
+}
+
+/* Compact legacy theme control is available for showcase demonstrations only. */
+.theme-toggle-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.35rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid color-mix(in oklab, var(--panel-border) 82%, transparent 18%);
+    background: color-mix(in oklab, var(--panel) 95%, transparent 5%);
+    gap: 0.24rem;
+}
+
+.theme-toggle-button__title {
+    margin: 0 0.2rem 0 0.25rem;
+    font:
+        600 0.76rem/1 "Inter",
+        system-ui,
+        sans-serif;
+    color: var(--text-soft);
+    white-space: nowrap;
+}
+
+.theme-toggle-button__option {
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    color: var(--text-soft);
+    background: transparent;
+    cursor: pointer;
+}
+
+.theme-toggle-button__option svg {
+    width: 1.08rem;
+    height: 1.08rem;
+}
+
+.theme-toggle-button__option--active {
+    color: var(--text);
+    border-color: color-mix(in oklab, var(--panel-border) 70%, transparent 30%);
+    background: color-mix(in oklab, var(--input-bg) 82%, transparent 18%);
+}
+
+.settings-content-card {
+    width: min(100%, 50rem);
+    padding: var(--space-6);
+}
+.settings-content-card__header {
+    margin-bottom: var(--space-6);
+}
+.settings-content-card__header h1 {
+    font-size: 1.25rem;
+}
+.settings-general-content {
+    margin-top: 0;
+    gap: var(--space-4);
+}
+.settings-profile-content {
+    margin-top: 0;
+}
+.settings-row {
+    padding: var(--space-3) var(--space-4);
+}
+.settings-profile-photo-panel .avatar-upload-field {
+    justify-items: start;
+}
+.settings-profile-photo-panel .avatar-upload-field__button:hover {
+    transform: none;
+}
+@media (max-width: 640px) {
+    .settings-content-card {
+        padding: var(--space-5) var(--space-3);
+    }
 }

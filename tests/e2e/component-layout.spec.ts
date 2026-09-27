@@ -187,7 +187,7 @@ for (const width of [320, 1440]) {
         await expect(page.locator(".profile-menu__trigger-name")).toBeVisible();
         await expect
             .poll(async () => (await page.locator(".app-sidebar").boundingBox())!.width)
-            .toBe(176);
+            .toBe(224);
         await page.locator(".app-sidebar__item").first().hover();
         await expect(page.getByRole("tooltip")).toHaveCount(0);
         await page.getByRole("button", { name: "Open profile menu" }).click();
@@ -201,7 +201,7 @@ for (const width of [320, 1440]) {
         await page.getByRole("button", { name: "Open profile menu" }).click();
         await popup.getByRole("link", { name: "Settings", exact: true }).click();
         await expect(page.locator(".settings-layout")).toBeVisible();
-        await expect(page.locator(".app-sidebar")).toHaveCount(0);
+        await expect(page.locator(".app-sidebar")).toHaveCount(1);
         await expect
             .poll(() =>
                 page.locator(".app-main").evaluate((main) => main.scrollWidth - main.clientWidth),
@@ -270,7 +270,7 @@ test("brand hover reveals expand control and expanded header places close on the
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
     await expect
         .poll(async () => (await page.locator(".app-sidebar").boundingBox())!.width)
-        .toBe(176);
+        .toBe(224);
     const brand = (await page.locator(".app-sidebar__brand").boundingBox())!;
     const close = (await toggle.boundingBox())!;
     expect(close.x).toBeGreaterThan(brand.x + brand.width);
@@ -290,7 +290,7 @@ for (const colorScheme of ["light", "dark"] as const) {
         // When: expanding and collapsing.
         await page.locator(".app-sidebar__toggle").click();
         await expect(sidebar).toHaveCSS("background-color", background);
-        await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(176);
+        await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(224);
         await page.locator(".app-sidebar__toggle").click();
         await expect(sidebar).toHaveCSS("background-color", background);
         await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(48);
@@ -304,17 +304,17 @@ for (const colorScheme of ["light", "dark"] as const) {
 
 for (const width of [320, 1440]) {
     test(`settings appearance previews persist selection at ${width}px`, async ({ page }) => {
-        // Given: settings owns a single navigation column.
+        // Given: settings uses the same sidebar as the app.
         await page.setViewportSize({ width, height: 900 });
         await page.goto("/settings");
-        await expect(page.locator(".app-sidebar")).toHaveCount(0);
-        await page.getByRole("button", { name: "Appearance", exact: true }).click();
+        await expect(page.locator(".app-sidebar")).toHaveCount(1);
+        await page.getByRole("link", { name: "Appearance", exact: true }).click();
         const selector = page.locator(".settings-content-card .theme-preview-selector");
         // When: a preview is selected, the app appearance updates and persists.
         await selector.getByRole("button", { name: "Dark mode", exact: true }).click();
         await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
         await page.reload();
-        await page.getByRole("button", { name: "Appearance", exact: true }).click();
+        await page.getByRole("link", { name: "Appearance", exact: true }).click();
         await expect(
             selector.getByRole("button", { name: "Dark mode", exact: true }),
         ).toHaveAttribute("aria-pressed", "true");
@@ -330,3 +330,40 @@ for (const width of [320, 1440]) {
         await expect(page.locator(".app-sidebar")).toBeVisible();
     });
 }
+
+test("shared sidebar resizes, persists, and keeps settings chrome", async ({ page }) => {
+    // Given: the same expanded sidebar is used in settings and the app.
+    await page.goto("/settings?section=appearance");
+    await page.locator(".app-sidebar__toggle").click();
+    const sidebar = page.locator(".app-sidebar");
+    await expect(sidebar.locator(".app-sidebar__brand-name")).toHaveText("B4A");
+    await expect(page.getByRole("link", { name: "Back to app" })).toBeVisible();
+    const separator = page.getByRole("separator", { name: "Resize sidebar" });
+    await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(224);
+    // When: the boundary is dragged, content follows the new width.
+    const handle = (await separator.boundingBox())!;
+    await page.mouse.move(handle.x + handle.width / 2, 300);
+    await page.mouse.down();
+    await page.mouse.move(handle.x + handle.width / 2 + 64, 300, { steps: 5 });
+    await page.mouse.up();
+    await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(288);
+    const profile = page.getByRole("button", { name: "Open profile menu" });
+    await profile.click();
+    await expect(page.locator(".profile-menu__dropdown .theme-toggle-button")).toHaveCount(0);
+    expect((await page.getByRole("dialog").boundingBox())!.width).toBeCloseTo(
+        (await profile.boundingBox())!.width,
+        0,
+    );
+    await page.keyboard.press("Escape");
+    await page.getByRole("link", { name: "Back to app" }).click();
+    await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(288);
+    await page.reload();
+    await page.locator(".app-sidebar__toggle").click();
+    await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(288);
+    // Then: keyboard resizing respects the same bounds.
+    await separator.focus();
+    await page.keyboard.press("End");
+    await expect(separator).toHaveAttribute("aria-valuenow", "360");
+    await page.keyboard.press("Home");
+    await expect(separator).toHaveAttribute("aria-valuenow", "200");
+});

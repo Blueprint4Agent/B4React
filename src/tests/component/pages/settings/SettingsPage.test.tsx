@@ -2,6 +2,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { AppLayout } from "../../../../components/layout/AppLayout";
 import { SettingsPage } from "../../../../pages/settings/SettingsPage";
 import { FULL_SYSTEM_SCENARIO } from "../../../fixtures/fullSystemScenarioData";
 import { renderWithRouter } from "../../../utils/renderWithRouter";
@@ -128,7 +129,12 @@ describe("SettingsPage developers scenario", () => {
         };
 
         // When: settings profile page is rendered.
-        renderWithRouter(<SettingsPage />, "/settings");
+        renderWithRouter(
+            <AppLayout>
+                <SettingsPage />
+            </AppLayout>,
+            "/settings",
+        );
 
         // Then: admin role badge is visible.
         expect(screen.getByText("Admin")).toBeInTheDocument();
@@ -142,7 +148,12 @@ describe("SettingsPage developers scenario", () => {
         };
 
         // When: settings profile page is rendered.
-        renderWithRouter(<SettingsPage />, "/settings");
+        renderWithRouter(
+            <AppLayout>
+                <SettingsPage />
+            </AppLayout>,
+            "/settings",
+        );
 
         // Then: admin badge is not rendered for regular user.
         expect(screen.queryByText("Admin")).not.toBeInTheDocument();
@@ -152,11 +163,16 @@ describe("SettingsPage developers scenario", () => {
         // Given: API keys exceed the frontend card-list page size.
         mockedApiKeyItems = Array.from({ length: 7 }, (_, index) => buildMockApiKey(index + 1));
 
-        const { container } = renderWithRouter(<SettingsPage />, "/settings");
+        const { container } = renderWithRouter(
+            <AppLayout>
+                <SettingsPage />
+            </AppLayout>,
+            "/settings",
+        );
         const user = userEvent.setup();
 
         // When: user opens the developers section.
-        await user.click(screen.getByRole("button", { name: "Developers" }));
+        await user.click(screen.getByRole("link", { name: "Developers" }));
 
         // Then: first page renders six cards and keeps later keys off-screen.
         await waitFor(() => {
@@ -178,11 +194,16 @@ describe("SettingsPage developers scenario", () => {
         // Given: API keys span more pages than the pager should show at once.
         mockedApiKeyItems = Array.from({ length: 49 }, (_, index) => buildMockApiKey(index + 1));
 
-        renderWithRouter(<SettingsPage />, "/settings");
+        renderWithRouter(
+            <AppLayout>
+                <SettingsPage />
+            </AppLayout>,
+            "/settings",
+        );
         const user = userEvent.setup();
 
         // When: user opens the developers section.
-        await user.click(screen.getByRole("button", { name: "Developers" }));
+        await user.click(screen.getByRole("link", { name: "Developers" }));
 
         // Then: pagination keeps boundary pages and truncates the middle range.
         await waitFor(() => {
@@ -231,11 +252,16 @@ describe("SettingsPage developers scenario", () => {
             return { id: apiKeyId };
         });
 
-        renderWithRouter(<SettingsPage />, "/settings");
+        renderWithRouter(
+            <AppLayout>
+                <SettingsPage />
+            </AppLayout>,
+            "/settings",
+        );
         const user = userEvent.setup();
 
         // When: user switches to developers section and creates key.
-        await user.click(screen.getByRole("button", { name: "Developers" }));
+        await user.click(screen.getByRole("link", { name: "Developers" }));
         await user.click(screen.getByRole("button", { name: "Create API key" }));
         await user.type(
             screen.getByLabelText("API key name"),
@@ -320,9 +346,14 @@ describe("SettingsPage developers scenario", () => {
             },
         });
 
-        renderWithRouter(<SettingsPage />, "/settings");
+        renderWithRouter(
+            <AppLayout>
+                <SettingsPage />
+            </AppLayout>,
+            "/settings",
+        );
         const user = userEvent.setup();
-        await user.click(screen.getByRole("button", { name: "Developers" }));
+        await user.click(screen.getByRole("link", { name: "Developers" }));
 
         // When: duplicate key name is created.
         await user.click(screen.getByRole("button", { name: "Create API key" }));

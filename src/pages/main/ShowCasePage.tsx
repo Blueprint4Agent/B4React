@@ -23,8 +23,8 @@ import {
     PanelCard,
     Spinner,
     StatusBadge,
-    ThemeToggleButton,
     ThemePreviewSelector,
+    ThemeToggleButton,
     Tooltip,
     ToggleSwitch,
     ValidationCard,
@@ -96,14 +96,14 @@ export function ShowCasePage() {
                             <ShowcaseItem component="BrandMark">
                                 <BrandMark />
                             </ShowcaseItem>
-                            <ShowcaseItem component="ThemePreviewSelector">
-                                <ThemePreviewSelector
+                            <ShowcaseItem component="ThemeToggleButton">
+                                <ThemeToggleButton
                                     themeMode={themeMode}
                                     onChangeTheme={setThemeMode}
                                 />
                             </ShowcaseItem>
-                            <ShowcaseItem component="ThemeToggleButton">
-                                <ThemeToggleButton
+                            <ShowcaseItem component="ThemePreviewSelector">
+                                <ThemePreviewSelector
                                     themeMode={themeMode}
                                     onChangeTheme={setThemeMode}
                                 />

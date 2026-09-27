@@ -214,7 +214,7 @@ Avoid one-off button spacing, inline pagination styles, page-local control CSS, 
 3. Browser runtime must not start desktop readiness polling.
 4. Realtime subscriptions must pause while desktop readiness is unavailable and resume after recovery.
 5. Missing `/config` data must fail closed; only an explicit `login_enabled=false` response may unlock login-disabled routes.
-6. Desktop outage status belongs in the sidebar footer beside the profile control or standalone/public-navbar theme control, not in a page-wide overlay.
+6. Desktop outage status belongs in the sidebar footer beside the profile control or standalone/public-navbar actions, not in a page-wide overlay.
 7. Public navbars must use symmetric outer columns and reserve compact status width so status label changes never shift the centered title.
 8. Manual retry UI must avoid flashing transient loading states; keep the disconnected label stable and only show heavier loading affordances after a short delay.
 9. Profile-menu sign-out must be disabled while packaged desktop connectivity is not `online`; do not clear the local user or route to `/login` during a server outage.
@@ -371,15 +371,14 @@ Use 8px label/control and icon/text spacing, 16–24px card padding, and readabl
 universal compliance standard. Preserve the existing palette and brand.
 
 AppLayout replaces the app navbar with a persistent sidebar: 48px collapsed /
-176px expanded, with 32px icon controls and 32px navigation rows. Coarse pointers use a 60px rail and 44px
+224px default expanded (resizable from 200–360px), with 32px icon controls and 32px navigation rows. Coarse pointers use a 60px rail and 44px
 controls. The collapsed brand opens the sidebar and swaps to an expand icon on
 hover/keyboard focus; the expanded header shows only left-aligned B4A text (no
 brand icon), aligns it with menu icons using 12px horizontal padding without a
 hover fill, and puts the close button at the right edge.
 Width/content inset transitions take 180ms and respect reduced motion. Both states
 use the same background token. Labels and the profile name appear when expanded.
-Mobile expansion overlays content with a dismissible backdrop. Profile/theme and
-connectivity live in the footer. Public navigation remains symmetric; native app
+Mobile expansion overlays content with a dismissible backdrop. Profile and connectivity live in the footer. Public navigation remains symmetric; native app
 windows retain a dedicated drag/window-control strip.
 
 Menu rows share one 8px icon/text gap, fill their container, and grow for wrapped
@@ -388,8 +387,8 @@ labels. Profile popovers open beside the rail or above the expanded footer.
 Tooltips measure their actual rendered child control, render in a body portal,
 and flip/clamp within the viewport with an 8px gap and edge inset. Position updates
 on nested scroll, window resize, and trigger/content resize; completely clipped
-anchors hide their tooltip. Computed top/left coordinates are the sole dynamic
-inline-style exception; appearance stays in app.css. Supply one control that
+anchors hide their tooltip. Computed tooltip top/left coordinates and the persisted sidebar width CSS variable
+are dynamic inline-style exceptions; appearance stays in app.css. Supply one control that
 forwards `aria-describedby`; hover and focus open it, click/Escape dismiss it.
 Tooltips use 12px text, 16px line height, 4px/8px padding, and a 6px radius.
 Light mode uses a black tooltip with white text; dark mode uses a white tooltip
@@ -403,16 +402,26 @@ window blur dismisses it. Preserve click/Escape dismissal during icon replacemen
 
 Pointer movement outside the trigger also dismisses hover-only tooltips when navigation or reload interrupts the usual leave event.
 
-Settings lives only in the footer profile popup. Its compact 224px surface groups
-avatar/name/email, settings and appearance, then logout when available. Do not add
-unsupported reference actions such as billing or help.
+Settings opens from the footer profile popup. Expanded popovers match the sidebar
+inner width and follow resizing; collapsed popovers clamp to the viewport. The
+popup groups avatar/name/email, settings, and logout when available, with breathing
+room around the logout divider. Hover uses a 12% foreground mix without borders.
+Legacy ThemeToggle/ThemeToggleButton remain showcase-only; actual auth, navbar,
+profile, and titlebar surfaces use no old theme toggle.
 
-## Settings workspace and quiet borders
+## Settings workspace and shared resizing
 
-Settings replaces the app rail with a dedicated navigation/return link, preserving
-native titlebar and connectivity retry. Existing sections are General (language),
-Appearance (system/light/dark preview selection), Profile, and Developers. Mobile
-navigation wraps above the content. ThemePreviewSelector is a shared, showcased
-button group with pressed state and existing local-storage theme persistence.
+Settings uses the same AppSidebar instance, B4A header, collapse button, animation,
+footer and colors as the app. Back to app is the first item below the header,
+followed by existing General, Appearance, Profile and Developers sections. A
+validated section query parameter drives both the sidebar selection and page.
+No separate settings navigation is rendered. Profile uses a compact photo row and
+grouped identity fields. Settings and showcase use ThemePreviewSelector for
+system/light/dark previews, pressed state and existing local-storage persistence.
+
+The expanded sidebar starts at 224px, resizes between 200–360px via pointer capture,
+and persists its width locally. The separator supports arrow keys, Home/End and
+double-click reset. During dragging width transitions are disabled. Mobile width
+is clamped to leave backdrop space; coarse pointers retain 44px controls.
 Cards/sidebar use 0.5px low-contrast dividers. Menu/dropdown/profile hover changes
 background only; keyboard focus and selected-theme outlines remain visible.

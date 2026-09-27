@@ -3,8 +3,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
-import type { ThemeMode } from "../../hooks/useTheme";
-import { ThemeToggleButton, UserAvatar } from "../ui";
+import { UserAvatar } from "../ui";
 
 type ProfileDropdownProps = {
     expanded?: boolean;
@@ -14,11 +13,9 @@ type ProfileDropdownProps = {
     displayName: string;
     email?: string;
     onLogout: () => void;
-    onChangeTheme: (mode: ThemeMode) => void;
     logoutDisabled?: boolean;
     logoutDisabledTitle?: string;
     showLogout: boolean;
-    themeMode: ThemeMode;
 };
 
 export function ProfileDropdown({
@@ -29,11 +26,9 @@ export function ProfileDropdown({
     displayName,
     email,
     onLogout,
-    onChangeTheme,
     logoutDisabled = false,
     logoutDisabledTitle,
     showLogout,
-    themeMode,
 }: ProfileDropdownProps) {
     const { t } = useTranslation();
     const location = useLocation();
@@ -135,11 +130,6 @@ export function ProfileDropdown({
                         </span>
                         <span>{t("nav.settings")}</span>
                     </Link>
-                    <ThemeToggleButton
-                        className="profile-menu__item"
-                        themeMode={themeMode}
-                        onChangeTheme={onChangeTheme}
-                    />
                     {showLogout ? (
                         <button
                             type="button"
