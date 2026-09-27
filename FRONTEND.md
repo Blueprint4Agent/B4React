@@ -383,3 +383,8 @@ forwards `aria-describedby`; hover and focus open it, click/Escape dismiss it.
 Light mode uses a black tooltip with white text; dark mode uses a white tooltip
 with black text, including system appearance. `make test-ui` verifies anchor
 placement, inverse theme colors, scrolling, edge collision, and mobile overflow.
+
+Tooltip visibility distinguishes keyboard-visible focus from pointer-acquired DOM
+focus. A click may leave a control focused, but subsequent pointer leave must close
+its hover tooltip. Only keyboard focus retains a tooltip when the pointer leaves;
+window blur dismisses it. Preserve click/Escape dismissal during icon replacement.
