@@ -54,11 +54,17 @@ export function AppSidebar({ expanded, onToggleExpanded }: AppSidebarProps) {
                     className="app-sidebar__toggle"
                     onClick={onToggleExpanded}
                     aria-label={toggleLabel}
+                    aria-expanded={expanded}
+                    aria-controls="app-sidebar-navigation"
                 >
                     {expanded ? <PanelLeftClose /> : <PanelLeftOpen />}
                 </button>
             </Tooltip>
-            <nav className="app-sidebar__nav" aria-label={t("nav.sidebar.aria")}>
+            <nav
+                id="app-sidebar-navigation"
+                className="app-sidebar__nav"
+                aria-label={t("nav.sidebar.aria")}
+            >
                 {items.map(({ key, label, icon: Icon }) => {
                     const isActive = activeKey === key;
                     const buttonClassName = isActive
