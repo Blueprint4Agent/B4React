@@ -1,8 +1,7 @@
 {
     "styleStudio": {
-        "title": "Common styles · local preview",
-        "description": "Preview changes in the showcase below. Only Apply to file saves them. Portal dialogs outside the showcase are not included in this preview.",
-        "connected": "Connected file",
+        "title": "Style settings",
+        "description": "Preview in the showcase components.",
         "light": "Light preview",
         "dark": "Dark preview",
         "shared": "Shared radius, typography and spacing",
@@ -13,7 +12,7 @@
         "hoverSample": "Accent hover color",
         "changes": "Review changes ({{count}})",
         "apply": "Apply to file",
-        "reset": "Discard preview",
+        "reset": "Reset preview",
         "reload": "Reload file (discard draft)",
         "saved": "Saved. CSS changes apply through HMR; the previous file was backed up.",
         "errors": {
@@ -52,6 +51,21 @@
             "lineHeight": "Base line height"
         },
         "picker": "{{label}} color picker",
-        "defaults": "Current values"
+        "defaults": "Current values",
+        "open": "Styles",
+        "close": "Hide style settings",
+        "pending": "{{count}} unsaved changes",
+        "groups": {
+            "colors": "Colors",
+            "shape": "Shape",
+            "typography": "Typography",
+            "spacing": "Spacing"
+        },
+        "fonts": {
+            "0": "Inter",
+            "1": "System",
+            "2": "Serif",
+            "3": "Monospace"
+        }
     }
 }

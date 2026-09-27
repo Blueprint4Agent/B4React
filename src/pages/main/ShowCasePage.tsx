@@ -17,6 +17,8 @@ import { ErrorCard, InfoCard, WarningCard } from "../../components/ui/status/Sta
 import { OAuthProviderButton } from "../../components/features/auth/OAuthProviderButton";
 import { useTheme } from "../../hooks/useTheme";
 import {
+    ColorPicker,
+    NumberField,
     AvatarUploadField,
     CopyField,
     UserAvatar,
@@ -48,7 +50,9 @@ import {
 const StyleStudio = __STYLE_STUDIO__ ? lazy(() => import("../development/StyleStudio")) : null;
 
 export function ShowCasePage() {
-    const previewRoot = useRef<HTMLElement>(null);
+    const previewRoot = useRef<HTMLDivElement>(null);
+    const [sampleNumber, setSampleNumber] = useState("1");
+    const [sampleColor, setSampleColor] = useState("#3b82f6");
     const { t } = useTranslation();
     const [query, setQuery] = useState("");
     const [category, setCategory] = useState("all");
@@ -57,7 +61,7 @@ export function ShowCasePage() {
     const [copied, setCopied] = useState(false);
     const [sampleDropdown, setSampleDropdown] = useState("item-1");
     const navigate = useNavigate();
-    const { themeMode, setThemeMode } = useTheme();
+    const { themeMode, resolvedTheme, setThemeMode } = useTheme();
     const [sampleInput, setSampleInput] = useState("");
     const [sampleChecked, setSampleChecked] = useState(true);
     const [sampleUnchecked, setSampleUnchecked] = useState(false);
@@ -325,6 +329,25 @@ export function ShowCasePage() {
             content: (
                 <>
                     <div className="showcase-catalog__stack">
+                        <ShowcaseItem component="NumberField">
+                            <NumberField
+                                label={t("numberField.example")}
+                                value={sampleNumber}
+                                onValueChange={setSampleNumber}
+                                min={0}
+                                max={4}
+                                step={0.125}
+                                unit="rem"
+                            />
+                        </ShowcaseItem>
+                        <ShowcaseItem component="ColorPicker">
+                            <ColorPicker
+                                label={t("colorPicker.example")}
+                                value={sampleColor}
+                                onValueChange={setSampleColor}
+                            />
+                        </ShowcaseItem>
+
                         <ShowcaseItem component="InputField">
                             <InputField
                                 label={t("showCase.demo.text10")}
@@ -625,10 +648,15 @@ export function ShowCasePage() {
                 section.names.some((name) => name.toLocaleLowerCase().includes(normalizedQuery))),
     );
     return (
-        <section className="showcase-catalog" ref={previewRoot}>
+        <section className="showcase-catalog showcase-preview" ref={previewRoot}>
             {StyleStudio && (
                 <Suspense fallback={null}>
-                    <StyleStudio previewRoot={previewRoot} />
+                    <StyleStudio
+                        previewRoot={previewRoot}
+                        themeMode={themeMode}
+                        theme={resolvedTheme}
+                        onChangeTheme={setThemeMode}
+                    />
                 </Suspense>
             )}
             <header className="showcase-catalog__header">
@@ -675,32 +703,34 @@ export function ShowCasePage() {
                     </Button>
                 </div>
             ) : null}
-            {visibleSections.map((section) => (
-                <section
-                    key={section.id}
-                    className="showcase-catalog__section-card"
-                    id={`catalog-${section.id}`}
-                    aria-labelledby={`catalog-title-${section.id}`}
-                >
-                    <header className="showcase-section-heading">
-                        <h2 id={`catalog-title-${section.id}`}>
-                            {t(`showCase.catalog.categories.${section.id}`)}
-                        </h2>
-                        <p>{t(`showCase.catalog.descriptions.${section.id}`)}</p>
-                    </header>
-                    <ShowcaseQuery.Provider
-                        value={
-                            t(`showCase.catalog.categories.${section.id}`)
-                                .toLocaleLowerCase()
-                                .includes(normalizedQuery)
-                                ? ""
-                                : normalizedQuery
-                        }
+            <div className="showcase-preview__components">
+                {visibleSections.map((section) => (
+                    <section
+                        key={section.id}
+                        className="showcase-catalog__section-card"
+                        id={`catalog-${section.id}`}
+                        aria-labelledby={`catalog-title-${section.id}`}
                     >
-                        {section.content}
-                    </ShowcaseQuery.Provider>
-                </section>
-            ))}
+                        <header className="showcase-section-heading">
+                            <h2 id={`catalog-title-${section.id}`}>
+                                {t(`showCase.catalog.categories.${section.id}`)}
+                            </h2>
+                            <p>{t(`showCase.catalog.descriptions.${section.id}`)}</p>
+                        </header>
+                        <ShowcaseQuery.Provider
+                            value={
+                                t(`showCase.catalog.categories.${section.id}`)
+                                    .toLocaleLowerCase()
+                                    .includes(normalizedQuery)
+                                    ? ""
+                                    : normalizedQuery
+                            }
+                        >
+                            {section.content}
+                        </ShowcaseQuery.Provider>
+                    </section>
+                ))}
+            </div>
             {authPreviewOpen ? (
                 <AuthPageFrame
                     embedded

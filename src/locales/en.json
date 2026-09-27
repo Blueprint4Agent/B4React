@@ -568,5 +568,22 @@
         "title": "Unable to load this page",
         "description": "The page could not load. Reload to try again or return to the showcase.",
         "reload": "Reload page"
+    },
+    "colorPicker": {
+        "open": "Edit {{label}} color",
+        "palette": "{{label}} palette",
+        "h": "Hue",
+        "s": "Saturation",
+        "v": "Brightness",
+        "a": "Opacity",
+        "close": "Done",
+        "example": "Color",
+        "value": "HEX / RGBA",
+        "plane": "Saturation and brightness; use arrow keys"
+    },
+    "numberField": {
+        "increase": "Increase {{label}}",
+        "decrease": "Decrease {{label}}",
+        "example": "Spacing"
     }
 }

@@ -73,6 +73,14 @@ function checkedFile(root) {
         throw new StudioError("unsupported_styles", 422);
     return current;
 }
+function themeVariables(css, selector) {
+    return Object.fromEntries(
+        [...block(css, selector)[3].matchAll(/(--[a-z0-9-]+):\s*([^;]+);/g)].map((match) => [
+            match[1],
+            match[2].trim().replace(/\s+/g, " "),
+        ]),
+    );
+}
 export function readStyles(root) {
     const file = checkedFile(root);
     const css = fs.readFileSync(file, "utf8");
@@ -80,6 +88,13 @@ export function readStyles(root) {
         root: fs.realpathSync(root),
         file: "src/styles/app.css",
         revision: revision(css),
+        preview: {
+            light: themeVariables(css, selectors.light),
+            dark: {
+                ...themeVariables(css, selectors.light),
+                ...themeVariables(css, selectors.dark),
+            },
+        },
         values: {
             shared: tokens(css, selectors.light, "shared"),
             light: tokens(css, selectors.light, "theme"),
