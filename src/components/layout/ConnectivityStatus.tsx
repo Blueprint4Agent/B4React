@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useServerConnectivity } from "../../hooks/connectivity/useServerConnectivity";
 
 type ConnectivityStatusProps = {
-    placement: "navbar" | "titlebar";
+    placement: "navbar" | "titlebar" | "sidebar";
 };
 
 export function ConnectivityStatus({ placement }: ConnectivityStatusProps) {
@@ -27,7 +27,7 @@ export function ConnectivityStatus({ placement }: ConnectivityStatusProps) {
             ) : (
                 <WifiOff className="connectivity-status__icon" />
             )}
-            <span>
+            <span className={placement === "sidebar" ? "sr-only" : undefined}>
                 {showReconnecting
                     ? t("connectivity.reconnectingShort")
                     : t("connectivity.offlineShort")}

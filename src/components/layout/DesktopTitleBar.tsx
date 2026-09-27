@@ -27,9 +27,13 @@ export function DesktopTitleBar() {
     const standalone = STANDALONE_TITLEBAR_PATHS.some(
         (path) => location.pathname === path || location.pathname.startsWith(`${path}/`),
     );
+    const appShell = !standalone && location.pathname !== "/";
+    const draggable = standalone || appShell;
     const className = standalone
         ? "desktop-titlebar desktop-titlebar--standalone"
-        : "desktop-titlebar desktop-titlebar--integrated";
+        : appShell
+          ? "desktop-titlebar desktop-titlebar--app"
+          : "desktop-titlebar desktop-titlebar--integrated";
     const appWindow = getCurrentWindow();
     const runWindowAction = (action: () => Promise<void>) => {
         void action().catch((error: unknown) => {
@@ -40,10 +44,10 @@ export function DesktopTitleBar() {
     return (
         <div
             className={className}
-            data-tauri-drag-region={standalone ? "" : undefined}
-            onMouseDown={standalone ? startDesktopWindowDrag : undefined}
+            data-tauri-drag-region={draggable ? "" : undefined}
+            onMouseDown={draggable ? startDesktopWindowDrag : undefined}
             onDoubleClick={
-                standalone && platform !== "macos"
+                draggable && platform !== "macos"
                     ? () => runWindowAction(() => appWindow.toggleMaximize())
                     : undefined
             }

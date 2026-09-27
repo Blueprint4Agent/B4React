@@ -47,7 +47,7 @@
         App.test.tsx
         components/
           layout/
-            AppNavbar.test.tsx
+            AppSidebar.test.tsx
             DesktopTitleBar.test.tsx
         pages/
           login/
@@ -209,7 +209,7 @@ it("<behavior>", async () => {
     - `/config`를 사용할 수 없을 때 보호 라우팅의 fail-closed 처리, 공용 public Nav 구조, 지연된 재시도 로딩 상태
 14. `src/tests/integration/hooks/useFeatures.test.tsx`
     - 설정 실패와 명시적 로그인 비활성화 구분 및 재시도 복구
-15. `src/tests/component/components/layout/AppNavbar.test.tsx`
+15. `src/tests/component/components/layout/AppSidebar.test.tsx`
     - 프로필 컨트롤 옆 compact 데스크톱 연결 상태 배치, 안정적인 재시도 문구, 오프라인 로그아웃 차단
 16. `src/tests/component/pages/main/LandingPage.test.tsx`
     - 공용 public Nav 구조와 랜딩 탐색 동작
@@ -255,3 +255,7 @@ npm run build
 ## 독립 빌드 규칙
 
 `npm run build`, `build:web`, `build:desktop`은 모두 자체 `dist/`만 생성합니다. 부모 저장소로 파일을 복사하지 않습니다. API 타입 생성과 `build:sync`, `build:strict`는 로컬 계약을 사용합니다. 백엔드 패키징은 소비 저장소의 책임입니다.
+
+## 사이드바 레이아웃 회귀 검증
+
+`make test-ui`는 데스크톱·모바일 접힘/펼침 크기, 브랜드 호버와 토글 위치, 라이트·다크 배경 일치, 동작 줄이기, 작은 툴팁 닫힘, 프로필 팝오버 경계와 Escape, 메뉴 간격, 터치 영역을 검증합니다. DesktopTitleBar 컴포넌트 테스트로 네이티브 앱 드래그와 창 제어를 유지합니다.

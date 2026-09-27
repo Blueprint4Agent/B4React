@@ -2,7 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { AppNavbar } from "../../../../components/layout/AppNavbar";
+import { AppSidebar } from "../../../../components/layout/AppSidebar";
 import { renderWithRouter } from "../../../utils/renderWithRouter";
 
 const checkNowMock = vi.fn();
@@ -32,7 +32,7 @@ vi.mock("../../../../hooks/connectivity/useServerConnectivity", () => ({
     }),
 }));
 
-describe("AppNavbar", () => {
+describe("AppSidebar", () => {
     beforeEach(() => {
         connectivityStatus = "offline";
         checkNowMock.mockReset();
@@ -43,10 +43,13 @@ describe("AppNavbar", () => {
 
     it("places disconnected status beside the profile control", () => {
         // Given/When: an authenticated desktop screen loses server connectivity.
-        const { container } = renderWithRouter(<AppNavbar />, "/settings");
+        const { container } = renderWithRouter(
+            <AppSidebar expanded={false} onToggleExpanded={() => undefined} />,
+            "/settings",
+        );
 
-        // Then: the compact status and profile control share the navbar action group.
-        const actions = container.querySelector(".app-nav__actions");
+        // Then: the compact status and profile control share the sidebar footer.
+        const actions = container.querySelector(".app-sidebar__footer");
         expect(actions).toContainElement(screen.getByRole("status"));
         expect(actions).toContainElement(screen.getByRole("button", { name: "Open profile menu" }));
     });
@@ -60,9 +63,12 @@ describe("AppNavbar", () => {
             }),
         );
         const user = userEvent.setup();
-        renderWithRouter(<AppNavbar />, "/settings");
+        renderWithRouter(
+            <AppSidebar expanded={false} onToggleExpanded={() => undefined} />,
+            "/settings",
+        );
 
-        // When: the user clicks the navbar status button.
+        // When: the user clicks the sidebar status button.
         const retryButton = screen.getByRole("button", { name: "Retry now" });
         await user.click(retryButton);
 
@@ -78,13 +84,16 @@ describe("AppNavbar", () => {
     it("blocks logout while the desktop server is disconnected", async () => {
         // Given: an authenticated desktop user is offline on the main page.
         const user = userEvent.setup();
-        renderWithRouter(<AppNavbar />, "/show-case");
+        renderWithRouter(
+            <AppSidebar expanded={false} onToggleExpanded={() => undefined} />,
+            "/show-case",
+        );
 
         // When: the user opens the profile menu.
         await user.click(screen.getByRole("button", { name: "Open profile menu" }));
 
         // Then: logout is unavailable instead of clearing local session and routing to login.
-        const logoutButton = screen.getByRole("menuitem", { name: "Sign out" });
+        const logoutButton = screen.getByRole("button", { name: "Sign out" });
         expect(logoutButton).toBeDisabled();
         await user.click(logoutButton);
         expect(logoutMock).not.toHaveBeenCalled();

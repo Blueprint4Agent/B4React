@@ -1,5 +1,5 @@
-import { LogOut, Settings } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { LogOut, Settings, UserRound } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
@@ -7,7 +7,8 @@ import type { ThemeMode } from "../../hooks/useTheme";
 import { ThemeToggleButton, UserAvatar } from "../ui";
 
 type ProfileDropdownProps = {
-    avatarLabel: string;
+    expanded?: boolean;
+    avatarLabel?: string;
     avatarImageUrl?: string | null;
     busy: boolean;
     displayName: string;
@@ -21,6 +22,7 @@ type ProfileDropdownProps = {
 };
 
 export function ProfileDropdown({
+    expanded = false,
     avatarLabel,
     avatarImageUrl,
     busy,
@@ -36,6 +38,9 @@ export function ProfileDropdown({
     const { t } = useTranslation();
     const location = useLocation();
     const [menuOpen, setMenuOpen] = useState(false);
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    const popupRef = useRef<HTMLDivElement>(null);
+    const popupId = useId();
     const menuRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -44,6 +49,7 @@ export function ProfileDropdown({
 
     useEffect(() => {
         if (!menuOpen) return;
+        popupRef.current?.querySelector<HTMLElement>("a, button:not(:disabled)")?.focus();
 
         const onPointerDown = (event: MouseEvent) => {
             if (!menuRef.current?.contains(event.target as Node)) {
@@ -54,6 +60,7 @@ export function ProfileDropdown({
         const onKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
                 setMenuOpen(false);
+                triggerRef.current?.focus();
             }
         };
 
@@ -67,33 +74,51 @@ export function ProfileDropdown({
     }, [menuOpen]);
 
     return (
-        <div className="profile-menu" ref={menuRef}>
+        <div
+            className="profile-menu"
+            ref={menuRef}
+            onBlur={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget as Node | null))
+                    setMenuOpen(false);
+            }}
+        >
             <button
+                ref={triggerRef}
                 type="button"
                 className="profile-menu__trigger"
                 aria-label={t("nav.aria.openMenu")}
-                aria-haspopup="menu"
+                aria-haspopup="dialog"
+                aria-controls={menuOpen ? popupId : undefined}
                 aria-expanded={menuOpen}
                 onClick={() => setMenuOpen((prev) => !prev)}
                 title={displayName}
             >
-                <UserAvatar
-                    className="profile-menu__avatar"
-                    imageUrl={avatarImageUrl}
-                    label={avatarLabel}
-                />
+                {avatarLabel ? (
+                    <UserAvatar
+                        className="profile-menu__avatar"
+                        imageUrl={avatarImageUrl}
+                        label={avatarLabel}
+                    />
+                ) : (
+                    <UserRound aria-hidden="true" />
+                )}
+                {expanded ? (
+                    <span className="profile-menu__trigger-name">{displayName}</span>
+                ) : null}
             </button>
             {menuOpen ? (
                 <div
+                    ref={popupRef}
+                    id={popupId}
                     className="profile-menu__dropdown"
-                    role="menu"
+                    role="dialog"
                     aria-label={t("nav.profileMenu")}
                 >
                     <div className="profile-menu__identity">
                         <p className="profile-menu__name">{displayName}</p>
-                        <p className="profile-menu__email">{email}</p>
+                        {email ? <p className="profile-menu__email">{email}</p> : null}
                     </div>
-                    <Link to="/settings" className="profile-menu__item" role="menuitem">
+                    <Link to="/settings" className="profile-menu__item">
                         <span className="profile-menu__item-icon" aria-hidden="true">
                             <Settings />
                         </span>
@@ -103,7 +128,6 @@ export function ProfileDropdown({
                         <button
                             type="button"
                             className="profile-menu__item profile-menu__item--danger"
-                            role="menuitem"
                             onClick={onLogout}
                             disabled={busy || logoutDisabled}
                             title={logoutDisabled ? logoutDisabledTitle : undefined}
@@ -116,7 +140,6 @@ export function ProfileDropdown({
                     ) : null}
                     <ThemeToggleButton
                         className="profile-menu__item"
-                        role="menuitem"
                         themeMode={themeMode}
                         onChangeTheme={onChangeTheme}
                     />

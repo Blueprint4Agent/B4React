@@ -214,8 +214,8 @@ Avoid one-off button spacing, inline pagination styles, page-local control CSS, 
 3. Browser runtime must not start desktop readiness polling.
 4. Realtime subscriptions must pause while desktop readiness is unavailable and resume after recovery.
 5. Missing `/config` data must fail closed; only an explicit `login_enabled=false` response may unlock login-disabled routes.
-6. Desktop outage status belongs beside the app-navbar profile control or standalone/public-navbar theme control, not in a page-wide overlay.
-7. App and public navbars must use symmetric outer columns and reserve compact status width so status label changes never shift the centered title.
+6. Desktop outage status belongs in the sidebar footer beside the profile control or standalone/public-navbar theme control, not in a page-wide overlay.
+7. Public navbars must use symmetric outer columns and reserve compact status width so status label changes never shift the centered title.
 8. Manual retry UI must avoid flashing transient loading states; keep the disconnected label stable and only show heavier loading affordances after a short delay.
 9. Profile-menu sign-out must be disabled while packaged desktop connectivity is not `online`; do not clear the local user or route to `/login` during a server outage.
 
@@ -362,17 +362,26 @@ changes on reconnect/activation, but do not provide continuous or durable delive
 
 ## Component Geometry and Tooltip Placement
 
-Shared geometry lives in `src/styles/app.css`: use the 4/8/12/16/24/32px spacing
+Shared geometry lives in `src/styles/app.css`: use the 4/8/12/16/20/24/32px spacing
 scale (`--space-*`), 8px control, 12px card, and 16px panel radii. Standard controls
-are 44px high; compact pagination and dialog actions retain their explicit sizes.
+are 40px high (44px for coarse pointers); compact pagination and dialog actions retain their explicit sizes.
 Use 8px label/control and icon/text spacing, 16–24px card padding, and readable
 1.25–1.5 line heights. These are project conventions inspired by the
 [Atlassian spacing foundation](https://atlassian.design/foundations/spacing), not a
 universal compliance standard. Preserve the existing palette and brand.
 
-Sidebar geometry uses shared 64px collapsed / 208px expanded width tokens. On
-mobile, expansion overlays the content instead of reducing its usable width.
-Navbar columns remain symmetric and desktop window-control insets are preserved.
+AppLayout replaces the app navbar with a persistent sidebar: 56px collapsed /
+200px expanded, with 36px icon controls. Coarse pointers use a 60px rail and 44px
+controls. The collapsed brand opens the sidebar and swaps to an expand icon on
+hover/keyboard focus; the expanded header puts the close button at the right edge.
+Width/content inset transitions take 180ms and respect reduced motion. Both states
+use the same background token. Labels and the profile name appear when expanded.
+Mobile expansion overlays content with a dismissible backdrop. Profile/theme and
+connectivity live in the footer. Public navigation remains symmetric; native app
+windows retain a dedicated drag/window-control strip.
+
+Menu rows share one 8px icon/text gap, fill their container, and grow for wrapped
+labels. Profile popovers open beside the rail or above the expanded footer.
 
 Tooltips measure their actual rendered child control, render in a body portal,
 and flip/clamp within the viewport with an 8px gap and edge inset. Position updates
@@ -380,6 +389,7 @@ on nested scroll, window resize, and trigger/content resize; completely clipped
 anchors hide their tooltip. Computed top/left coordinates are the sole dynamic
 inline-style exception; appearance stays in app.css. Supply one control that
 forwards `aria-describedby`; hover and focus open it, click/Escape dismiss it.
+Tooltips use 12px text, 16px line height, 4px/8px padding, and a 6px radius.
 Light mode uses a black tooltip with white text; dark mode uses a white tooltip
 with black text, including system appearance. `make test-ui` verifies anchor
 placement, inverse theme colors, scrolling, edge collision, and mobile overflow.
@@ -388,3 +398,5 @@ Tooltip visibility distinguishes keyboard-visible focus from pointer-acquired DO
 focus. A click may leave a control focused, but subsequent pointer leave must close
 its hover tooltip. Only keyboard focus retains a tooltip when the pointer leaves;
 window blur dismisses it. Preserve click/Escape dismissal during icon replacement.
+
+Pointer movement outside the trigger also dismisses hover-only tooltips when navigation or reload interrupts the usual leave event.
