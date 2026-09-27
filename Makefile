@@ -14,7 +14,7 @@ dev: ## Start browser development server
 	$(NPM) run dev
 build: ## Build local dist artifacts
 	$(NPM) run build
-check: architecture-check api-check project-config-check ## Check generated types, formatting, and TypeScript
+check: architecture-check api-check project-config-check style-studio-check ## Check generated types, formatting, and TypeScript
 	$(NPM) run format:check
 	$(NPM) run typecheck
 test: ## Run unit, component, and integration tests
@@ -65,3 +65,11 @@ react-performance-check: ## Guard config ownership, route splitting, memo bounda
 project-config-check: ## Validate optional public app branding and Tauri identity
 	node --input-type=module -e 'import { readProjectConfig } from "./scripts/project-config.mjs"; readProjectConfig();'
 	node --test scripts/project-config.test.mjs
+
+.PHONY: style-studio style-studio-check test-style-studio
+style-studio: ## Run explicitly enabled loopback-only local style editor
+	B4F_STYLE_STUDIO=1 $(NPM) run dev -- --host 127.0.0.1
+style-studio-check: ## Verify local file access and style application fixtures
+	node --test scripts/style-studio.test.mjs
+test-style-studio: style-studio-check ## Verify style preview and apply UI in Chromium
+	$(NPM) run test:e2e -- --config playwright.style-studio.config.ts

@@ -112,3 +112,7 @@ name/short_name/identifier, then run `make project-config-check` and rebuild.
 Optional logo paths use files under public/. Generated config and project-brand
 assets are ignored by Git; consuming projects must reproduce them in CI.
 See the project-local branding section in [the frontend guide](FRONTEND.md).
+
+## Preview and apply local styles
+
+Run `make style-studio` and open `/show-case` on `http://127.0.0.1:5173` (run your backend separately). The top editor previews light/dark common colors, radius, fonts and padding within the showcase. Review the listed changes and choose **Apply to file** to save the connected local `src/styles/app.css`; **Discard preview** does not write. The editor is opt-in and absent from production. See FRONTEND.md for supported values and backup/conflict behavior.

@@ -1,0 +1,179 @@
+[
+    {
+        "key": "--button-hover-bg",
+        "kind": "color",
+        "scope": "theme",
+        "label": "buttonHover"
+    },
+    {
+        "key": "--panel",
+        "kind": "color",
+        "scope": "theme",
+        "label": "panel"
+    },
+    {
+        "key": "--panel-border",
+        "kind": "color",
+        "scope": "theme",
+        "label": "panelBorder"
+    },
+    {
+        "key": "--input-bg",
+        "kind": "color",
+        "scope": "theme",
+        "label": "inputBackground"
+    },
+    {
+        "key": "--input-border",
+        "kind": "color",
+        "scope": "theme",
+        "label": "inputBorder"
+    },
+    {
+        "key": "--accent-hover",
+        "kind": "color",
+        "scope": "theme",
+        "label": "hover"
+    },
+    {
+        "key": "--text-soft",
+        "kind": "color",
+        "scope": "theme",
+        "label": "mutedText"
+    },
+    {
+        "key": "--button-bg",
+        "kind": "color",
+        "scope": "theme",
+        "label": "buttonBackground"
+    },
+    {
+        "key": "--button-fg",
+        "kind": "color",
+        "scope": "theme",
+        "label": "buttonText"
+    },
+    {
+        "key": "--button-border",
+        "kind": "color",
+        "scope": "theme",
+        "label": "buttonBorder"
+    },
+    {
+        "key": "--accent",
+        "kind": "color",
+        "scope": "theme",
+        "label": "accent"
+    },
+    {
+        "key": "--text",
+        "kind": "color",
+        "scope": "theme",
+        "label": "text"
+    },
+    {
+        "key": "--bg",
+        "kind": "color",
+        "scope": "theme",
+        "label": "background"
+    },
+    {
+        "key": "--radius-control",
+        "kind": "length",
+        "scope": "shared",
+        "label": "controlRadius",
+        "min": 0,
+        "max": 2
+    },
+    {
+        "key": "--radius-card",
+        "kind": "length",
+        "scope": "shared",
+        "label": "cardRadius",
+        "min": 0,
+        "max": 3
+    },
+    {
+        "key": "--radius-panel",
+        "kind": "length",
+        "scope": "shared",
+        "label": "panelRadius",
+        "min": 0,
+        "max": 3
+    },
+    {
+        "key": "--space-2",
+        "kind": "length",
+        "scope": "shared",
+        "label": "smallSpacing",
+        "min": 0,
+        "max": 2
+    },
+    {
+        "key": "--space-4",
+        "kind": "length",
+        "scope": "shared",
+        "label": "mediumSpacing",
+        "min": 0,
+        "max": 3
+    },
+    {
+        "key": "--control-height",
+        "kind": "length",
+        "scope": "shared",
+        "label": "controlHeight",
+        "min": 2,
+        "max": 4
+    },
+    {
+        "key": "--space-3",
+        "kind": "length",
+        "scope": "shared",
+        "label": "controlPadding",
+        "min": 0,
+        "max": 3
+    },
+    {
+        "key": "--space-5",
+        "kind": "length",
+        "scope": "shared",
+        "label": "panelPadding",
+        "min": 0,
+        "max": 4
+    },
+    {
+        "key": "--font-family",
+        "kind": "choice",
+        "scope": "shared",
+        "label": "fontFamily",
+        "options": [
+            "\"Inter\", system-ui, -apple-system, \"Segoe UI\", Roboto, Arial, sans-serif",
+            "system-ui, sans-serif",
+            "Georgia, serif",
+            "ui-monospace, monospace"
+        ]
+    },
+    {
+        "key": "--font-size",
+        "kind": "length",
+        "scope": "shared",
+        "label": "fontSize",
+        "min": 0.75,
+        "max": 1.5
+    },
+    {
+        "key": "--font-weight",
+        "kind": "choice",
+        "scope": "shared",
+        "label": "fontWeight",
+        "options": ["400", "500", "600"]
+    },
+    {
+        "key": "--line-height",
+        "kind": "number",
+        "scope": "shared",
+        "label": "lineHeight",
+        "min": 1,
+        "max": 2
+    }
+]

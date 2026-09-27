@@ -292,3 +292,9 @@ React performance checks run through `make react-performance-check` / `make chec
 ## Project branding
 
 `make project-config-check` validates optional public identity and checks HTML escaping and Tauri override merging. `make test-routes` also verifies English/Korean title, wordmark, logo and favicon in a production build, using `project.local.json` when present. These checks keep default and customized copies testable without a parent repository.
+
+`make style-studio-check` verifies real isolated file reads/writes, backups, revisions,
+validation and local middleware access. `make test-style-studio` checks draft/reset,
+light/dark separation, apply/conflict and mobile/desktop layout with mocked writes
+so tests never modify developer CSS. The component test protects render isolation
+and cleanup. Production tests assert the editor/file protocol are absent.

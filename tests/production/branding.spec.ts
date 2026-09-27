@@ -49,3 +49,28 @@ for (const locale of ["en", "ko"]) {
         });
     });
 }
+
+test("production excludes the local editor and filesystem protocol", async ({ page, request }) => {
+    await page.route("**/config", (route) =>
+        route.fulfill({
+            json: {
+                api_base_path: "/api/v1",
+                login_enabled: false,
+                email_enabled: false,
+                oauth_enabled: false,
+                oauth_providers: [],
+            },
+        }),
+    );
+    const scripts: string[] = [];
+    page.on("request", (req) => {
+        if (req.resourceType() === "script") scripts.push(req.url());
+    });
+    await page.goto("/show-case");
+    await expect(page.locator(".showcase-catalog")).toBeVisible();
+    await expect(page.locator(".style-studio")).toHaveCount(0);
+    const response = await request.post("/__b4f/style-studio/read", { data: {} });
+    expect(response.headers()["content-type"] ?? "").not.toContain("application/json");
+    for (const url of scripts)
+        expect(await (await request.get(url)).text()).not.toContain("/__b4f/style-studio/");
+});

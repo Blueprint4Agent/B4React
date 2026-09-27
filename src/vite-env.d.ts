@@ -9,3 +9,6 @@ declare const __PROJECT_BRAND__: {
     logo_url?: string;
     logo_dark_url?: string;
 } | null;
+
+declare const __STYLE_STUDIO__: boolean;
+declare const __STYLE_STUDIO_TOKEN__: string;

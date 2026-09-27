@@ -294,3 +294,8 @@ React 성능 검사는 `make react-performance-check` / `make check`에서 정�
 ## 프로젝트 브랜드 검증
 
 `make project-config-check`는 공개 설정, HTML 이스케이프와 Tauri 설정 병합을 확인합니다. `make test-routes`는 프로덕션 빌드의 영어/한국어 제목, 브랜드 문구, 로고와 파비콘도 검증하며 `project.local.json`이 있으면 해당 값을 사용합니다. 부모 저장소 없이 기본/사용자 지정 설정을 모두 검증합니다.
+
+`make style-studio-check`는 임시 파일에서 읽기/적용·백업·해시·입력/접근 검증을 확인합니다.
+`make test-style-studio`는 모바일/데스크톱의 초안·취소·테마 분리·적용/충돌을 검증합니다.
+브라우저 테스트의 쓰기는 모킹하여 개발자 CSS를 수정하지 않습니다. 컴포넌트 테스트는
+렌더 분리/미리보기 정리를, 프로덕션 테스트는 편집 UI/파일 API 제외를 확인합니다.

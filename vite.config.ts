@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { styleStudioPlugin } from "./scripts/style-studio.mjs";
 import { brandHtml, readProjectConfig } from "./scripts/project-config.mjs";
 
 const project = readProjectConfig();
@@ -9,6 +10,7 @@ const tauriDevHost = process.env.TAURI_DEV_HOST;
 export default defineConfig({
     plugins: [
         react(),
+        styleStudioPlugin(process.env.B4F_STYLE_STUDIO === "1"),
         { name: "project-branding", transformIndexHtml: (html) => brandHtml(html, project) },
     ],
     define: { __PROJECT_BRAND__: JSON.stringify(project) },
