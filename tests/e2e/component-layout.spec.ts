@@ -189,7 +189,7 @@ for (const width of [320, 1440]) {
         await expect(page.locator(".profile-menu__trigger-name")).toBeVisible();
         await expect
             .poll(async () => (await page.locator(".app-sidebar").boundingBox())!.width)
-            .toBe(200);
+            .toBe(184);
         await page.locator(".app-sidebar__item").first().hover();
         await expect(page.getByRole("tooltip")).toHaveCount(0);
         await page.getByRole("button", { name: "Open profile menu" }).click();
@@ -269,7 +269,7 @@ test("brand hover reveals expand control and expanded header places close on the
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
     await expect
         .poll(async () => (await page.locator(".app-sidebar").boundingBox())!.width)
-        .toBe(200);
+        .toBe(184);
     const brand = (await page.locator(".app-sidebar__brand").boundingBox())!;
     const close = (await toggle.boundingBox())!;
     expect(close.x).toBeGreaterThan(brand.x + brand.width);
@@ -289,10 +289,10 @@ for (const colorScheme of ["light", "dark"] as const) {
         // When: expanding and collapsing.
         await page.locator(".app-sidebar__toggle").click();
         await expect(sidebar).toHaveCSS("background-color", background);
-        await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(200);
+        await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(184);
         await page.locator(".app-sidebar__toggle").click();
         await expect(sidebar).toHaveCSS("background-color", background);
-        await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(56);
+        await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(52);
         // Then: reduced-motion users get a near-instant transition.
         await page.emulateMedia({ reducedMotion: "reduce" });
         expect(
