@@ -104,3 +104,5 @@ do not blank an already loaded list. Schema contracts remain unchanged.
 
 Component audit: [English](notes/component-audit.md) · [한국어](notes/ko/component-audit.md).
 Shared UI/style coverage: `make ui-composition-check` (also included in `make check`).
+
+State management and React optimization: [English](notes/react-performance.md) · [한국어](notes/ko/react-performance.md). `make react-performance-check` guards the default workflow; `make test-routes` verifies production chunk recovery.

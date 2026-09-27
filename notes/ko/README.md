@@ -94,3 +94,5 @@ ID 기준 갱신을 사용하고, 이벤트·변경 완료 후 서버 목록으�
 이전 계정의 응답은 무시합니다. 모달·입력·일회성 키는 SettingsPage에 남기고,
 탭 변경으로 진행 중인 생성 결과를 버리지 않습니다. 백그라운드 재조회 중 기존
 목록을 유지합니다. API 스키마는 바뀌지 않습니다.
+
+상태 관리·React 최적화: [English](../react-performance.md) · [한국어](react-performance.md). `make react-performance-check`로 기본 작업 규칙을 검사하고 `make test-routes`로 프로덕션 청크 복구를 검증합니다.

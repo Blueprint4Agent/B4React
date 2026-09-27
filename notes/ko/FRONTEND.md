@@ -483,3 +483,7 @@ AppConfigProvider가 앱 인스턴스별 메모리 설정과 진행 중인 /conf
 ## 라우트 로딩
 
 설정·관리자·인증·환영 화면은 모듈 수준 React.lazy로 분할합니다. 쇼케이스와 공통 셸은 즉시 로드합니다. RouteBoundary는 Suspense 중 셸을 유지하고 청크 또는 렌더링 실패 시 번역된 새로고침/홈 이동 버튼을 표시합니다. 인증 오버레이의 내부 경계는 쇼케이스 배경을 유지합니다. 실패한 lazy import가 캐시되므로 명시적인 새로고침으로 복구하며 자동 새로고침은 하지 않습니다. 배포 전환 중 이전 해시 자산도 유지하세요. `make test-routes`는 프로덕션 빌드에서 지연·실패 다운로드와 복구를 검증합니다. [React lazy](https://react.dev/reference/react/lazy) 참고.
+
+## 상태 소유권·메모화 루프 (기본 절차)
+
+런타임 변경마다 상태 소유자·소비자·빈도 확인 → 로컬 상태 분리 → 같은 props의 비용 있는 자식에 React.memo 적용 또는 미적용 이유 기록 → 필요한 props·계산 참조 안정화 → 생략한 작업과 필요한 갱신 검증 → 근거 기록 순서로 진행합니다. 현재는 Provider와 도메인 훅을 유지하며 향후 빈번한 화면 간 클라이언트 상태는 Zustand, 복잡한 이벤트 기반 도메인 상태는 Redux Toolkit을 검토합니다. [상태 목록·도입 기준·하네스](react-performance.md)를 참고하세요. `make check`에서 보호된 경계를 검사하고 Git 하네스는 런타임 작업 기록에 State Ownership/Memoization/Performance Evidence를 요구합니다. AdminUserTable은 기존 items 참조와 언어별 날짜 포맷터를 사용해 memo화하며 API 훅은 계속 페이지가 소유합니다.
