@@ -255,3 +255,5 @@ npm run build
 ## Sidebar layout regression coverage
 
 `make test-ui` checks collapsed/expanded desktop and mobile geometry, brand hover and toggle placement, identical light/dark sidebar surfaces, reduced motion, compact tooltip dismissal, profile popover bounds and keyboard escape, menu spacing, and coarse-pointer targets. DesktopTitleBar component tests preserve native app dragging and window controls.
+
+Settings browser checks cover dedicated navigation, return-to-app state, responsive appearance previews, and persisted system/light/dark selection.

@@ -239,7 +239,8 @@
             "title": "Settings menu",
             "profile": "Profile",
             "general": "General",
-            "developers": "Developers"
+            "developers": "Developers",
+            "appearance": "Appearance"
         },
         "labels": {
             "name": "Name",
@@ -358,7 +359,8 @@
                 "previous": "Previous API key page",
                 "next": "Next API key page"
             }
-        }
+        },
+        "backToApp": "Back to app"
     },
     "theme": {
         "label": "Theme",

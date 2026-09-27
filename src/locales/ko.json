@@ -239,7 +239,8 @@
             "title": "설정 메뉴",
             "profile": "프로필",
             "general": "일반",
-            "developers": "개발자"
+            "developers": "개발자",
+            "appearance": "모양"
         },
         "labels": {
             "name": "이름",
@@ -358,7 +359,8 @@
                 "previous": "이전 API 키 페이지",
                 "next": "다음 API 키 페이지"
             }
-        }
+        },
+        "backToApp": "앱으로 돌아가기"
     },
     "theme": {
         "label": "테마",

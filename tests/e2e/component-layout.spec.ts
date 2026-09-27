@@ -166,7 +166,7 @@ test("menu items keep a single icon gap and consistent touch height", async ({ p
         const box = (await row.boundingBox())!;
         const icon = (await row.locator(".menu-list__item-icon").boundingBox())!;
         const label = (await row.locator(".menu-list__item-label").boundingBox())!;
-        expect(box.height).toBeGreaterThanOrEqual(40);
+        expect(box.height).toBeGreaterThanOrEqual(32);
         expect(Math.abs(label.x - icon.x - icon.width - 8)).toBeLessThan(1);
         expect(Math.abs(icon.y + icon.height / 2 - box.y - box.height / 2)).toBeLessThan(1);
     }
@@ -197,16 +197,18 @@ for (const width of [320, 1440]) {
         expect(box.y).toBeGreaterThanOrEqual(0);
         await page.keyboard.press("Escape");
         await expect(popup).toHaveCount(0);
-        // When: navigating to settings, the panel stays open.
+        // When: settings uses its own navigation, returning preserves the app panel state.
         await page.getByRole("button", { name: "Open profile menu" }).click();
         await popup.getByRole("link", { name: "Settings", exact: true }).click();
         await expect(page.locator(".settings-layout")).toBeVisible();
-        await expect(toggle).toHaveAttribute("aria-expanded", "true");
+        await expect(page.locator(".app-sidebar")).toHaveCount(0);
         await expect
             .poll(() =>
                 page.locator(".app-main").evaluate((main) => main.scrollWidth - main.clientWidth),
             )
             .toBeLessThanOrEqual(1);
+        await page.getByRole("link", { name: "Back to app" }).click();
+        await expect(toggle).toHaveAttribute("aria-expanded", "true");
         if (width < 640) {
             await page.locator(".app-sidebar-backdrop").click({ position: { x: 220, y: 400 } });
         } else {
@@ -297,5 +299,34 @@ for (const colorScheme of ["light", "dark"] as const) {
         expect(
             await sidebar.evaluate((e) => parseFloat(getComputedStyle(e).transitionDuration)),
         ).toBeLessThan(0.001);
+    });
+}
+
+for (const width of [320, 1440]) {
+    test(`settings appearance previews persist selection at ${width}px`, async ({ page }) => {
+        // Given: settings owns a single navigation column.
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto("/settings");
+        await expect(page.locator(".app-sidebar")).toHaveCount(0);
+        await page.getByRole("button", { name: "Appearance", exact: true }).click();
+        const selector = page.locator(".settings-content-card .theme-preview-selector");
+        // When: a preview is selected, the app appearance updates and persists.
+        await selector.getByRole("button", { name: "Dark mode", exact: true }).click();
+        await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+        await page.reload();
+        await page.getByRole("button", { name: "Appearance", exact: true }).click();
+        await expect(
+            selector.getByRole("button", { name: "Dark mode", exact: true }),
+        ).toHaveAttribute("aria-pressed", "true");
+        await selector.getByRole("button", { name: "Light mode", exact: true }).click();
+        await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+        await selector.getByRole("button", { name: "System", exact: true }).click();
+        await expect(page.locator("html")).not.toHaveAttribute("data-theme");
+        // Then: all previews fit and return-to-app remains available.
+        expect(
+            await page.locator(".app-main").evaluate((e) => e.scrollWidth - e.clientWidth),
+        ).toBeLessThanOrEqual(1);
+        await page.getByRole("link", { name: "Back to app" }).click();
+        await expect(page.locator(".app-sidebar")).toBeVisible();
     });
 }

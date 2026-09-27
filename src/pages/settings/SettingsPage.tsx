@@ -1,6 +1,8 @@
-import { Code2, SlidersHorizontal, UserRound } from "lucide-react";
+import { ArrowLeft, Code2, SlidersHorizontal, Sun, UserRound } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { ConnectivityStatus } from "../../components/layout/ConnectivityStatus";
 
 import { ConnectedOAuthProvidersCard } from "../../components/features/auth/ConnectedOAuthProvidersCard";
 import { DeveloperApiKeysSection } from "../../components/features/apiKey/DeveloperApiKeysSection";
@@ -13,7 +15,7 @@ import {
     MenuList,
     PrimaryCard,
     StatusBadge,
-    ThemeToggleButton,
+    ThemePreviewSelector,
     UserAvatar,
 } from "../../components/ui";
 import type { APIKeyRecord } from "../../hooks/api/apiKey/useApiKeyApi";
@@ -28,7 +30,7 @@ type SaveFeedback = {
     tone: "error" | "info";
     source: "name" | "photo";
 } | null;
-type SettingsMenuKey = "profile" | "general" | "developers";
+type SettingsMenuKey = "profile" | "general" | "appearance" | "developers";
 const MAX_PROFILE_PHOTO_SIZE_MB = 8;
 const MAX_PROFILE_PHOTO_SIZE_BYTES = MAX_PROFILE_PHOTO_SIZE_MB * 1024 * 1024;
 const DEFAULT_API_KEY_EXPIRY_OPTION: APIKeyExpiryOption = "30d";
@@ -70,10 +72,10 @@ export function SettingsPage() {
         setEnabled: toggleKey,
         clearCreateError,
     } = useApiKeys({ ownerId: user?.id, enabled: showDevelopers, realtimeEnabled: loginEnabled });
-    const HeaderIcon = showProfile ? UserRound : showDevelopers ? Code2 : SlidersHorizontal;
     const settingsMenuItems = [
-        { key: "profile", label: t("settings.menu.profile"), icon: UserRound },
         { key: "general", label: t("settings.menu.general"), icon: SlidersHorizontal },
+        { key: "appearance", label: t("settings.menu.appearance"), icon: Sun },
+        { key: "profile", label: t("settings.menu.profile"), icon: UserRound },
         { key: "developers", label: t("settings.menu.developers"), icon: Code2 },
     ] as const;
     const normalizedNameInput = nameInput.trim();
@@ -276,24 +278,28 @@ export function SettingsPage() {
 
     return (
         <section className="settings-layout">
-            <MenuList
-                items={settingsMenuItems}
-                activeKey={activeMenu}
-                onSelect={setActiveMenu}
-                ariaLabel={t("settings.menu.title")}
-            />
+            <aside className="settings-navigation">
+                <Link to="/show-case" className="settings-back-link">
+                    <ArrowLeft aria-hidden="true" />
+                    {t("settings.backToApp")}
+                </Link>
+                <p className="settings-navigation__label">{t("settings.title")}</p>
+                <MenuList
+                    items={settingsMenuItems}
+                    activeKey={activeMenu}
+                    onSelect={setActiveMenu}
+                    ariaLabel={t("settings.menu.title")}
+                />
+                <div className="settings-navigation__status">
+                    <ConnectivityStatus placement="sidebar" />
+                </div>
+            </aside>
 
             <PrimaryCard className="settings-content-card">
                 {showProfile ? (
                     <>
                         <header className="settings-content-card__header">
                             <h1>
-                                <span
-                                    className="settings-content-card__title-icon"
-                                    aria-hidden="true"
-                                >
-                                    <HeaderIcon />
-                                </span>
                                 <span>{t("settings.profile.title")}</span>
                             </h1>
                             <p>{t("settings.profile.subtitle")}</p>
@@ -419,12 +425,6 @@ export function SettingsPage() {
                     <>
                         <header className="settings-content-card__header">
                             <h1>
-                                <span
-                                    className="settings-content-card__title-icon"
-                                    aria-hidden="true"
-                                >
-                                    <HeaderIcon />
-                                </span>
                                 <span>{t("settings.developers.title")}</span>
                             </h1>
                             <p>{t("settings.developers.subtitle")}</p>
@@ -463,16 +463,28 @@ export function SettingsPage() {
                             />
                         </section>
                     </>
+                ) : activeMenu === "appearance" ? (
+                    <>
+                        <header className="settings-content-card__header">
+                            <h1>{t("settings.menu.appearance")}</h1>
+                        </header>
+                        <section
+                            className="settings-general-content"
+                            aria-label={t("settings.menu.appearance")}
+                        >
+                            <article className="settings-row settings-appearance-row">
+                                <h2>{t("settings.general.themeTitle")}</h2>
+                                <ThemePreviewSelector
+                                    themeMode={themeMode}
+                                    onChangeTheme={setThemeMode}
+                                />
+                            </article>
+                        </section>
+                    </>
                 ) : (
                     <>
                         <header className="settings-content-card__header">
                             <h1>
-                                <span
-                                    className="settings-content-card__title-icon"
-                                    aria-hidden="true"
-                                >
-                                    <HeaderIcon />
-                                </span>
                                 <span>{t("settings.general.title")}</span>
                             </h1>
                             <p>{t("settings.general.subtitle")}</p>
@@ -481,16 +493,7 @@ export function SettingsPage() {
                             className="settings-general-content"
                             aria-label={t("settings.general.title")}
                         >
-                            <article className="settings-profile-field-card">
-                                <h2>{t("settings.general.themeTitle")}</h2>
-                                <div className="settings-general-control">
-                                    <ThemeToggleButton
-                                        themeMode={themeMode}
-                                        onChangeTheme={setThemeMode}
-                                    />
-                                </div>
-                            </article>
-                            <article className="settings-profile-field-card">
+                            <article className="settings-row">
                                 <h2>{t("settings.general.languageTitle")}</h2>
                                 <div className="settings-general-control">
                                     <DropdownMenu

@@ -24,3 +24,5 @@ export { ErrorCard, InfoCard, StatusCard, WarningCard } from "./status/StatusCar
 export { ToggleSwitch } from "./switches/ToggleSwitch";
 export { ThemeToggleButton } from "./toggles/ThemeToggleButton";
 export { ThemeToggle } from "./toggles/ThemeToggle";
+
+export { ThemePreviewSelector } from "./toggles/ThemePreviewSelector";

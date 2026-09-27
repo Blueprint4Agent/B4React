@@ -24,6 +24,7 @@ import {
     Spinner,
     StatusBadge,
     ThemeToggleButton,
+    ThemePreviewSelector,
     Tooltip,
     ToggleSwitch,
     ValidationCard,
@@ -94,6 +95,12 @@ export function ShowCasePage() {
                         <div className="showcase-catalog__row">
                             <ShowcaseItem component="BrandMark">
                                 <BrandMark />
+                            </ShowcaseItem>
+                            <ShowcaseItem component="ThemePreviewSelector">
+                                <ThemePreviewSelector
+                                    themeMode={themeMode}
+                                    onChangeTheme={setThemeMode}
+                                />
                             </ShowcaseItem>
                             <ShowcaseItem component="ThemeToggleButton">
                                 <ThemeToggleButton

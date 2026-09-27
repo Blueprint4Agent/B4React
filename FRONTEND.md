@@ -406,3 +406,13 @@ Pointer movement outside the trigger also dismisses hover-only tooltips when nav
 Settings lives only in the footer profile popup. Its compact 224px surface groups
 avatar/name/email, settings and appearance, then logout when available. Do not add
 unsupported reference actions such as billing or help.
+
+## Settings workspace and quiet borders
+
+Settings replaces the app rail with a dedicated navigation/return link, preserving
+native titlebar and connectivity retry. Existing sections are General (language),
+Appearance (system/light/dark preview selection), Profile, and Developers. Mobile
+navigation wraps above the content. ThemePreviewSelector is a shared, showcased
+button group with pressed state and existing local-storage theme persistence.
+Cards/sidebar use 0.5px low-contrast dividers. Menu/dropdown/profile hover changes
+background only; keyboard focus and selected-theme outlines remain visible.
