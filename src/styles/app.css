@@ -934,6 +934,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 }
 
 .avatar-upload-field__button {
+    height: var(--control-height);
     border: 1px solid var(--button-border);
     border-radius: var(--radius-pill);
     min-height: 2.2rem;

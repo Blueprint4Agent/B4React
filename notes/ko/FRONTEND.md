@@ -487,3 +487,5 @@ AppConfigProvider가 앱 인스턴스별 메모리 설정과 진행 중인 /conf
 ## 상태 소유권·메모화 루프 (기본 절차)
 
 런타임 변경마다 상태 소유자·소비자·빈도 확인 → 로컬 상태 분리 → 같은 props의 비용 있는 자식에 React.memo 적용 또는 미적용 이유 기록 → 필요한 props·계산 참조 안정화 → 생략한 작업과 필요한 갱신 검증 → 근거 기록 순서로 진행합니다. 현재는 Provider와 도메인 훅을 유지하며 향후 빈번한 화면 간 클라이언트 상태는 Zustand, 복잡한 이벤트 기반 도메인 상태는 Redux Toolkit을 검토합니다. [상태 목록·도입 기준·하네스](react-performance.md)를 참고하세요. `make check`에서 보호된 경계를 검사하고 Git 하네스는 런타임 작업 기록에 State Ownership/Memoization/Performance Evidence를 요구합니다. AdminUserTable은 기존 items 참조와 언어별 날짜 포맷터를 사용해 memo화하며 API 훅은 계속 페이지가 소유합니다.
+
+AvatarUploadField의 파일 선택 label과 제거 Button은 동일한 공통 control-height 토큰을 사용합니다. 설정 화면에서도 높이를 다르게 덮어쓰지 않습니다. 터치 환경의 프로필 버튼은 최소 44px를 유지합니다.
