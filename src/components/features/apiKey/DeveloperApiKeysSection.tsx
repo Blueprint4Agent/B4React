@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
@@ -16,6 +16,7 @@ import {
     Pagination,
     StatusBadge,
     ToggleSwitch,
+    Tooltip,
 } from "../../ui";
 
 const API_KEY_PAGE_SIZE = 6;
@@ -47,85 +48,107 @@ function DeveloperApiKeyList({
     const placeholderCount = Math.max(0, slotCount - items.length);
 
     return (
-        <div className="developer-key-list">
-            {items.map((item) => {
-                const isActive = !item.revoked_at;
-                const isExpired = isDateTimeExpired(item.expires_at);
-                return (
-                    <article key={item.id} className="developer-key-card">
-                        <div className="developer-key-card__top">
-                            <div className="developer-key-card__identity">
-                                <div className="developer-key-card__title-row">
-                                    <h3>{item.name}</h3>
+        <div
+            className="developer-key-list"
+            role="region"
+            aria-label={t("settings.developers.listTitle")}
+            tabIndex={0}
+        >
+            <table className="developer-key-table">
+                <caption className="sr-only">{t("settings.developers.listTitle")}</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">{t("settings.developers.columns.name")}</th>
+                        <th scope="col">{t("settings.developers.columns.status")}</th>
+                        <th scope="col">{t("settings.developers.meta.requestCount")}</th>
+                        <th scope="col">{t("settings.developers.meta.expiresAt")}</th>
+                        <th scope="col">{t("settings.developers.columns.actions")}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {items.map((item) => {
+                        const isActive = !item.revoked_at;
+                        const isExpired = isDateTimeExpired(item.expires_at);
+                        return (
+                            <tr key={item.id} className="developer-key-row">
+                                <td className="developer-key-row__identity">
+                                    <span className="developer-key-row__name">{item.name}</span>
+                                    <code>{item.key_prefix}…</code>
+                                    <small>
+                                        {t("settings.developers.meta.created")}:{" "}
+                                        {formatDateYYYYMMDD(item.created_at)}
+                                    </small>
+                                </td>
+                                <td>
                                     <StatusBadge
                                         tone={
                                             isExpired ? "danger" : isActive ? "active" : "inactive"
                                         }
                                     >
-                                        {isExpired
-                                            ? t("settings.developers.status.expired")
-                                            : isActive
-                                              ? t("settings.developers.status.active")
-                                              : t("settings.developers.status.inactive")}
+                                        {t(
+                                            isExpired
+                                                ? "settings.developers.status.expired"
+                                                : isActive
+                                                  ? "settings.developers.status.active"
+                                                  : "settings.developers.status.inactive",
+                                        )}
                                     </StatusBadge>
-                                </div>
-                                <p>
-                                    {t("settings.developers.meta.accessKey")}: {item.key_prefix}
-                                    ...
-                                </p>
-                            </div>
-                            <div className="developer-key-card__controls">
-                                <ToggleSwitch
-                                    checked={isActive}
-                                    disabled={toggleBusyId !== null}
-                                    onCheckedChange={(nextChecked) => {
-                                        onToggleStatus(item.id, nextChecked);
-                                    }}
-                                    label={t("settings.developers.columns.enabled")}
-                                />
-                            </div>
-                        </div>
-                        <div className="developer-key-card__meta">
-                            <span>
-                                {t("settings.developers.meta.requestCount")}:{" "}
-                                {formatRequestCount(item.request_count)}
-                            </span>
-                            <span>
-                                {t("settings.developers.meta.expiresAt")}:{" "}
-                                {item.expires_at
-                                    ? formatDateYYYYMMDD(item.expires_at)
-                                    : t("settings.developers.meta.noExpiration")}
-                            </span>
-                            <span>
-                                {t("settings.developers.meta.created")}:{" "}
-                                {formatDateYYYYMMDD(item.created_at)}
-                            </span>
-                            <span>
-                                {t("settings.developers.meta.lastUsed")}:{" "}
-                                {formatDateYYYYMMDD(item.last_used_at)}
-                            </span>
-                            <Button
-                                type="button"
-                                className="developer-delete-inline-btn"
-                                aria-label={t("settings.developers.actions.delete")}
-                                onClick={() => {
-                                    onRequestDelete(item);
-                                }}
-                            >
-                                <Trash2 />
-                                <span>{t("settings.developers.actions.delete")}</span>
-                            </Button>
-                        </div>
-                    </article>
-                );
-            })}
-            {Array.from({ length: placeholderCount }, (_, index) => (
-                <article
-                    key={`placeholder-${index}`}
-                    className="developer-key-card developer-key-card--placeholder"
-                    aria-hidden="true"
-                />
-            ))}
+                                </td>
+                                <td>
+                                    <span className="developer-key-row__count">
+                                        {formatRequestCount(item.request_count)}
+                                    </span>
+                                    <small>
+                                        {t("settings.developers.meta.lastUsed")}:{" "}
+                                        {formatDateYYYYMMDD(item.last_used_at)}
+                                    </small>
+                                </td>
+                                <td>
+                                    {item.expires_at
+                                        ? formatDateYYYYMMDD(item.expires_at)
+                                        : t("settings.developers.meta.noExpiration")}
+                                </td>
+                                <td>
+                                    <div className="developer-key-row__actions">
+                                        <Tooltip content={t("settings.developers.columns.enabled")}>
+                                            <ToggleSwitch
+                                                checked={isActive}
+                                                disabled={toggleBusyId !== null}
+                                                onCheckedChange={(nextChecked) =>
+                                                    onToggleStatus(item.id, nextChecked)
+                                                }
+                                                label={`${t("settings.developers.columns.enabled")}: ${item.name}`}
+                                            />
+                                        </Tooltip>
+                                        <Tooltip content={t("settings.developers.actions.delete")}>
+                                            <Button
+                                                type="button"
+                                                className="developer-delete-inline-btn"
+                                                aria-label={t(
+                                                    "settings.developers.actions.deleteNamed",
+                                                    { name: item.name },
+                                                )}
+                                                onClick={() => onRequestDelete(item)}
+                                            >
+                                                <Trash2 aria-hidden="true" />
+                                            </Button>
+                                        </Tooltip>
+                                    </div>
+                                </td>
+                            </tr>
+                        );
+                    })}
+                    {Array.from({ length: placeholderCount }, (_, index) => (
+                        <tr
+                            key={`placeholder-${index}`}
+                            className="developer-key-row developer-key-row--placeholder"
+                            aria-hidden="true"
+                        >
+                            <td colSpan={5} />
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 }
@@ -174,6 +197,7 @@ function CreateApiKeyModal({
 
     return (
         <Modal
+            size="compact"
             open={open}
             title={t("settings.developers.createModal.title")}
             description={t("settings.developers.createModal.description")}
@@ -228,6 +252,7 @@ type CreatedSecretModalProps = {
 function CreatedSecretModal({ secret, copied, onCopy, onClose, t }: CreatedSecretModalProps) {
     return (
         <Modal
+            size="compact"
             open={Boolean(secret)}
             title={t("settings.developers.revealModal.title")}
             description={t("settings.developers.revealModal.description")}
@@ -262,6 +287,7 @@ type DeleteApiKeyModalProps = {
 function DeleteApiKeyModal({ target, busy, onClose, onConfirmDelete, t }: DeleteApiKeyModalProps) {
     return (
         <Modal
+            size="compact"
             open={Boolean(target)}
             title={t("settings.developers.deactivateModal.title")}
             description={t("settings.developers.deactivateModal.description")}
@@ -331,9 +357,14 @@ export function DeveloperApiKeysSection({ controller }: DeveloperApiKeysSectionP
     return (
         <section className="developer-section" aria-label={t("settings.developers.title")}>
             <div className="developer-section__actions">
-                <ModalButton variant="save" onClick={controller.openCreateModal}>
+                <h2>
+                    {t("settings.developers.listTitle")}{" "}
+                    <span className="developer-section__count">{controller.items.length}</span>
+                </h2>
+                <Button onClick={controller.openCreateModal}>
+                    <Plus aria-hidden="true" />
                     {t("settings.developers.createButton")}
-                </ModalButton>
+                </Button>
             </div>
 
             {controller.errorMessage ? (

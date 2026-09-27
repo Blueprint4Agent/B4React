@@ -8,9 +8,18 @@ type ModalProps = {
     onClose: () => void;
     open: boolean;
     title: string;
+    size?: "default" | "compact";
 };
 
-export function Modal({ children, description, footer, onClose, open, title }: ModalProps) {
+export function Modal({
+    children,
+    description,
+    footer,
+    onClose,
+    open,
+    title,
+    size = "default",
+}: ModalProps) {
     if (!open || typeof document === "undefined") {
         return null;
     }
@@ -23,7 +32,13 @@ export function Modal({ children, description, footer, onClose, open, title }: M
                 aria-label="Close modal backdrop"
                 onClick={onClose}
             />
-            <section className="ui-modal__panel">
+            <section
+                className={
+                    size === "compact"
+                        ? "ui-modal__panel ui-modal__panel--compact"
+                        : "ui-modal__panel"
+                }
+            >
                 <header className="ui-modal__header">
                     <div>
                         <h2>{title}</h2>

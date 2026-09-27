@@ -13,7 +13,7 @@
     --space-5: 1.25rem;
     --space-6: 1.5rem;
     --space-8: 2rem;
-    --control-height: 2.5rem;
+    --control-height: 2.25rem;
     --rail-control-size: 2rem;
     --sidebar-row-height: 2rem;
     --sidebar-width: 3rem;
@@ -144,6 +144,9 @@ html[data-theme="dark"] {
 
 body {
     margin: 0;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
     font-family:
         "Inter",
         system-ui,
@@ -263,7 +266,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--integrated {
     color: inherit;
     background: color-mix(in oklab, var(--warn-bg) 78%, var(--panel) 22%);
     font:
-        600 0.68rem/1 "Inter",
+        500 0.68rem/1 "Inter",
         system-ui,
         sans-serif;
     white-space: nowrap;
@@ -535,7 +538,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
     margin: 0;
     justify-self: center;
     font:
-        600 0.875rem/1.25 "Inter",
+        500 0.875rem/1.25 "Inter",
         system-ui,
         sans-serif;
     color: var(--text);
@@ -586,7 +589,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 .landing-hero__eyebrow {
     margin: 0 0 0.85rem;
     font:
-        700 0.78rem/1 "Inter",
+        600 0.78rem/1 "Inter",
         system-ui,
         sans-serif;
     letter-spacing: 0.18em;
@@ -790,7 +793,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 .settings-profile-photo-panel h2 {
     margin: 0;
     font:
-        600 0.83rem/1 "Inter",
+        500 0.83rem/1 "Inter",
         system-ui,
         sans-serif;
     letter-spacing: 0.02em;
@@ -801,7 +804,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 .settings-profile-field-card p {
     margin: 0.8rem 0 0;
     font:
-        600 1.02rem/1.35 "Inter",
+        500 1.02rem/1.35 "Inter",
         system-ui,
         sans-serif;
     color: var(--text);
@@ -860,7 +863,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
     align-items: center;
     justify-content: center;
     font:
-        600 0.78rem/1 "Inter",
+        500 0.78rem/1 "Inter",
         system-ui,
         sans-serif;
 }
@@ -907,7 +910,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
     align-items: center;
     justify-content: center;
     font:
-        600 1.5rem/1 "Inter",
+        500 1.5rem/1 "Inter",
         system-ui,
         sans-serif;
     color: color-mix(in oklab, var(--accent) 75%, var(--text) 25%);
@@ -1077,7 +1080,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 .showcase-catalog__group h2 {
     margin: 0;
     font:
-        600 1rem/1.5 "Inter",
+        500 1rem/1.5 "Inter",
         system-ui,
         sans-serif;
     letter-spacing: -0.01em;
@@ -1122,7 +1125,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 .showcase-catalog__section-card h3 {
     margin: 0;
     font:
-        600 0.875rem/1.5 "Inter",
+        500 0.875rem/1.5 "Inter",
         system-ui,
         sans-serif;
     color: var(--text);
@@ -1250,7 +1253,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
     align-items: center;
     justify-content: center;
     font:
-        600 0.82rem/1 "Inter",
+        500 0.82rem/1 "Inter",
         system-ui,
         sans-serif;
     color: color-mix(in oklab, var(--accent) 75%, var(--text) 25%);
@@ -1321,7 +1324,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 .profile-menu__name {
     margin: 0;
     font:
-        600 0.875rem/1.5 "Inter",
+        500 0.875rem/1.5 "Inter",
         system-ui,
         sans-serif;
     color: var(--text);
@@ -1494,7 +1497,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
     justify-content: center;
     padding: 0 var(--space-2);
     font:
-        600 0.82rem/1 "Inter",
+        500 0.82rem/1 "Inter",
         system-ui,
         sans-serif;
     color: var(--text);
@@ -1541,7 +1544,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
     min-width: 1.4rem;
     text-align: center;
     font:
-        600 0.82rem/1 "Inter",
+        500 0.82rem/1 "Inter",
         system-ui,
         sans-serif;
     color: var(--text-soft);
@@ -1604,52 +1607,34 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
     border-radius: 999px;
     border: 1px solid transparent;
     font:
-        600 0.64rem/1 "Inter",
+        500 0.64rem/1 "Inter",
         system-ui,
         sans-serif;
     letter-spacing: 0.02em;
 }
 
 .ui-status-badge--active {
-    color: #0c6731;
-    border-color: rgba(17, 137, 74, 0.35);
-    background: rgba(17, 137, 74, 0.12);
+    color: var(--info-text);
+    border-color: var(--info-border);
+    background: var(--info-bg);
 }
 
 .ui-status-badge--inactive {
-    color: #6d2a2a;
-    border-color: rgba(178, 70, 70, 0.35);
-    background: rgba(178, 70, 70, 0.12);
+    color: var(--text-soft);
+    border-color: var(--panel-border);
+    background: var(--input-bg);
 }
 
 .ui-status-badge--info {
-    color: #27518f;
-    border-color: rgba(39, 81, 143, 0.35);
-    background: rgba(39, 81, 143, 0.12);
+    color: var(--accent);
+    border-color: var(--panel-border);
+    background: var(--input-bg);
 }
 
 .ui-status-badge--danger {
-    color: #7b1e1e;
-    border-color: rgba(162, 42, 42, 0.4);
-    background: rgba(162, 42, 42, 0.13);
-}
-
-html[data-theme="dark"] .ui-status-badge--active {
-    color: #9be5bc;
-    border-color: rgba(109, 233, 156, 0.5);
-    background: rgba(28, 160, 86, 0.18);
-}
-
-html[data-theme="dark"] .ui-status-badge--inactive {
-    color: #ffc0c0;
-    border-color: rgba(248, 124, 124, 0.48);
-    background: rgba(160, 39, 39, 0.26);
-}
-
-html[data-theme="dark"] .ui-status-badge--info {
-    color: #bfd8ff;
-    border-color: rgba(139, 180, 255, 0.52);
-    background: rgba(45, 85, 158, 0.26);
+    color: var(--error-text);
+    border-color: var(--error-border);
+    background: var(--error-bg);
 }
 
 .ui-toggle {
@@ -1856,7 +1841,7 @@ html[data-theme="dark"] .ui-toggle__track--on {
     display: grid;
     gap: 0.45rem;
     font:
-        600 0.78rem/1 "Inter",
+        500 0.78rem/1 "Inter",
         system-ui,
         sans-serif;
     letter-spacing: 0.02em;
@@ -1886,62 +1871,6 @@ html[data-theme="dark"] .ui-toggle__track--on {
     padding-right: 0.25rem;
 }
 
-.developer-key-card {
-    border: 1px solid color-mix(in oklab, var(--panel-border) 84%, transparent 16%);
-    border-radius: var(--radius-card);
-    background: color-mix(in oklab, var(--panel) 98%, transparent 2%);
-    padding: var(--space-4);
-    display: grid;
-    gap: var(--space-4);
-}
-
-.developer-key-card--placeholder {
-    min-height: 9.2rem;
-    visibility: hidden;
-    pointer-events: none;
-}
-
-.developer-key-card__top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.8rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid color-mix(in oklab, var(--panel-border) 80%, transparent 20%);
-}
-
-.developer-key-card__identity h3 {
-    margin: 0;
-    font-size: 1.02rem;
-}
-
-.developer-key-card__title-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.developer-key-card__identity p {
-    margin: 0.2rem 0 0;
-    color: var(--text-soft);
-    font-size: 0.85rem;
-}
-
-.developer-key-card__controls {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-}
-
-.developer-key-card__meta {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr auto;
-    gap: 0.6rem;
-    align-items: center;
-    color: var(--text-soft);
-    font-size: 0.85rem;
-}
-
 .developer-delete-inline-btn.ui-button {
     justify-self: end;
     width: auto;
@@ -1957,7 +1886,7 @@ html[data-theme="dark"] .ui-toggle__track--on {
     align-items: center;
     gap: 0.35rem;
     font:
-        600 0.85rem/1 "Inter",
+        500 0.85rem/1 "Inter",
         system-ui,
         sans-serif;
 }
@@ -1991,7 +1920,7 @@ html[data-theme="dark"] .ui-toggle__track--on {
     border: 1px dashed color-mix(in oklab, var(--panel-border) 82%, transparent 18%);
     background: color-mix(in oklab, var(--input-bg) 84%, transparent 16%);
     font:
-        600 0.82rem/1.35 "Inter",
+        500 0.82rem/1.35 "Inter",
         system-ui,
         sans-serif;
     word-break: break-all;
@@ -2011,7 +1940,7 @@ html[data-theme="dark"] .ui-toggle__track--on {
     color: var(--text);
     padding-left: 0.85rem;
     font:
-        600 0.82rem/1.35 "Inter",
+        500 0.82rem/1.35 "Inter",
         system-ui,
         sans-serif;
 }
@@ -2299,7 +2228,7 @@ input:focus {
     justify-self: center;
     padding: var(--space-2) var(--space-3);
     font:
-        500 0.875rem/1.25 "Inter",
+        500 0.8125rem/1.25 "Inter",
         system-ui,
         sans-serif;
     color: var(--button-fg);
@@ -2529,7 +2458,7 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
 }
 
 .status-card__title {
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.01em;
 }
 
@@ -2593,7 +2522,7 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--text-soft);
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .validation-card__list {
@@ -2812,11 +2741,6 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
         grid-template-columns: 1fr;
     }
 
-    .developer-key-card__meta {
-        grid-template-columns: 1fr;
-        gap: 0.45rem;
-    }
-
     .ui-modal__panel {
         padding: var(--space-4);
     }
@@ -2894,7 +2818,7 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
 
 .app-sidebar__brand-name {
     font:
-        600 0.875rem/1.25 "Inter",
+        500 0.875rem/1.25 "Inter",
         system-ui,
         sans-serif;
     letter-spacing: -0.02em;
@@ -3432,7 +3356,7 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
 .theme-toggle-button__title {
     margin: 0 0.2rem 0 0.25rem;
     font:
-        600 0.76rem/1 "Inter",
+        500 0.76rem/1 "Inter",
         system-ui,
         sans-serif;
     color: var(--text-soft);
@@ -3495,4 +3419,194 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
     .settings-content-card {
         padding: var(--space-5) var(--space-3);
     }
+}
+
+/* Compact, aligned API-key rows; the scroll region never widens the page. */
+h1,
+h2,
+h3 {
+    font-weight: 600;
+}
+.form-field {
+    font-size: 0.8125rem;
+}
+input {
+    padding-block: 6px;
+    font-weight: 400;
+}
+.ui-button.modal-button {
+    height: var(--control-height);
+    min-width: 5rem;
+    padding: 6px var(--space-3);
+}
+.ui-button__label > svg {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+}
+.ui-dropdown__trigger {
+    min-height: var(--control-height);
+    font-size: 0.8125rem;
+}
+.developer-section {
+    gap: var(--space-3);
+    min-width: 0;
+}
+.developer-section__actions {
+    margin: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+.developer-section__actions h2 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+.developer-section__count {
+    color: var(--text-soft);
+    background: var(--panel);
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+.developer-section__loading {
+    padding: var(--space-6);
+    border: 0.5px solid var(--panel-border);
+    border-radius: var(--radius-card);
+    text-align: center;
+    background: var(--panel);
+    font-size: 0.8125rem;
+}
+.developer-key-list {
+    display: block;
+    overflow: auto;
+    max-height: min(34rem, 65dvh);
+    padding: 0;
+    border: 0.5px solid var(--panel-border);
+    border-radius: var(--radius-card);
+    background: var(--panel);
+}
+.developer-key-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 40rem;
+    text-align: left;
+    font-size: 0.8125rem;
+}
+.developer-key-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: var(--space-2) var(--space-3);
+    background: var(--popover-bg);
+    color: var(--text-soft);
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.developer-key-table td {
+    padding: var(--space-3);
+    border-top: 0.5px solid var(--panel-border);
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.developer-key-row:hover {
+    background: color-mix(in oklab, var(--text) 6%, transparent);
+}
+.developer-key-row__identity {
+    width: 32%;
+    max-width: 14rem;
+}
+.developer-key-row__name {
+    display: block;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.developer-key-row code,
+.developer-key-row small {
+    display: block;
+    color: var(--text-soft);
+    font-size: 0.6875rem;
+    line-height: 1.5;
+}
+.developer-key-row__count {
+    font-variant-numeric: tabular-nums;
+}
+.developer-key-row__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-2);
+}
+.developer-key-row .developer-delete-inline-btn.ui-button {
+    width: 2rem;
+    min-width: 2rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-control);
+    color: var(--text-soft);
+    background: transparent;
+}
+.developer-key-row .developer-delete-inline-btn.ui-button:hover {
+    color: var(--error-text);
+    background: var(--error-bg);
+}
+.developer-key-row--placeholder {
+    height: 78px;
+    visibility: hidden;
+    pointer-events: none;
+}
+.ui-modal__panel--compact {
+    width: min(26rem, calc(100vw - 2rem));
+    padding: var(--space-5);
+    gap: var(--space-4);
+}
+.ui-modal__panel--compact .ui-modal__header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+.ui-modal__panel--compact .ui-modal__header p {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+}
+.developer-create-modal__field-label {
+    text-transform: none;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    letter-spacing: 0;
+}
+.developer-create-modal__dropdown .ui-dropdown__trigger {
+    min-height: var(--control-height);
+    width: 100%;
+    border-radius: var(--radius-control);
+    padding: 6px var(--space-3);
+    font-size: 0.8125rem;
+}
+@media (pointer: coarse) {
+    .developer-key-row .developer-delete-inline-btn.ui-button {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+    .developer-key-row .ui-toggle {
+        min-width: 2.75rem;
+        min-height: 2.75rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.developer-key-row {
+    height: 78px;
+}
+.developer-key-row .ui-status-badge {
+    min-width: 0;
+    font-size: 0.6875rem;
+    padding-inline: var(--space-2);
 }

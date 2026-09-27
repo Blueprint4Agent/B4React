@@ -187,7 +187,7 @@ describe("SettingsPage developers scenario", () => {
         // Then: the second page renders the remaining card.
         expect(screen.getByText("API Key 1")).toBeInTheDocument();
         expect(screen.queryByText("API Key 7")).not.toBeInTheDocument();
-        expect(container.querySelectorAll(".developer-key-card--placeholder")).toHaveLength(5);
+        expect(container.querySelectorAll(".developer-key-row--placeholder")).toHaveLength(5);
     });
 
     it("uses an ellipsis pagination window for many API key pages", async () => {
@@ -289,22 +289,22 @@ describe("SettingsPage developers scenario", () => {
         });
 
         // When: key is disabled and then enabled again.
-        await user.click(screen.getByRole("switch", { name: "Enabled" }));
+        await user.click(screen.getByRole("switch", { name: /^Enabled:/ }));
         await waitFor(() => {
             expect(updateApiKeyStatusMock).toHaveBeenCalledWith(101, false);
         });
-        await user.click(screen.getByRole("switch", { name: "Enabled" }));
+        await user.click(screen.getByRole("switch", { name: /^Enabled:/ }));
         await waitFor(() => {
             expect(updateApiKeyStatusMock).toHaveBeenCalledWith(101, true);
         });
 
         // When: key delete is confirmed via modal.
         const apiKeyHeading = screen.getByText(FULL_SYSTEM_SCENARIO.apiKey.primaryName);
-        const apiKeyCard = apiKeyHeading.closest("article");
+        const apiKeyCard = apiKeyHeading.closest("tr");
         if (!apiKeyCard) {
             throw new Error("API key card element was not found.");
         }
-        await user.click(within(apiKeyCard).getByRole("button", { name: "Delete" }));
+        await user.click(within(apiKeyCard).getByRole("button", { name: /^Delete / }));
         const deleteModal = screen.getByRole("dialog", { name: "Delete API key" });
         await user.click(within(deleteModal).getByRole("button", { name: "Delete" }));
 
@@ -373,11 +373,11 @@ describe("SettingsPage developers scenario", () => {
         // When: deleting an existing row returns not-found from backend.
         await user.click(screen.getByRole("button", { name: "Cancel" }));
         const existingHeading = screen.getByText(FULL_SYSTEM_SCENARIO.apiKey.primaryName);
-        const existingCard = existingHeading.closest("article");
+        const existingCard = existingHeading.closest("tr");
         if (!existingCard) {
             throw new Error("Existing API key card element was not found.");
         }
-        await user.click(within(existingCard).getByRole("button", { name: "Delete" }));
+        await user.click(within(existingCard).getByRole("button", { name: /^Delete / }));
         const deleteModal = screen.getByRole("dialog", { name: "Delete API key" });
         await user.click(within(deleteModal).getByRole("button", { name: "Delete" }));
 

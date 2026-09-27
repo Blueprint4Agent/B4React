@@ -367,3 +367,80 @@ test("shared sidebar resizes, persists, and keeps settings chrome", async ({ pag
     await page.keyboard.press("Home");
     await expect(separator).toHaveAttribute("aria-valuenow", "200");
 });
+
+for (const width of [320, 1440]) {
+    test(`API key table and creation dialog stay compact at ${width}px`, async ({ page }) => {
+        // Given: representative active, expired and disabled key records.
+        await page.route("**/config", (route) =>
+            route.fulfill({
+                json: {
+                    ...config,
+                    bootstrap_user: {
+                        id: 1,
+                        name: "Example",
+                        email: "example@example.com",
+                        role: "user",
+                    },
+                },
+            }),
+        );
+        await page.route("**/api/v1/api-keys", (route) =>
+            route.fulfill({
+                json: {
+                    items: [
+                        {
+                            id: 1,
+                            name: "Production webhook",
+                            key_prefix: "b4_demo",
+                            created_at: "2026-01-01T00:00:00Z",
+                            expires_at: null,
+                            revoked_at: null,
+                            request_count: 1234,
+                            last_used_at: "2026-01-02T00:00:00Z",
+                        },
+                        {
+                            id: 2,
+                            name: "Expired integration",
+                            key_prefix: "b4_old",
+                            created_at: "2025-01-01T00:00:00Z",
+                            expires_at: "2025-02-01T00:00:00Z",
+                            revoked_at: null,
+                            request_count: 12,
+                            last_used_at: null,
+                        },
+                        {
+                            id: 3,
+                            name: "Disabled integration",
+                            key_prefix: "b4_off",
+                            created_at: "2024-01-01T00:00:00Z",
+                            expires_at: null,
+                            revoked_at: "2025-01-01T00:00:00Z",
+                            request_count: 0,
+                            last_used_at: null,
+                        },
+                    ],
+                },
+            }),
+        );
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto("/settings?section=developers");
+        const table = page.getByRole("table");
+        await expect(table.getByText("Production webhook")).toBeVisible();
+        await expect(table.getByText("Expired", { exact: true })).toBeVisible();
+        await expect(table.getByText("Inactive", { exact: true })).toBeVisible();
+        await expect(table.getByRole("button", { name: "Delete Production webhook" })).toHaveCount(
+            1,
+        );
+        // Then: only the table region scrolls horizontally on narrow screens.
+        expect(
+            await page.locator(".app-main").evaluate((e) => e.scrollWidth - e.clientWidth),
+        ).toBeLessThanOrEqual(1);
+        // When: opening creation, the compact dialog fits the viewport.
+        await page.getByRole("button", { name: "Create API key", exact: true }).click();
+        const panel = page.locator(".ui-modal__panel--compact");
+        await expect(panel.getByLabel("API key name")).toBeVisible();
+        const bounds = (await panel.boundingBox())!;
+        expect(bounds.x).toBeGreaterThanOrEqual(0);
+        expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
+    });
+}

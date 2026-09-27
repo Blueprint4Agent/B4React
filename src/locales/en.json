@@ -274,7 +274,7 @@
         },
         "general": {
             "title": "General",
-            "subtitle": "Language and theme preferences.",
+            "subtitle": "Language preference.",
             "themeTitle": "Theme",
             "languageTitle": "Language",
             "languages": {
@@ -314,14 +314,16 @@
                 "createdAt": "Created",
                 "lastUsedAt": "Last used",
                 "enabled": "Enabled",
-                "delete": "Delete"
+                "delete": "Delete",
+                "actions": "Actions"
             },
             "actions": {
                 "save": "Save",
                 "cancel": "Cancel",
                 "close": "Close",
                 "deactivate": "Deactivate",
-                "delete": "Delete"
+                "delete": "Delete",
+                "deleteNamed": "Delete {{name}}"
             },
             "createModal": {
                 "title": "Create API key",
@@ -359,7 +361,8 @@
                 "label": "Pagination",
                 "previous": "Previous API key page",
                 "next": "Next API key page"
-            }
+            },
+            "listTitle": "API keys"
         },
         "backToApp": "Back to app"
     },

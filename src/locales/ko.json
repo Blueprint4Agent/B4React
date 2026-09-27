@@ -274,7 +274,7 @@
         },
         "general": {
             "title": "일반",
-            "subtitle": "언어와 테마를 설정하세요.",
+            "subtitle": "언어 설정을 관리합니다.",
             "themeTitle": "테마",
             "languageTitle": "언어",
             "languages": {
@@ -314,14 +314,16 @@
                 "createdAt": "생성일",
                 "lastUsedAt": "마지막 사용",
                 "enabled": "활성화",
-                "delete": "삭제"
+                "delete": "삭제",
+                "actions": "관리"
             },
             "actions": {
                 "save": "저장",
                 "cancel": "취소",
                 "close": "닫기",
                 "deactivate": "비활성화",
-                "delete": "삭제"
+                "delete": "삭제",
+                "deleteNamed": "{{name}} 삭제"
             },
             "createModal": {
                 "title": "API 키 생성",
@@ -359,7 +361,8 @@
                 "label": "페이지네이션",
                 "previous": "이전 API 키 페이지",
                 "next": "다음 API 키 페이지"
-            }
+            },
+            "listTitle": "API 키"
         },
         "backToApp": "앱으로 돌아가기"
     },

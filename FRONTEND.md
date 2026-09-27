@@ -364,7 +364,7 @@ changes on reconnect/activation, but do not provide continuous or durable delive
 
 Shared geometry lives in `src/styles/app.css`: use the 4/8/12/16/20/24/32px spacing
 scale (`--space-*`), 8px control, 12px card, and 16px panel radii. Standard controls
-are 40px high (44px for coarse pointers); compact pagination and dialog actions retain their explicit sizes.
+are 36px high (44px for coarse pointers); compact pagination and dialog actions retain their explicit sizes.
 Use 8px label/control and icon/text spacing, 16–24px card padding, and readable
 1.25–1.5 line heights. These are project conventions inspired by the
 [Atlassian spacing foundation](https://atlassian.design/foundations/spacing), not a
@@ -425,3 +425,10 @@ double-click reset. During dragging width transitions are disabled. Mobile width
 is clamped to leave backdrop space; coarse pointers retain 44px controls.
 Cards/sidebar use 0.5px low-contrast dividers. Menu/dropdown/profile hover changes
 background only; keyboard focus and selected-theme outlines remain visible.
+
+API-key management uses a semantic table with aligned identity, status, request
+count/last use, expiry and actions. Creation/reveal/delete reuse compact Modal.
+The table owns overflow and keeps six-row pagination slots. Only key prefixes
+appear in the table; the one-time secret remains in its existing reveal flow.
+Desktop controls are 36px with 13px button/menu text, 14px body text at weight 400,
+500-weight controls and 600-weight headings. Coarse pointers retain 44px targets.

@@ -259,3 +259,5 @@ npm run build
 Settings browser checks cover shared sidebar navigation, return-to-app state, responsive appearance previews, and persisted system/light/dark selection.
 
 Sidebar resize coverage verifies dragging, saved width across route changes/reload, keyboard bounds, matching profile popup width, and retained settings chrome.
+
+API-key browser checks cover populated table metadata/statuses, horizontal containment on mobile, and compact creation dialog bounds. Component scenarios retain create/reveal/toggle/delete and six-row pagination coverage.

@@ -1,5 +1,6 @@
 type ToggleSwitchProps = {
     checked: boolean;
+    "aria-describedby"?: string;
     disabled?: boolean;
     id?: string;
     label?: string;
@@ -8,6 +9,7 @@ type ToggleSwitchProps = {
 
 export function ToggleSwitch({
     checked,
+    "aria-describedby": describedBy,
     disabled = false,
     id,
     label,
@@ -21,6 +23,7 @@ export function ToggleSwitch({
                 role="switch"
                 aria-checked={checked}
                 aria-label={label}
+                aria-describedby={describedBy}
                 className={`ui-toggle__track ${checked ? "ui-toggle__track--on" : "ui-toggle__track--off"}`}
                 onClick={() => onCheckedChange(!checked)}
                 disabled={disabled}
