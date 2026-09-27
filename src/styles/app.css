@@ -1399,11 +1399,11 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 .ui-dropdown__trigger {
     border: 1px solid color-mix(in oklab, var(--panel-border) 78%, transparent 22%);
     border-radius: var(--radius-control);
-    min-width: 9rem;
-    min-height: var(--control-height);
-    padding: var(--space-2) var(--space-3);
+    min-width: 7.5rem;
+    min-height: var(--dropdown-height, 2rem);
+    padding: 5px var(--space-2);
     font:
-        500 0.85rem/1 "Inter",
+        400 0.8125rem/1.4 "Inter",
         system-ui,
         sans-serif;
     color: var(--text);
@@ -1419,8 +1419,8 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 0.95rem;
-    height: 0.95rem;
+    width: 0.875rem;
+    height: 0.875rem;
     color: var(--text-soft);
     transition: transform 160ms ease;
 }
@@ -1436,27 +1436,30 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 
 .ui-dropdown__menu {
     position: absolute;
-    top: calc(100% + 0.35rem);
+    top: calc(100% + 4px);
     left: 0;
     z-index: 20;
-    min-width: 10rem;
+    width: 100%;
+    min-width: 0;
     border: 1px solid color-mix(in oklab, var(--panel-border) 84%, transparent 16%);
-    border-radius: var(--radius-card);
+    border-radius: var(--radius-control);
     background: color-mix(in oklab, var(--panel) 98%, transparent 2%);
     box-shadow: 0 12px 30px rgba(16, 24, 40, 0.16);
     padding: var(--space-1);
     display: grid;
-    gap: var(--space-1);
+    gap: 2px;
 }
 
 .ui-dropdown__item {
+    min-height: var(--dropdown-height, 2rem);
+    overflow-wrap: anywhere;
     border: 1px solid transparent;
     border-radius: var(--radius-control);
     width: 100%;
-    padding: var(--space-2) var(--space-3);
+    padding: 5px var(--space-2);
     text-align: left;
     font:
-        500 0.875rem/1.5 "Inter",
+        400 0.8125rem/1.4 "Inter",
         system-ui,
         sans-serif;
     color: var(--text);
@@ -1847,20 +1850,6 @@ html[data-theme="dark"] .ui-toggle__track--on {
     letter-spacing: 0.02em;
     color: var(--text-soft);
     text-transform: uppercase;
-}
-
-.developer-create-modal__dropdown .ui-dropdown__trigger {
-    width: fit-content;
-    min-width: 10rem;
-    min-height: 2.55rem;
-    border-radius: 0.78rem;
-    padding: 0.52rem 0.7rem;
-    font:
-        500 0.88rem/1 "Inter",
-        system-ui,
-        sans-serif;
-    color: var(--text);
-    background: color-mix(in oklab, var(--input-bg) 92%, transparent 8%);
 }
 
 .developer-key-list {
@@ -3445,7 +3434,7 @@ input {
     flex-shrink: 0;
 }
 .ui-dropdown__trigger {
-    min-height: var(--control-height);
+    min-height: var(--dropdown-height, 2rem);
     font-size: 0.8125rem;
 }
 .developer-section {
@@ -3581,13 +3570,7 @@ input {
     font-weight: 400;
     letter-spacing: 0;
 }
-.developer-create-modal__dropdown .ui-dropdown__trigger {
-    min-height: var(--control-height);
-    width: 100%;
-    border-radius: var(--radius-control);
-    padding: 6px var(--space-3);
-    font-size: 0.8125rem;
-}
+
 @media (pointer: coarse) {
     .developer-key-row .developer-delete-inline-btn.ui-button {
         width: 2.75rem;
@@ -3609,4 +3592,55 @@ input {
     min-width: 0;
     font-size: 0.6875rem;
     padding-inline: var(--space-2);
+}
+
+.ui-keyboard-shortcut {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 2px;
+    padding: 2px 6px;
+    border: 0;
+    border-radius: 5px;
+    background: color-mix(in oklab, currentColor 12%, transparent);
+    color: inherit;
+    font:
+        500 0.6875rem/1.3 "Inter",
+        system-ui,
+        sans-serif;
+    white-space: nowrap;
+}
+.ui-keyboard-shortcut__key {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+.ui-keyboard-shortcut__separator {
+    opacity: 0.65;
+}
+.ui-shortcut-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+.profile-menu__item .ui-keyboard-shortcut {
+    margin-left: auto;
+    color: var(--text-soft);
+}
+.showcase-shortcut-examples {
+    display: grid;
+    gap: var(--space-2);
+}
+.showcase-shortcut-examples > span {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    font-size: 0.8125rem;
+}
+
+@media (pointer: coarse) {
+    .ui-dropdown {
+        --dropdown-height: 2.75rem;
+    }
 }

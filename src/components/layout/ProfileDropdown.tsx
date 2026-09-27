@@ -3,7 +3,8 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
-import { UserAvatar } from "../ui";
+import { KeyboardShortcut, UserAvatar } from "../ui";
+import { APP_SHORTCUTS, shortcutAriaKeys } from "../../utils/keyboardShortcuts";
 
 type ProfileDropdownProps = {
     expanded?: boolean;
@@ -124,11 +125,17 @@ export function ProfileDropdown({
                             {email ? <p className="profile-menu__email">{email}</p> : null}
                         </div>
                     </div>
-                    <Link to="/settings" className="profile-menu__item">
+                    <Link
+                        to="/settings"
+                        className="profile-menu__item"
+                        aria-label={t("nav.settings")}
+                        aria-keyshortcuts={shortcutAriaKeys(APP_SHORTCUTS.openSettings)}
+                    >
                         <span className="profile-menu__item-icon" aria-hidden="true">
                             <Settings />
                         </span>
                         <span>{t("nav.settings")}</span>
+                        <KeyboardShortcut keys={APP_SHORTCUTS.openSettings} />
                     </Link>
                     {showLogout ? (
                         <button

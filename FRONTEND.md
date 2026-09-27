@@ -432,3 +432,15 @@ The table owns overflow and keeps six-row pagination slots. Only key prefixes
 appear in the table; the one-time secret remains in its existing reveal flow.
 Desktop controls are 36px with 13px button/menu text, 14px body text at weight 400,
 500-weight controls and 600-weight headings. Coarse pointers retain 44px targets.
+
+## Keyboard shortcuts and dropdown alignment
+
+KeyboardShortcut is the shared, showcased shortcut hint. A `mod` key renders as
+Command on macOS and Control on Windows/Linux using the detected user agent.
+APP_SHORTCUTS supplies both hints/ARIA and app-shell matching: Mod+B toggles the
+sidebar; Mod+, opens settings. Ignore editable targets, modal dialogs, composition,
+repeat, AltGraph and already handled events. The hook cleans up its listener.
+DropdownMenu matches its trigger width and opens 4px below it; long labels wrap.
+
+Dropdown triggers and items use 32px minimum heights, 13px regular text and 8px
+horizontal padding; coarse pointers retain 44px targets.

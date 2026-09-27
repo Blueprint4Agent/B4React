@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 type TooltipSide = "top" | "right" | "bottom" | "left";
 
 type TooltipProps = {
-    content: string;
+    content: ReactNode;
     children: ReactNode;
     side?: TooltipSide;
     disabled?: boolean;

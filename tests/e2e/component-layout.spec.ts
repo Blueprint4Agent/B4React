@@ -444,3 +444,54 @@ for (const width of [320, 1440]) {
         expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
     });
 }
+
+for (const [platform, userAgent, modifier] of [
+    ["Mac", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", "Meta"],
+    ["Windows", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Control"],
+    ["Linux", "Mozilla/5.0 (X11; Linux x86_64)", "Control"],
+]) {
+    test(`${platform} shortcuts show native keys and respect editable controls`, async ({
+        browser,
+    }) => {
+        // Given: a browser with the platform's user agent.
+        const context = await browser.newContext({ userAgent });
+        const page = await context.newPage();
+        await page.route("**/config", (route) => route.fulfill({ json: config }));
+        await page.goto("/show-case");
+        const brand = page.locator(".app-sidebar__brand");
+        await expect(brand).toHaveAttribute("aria-keyshortcuts", `${modifier}+B`);
+        await brand.hover();
+        await expect(page.getByRole("tooltip").locator("kbd")).toHaveText(
+            platform === "Mac" ? "⌘B" : "Ctrl+B",
+        );
+        // When: invoking the advertised sidebar and settings chords.
+        await page.keyboard.press(`${modifier}+b`);
+        await expect(page.locator(".app-sidebar")).toHaveClass(/app-sidebar--expanded/);
+        await page.keyboard.press(`${modifier}+,`);
+        await expect(page).toHaveURL(/\/settings/);
+        await page.getByRole("textbox", { name: "Name", exact: true }).focus();
+        await page.keyboard.press(`${modifier}+b`);
+        // Then: typing context does not toggle the sidebar.
+        await expect(page.locator(".app-sidebar")).toHaveClass(/app-sidebar--expanded/);
+        await context.close();
+    });
+}
+
+for (const width of [390, 1440]) {
+    test(`dropdown follows its trigger at ${width}px`, async ({ page }) => {
+        // Given: the settings language dropdown at mobile/desktop width.
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto("/settings?section=general");
+        const trigger = page.locator(".ui-dropdown__trigger");
+        await trigger.click();
+        // Then: the menu shares both horizontal edges and a 4px vertical gap.
+        const button = (await trigger.boundingBox())!;
+        const menu = (await page.getByRole("menu").boundingBox())!;
+        expect(Math.abs(menu.x - button.x)).toBeLessThan(1);
+        expect(Math.abs(menu.width - button.width)).toBeLessThan(1);
+        expect(Math.abs(menu.y - button.y - button.height - 4)).toBeLessThan(1);
+        await page.getByRole("menuitem", { name: "Korean" }).click();
+        await expect(trigger).toContainText("한국어");
+        await expect(page.getByRole("menu")).toHaveCount(0);
+    });
+}

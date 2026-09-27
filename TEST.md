@@ -261,3 +261,7 @@ Settings browser checks cover shared sidebar navigation, return-to-app state, re
 Sidebar resize coverage verifies dragging, saved width across route changes/reload, keyboard bounds, matching profile popup width, and retained settings chrome.
 
 API-key browser checks cover populated table metadata/statuses, horizontal containment on mobile, and compact creation dialog bounds. Component scenarios retain create/reveal/toggle/delete and six-row pagination coverage.
+
+Keyboard shortcut unit checks cover platform formatting, exact modifiers and
+input/composition/modal exclusions. Browser checks exercise Mac/Windows/Linux
+shortcuts and verify dropdown-to-trigger alignment at mobile and desktop widths.
