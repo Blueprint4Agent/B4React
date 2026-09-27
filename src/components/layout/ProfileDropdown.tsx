@@ -115,8 +115,19 @@ export function ProfileDropdown({
                     aria-label={t("nav.profileMenu")}
                 >
                     <div className="profile-menu__identity">
-                        <p className="profile-menu__name">{displayName}</p>
-                        {email ? <p className="profile-menu__email">{email}</p> : null}
+                        {avatarLabel ? (
+                            <UserAvatar
+                                className="profile-menu__avatar"
+                                imageUrl={avatarImageUrl}
+                                label={avatarLabel}
+                            />
+                        ) : (
+                            <UserRound className="profile-menu__guest-avatar" aria-hidden="true" />
+                        )}
+                        <div className="profile-menu__identity-text">
+                            <p className="profile-menu__name">{displayName}</p>
+                            {email ? <p className="profile-menu__email">{email}</p> : null}
+                        </div>
                     </div>
                     <Link to="/settings" className="profile-menu__item">
                         <span className="profile-menu__item-icon" aria-hidden="true">
@@ -124,10 +135,15 @@ export function ProfileDropdown({
                         </span>
                         <span>{t("nav.settings")}</span>
                     </Link>
+                    <ThemeToggleButton
+                        className="profile-menu__item"
+                        themeMode={themeMode}
+                        onChangeTheme={onChangeTheme}
+                    />
                     {showLogout ? (
                         <button
                             type="button"
-                            className="profile-menu__item profile-menu__item--danger"
+                            className="profile-menu__item profile-menu__logout"
                             onClick={onLogout}
                             disabled={busy || logoutDisabled}
                             title={logoutDisabled ? logoutDisabledTitle : undefined}
@@ -138,11 +154,6 @@ export function ProfileDropdown({
                             <span>{busy ? t("nav.logoutBusy") : t("nav.logoutIdle")}</span>
                         </button>
                     ) : null}
-                    <ThemeToggleButton
-                        className="profile-menu__item"
-                        themeMode={themeMode}
-                        onChangeTheme={onChangeTheme}
-                    />
                 </div>
             ) : null}
         </div>

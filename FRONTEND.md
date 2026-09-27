@@ -370,8 +370,8 @@ Use 8px label/control and icon/text spacing, 16–24px card padding, and readabl
 [Atlassian spacing foundation](https://atlassian.design/foundations/spacing), not a
 universal compliance standard. Preserve the existing palette and brand.
 
-AppLayout replaces the app navbar with a persistent sidebar: 52px collapsed /
-184px expanded, with 32px icon controls and 36px navigation rows. Coarse pointers use a 60px rail and 44px
+AppLayout replaces the app navbar with a persistent sidebar: 48px collapsed /
+176px expanded, with 32px icon controls and 32px navigation rows. Coarse pointers use a 60px rail and 44px
 controls. The collapsed brand opens the sidebar and swaps to an expand icon on
 hover/keyboard focus; the expanded header shows only left-aligned B4A text (no
 brand icon), aligns it with menu icons using 12px horizontal padding without a
@@ -402,3 +402,7 @@ its hover tooltip. Only keyboard focus retains a tooltip when the pointer leaves
 window blur dismisses it. Preserve click/Escape dismissal during icon replacement.
 
 Pointer movement outside the trigger also dismisses hover-only tooltips when navigation or reload interrupts the usual leave event.
+
+Settings lives only in the footer profile popup. Its compact 224px surface groups
+avatar/name/email, settings and appearance, then logout when available. Do not add
+unsupported reference actions such as billing or help.

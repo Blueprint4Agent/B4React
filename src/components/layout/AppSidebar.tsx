@@ -1,4 +1,4 @@
-import { AppWindow, PanelLeftClose, PanelLeftOpen, Settings } from "lucide-react";
+import { AppWindow, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, NavLink, useNavigate } from "react-router-dom";
@@ -48,10 +48,7 @@ export function AppSidebar({ expanded, onToggleExpanded }: AppSidebarProps) {
             setBusy(false);
         }
     };
-    const items = [
-        { path: "/show-case", label: t("nav.sidebar.showCase"), icon: AppWindow },
-        { path: "/settings", label: t("nav.sidebar.settings"), icon: Settings },
-    ];
+    const items = [{ path: "/show-case", label: t("nav.sidebar.showCase"), icon: AppWindow }];
 
     return (
         <aside className={expanded ? "app-sidebar app-sidebar--expanded" : "app-sidebar"}>

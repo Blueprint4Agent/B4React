@@ -15,9 +15,9 @@
     --space-8: 2rem;
     --control-height: 2.5rem;
     --rail-control-size: 2rem;
-    --sidebar-row-height: 2.25rem;
-    --sidebar-width: 3.25rem;
-    --sidebar-expanded-width: 11.5rem;
+    --sidebar-row-height: 2rem;
+    --sidebar-width: 3rem;
+    --sidebar-expanded-width: 11rem;
     --app-top-inset: 0px;
     --popover-bg: #ffffff;
     --tooltip-bg: #101010;
@@ -1332,15 +1332,15 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
     right: auto;
     min-width: 0;
     border: 1px solid color-mix(in oklab, var(--panel-border) 88%, transparent 12%);
-    border-radius: var(--radius-card);
+    border-radius: var(--radius-panel);
     background: var(--popover-bg);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16);
-    padding: var(--space-1);
+    padding: var(--space-2);
     display: grid;
-    gap: var(--space-1);
+    gap: 2px;
     bottom: 0;
     left: calc(100% + var(--space-3));
-    width: min(15rem, calc(100vw - var(--sidebar-width) - 1.5rem));
+    width: min(14rem, calc(100vw - var(--sidebar-width) - 1.5rem));
     max-height: calc(100dvh - var(--app-top-inset) - 2rem);
     overflow-y: auto;
 }
@@ -1356,11 +1356,24 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 }
 
 .profile-menu__identity {
-    padding: var(--space-3);
-    display: grid;
-    gap: var(--space-1);
+    padding: var(--space-2);
+    padding-bottom: var(--space-3);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
     border-bottom: 1px solid var(--panel-border);
     margin-bottom: var(--space-1);
+}
+
+.profile-menu__identity-text {
+    min-width: 0;
+    flex: 1;
+}
+
+.profile-menu__guest-avatar {
+    width: 1.75rem;
+    height: 1.75rem;
+    flex-shrink: 0;
 }
 
 .profile-menu__name {
@@ -1379,19 +1392,19 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
     border: 1px solid transparent;
     border-radius: var(--radius-control);
     width: 100%;
-    padding: var(--space-2) var(--space-3);
+    padding: var(--space-1) var(--space-2);
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
     font:
-        500 0.875rem/1.5 "Inter",
+        500 0.8125rem/1.5 "Inter",
         system-ui,
         sans-serif;
     color: var(--text);
     background: transparent;
     cursor: pointer;
     text-decoration: none;
-    min-height: var(--control-height);
+    min-height: var(--sidebar-row-height);
 }
 
 .profile-menu__item-icon {
@@ -1418,8 +1431,19 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
     cursor: not-allowed;
 }
 
-.profile-menu__item--danger {
-    color: color-mix(in oklab, #b13232 75%, var(--text) 25%);
+.profile-menu__logout {
+    margin-top: var(--space-1);
+}
+
+.profile-menu__logout::before {
+    content: "";
+    position: absolute;
+    inset: -3px 0 auto;
+    border-top: 1px solid var(--panel-border);
+}
+
+.profile-menu__logout {
+    position: relative;
 }
 
 .theme-toggle-button {
@@ -1470,11 +1494,15 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 
 .profile-menu__item.theme-toggle-button {
     width: 100%;
-    justify-content: center;
-    padding: var(--space-2);
-    border-radius: 0;
+    justify-content: flex-start;
+    padding: var(--space-1) var(--space-2);
     gap: var(--space-1);
-    border-top: 1px solid var(--panel-border);
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.profile-menu__item .theme-toggle-button__title {
+    margin: 0 auto 0 0;
 }
 
 .ui-dropdown {
@@ -2870,7 +2898,7 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
     }
 
     :root {
-        --sidebar-width: 3.25rem;
+        --sidebar-width: 3rem;
     }
 
     .app-sidebar {
@@ -3088,7 +3116,7 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
 .app-sidebar--expanded .profile-menu__dropdown {
     left: 0;
     bottom: calc(100% + var(--space-2));
-    width: min(15rem, calc(100vw - 2rem));
+    width: min(14rem, calc(100vw - 2rem));
 }
 
 .app-sidebar-backdrop {

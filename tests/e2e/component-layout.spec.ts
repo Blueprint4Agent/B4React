@@ -115,12 +115,10 @@ for (const width of [320, 390, 1440]) {
         await expect(popup).toHaveCount(0);
         await expect(profile).toBeFocused();
         // Then: navigation persists on settings, with no horizontal overflow.
-        await page.locator('.app-sidebar__item[href="/settings"]').click();
+        await profile.click();
+        await popup.getByRole("link", { name: "Settings", exact: true }).click();
         await expect(page.locator(".settings-layout")).toBeVisible();
-        await expect(page.locator('.app-sidebar__item[href="/settings"]')).toHaveAttribute(
-            "aria-current",
-            "page",
-        );
+        await expect(page.locator('.app-sidebar__item[href="/settings"]')).toHaveCount(0);
         await expect
             .poll(() =>
                 page.locator(".app-main").evaluate((main) => main.scrollWidth - main.clientWidth),
@@ -189,7 +187,7 @@ for (const width of [320, 1440]) {
         await expect(page.locator(".profile-menu__trigger-name")).toBeVisible();
         await expect
             .poll(async () => (await page.locator(".app-sidebar").boundingBox())!.width)
-            .toBe(184);
+            .toBe(176);
         await page.locator(".app-sidebar__item").first().hover();
         await expect(page.getByRole("tooltip")).toHaveCount(0);
         await page.getByRole("button", { name: "Open profile menu" }).click();
@@ -200,7 +198,8 @@ for (const width of [320, 1440]) {
         await page.keyboard.press("Escape");
         await expect(popup).toHaveCount(0);
         // When: navigating to settings, the panel stays open.
-        await page.locator('.app-sidebar__item[href="/settings"]').click();
+        await page.getByRole("button", { name: "Open profile menu" }).click();
+        await popup.getByRole("link", { name: "Settings", exact: true }).click();
         await expect(page.locator(".settings-layout")).toBeVisible();
         await expect(toggle).toHaveAttribute("aria-expanded", "true");
         await expect
@@ -243,8 +242,8 @@ test("compact controls preserve touch targets on coarse pointers", async ({ brow
 
 test("navigation hover is cleared before opening the profile popover", async ({ page }) => {
     // Given: the pointer remains over a navigation link during a reload.
-    const settings = page.locator('.app-sidebar__item[href="/settings"]');
-    await settings.hover();
+    const navigation = page.locator('.app-sidebar__item[href="/show-case"]');
+    await navigation.hover();
     await page.reload();
     await expect(page.locator(".showcase-catalog")).toBeVisible();
     // When: the pointer moves to open the profile popover.
@@ -269,7 +268,7 @@ test("brand hover reveals expand control and expanded header places close on the
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
     await expect
         .poll(async () => (await page.locator(".app-sidebar").boundingBox())!.width)
-        .toBe(184);
+        .toBe(176);
     const brand = (await page.locator(".app-sidebar__brand").boundingBox())!;
     const close = (await toggle.boundingBox())!;
     expect(close.x).toBeGreaterThan(brand.x + brand.width);
@@ -289,10 +288,10 @@ for (const colorScheme of ["light", "dark"] as const) {
         // When: expanding and collapsing.
         await page.locator(".app-sidebar__toggle").click();
         await expect(sidebar).toHaveCSS("background-color", background);
-        await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(184);
+        await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(176);
         await page.locator(".app-sidebar__toggle").click();
         await expect(sidebar).toHaveCSS("background-color", background);
-        await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(52);
+        await expect.poll(async () => (await sidebar.boundingBox())!.width).toBe(48);
         // Then: reduced-motion users get a near-instant transition.
         await page.emulateMedia({ reducedMotion: "reduce" });
         expect(
