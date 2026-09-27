@@ -1,6 +1,7 @@
 import { resolveSettingsSection } from "../../utils/settingsSections";
 import {
     AppWindow,
+    Users,
     ArrowLeft,
     Code2,
     SlidersHorizontal,
@@ -47,7 +48,8 @@ export function AppSidebar({
         }
     }, [expanded]);
     const navigate = useNavigate();
-    const isSettings = useLocation().pathname === "/settings";
+    const location = useLocation();
+    const isSettings = location.pathname === "/settings";
     const [searchParams] = useSearchParams();
     const section = searchParams.get("section");
     const { user, logout } = useAuthContext();
@@ -72,7 +74,8 @@ export function AppSidebar({
             setBusy(false);
         }
     };
-    const items = isSettings
+    const isAdminPanel = location.pathname === "/admin" && user?.role === "admin";
+    const items = isAdminPanel
         ? [
               {
                   path: "/show-case",
@@ -80,32 +83,49 @@ export function AppSidebar({
                   icon: ArrowLeft,
                   section: "back",
               },
-              {
-                  path: "/settings?section=general",
-                  label: t("settings.menu.general"),
-                  icon: SlidersHorizontal,
-                  section: "general",
-              },
-              {
-                  path: "/settings?section=appearance",
-                  label: t("settings.menu.appearance"),
-                  icon: Sun,
-                  section: "appearance",
-              },
-              {
-                  path: "/settings?section=profile",
-                  label: t("settings.menu.profile"),
-                  icon: UserRound,
-                  section: "profile",
-              },
-              {
-                  path: "/settings?section=developers",
-                  label: t("settings.menu.developers"),
-                  icon: Code2,
-                  section: "developers",
-              },
+              { path: "/admin", label: t("admin.users"), icon: Users, section: "users" },
           ]
-        : [{ path: "/show-case", label: t("nav.sidebar.showCase"), icon: AppWindow, section: "" }];
+        : isSettings
+          ? [
+                {
+                    path: "/show-case",
+                    label: t("settings.backToApp"),
+                    icon: ArrowLeft,
+                    section: "back",
+                },
+                {
+                    path: "/settings?section=general",
+                    label: t("settings.menu.general"),
+                    icon: SlidersHorizontal,
+                    section: "general",
+                },
+                {
+                    path: "/settings?section=appearance",
+                    label: t("settings.menu.appearance"),
+                    icon: Sun,
+                    section: "appearance",
+                },
+                {
+                    path: "/settings?section=profile",
+                    label: t("settings.menu.profile"),
+                    icon: UserRound,
+                    section: "profile",
+                },
+                {
+                    path: "/settings?section=developers",
+                    label: t("settings.menu.developers"),
+                    icon: Code2,
+                    section: "developers",
+                },
+            ]
+          : [
+                {
+                    path: "/show-case",
+                    label: t("nav.sidebar.showCase"),
+                    icon: AppWindow,
+                    section: "",
+                },
+            ];
 
     return (
         <aside className={expanded ? "app-sidebar app-sidebar--expanded" : "app-sidebar"}>
@@ -174,7 +194,13 @@ export function AppSidebar({
             <nav
                 id="app-sidebar-navigation"
                 className="app-sidebar__nav"
-                aria-label={t(isSettings ? "settings.menu.title" : "nav.sidebar.aria")}
+                aria-label={t(
+                    isAdminPanel
+                        ? "admin.title"
+                        : isSettings
+                          ? "settings.menu.title"
+                          : "nav.sidebar.aria",
+                )}
             >
                 {items
                     .filter((item) => user || !["profile", "developers"].includes(item.section))
@@ -214,6 +240,7 @@ export function AppSidebar({
                 <ConnectivityStatus placement="sidebar" />
                 <ProfileDropdown
                     expanded={expanded}
+                    showAdmin={user?.role === "admin"}
                     avatarLabel={user ? displayName.slice(0, 1).toUpperCase() : undefined}
                     avatarImageUrl={user?.profile_image_url}
                     busy={busy}

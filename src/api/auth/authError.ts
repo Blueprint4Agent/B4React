@@ -7,6 +7,7 @@ type AuthErrorDetailSchema = components["schemas"]["AuthErrorDetail"];
 export type AuthErrorCode = AuthErrorDetailSchema["error"];
 
 const AUTH_ERROR_CODES = [
+    "ADMIN_USERS_FAILED",
     "ACCOUNT_LOCKED",
     "EMAIL_ALREADY_EXISTS",
     "EMAIL_DISABLED",
@@ -40,6 +41,7 @@ type ApiError = {
 };
 
 const AUTH_ERROR_CODE_TO_KEY: Record<AuthErrorCode, string> = {
+    ADMIN_USERS_FAILED: "auth.errors.adminUsersFailed",
     ACCOUNT_LOCKED: "auth.errors.accountLocked",
     EMAIL_ALREADY_EXISTS: "auth.errors.emailAlreadyExists",
     EMAIL_DISABLED: "auth.errors.emailDisabled",

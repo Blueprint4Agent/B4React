@@ -7,12 +7,13 @@ import { renderWithRouter } from "../../../utils/renderWithRouter";
 
 const checkNowMock = vi.fn();
 const logoutMock = vi.fn();
+let currentRole = "user";
 let loginEnabled: boolean | undefined = true;
 let connectivityStatus = "offline";
 
 vi.mock("../../../../hooks/useAuth", () => ({
     useAuthContext: () => ({
-        user: { email: "user@example.com", name: "User" },
+        user: { email: "user@example.com", name: "User", role: currentRole },
         logout: logoutMock,
     }),
 }));
@@ -35,6 +36,7 @@ vi.mock("../../../../hooks/connectivity/useServerConnectivity", () => ({
 
 describe("AppSidebar", () => {
     beforeEach(() => {
+        currentRole = "user";
         loginEnabled = true;
         connectivityStatus = "offline";
         checkNowMock.mockReset();
@@ -132,5 +134,21 @@ describe("AppSidebar", () => {
             "href",
             "/login?switch=1",
         );
+    });
+    it.each(["admin", "user"])("shows admin entry only for admin role (%s)", async (role) => {
+        // Given: login-disabled bootstrap or regular identity.
+        currentRole = role;
+        loginEnabled = false;
+        const user = userEvent.setup();
+        renderWithRouter(<AppSidebar expanded={false} onToggleExpanded={() => undefined} />);
+        // When: opening the profile menu.
+        await user.click(screen.getByRole("button", { name: "Open profile menu" }));
+        // Then: only administrators get the panel entry even without ordinary login.
+        if (role === "admin")
+            expect(screen.getByRole("link", { name: "Admin panel" })).toHaveAttribute(
+                "href",
+                "/admin",
+            );
+        else expect(screen.queryByRole("link", { name: "Admin panel" })).not.toBeInTheDocument();
     });
 });
