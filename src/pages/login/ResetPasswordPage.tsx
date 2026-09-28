@@ -1,3 +1,4 @@
+import { useToast } from "../../hooks/useToast";
 import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { FormEvent, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -11,6 +12,7 @@ import { isValidPassword } from "../../utils/validation";
 
 export function ResetPasswordPage({ embedded = false }: { embedded?: boolean }) {
     const { t } = useTranslation();
+    const showToast = useToast();
     const navigate = useNavigate();
     const { resetPassword, extractApiDetail, resolveAuthErrorMessage } = useAuthApi();
     const location = useLocation();
@@ -108,8 +110,10 @@ export function ResetPasswordPage({ embedded = false }: { embedded?: boolean }) 
 
         try {
             await resetPassword(token, password);
+            showToast(t("toast.passwordSuccess"));
             navigate("/reset-password/success", { replace: true });
         } catch (nextError) {
+            showToast(t("toast.passwordError"));
             const detail = extractApiDetail(nextError);
             if (detail?.error === "EMAIL_DISABLED") {
                 setWarningMessage(t("forgotPassword.disabled"));

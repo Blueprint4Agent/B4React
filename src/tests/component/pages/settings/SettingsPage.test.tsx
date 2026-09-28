@@ -277,12 +277,19 @@ describe("SettingsPage developers scenario", () => {
             );
         });
         expect(screen.getByRole("dialog", { name: "Copy API key now" })).toBeInTheDocument();
+        expect(screen.getByText("API key created.")).toBeInTheDocument();
         expect(
             screen.getByDisplayValue(
                 `${FULL_SYSTEM_SCENARIO.apiKey.secretPrefix}primary_secret_001`,
             ),
         ).toBeInTheDocument();
 
+        // Clipboard permission failures retain the secret for manual copying.
+        vi.spyOn(navigator.clipboard, "writeText").mockRejectedValueOnce(new Error("denied"));
+        await user.click(screen.getByRole("button", { name: "Copy" }));
+        expect(
+            screen.getByText("Copy failed. Select and copy the key manually."),
+        ).toBeInTheDocument();
         await user.click(screen.getByRole("button", { name: "Close" }));
         await waitFor(() => {
             expect(screen.getByText(FULL_SYSTEM_SCENARIO.apiKey.primaryName)).toBeInTheDocument();
@@ -292,6 +299,7 @@ describe("SettingsPage developers scenario", () => {
         await user.click(screen.getByRole("switch", { name: /^Enabled:/ }));
         await waitFor(() => {
             expect(updateApiKeyStatusMock).toHaveBeenCalledWith(101, false);
+            expect(screen.getByText("API key status updated.")).toBeInTheDocument();
         });
         await user.click(screen.getByRole("switch", { name: /^Enabled:/ }));
         await waitFor(() => {

@@ -1,3 +1,4 @@
+import { useToast } from "../../hooks/useToast";
 import { resolveSettingsSection } from "../../utils/settingsSections";
 import {
     AppWindow,
@@ -53,6 +54,7 @@ export function AppSidebar({
     const [searchParams] = useSearchParams();
     const section = searchParams.get("section");
     const { user, logout } = useAuthContext();
+    const showToast = useToast();
     const activeSection = resolveSettingsSection(section, Boolean(user));
     const { data: appConfig } = useAppConfig();
     const { checkNow, isDesktop, status } = useServerConnectivity();
@@ -69,6 +71,10 @@ export function AppSidebar({
         setBusy(true);
         try {
             await logout();
+            showToast(t("toast.logoutSuccess"));
+            navigate("/show-case", { replace: true });
+        } catch {
+            showToast(t("toast.logoutError"));
             navigate("/show-case", { replace: true });
         } finally {
             setBusy(false);

@@ -5,7 +5,12 @@ import { useApiKeyApi, type APIKeyRecord } from "./useApiKeyApi";
 import { useServerConnectivity } from "../../connectivity/useServerConnectivity";
 import { useApiKeyRealtimeSubscription } from "../../realtime/apiKey/useApiKeyRealtimeSubscription";
 
-type Options = { ownerId: number | undefined; enabled: boolean; realtimeEnabled: boolean };
+type Options = {
+    ownerId: number | undefined;
+    enabled: boolean;
+    realtimeEnabled: boolean;
+    onMutationResult?: (action: "Create" | "Delete" | "Toggle", success: boolean) => void;
+};
 
 type APIKeysState = {
     items: APIKeyRecord[];
@@ -28,7 +33,14 @@ function normalize(items: APIKeyRecord[]): APIKeyRecord[] {
     );
 }
 
-export function useApiKeys({ ownerId, enabled, realtimeEnabled }: Options): APIKeysState {
+export function useApiKeys({
+    ownerId,
+    enabled,
+    realtimeEnabled,
+    onMutationResult,
+}: Options): APIKeysState {
+    const resultCallback = useRef(onMutationResult);
+    resultCallback.current = onMutationResult;
     const api = useApiKeyApi();
     const { t } = useTranslation();
     const { isDesktop, status } = useServerConnectivity();
@@ -165,10 +177,13 @@ export function useApiKeys({ ownerId, enabled, realtimeEnabled }: Options): APIK
                 const result = await api.createApiKey(name, expiresAt);
                 if (!isCurrent(generation)) return null;
                 upsert(result.key);
+                resultCallback.current?.("Create", true);
                 return result.api_key;
             } catch (error) {
-                if (isCurrent(generation))
+                if (isCurrent(generation)) {
                     setCreateErrorMessage(message(error, "settings.developers.createError"));
+                    resultCallback.current?.("Create", false);
+                }
                 return null;
             } finally {
                 if (isCurrent(generation)) {
@@ -193,10 +208,13 @@ export function useApiKeys({ ownerId, enabled, realtimeEnabled }: Options): APIK
                 const deleted = await api.deleteApiKey(id);
                 if (!isCurrent(generation)) return false;
                 remove(deleted);
+                resultCallback.current?.("Delete", true);
                 return true;
             } catch (error) {
-                if (isCurrent(generation))
+                if (isCurrent(generation)) {
                     setErrorMessage(message(error, "settings.developers.deactivateError"));
+                    resultCallback.current?.("Delete", false);
+                }
                 return false;
             } finally {
                 if (isCurrent(generation)) {
@@ -219,10 +237,15 @@ export function useApiKeys({ ownerId, enabled, realtimeEnabled }: Options): APIK
             setErrorMessage(null);
             try {
                 const updated = await api.updateApiKeyStatus(id, value);
-                if (isCurrent(generation)) upsert(updated);
+                if (isCurrent(generation)) {
+                    upsert(updated);
+                    resultCallback.current?.("Toggle", true);
+                }
             } catch (error) {
-                if (isCurrent(generation))
+                if (isCurrent(generation)) {
                     setErrorMessage(message(error, "settings.developers.updateError"));
+                    resultCallback.current?.("Toggle", false);
+                }
             } finally {
                 if (isCurrent(generation)) {
                     locks.current.delete("toggle");

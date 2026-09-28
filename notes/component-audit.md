@@ -4,6 +4,8 @@ Audit scope: shared UI exports and layout/auth/API-key compositions. All retaine
 
 ## Decisions
 
+- ToastCard adds a plain-text timed capsule with an isolated ToastPreview in Data & feedback; the demo replaces/replays one current toast, with no API side effects.
+
 - SelectionCard is a controlled shared option button reused by catalogue category navigation. Cards includes a searchable interactive example with selected, unselected and disabled options; native keyboard behavior and theme contrast are browser-tested.
 
 - Removed unused ThemeToggle state wrapper; retained ThemeToggleButton as the previously requested showcase-only compact theme control.

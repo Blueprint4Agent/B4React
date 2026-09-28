@@ -5004,3 +5004,59 @@ input {
     flex-shrink: 0;
     gap: 2px;
 }
+
+/* Transient, non-interactive viewport feedback; independent of catalogue layout. */
+.ui-toast-layer {
+    position: fixed;
+    z-index: 1200;
+    top: calc(var(--app-top-inset, 0px) + max(16px, env(safe-area-inset-top)));
+    left: max(16px, env(safe-area-inset-left));
+    right: max(16px, env(safe-area-inset-right));
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+}
+.ui-toast-card {
+    max-width: min(28rem, 100%);
+    padding: 10px 20px;
+    border: 1px solid color-mix(in srgb, var(--tooltip-fg) 18%, transparent);
+    border-radius: var(--radius-pill);
+    background: var(--tooltip-bg);
+    color: var(--tooltip-fg);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center;
+    overflow-wrap: anywhere;
+    animation: ui-toast-enter 180ms ease-out both;
+}
+.ui-toast-card--closing {
+    animation: ui-toast-exit 180ms ease-in both;
+}
+@keyframes ui-toast-enter {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+@keyframes ui-toast-exit {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.98);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ui-toast-card,
+    .ui-toast-card--closing {
+        animation: none;
+    }
+}

@@ -1,3 +1,4 @@
+import { ToastProvider } from "./hooks/useToast";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
@@ -19,12 +20,14 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <BrowserRouter>
             <ServerConnectivityProvider>
                 <DesktopTitleBar />
-                <AppConfigProvider>
-                    <AuthProvider>
-                        <ConnectivityRecovery />
-                        <App />
-                    </AuthProvider>
-                </AppConfigProvider>
+                <ToastProvider>
+                    <AppConfigProvider>
+                        <AuthProvider>
+                            <ConnectivityRecovery />
+                            <App />
+                        </AuthProvider>
+                    </AppConfigProvider>
+                </ToastProvider>
             </ServerConnectivityProvider>
         </BrowserRouter>
     </React.StrictMode>,

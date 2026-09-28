@@ -1,3 +1,4 @@
+import { ToastPreview } from "../../components/features/showcase/ToastPreview";
 import { ApiKeyPreview } from "../../components/features/showcase/ApiKeyPreview";
 import { ConnectedOAuthProvidersCard } from "../../components/features/auth/ConnectedOAuthProvidersCard";
 import { RecentAccountList } from "../../components/features/auth/RecentAccountList";
@@ -407,6 +408,9 @@ export function ShowCasePage() {
                                 <StatusBadge tone="danger">{t("showCase.demo.text39")}</StatusBadge>
                                 <StatusBadge tone="info">{t("showCase.demo.text17")}</StatusBadge>
                             </div>
+                        </ShowcaseItem>
+                        <ShowcaseItem component="ToastCard">
+                            <ToastPreview />
                         </ShowcaseItem>
                         <ShowcaseItem component="InlineMessage">
                             <div className="showcase-catalog__stack">

@@ -654,3 +654,58 @@ for (const width of [390, 1440]) {
         await page.screenshot({ path: testInfo.outputPath("selection-card.png"), fullPage: false });
     });
 }
+
+for (const width of [390, 1440]) {
+    for (const colorScheme of ["light", "dark"] as const) {
+        test(`ToastCard appears above the page and expires in ${colorScheme} at ${width}px`, async ({
+            page,
+        }, testInfo) => {
+            // Given: the actual searchable toast demo in either theme.
+            await page.setViewportSize({ width, height: 900 });
+            await page.emulateMedia({ colorScheme });
+            await page.getByRole("searchbox").fill("ToastCard");
+            const trigger = page.getByRole("button", { name: "Show toast", exact: true });
+            await expect(page.locator(".ui-toast-card")).toHaveCount(0);
+            // When: the local example triggers an actual timed viewport toast.
+            await trigger.click();
+            const toast = page.locator(".ui-toast-card");
+            await expect(toast).toHaveText("Your changes have been saved.");
+            await toast.evaluate(async (element) => {
+                await Promise.all(element.getAnimations().map((animation) => animation.finished));
+            });
+            const box = (await toast.boundingBox())!;
+            expect(Math.abs(box.x + box.width / 2 - width / 2)).toBeLessThan(1);
+            expect(box.y).toBeGreaterThanOrEqual(16);
+            expect(box.y).toBeLessThan(24);
+            expect(box.width).toBeLessThanOrEqual(width - 32);
+            expect(
+                await toast.evaluate((e) => parseFloat(getComputedStyle(e).borderRadius)),
+            ).toBeGreaterThan(box.height / 2);
+            expect(await textContrast(toast)).toBeGreaterThanOrEqual(4.5);
+            await expect(page.locator(".ui-toast-layer")).toHaveCSS("pointer-events", "none");
+            await expect(trigger).toBeFocused();
+            await page.screenshot({
+                path: testInfo.outputPath("capsule-toast.png"),
+                fullPage: false,
+            });
+            // Then: it disappears automatically without trapping or moving focus.
+            await expect(toast).toHaveCount(0, { timeout: 4500 });
+            await expect(trigger).toBeFocused();
+        });
+    }
+}
+
+test("ToastCard replays without stacking and respects reduced motion", async ({ page }) => {
+    // Given: reduced motion and a searchable local demo.
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.getByRole("searchbox").fill("ToastCard");
+    const trigger = page.getByRole("button", { name: "Show toast", exact: true });
+    // When: triggering twice.
+    await trigger.click();
+    await trigger.click();
+    await expect(page.locator(".ui-toast-card")).toHaveCount(1);
+    await expect(page.locator(".ui-toast-card")).toHaveCSS("animation-name", "none");
+    // Then: leaving the example removes the portal and pending lifecycle.
+    await page.getByRole("searchbox").fill("SelectionCard");
+    await expect(page.locator(".ui-toast-card")).toHaveCount(0);
+});

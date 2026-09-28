@@ -1,3 +1,4 @@
+import { useToast } from "../../hooks/useToast";
 import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,6 +11,7 @@ import { isValidEmail } from "../../utils/validation";
 
 export function ForgotPasswordPage({ embedded = false }: { embedded?: boolean }) {
     const { t } = useTranslation();
+    const showToast = useToast();
     const navigate = useNavigate();
     const { requestPasswordReset, extractApiDetail, resolveAuthErrorMessage } = useAuthApi();
     const { data: appConfig, loading: configLoading } = useAppConfig();
@@ -47,23 +49,24 @@ export function ForgotPasswordPage({ embedded = false }: { embedded?: boolean })
         }
 
         const normalizedEmail = email.trim();
-        navigate("/forgot-password/email-sent", {
-            replace: true,
-            state: { email: normalizedEmail },
-        });
-
-        void requestPasswordReset(normalizedEmail).catch((nextError) => {
+        try {
+            await requestPasswordReset(normalizedEmail);
+            showToast(t("toast.emailSuccess"));
+            navigate("/forgot-password/email-sent", {
+                replace: true,
+                state: { email: normalizedEmail },
+            });
+        } catch (nextError) {
             const detail = extractApiDetail(nextError);
-            const message =
+            setErrorMessage(
                 detail?.error === "EMAIL_DISABLED"
                     ? t("forgotPassword.disabled")
-                    : resolveAuthErrorMessage(t, detail, "forgotPassword.requestFallback");
-            console.debug(
-                "[auth] forgot-password request failed after optimistic transition:",
-                message,
+                    : resolveAuthErrorMessage(t, detail, "forgotPassword.requestFallback"),
             );
-        });
-        setSubmitting(false);
+            showToast(t("toast.emailError"));
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
