@@ -303,6 +303,12 @@
             },
             "results_one": "{{count}} section",
             "results_other": "{{count}} sections"
+        },
+        "selectionCard": {
+            "label": "Selection cards",
+            "first": "Option one",
+            "second": "Option two",
+            "disabled": "Unavailable"
         }
     },
     "nav": {

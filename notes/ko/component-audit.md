@@ -4,6 +4,8 @@
 
 ## 정리 결과
 
+- SelectionCard를 제어형 공용 선택 버튼으로 분리하여 카탈로그 분류에 재사용합니다. 카드 분류에서 검색 가능한 선택·미선택·비활성 예제를 제공하며 키보드 동작과 테마 대비를 브라우저로 검증합니다.
+
 - 사용하지 않는 ThemeToggle 상태 래퍼를 삭제했습니다. 이전 요청에 따라 ThemeToggleButton은 쇼케이스 전용 선택지로 유지합니다.
 - 쇼케이스에만 있던 OAuthOptionsCard는 PanelCard/PrimaryCard와 역할이 겹쳐 컴포넌트와 전용 CSS를 삭제했습니다.
 - MenuList는 선택형 메뉴, KeyValueCard는 컴팩트한 설명 목록으로 유지합니다. 의미가 다른 라우팅 메뉴나 프로필 화면에 억지로 대입하지 않습니다.

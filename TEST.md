@@ -298,3 +298,5 @@ validation and local middleware access. `make test-style-studio` checks draft/re
 light/dark separation, apply/conflict and mobile/desktop layout with mocked writes
 so tests never modify developer CSS. The component test protects render isolation
 and cleanup. Production tests assert the editor/file protocol are absent.
+
+Theme contrast regressions cover enabled hover text pairs, disabled hover stability, sidebar separation, system/explicit appearance and searchable keyboard-operated SelectionCard examples at mobile/desktop sizes. Screenshots capture surfaces, cancel hover and selection states.

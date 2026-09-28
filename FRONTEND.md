@@ -584,7 +584,7 @@ Light/dark background, panel, input, text, button and hover colors plus shared
 radius, spacing/padding and base typography are defined by `src/dev/styleTokens.json`.
 The font-family token replaces the repeated Inter family in shared styles; base
 font size/weight/line height apply to inherited text, preserving component-specific
-sizes/weights. The button-hover token retains the default button color initially.
+sizes/weights. The primary button-hover token has distinct light/dark defaults. Neutral and danger controls own compatible hover fills instead of inheriting the primary inverse fill.
 Lengths use bounded rem values. Colors accept six-digit hex or numeric rgba;
 font choices are allowlisted. The custom ColorPicker uses a saturation/value plane, rainbow hue strip and thin opacity strip. The plane supports arrow keys and pointer/touch; the two sliders have accessible names. HEX/RGBA entry stays in the field. Explicit dark and system-dark declarations update
 together. This is a supported-token editor, not an arbitrary CSS/code editor.
@@ -618,3 +618,11 @@ ColorPicker uses only the plane and hue/opacity strips, without presets, duplica
 ## Shared collection state
 
 Use `useCollectionQuery` for draft/applied search and filter/page transitions, `getPagination` for known totals, and `useClientPagination` for complete local collections. Keep domain HTTP hooks and existing shared controls. Follow [rules and examples](notes/collections.md), including unknown-total handling and the existing API-key full-list compatibility exception.
+
+## Theme contrast and selectable cards
+
+Shared buttons must retain a compatible foreground/background pair on hover. Neutral modal/copy controls override their local hover fill; danger actions retain red with white text. Disabled/loading buttons do not acquire hover colors. Spinners follow currentColor. Keep explicit and system dark tokens synchronized. Sidebar expanded/collapsed states share `--sidebar-bg`, subtly separated from the main `--bg`; light cards use the common border token and one-pixel catalogue boundaries.
+
+`SelectionCard` is a controlled shared Button wrapper: `selected` drives `aria-pressed`; native `onClick`, `disabled`, focus and keyboard activation are preserved. The caller owns single/multiple selection; do not use it as a link or put nested interactive content inside it. Use `.selection-card-group` for wrapping option groups and provide a group label. Example: `<SelectionCard selected={value === "one"} onClick={() => setValue("one")}>Option one</SelectionCard>`. Category navigation and the searchable Cards → SelectionCard example reuse it; the example includes selectable and disabled options. Selection pairs use button foreground/background, while unselected options use neutral panel/text colors.
+
+`make test-ui` checks enabled text contrast (at least 4.5:1) before/after hover for primary, neutral, danger, copy and selected/unselected controls in system/explicit light/dark themes. It also verifies disabled hover stability, sidebar separation, mobile/desktop layout and keyboard selection. Custom studio color choices remain user-controlled and are not automatically contrast-corrected.

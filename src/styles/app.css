@@ -27,13 +27,14 @@
     --tooltip-bg: #101010;
     --tooltip-fg: #ffffff;
     --radius-input: var(--radius-control);
-    --bg: #f5f7fb;
+    --bg: #f1f3f7;
+    --sidebar-bg: #e6eaf0;
     --bg-grad-a: rgba(48, 117, 211, 0.18);
     --bg-grad-b: rgba(196, 153, 54, 0.14);
     --text: #132033;
     --text-soft: #4a5a6b;
     --panel: rgba(255, 255, 255, 0.97);
-    --panel-border: rgba(19, 32, 51, 0.14);
+    --panel-border: rgba(19, 32, 51, 0.2);
     --input-bg: rgba(255, 255, 255, 0.99);
     --input-border: rgba(19, 32, 51, 0.22);
     --accent: #0b4ea8;
@@ -59,6 +60,7 @@
 
 html[data-theme="dark"] {
     --bg: #0b0b0c;
+    --sidebar-bg: #151518;
     --bg-grad-a: rgba(255, 255, 255, 0.05);
     --bg-grad-b: rgba(255, 255, 255, 0.02);
     --text: #f3f3f3;
@@ -83,7 +85,7 @@ html[data-theme="dark"] {
     --info-border: rgba(98, 227, 150, 0.42);
     --info-text: #c9f5d8;
     --button-bg: #f7f7f7;
-    --button-hover-bg: #f7f7f7;
+    --button-hover-bg: #dedee3;
     --button-fg: #101216;
     --button-border: #f7f7f7;
     --scrollbar-thumb: rgba(156, 156, 162, 0.46);
@@ -93,6 +95,7 @@ html[data-theme="dark"] {
 @media (prefers-color-scheme: dark) {
     html:not([data-theme="light"]) {
         --bg: #0b0b0c;
+        --sidebar-bg: #151518;
         --bg-grad-a: rgba(255, 255, 255, 0.05);
         --bg-grad-b: rgba(255, 255, 255, 0.02);
         --text: #f3f3f3;
@@ -117,7 +120,7 @@ html[data-theme="dark"] {
         --info-border: rgba(98, 227, 150, 0.42);
         --info-text: #c9f5d8;
         --button-bg: #f7f7f7;
-        --button-hover-bg: #f7f7f7;
+        --button-hover-bg: #dedee3;
         --button-fg: #101216;
         --button-border: #f7f7f7;
     }
@@ -389,7 +392,7 @@ a {
     width: var(--sidebar-width);
     padding: var(--space-3) var(--space-2);
     border-right: 1px solid var(--panel-border);
-    background: var(--bg);
+    background: var(--sidebar-bg);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -691,7 +694,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
     min-height: var(--control-height);
 }
 
-.menu-list__item.ui-button:hover {
+.menu-list__item.ui-button:where(:not(:disabled)):hover {
     border-color: transparent;
     transform: none;
     background: color-mix(in oklab, var(--text) 12%, transparent);
@@ -1082,7 +1085,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 }
 
 .showcase-catalog__section-card {
-    border: 1px solid color-mix(in oklab, var(--panel-border) 86%, transparent 14%);
+    border: 1px solid var(--panel-border);
     border-radius: var(--radius-card);
     padding: var(--space-5);
     background: color-mix(in oklab, var(--panel) 98%, transparent 2%);
@@ -1743,12 +1746,14 @@ html[data-theme="dark"] .ui-toggle__track--on {
 
 .ui-button.modal-button--cancel,
 .ui-button.modal-button--close {
+    --button-hover-bg: color-mix(in srgb, var(--text) 10%, var(--input-bg));
     color: var(--text);
     border-color: color-mix(in oklab, var(--panel-border) 82%, transparent 18%);
     background: color-mix(in oklab, var(--input-bg) 84%, transparent 16%);
 }
 
 .ui-button.modal-button--danger {
+    --button-hover-bg: #7f2020;
     color: #fff;
     border-color: #9f2a2a;
     background: #9f2a2a;
@@ -1859,7 +1864,7 @@ html[data-theme="dark"] .ui-toggle__track--on {
     display: block;
 }
 
-.developer-delete-inline-btn.ui-button:hover {
+.developer-delete-inline-btn.ui-button:where(:not(:disabled)):hover {
     background: rgba(186, 66, 66, 0.14);
 }
 
@@ -1896,6 +1901,7 @@ html[data-theme="dark"] .ui-toggle__track--on {
 }
 
 .copy-field__button.ui-button {
+    --button-hover-bg: color-mix(in srgb, var(--text) 10%, var(--input-bg));
     position: absolute;
     top: 50%;
     right: 0.45rem;
@@ -1913,7 +1919,7 @@ html[data-theme="dark"] .ui-toggle__track--on {
     justify-content: center;
 }
 
-.copy-field__button.ui-button:hover {
+.copy-field__button.ui-button:where(:not(:disabled)):hover {
     background: var(--button-hover-bg);
     transform: translateY(calc(-50% - 2px));
 }
@@ -2287,8 +2293,8 @@ input:focus {
     width: 0.95rem;
     height: 0.95rem;
     border-radius: 999px;
-    border: 2px solid color-mix(in oklab, var(--button-fg) 35%, transparent 65%);
-    border-top-color: var(--button-fg);
+    border: 2px solid color-mix(in oklab, currentColor 35%, transparent 65%);
+    border-top-color: currentColor;
     animation: spin 720ms linear infinite;
 }
 
@@ -2331,7 +2337,7 @@ input:focus {
     color: var(--text-soft);
 }
 
-.ui-button:hover {
+.ui-button:where(:not(:disabled)):hover {
     background: var(--button-hover-bg);
     transform: none;
 }
@@ -2771,7 +2777,7 @@ html[data-theme="dark"] .oauth-provider-button__logo--dark {
 .app-sidebar--expanded {
     width: var(--sidebar-expanded-width);
     align-items: stretch;
-    background: var(--bg);
+    background: var(--sidebar-bg);
 }
 
 .app-sidebar__header {
@@ -3528,7 +3534,7 @@ input {
     color: var(--text-soft);
     background: transparent;
 }
-.developer-key-row .developer-delete-inline-btn.ui-button:hover {
+.developer-key-row .developer-delete-inline-btn.ui-button:where(:not(:disabled)):hover {
     color: var(--error-text);
     background: var(--error-bg);
 }
@@ -3753,7 +3759,7 @@ input {
     color: var(--text);
     border: 0.5px solid var(--panel-border);
 }
-.auth-dialog-social .ui-button:hover {
+.auth-dialog-social .ui-button:where(:not(:disabled)):hover {
     background: color-mix(in oklab, var(--text) 12%, var(--panel));
 }
 .auth-dialog-divider {
@@ -3819,7 +3825,7 @@ input {
     color: var(--text);
     border: 0.5px solid var(--panel-border);
 }
-.ui-button.ui-button--pill-secondary:hover {
+.ui-button.ui-button--pill-secondary:where(:not(:disabled)):hover {
     background: color-mix(in oklab, var(--text) 12%, var(--popover-bg));
 }
 .ui-button--pill-secondary .oauth-provider-button__logo-wrap,
@@ -4165,20 +4171,32 @@ input {
     flex-wrap: wrap;
     gap: 6px;
 }
-.showcase-category.ui-button {
+/* Shared selectable options: selected state always uses a foreground/background pair. */
+.selection-card-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+.selection-card.ui-button {
     min-height: 32px;
     padding: 6px 10px;
-    border: 0;
+    border: 1px solid var(--panel-border);
     box-shadow: none;
-    background: transparent;
+    background: var(--panel);
     color: var(--text-soft);
 }
-.showcase-category.ui-button[aria-pressed="true"] {
-    background: var(--input-bg);
+.selection-card.ui-button:where(:not(:disabled)):hover {
+    background: color-mix(in srgb, var(--text) 8%, var(--panel));
     color: var(--text);
+    border-color: var(--input-border);
 }
-.showcase-category.ui-button:hover {
-    background: color-mix(in srgb, var(--text) 12%, transparent);
+.selection-card.ui-button[aria-pressed="true"] {
+    background: var(--button-bg);
+    color: var(--button-fg);
+    border-color: var(--button-border);
+}
+.selection-card.ui-button[aria-pressed="true"]:where(:not(:disabled)):hover {
+    background: var(--button-hover-bg);
 }
 .showcase-result-count {
     margin: 0;
@@ -4213,7 +4231,7 @@ input {
 }
 .showcase-item {
     padding: 12px;
-    border: 0.5px solid var(--panel-border);
+    border: 1px solid var(--panel-border);
     border-radius: 10px;
     background: var(--panel);
 }
@@ -4289,7 +4307,7 @@ input {
     }
 }
 @media (pointer: coarse) {
-    .showcase-category.ui-button {
+    .selection-card.ui-button {
         min-height: 44px;
     }
 }
@@ -4379,7 +4397,7 @@ input {
         max-width: 100%;
         padding-bottom: 4px;
     }
-    .showcase-category.ui-button {
+    .showcase-category.selection-card {
         flex-shrink: 0;
     }
     .page-state {

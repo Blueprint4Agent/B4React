@@ -303,6 +303,12 @@
             },
             "results_one": "{{count}}개 분류",
             "results_other": "{{count}}개 분류"
+        },
+        "selectionCard": {
+            "label": "선택 카드",
+            "first": "옵션 하나",
+            "second": "옵션 둘",
+            "disabled": "선택 불가"
         }
     },
     "nav": {

@@ -4,6 +4,8 @@ Audit scope: shared UI exports and layout/auth/API-key compositions. All retaine
 
 ## Decisions
 
+- SelectionCard is a controlled shared option button reused by catalogue category navigation. Cards includes a searchable interactive example with selected, unselected and disabled options; native keyboard behavior and theme contrast are browser-tested.
+
 - Removed unused ThemeToggle state wrapper; retained ThemeToggleButton as the previously requested showcase-only compact theme control.
 - Removed OAuthOptionsCard (showcase-only, redundant with PanelCard/PrimaryCard) and its unused CSS.
 - Retained MenuList as a reusable selectable menu, and KeyValueCard as a compact description-list row. Neither needs to be forced into routing/profile screens with different semantics.

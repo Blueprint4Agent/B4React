@@ -1,5 +1,5 @@
 import { readProjectConfig } from "../../scripts/project-config.mjs";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 
 const config = {
     api_base_path: "/api/v1",
@@ -500,5 +500,157 @@ for (const width of [390, 1440]) {
         await page.getByRole("menuitem", { name: "Korean" }).click();
         await expect(trigger).toContainText("한국어");
         await expect(page.getByRole("menu")).toHaveCount(0);
+    });
+}
+
+async function textContrast(control: Locator): Promise<number> {
+    return control.evaluate((element) => {
+        // Composite ancestor backgrounds, including translucent panel/input surfaces.
+        const context = document.createElement("canvas").getContext("2d")!;
+        function rgba(css: string): number[] {
+            context.clearRect(0, 0, 1, 1);
+            context.fillStyle = css;
+            context.fillRect(0, 0, 1, 1);
+            return Array.from(context.getImageData(0, 0, 1, 1).data);
+        }
+        function composite(top: number[], bottom: number[]): number[] {
+            const alpha = top[3] / 255;
+            return top
+                .slice(0, 3)
+                .map((channel, i) => channel * alpha + bottom[i] * (1 - alpha))
+                .concat(255);
+        }
+        function luminance(color: number[]): number {
+            const linear = color.slice(0, 3).map((channel) => {
+                const value = channel / 255;
+                return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+            });
+            return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+        }
+        const ancestors: Element[] = [];
+        for (let node: Element | null = element; node; node = node.parentElement)
+            ancestors.unshift(node);
+        const background = ancestors.reduce(
+            (color, node) => composite(rgba(getComputedStyle(node).backgroundColor), color),
+            [255, 255, 255, 255],
+        );
+        const foreground = composite(rgba(getComputedStyle(element).color), background);
+        const a = luminance(foreground);
+        const b = luminance(background);
+        return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    });
+}
+
+async function expectReadableHover(control: Locator): Promise<void> {
+    await expect(control).toBeVisible();
+    expect(await textContrast(control)).toBeGreaterThanOrEqual(4.5);
+    await control.hover();
+    await control.evaluate(async (element) => {
+        await Promise.all(element.getAnimations().map((animation) => animation.finished));
+    });
+    expect(await textContrast(control)).toBeGreaterThanOrEqual(4.5);
+}
+
+for (const colorScheme of ["light", "dark"] as const) {
+    for (const mode of ["system", "explicit"] as const) {
+        test(`shared actions and surfaces keep ${colorScheme} contrast in ${mode} mode`, async ({
+            page,
+        }, testInfo) => {
+            // Given: both narrow system appearance and explicit desktop appearance.
+            const width = mode === "system" ? 390 : 1440;
+            await page.setViewportSize({ width, height: 1000 });
+            await page.emulateMedia({
+                colorScheme:
+                    mode === "system" ? colorScheme : colorScheme === "dark" ? "light" : "dark",
+            });
+            await page.evaluate(
+                (theme) => localStorage.setItem("blueprint4fastapi_theme", theme),
+                mode === "system" ? "system" : colorScheme,
+            );
+            await page.reload();
+            const sidebar = page.locator(".app-sidebar");
+            const background = await page
+                .locator("body")
+                .evaluate((e) => getComputedStyle(e).backgroundColor);
+            expect(await sidebar.evaluate((e) => getComputedStyle(e).backgroundColor)).not.toBe(
+                background,
+            );
+            const active = page.locator('.showcase-category[aria-pressed="true"]');
+            const inactive = page.locator('.showcase-category[aria-pressed="false"]').first();
+            await expectReadableHover(active);
+            await expectReadableHover(inactive);
+            expect(await active.evaluate((e) => getComputedStyle(e).backgroundColor)).not.toBe(
+                await inactive.evaluate((e) => getComputedStyle(e).backgroundColor),
+            );
+            await page.mouse.move(0, 0);
+            await page.screenshot({ path: testInfo.outputPath("surfaces.png"), fullPage: false });
+            await expectReadableHover(page.locator(".copy-field__button").first());
+
+            // When: using the real shared API-key modal, including its disabled save state.
+            await page.getByRole("button", { name: "Create API key", exact: true }).click();
+            const dialog = page.getByRole("dialog");
+            const cancel = dialog.getByRole("button", { name: "Cancel", exact: true });
+            const save = dialog.getByRole("button", { name: "Save", exact: true });
+            await expect(save).toBeDisabled();
+            const disabledBackground = await save.evaluate(
+                (e) => getComputedStyle(e).backgroundColor,
+            );
+            await save.hover({ force: true });
+            await expect(save).toHaveCSS("background-color", disabledBackground);
+            await expectReadableHover(cancel);
+            await page.screenshot({
+                path: testInfo.outputPath("cancel-hover.png"),
+                fullPage: false,
+            });
+            await dialog.getByRole("textbox").fill("Contrast fixture");
+            await expectReadableHover(save);
+            await save.click();
+            await expectReadableHover(
+                page.getByRole("dialog").getByRole("button", { name: "Close", exact: true }),
+            );
+            await page
+                .getByRole("dialog")
+                .getByRole("button", { name: "Close", exact: true })
+                .click();
+            await page.getByRole("button", { name: "Delete Showcase", exact: true }).click();
+            // Then: danger and neutral actions also retain readable foreground/background pairs.
+            await expectReadableHover(page.locator(".modal-button--danger"));
+            await expectReadableHover(
+                page.getByRole("dialog").getByRole("button", { name: "Cancel", exact: true }),
+            );
+            expect(
+                await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+            ).toBe(true);
+        });
+    }
+}
+
+for (const width of [390, 1440]) {
+    test(`SelectionCard is searchable, controlled and keyboard accessible at ${width}px`, async ({
+        page,
+    }, testInfo) => {
+        // Given: a rendered catalogue example of the same control used by the category bar.
+        await page.setViewportSize({ width, height: 900 });
+        await page.getByRole("searchbox").fill("SelectionCard");
+        const example = page.locator('[data-component="SelectionCard"]');
+        const first = example.getByRole("button", { name: "Option one" });
+        const second = example.getByRole("button", { name: "Option two" });
+        const disabled = example.getByRole("button", { name: "Unavailable" });
+        await expect(first).toHaveAttribute("aria-pressed", "true");
+        await expect(second).toHaveAttribute("aria-pressed", "false");
+        await expect(disabled).toBeDisabled();
+        // When: selecting by keyboard, then by pointer.
+        await second.focus();
+        await page.keyboard.press("Enter");
+        await expect(second).toHaveAttribute("aria-pressed", "true");
+        await expect(first).toHaveAttribute("aria-pressed", "false");
+        await first.click();
+        // Then: selection stays consumer-owned and the sample fits without overflow.
+        await expect(first).toHaveAttribute("aria-pressed", "true");
+        await expect(second).toHaveAttribute("aria-pressed", "false");
+        await expectReadableHover(first);
+        await expectReadableHover(second);
+        expect(await example.evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(true);
+        await page.screenshot({ path: testInfo.outputPath("selection-card.png"), fullPage: false });
     });
 }
