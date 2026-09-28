@@ -90,6 +90,7 @@ describe("LoginPage", () => {
         // Then: inline email validation message is shown.
         expect(screen.getByText("Please enter a valid email address.")).toBeInTheDocument();
         expect(loginMock).not.toHaveBeenCalled();
+        expect(document.querySelector(".ui-toast-card")).toBeNull();
     });
 
     it("navigates to show-case after successful login", async () => {
@@ -111,6 +112,7 @@ describe("LoginPage", () => {
             remember_account: false,
         });
         expect(navigateMock).toHaveBeenCalledWith("/show-case", { replace: true });
+        expect(screen.getByText("Signed in.")).toBeInTheDocument();
     });
 
     it("stores remembered email and remember-me preference after successful login", async () => {

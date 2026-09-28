@@ -300,3 +300,7 @@ so tests never modify developer CSS. The component test protects render isolatio
 and cleanup. Production tests assert the editor/file protocol are absent.
 
 Theme contrast regressions cover enabled hover text pairs, disabled hover stability, sidebar separation, system/explicit appearance and searchable keyboard-operated SelectionCard examples at mobile/desktop sizes. Screenshots capture surfaces, cancel hover and selection states.
+
+ToastCard component tests cover StrictMode expiry/exit, keyed replay, timer cleanup, callback replacement, blank messages/duration bounds and isolated preview renders. `make test-ui` verifies real timed dismissal, top-center capsule geometry, light/dark contrast, focus retention, reduced motion and mobile/desktop screenshots.
+
+Action feedback regressions cover signup/reset-email pending and rejected requests, retry navigation with a surviving success toast, login outcomes, clipboard denial, API-key mutation feedback and stable dispatch consumer render counts.

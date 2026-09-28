@@ -1,3 +1,4 @@
+import { useToast } from "../../hooks/useToast";
 import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { FormEvent, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +14,7 @@ import { isValidEmail, isValidPassword } from "../../utils/validation";
 
 export function SignupPage({ embedded = false }: { embedded?: boolean }) {
     const { t } = useTranslation();
+    const showToast = useToast();
     const { signup, user } = useAuthContext();
     const { extractApiDetail, resolveAuthErrorMessage } = useAuthApi();
     const { data: appConfig, loading: configLoading } = useAppConfig();
@@ -135,28 +137,25 @@ export function SignupPage({ embedded = false }: { embedded?: boolean }) {
         }
 
         const normalizedEmail = email.trim();
-        if (emailEnabled) {
+        try {
+            await signup({ name, email: normalizedEmail, password });
+            showToast(t("toast.signupSuccess"));
             navigate("/signup/email-sent", {
                 replace: true,
-                state: { email: normalizedEmail },
+                state: emailEnabled ? { email: normalizedEmail } : undefined,
             });
-        } else {
-            navigate("/signup/email-sent", { replace: true });
+        } catch (nextError) {
+            setErrorMessage(
+                resolveAuthErrorMessage(
+                    t,
+                    extractApiDetail(nextError),
+                    "auth.errors.signupFallback",
+                ),
+            );
+            showToast(t("toast.signupError"));
+        } finally {
+            setSubmitting(false);
         }
-
-        void signup({ name, email: normalizedEmail, password }).catch((nextError) => {
-            const detail = extractApiDetail(nextError);
-            const resolvedMessage = resolveAuthErrorMessage(
-                t,
-                detail,
-                "auth.errors.signupFallback",
-            );
-            console.debug(
-                "[auth] signup request failed after optimistic transition:",
-                resolvedMessage,
-            );
-        });
-        setSubmitting(false);
     };
 
     return (

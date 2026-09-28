@@ -18,6 +18,7 @@ export { MenuList } from "./lists/MenuList";
 export type { MenuListItem } from "./lists/MenuList";
 export { Modal } from "./overlays/Modal";
 export { Pagination } from "./navigation/Pagination";
+export { ToastCard } from "./overlays/ToastCard";
 export { Tooltip } from "./overlays/Tooltip";
 export { InlineMessage } from "./status/InlineMessage";
 export { Spinner } from "./status/Spinner";

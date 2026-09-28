@@ -626,3 +626,25 @@ Shared buttons must retain a compatible foreground/background pair on hover. Neu
 `SelectionCard` is a controlled shared Button wrapper: `selected` drives `aria-pressed`; native `onClick`, `disabled`, focus and keyboard activation are preserved. The caller owns single/multiple selection; do not use it as a link or put nested interactive content inside it. Use `.selection-card-group` for wrapping option groups and provide a group label. Example: `<SelectionCard selected={value === "one"} onClick={() => setValue("one")}>Option one</SelectionCard>`. Category navigation and the searchable Cards → SelectionCard example reuse it; the example includes selectable and disabled options. Selection pairs use button foreground/background, while unselected options use neutral panel/text colors.
 
 `make test-ui` checks enabled text contrast (at least 4.5:1) before/after hover for primary, neutral, danger, copy and selected/unselected controls in system/explicit light/dark themes. It also verifies disabled hover stability, sidebar separation, mobile/desktop layout and keyboard selection. Custom studio color choices remain user-controlled and are not automatically contrast-corrected.
+
+## Capsule toast feedback
+
+`ToastCard` is a shared, mount-driven text capsule portaled to the top center of the viewport, similar to a browser fullscreen notification. It uses inverse theme colors, safe-area/desktop-titlebar offsets and a short entry/exit animation. It does not request browser fullscreen. Body portals follow the actual app theme, not scoped style-studio draft colors.
+
+Pass a short `message`, optional `durationMs` (default 3000; finite values clamped to 1000–10000), and optional `onDismiss`. Nonfinite durations use the default; blank messages render nothing. Expiry starts a 180ms exit before removing the message and notifying the caller. Changing message/duration restarts the interval; unrelated parent rerenders or callback identity changes do not. Use a new React key to replay identical text. Unmount cancels all timers. Example:
+
+```tsx
+{
+    notice && (
+        <ToastCard key={notice.id} message={notice.message} onDismiss={() => setNotice(null)} />
+    );
+}
+```
+
+App actions call `const showToast = useToast(); showToast(t("toast.loginSuccess"))` beneath the route-persistent `ToastProvider` in main.tsx. Its stable dispatch context replaces one current notice (no queue or persistence) without subscribing pages to toast state. Direct ToastCard mounting remains available for isolated previews. `ToastPreview` isolates sample state from the catalogue, replaces the current toast on repeated clicks, and is searchable as ToastCard under Data & feedback.
+
+The empty polite `role="status"` region mounts before message insertion; the toast never takes focus or captures pointer input. Reduced motion removes animation. Keep text concise; narrow screens may wrap rather than clip. Required actions and critical errors belong in persistent UI, not an expiring text capsule. There are no titles, action buttons or close controls inside this toast.
+
+### Action feedback policy
+
+Notify once from explicit action completion: email login/logout, signup, verification resend, password reset request/completion, profile name/photo changes, API-key create/delete/status and secret copying. Keep validation and actionable error details inline. Signup and reset-email confirmation routes are entered only after success; failed requests retain the form for retry. Email-request wording does not disclose account existence. API-key result callbacks run only for the current owner/request epoch, never from SSE or reload. Session bootstrap, automatic email verification, configuration/list loading, realtime and connectivity recovery retain their persistent page/status feedback without repeated toasts. Never put passwords, API secrets, reset tokens or raw server payloads in notifications.

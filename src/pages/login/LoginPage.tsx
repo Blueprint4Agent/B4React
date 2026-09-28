@@ -1,3 +1,4 @@
+import { useToast } from "../../hooks/useToast";
 import { RecentAccountList } from "../../components/features/auth/RecentAccountList";
 import { useRecentAccounts } from "../../hooks/useRecentAccounts";
 import {
@@ -26,6 +27,7 @@ const REMEMBER_ME_ENABLED_STORAGE_KEY = "template_remember_me_enabled";
 export function LoginPage({ embedded = false }: { embedded?: boolean }) {
     const [passwordStep, setPasswordStep] = useState(!embedded);
     const { t } = useTranslation();
+    const showToast = useToast();
     const { login, user } = useAuthContext();
     const accounts = useRecentAccounts();
     const location = useLocation();
@@ -159,8 +161,10 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
             } catch {
                 // ignore storage errors in restricted browser contexts
             }
+            showToast(t("toast.loginSuccess"));
             navigate("/show-case", { replace: true });
         } catch (nextError) {
+            showToast(t("toast.loginError"));
             const detail = extractApiDetail(nextError);
             const code = detail?.error;
             const details = detail?.details;
@@ -198,7 +202,9 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
         try {
             const payload = await resendVerificationEmail(email.trim());
             setResendMessage(payload.message);
+            showToast(t("toast.emailSuccess"));
         } catch {
+            showToast(t("toast.emailError"));
             setResendMessage(t("auth.errors.resendVerificationFallback"));
         } finally {
             setResending(false);

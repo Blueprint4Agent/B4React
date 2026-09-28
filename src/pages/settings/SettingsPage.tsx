@@ -1,3 +1,4 @@
+import { useToast } from "../../hooks/useToast";
 import { resolveSettingsSection } from "../../utils/settingsSections";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -36,6 +37,7 @@ type SupportedLanguageId = (typeof SUPPORTED_LANGUAGE_IDS)[number];
 
 export function SettingsPage() {
     const { t, i18n } = useTranslation();
+    const showToast = useToast();
     const { user, loading: authLoading, updateProfile } = useAuthContext();
     const { data: appConfig } = useAppConfig();
     const { themeMode, setThemeMode } = useTheme();
@@ -82,7 +84,13 @@ export function SettingsPage() {
         deleteKey,
         setEnabled: toggleKey,
         clearCreateError,
-    } = useApiKeys({ ownerId: user?.id, enabled: showDevelopers, realtimeEnabled: loginEnabled });
+    } = useApiKeys({
+        ownerId: user?.id,
+        enabled: showDevelopers,
+        realtimeEnabled: loginEnabled,
+        onMutationResult: (action, success) =>
+            showToast(t(`toast.key${action}${success ? "Success" : "Error"}`)),
+    });
     const normalizedNameInput = nameInput.trim();
     const normalizedCurrentName = (user?.name ?? "").trim();
     const normalizedProfileImageInput = profileImageInput?.trim() || null;
@@ -148,14 +156,16 @@ export function SettingsPage() {
         setCopied(false);
     }, []);
 
-    const copySecret = useCallback(() => {
-        if (!createdSecret) {
-            return;
-        }
-        void navigator.clipboard.writeText(createdSecret).then(() => {
+    const copySecret = useCallback(async () => {
+        if (!createdSecret) return;
+        try {
+            await navigator.clipboard.writeText(createdSecret);
             setCopied(true);
-        });
-    }, [createdSecret]);
+            showToast(t("toast.copySuccess"));
+        } catch {
+            showToast(t("toast.copyError"));
+        }
+    }, [createdSecret, showToast, t]);
 
     const closeDeleteModal = useCallback(() => {
         if (deactivateBusy) {
@@ -222,6 +232,7 @@ export function SettingsPage() {
                 source: "photo",
                 message: t("settings.profile.photoTypeError"),
             });
+            showToast(t("toast.photoError"));
             return;
         }
         if (file.size > MAX_PROFILE_PHOTO_SIZE_BYTES) {
@@ -230,6 +241,7 @@ export function SettingsPage() {
                 source: "photo",
                 message: t("settings.profile.photoSizeError"),
             });
+            showToast(t("toast.photoError"));
             return;
         }
 
@@ -239,10 +251,16 @@ export function SettingsPage() {
             setSaveBusy(true);
             try {
                 await updateProfile({ profile_image_url: dataUrl });
+                showToast(t("toast.profileSuccess"));
                 setSaveFeedback(null);
             } catch {
                 setProfileImageInput(normalizedCurrentProfileImage);
-                setSaveFeedback(null);
+                showToast(t("toast.profileError"));
+                setSaveFeedback({
+                    tone: "error",
+                    source: "photo",
+                    message: t("toast.profileError"),
+                });
             } finally {
                 setSaveBusy(false);
             }
@@ -252,6 +270,7 @@ export function SettingsPage() {
                 source: "photo",
                 message: t("settings.profile.photoReadError"),
             });
+            showToast(t("toast.photoError"));
         }
     };
 
@@ -265,12 +284,14 @@ export function SettingsPage() {
         setSaveFeedback(null);
         try {
             await updateProfile({ name: nextName });
+            showToast(t("toast.profileSuccess"));
             setSaveFeedback({
                 tone: "info",
                 source: "name",
                 message: t("settings.profile.nameSaveSuccess"),
             });
         } catch (error) {
+            showToast(t("toast.profileError"));
             setSaveFeedback({
                 tone: "error",
                 source: "name",
@@ -395,17 +416,28 @@ export function SettingsPage() {
                                         setSaveBusy(true);
                                         void updateProfile({ profile_image_url: null })
                                             .then(() => {
+                                                showToast(t("toast.profileSuccess"));
                                                 setSaveFeedback(null);
                                             })
                                             .catch(() => {
                                                 setProfileImageInput(normalizedCurrentProfileImage);
-                                                setSaveFeedback(null);
+                                                showToast(t("toast.profileError"));
+                                                setSaveFeedback({
+                                                    tone: "error",
+                                                    source: "photo",
+                                                    message: t("toast.profileError"),
+                                                });
                                             })
                                             .finally(() => {
                                                 setSaveBusy(false);
                                             });
                                     }}
                                 />
+                                {saveFeedback?.source === "photo" ? (
+                                    <InlineMessage tone={saveFeedback.tone}>
+                                        {saveFeedback.message}
+                                    </InlineMessage>
+                                ) : null}
                             </aside>
                         </section>
                     </>

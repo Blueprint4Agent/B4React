@@ -309,6 +309,10 @@
             "first": "Option one",
             "second": "Option two",
             "disabled": "Unavailable"
+        },
+        "toast": {
+            "trigger": "Show toast",
+            "message": "Your changes have been saved."
         }
     },
     "nav": {
@@ -591,5 +595,28 @@
         "increase": "Increase {{label}}",
         "decrease": "Decrease {{label}}",
         "example": "Spacing"
+    },
+    "toast": {
+        "loginSuccess": "Signed in.",
+        "loginError": "Sign-in failed. Check the form for details.",
+        "signupSuccess": "Registration completed.",
+        "signupError": "Registration failed. Please try again.",
+        "emailSuccess": "Email request received. Check your inbox.",
+        "emailError": "Email request failed. Please try again.",
+        "passwordSuccess": "Password updated.",
+        "passwordError": "Password update failed.",
+        "logoutSuccess": "Signed out.",
+        "logoutError": "Signed out locally; server sign-out failed.",
+        "profileSuccess": "Profile updated.",
+        "profileError": "Profile update failed.",
+        "photoError": "Unable to use this photo. Check the details.",
+        "copySuccess": "API key copied.",
+        "copyError": "Copy failed. Select and copy the key manually.",
+        "keyCreateSuccess": "API key created.",
+        "keyCreateError": "API key creation failed.",
+        "keyDeleteSuccess": "API key deleted.",
+        "keyDeleteError": "API key deletion failed.",
+        "keyToggleSuccess": "API key status updated.",
+        "keyToggleError": "API key status update failed."
     }
 }
