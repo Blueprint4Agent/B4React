@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useClientPagination } from "../../../hooks/collections/useClientPagination";
 import { Plus, Trash2 } from "lucide-react";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
@@ -337,22 +337,12 @@ type DeveloperApiKeysSectionProps = {
 
 export function DeveloperApiKeysSection({ controller }: DeveloperApiKeysSectionProps) {
     const { t } = useTranslation();
-    const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = Math.max(1, Math.ceil(controller.items.length / API_KEY_PAGE_SIZE));
-    const visibleItems = useMemo(() => {
-        const startIndex = (currentPage - 1) * API_KEY_PAGE_SIZE;
-        return controller.items.slice(startIndex, startIndex + API_KEY_PAGE_SIZE);
-    }, [controller.items, currentPage]);
-
-    useEffect(() => {
-        if (currentPage > totalPages) {
-            setCurrentPage(totalPages);
-        }
-    }, [currentPage, totalPages]);
-
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [controller.items.length]);
+    const {
+        page: currentPage,
+        totalPages,
+        visibleItems,
+        setPage: setCurrentPage,
+    } = useClientPagination(controller.items, API_KEY_PAGE_SIZE, controller.items.length);
 
     return (
         <section className="developer-section" aria-label={t("settings.developers.title")}>

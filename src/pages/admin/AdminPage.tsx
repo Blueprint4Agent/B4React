@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
 import { RefreshCw, Shield } from "lucide-react";
@@ -13,6 +13,8 @@ import {
 import { useAuthContext } from "../../hooks/useAuth";
 import { useAdminUsers, type AdminUserQuery } from "../../hooks/api/auth/useAdminUsers";
 import { AdminUserTable } from "../../components/features/admin/AdminUserTable";
+import { useCollectionQuery } from "../../hooks/collections/useCollectionQuery";
+import { getPagination, MAX_SEARCH_LENGTH } from "../../utils/collections";
 import { LoadingPage } from "../main/LoadingPage";
 
 export function AdminPage() {
@@ -24,26 +26,26 @@ export function AdminPage() {
 
 function AdminUsers({ ownerId }: { ownerId: number }) {
     const { t, i18n } = useTranslation();
-    const [input, setInput] = useState("");
-    const [search, setSearch] = useState("");
-    const [role, setRole] = useState("all");
-    const [status, setStatus] = useState("all");
-    const [page, setPage] = useState(1);
+    const { input, setInput, search, filters, setFilters, page, setPage, pageSize, submitSearch } =
+        useCollectionQuery({ initialFilters: { role: "all", status: "all" }, pageSize: 10 });
+    const { role, status } = filters;
     const query = useMemo<AdminUserQuery>(
         () => ({
             page,
-            page_size: 10,
+            page_size: pageSize,
             search,
             role: role === "admin" || role === "user" ? role : undefined,
             is_active: status === "all" ? undefined : status === "active",
         }),
-        [page, search, role, status],
+        [page, pageSize, search, role, status],
     );
     const { data, error, loading, available, reload } = useAdminUsers(ownerId, query);
-    const totalPages = Math.max(1, Math.ceil((data?.total ?? 0) / 10));
+    const totalPages = data
+        ? getPagination(data.total, pageSize, page).totalPages
+        : Math.max(1, page);
     useEffect(() => {
         if (data && page > totalPages) setPage(totalPages);
-    }, [data, page, totalPages]);
+    }, [data, page, totalPages, setPage]);
     return (
         <section className="settings-layout admin-layout">
             <PrimaryCard className="settings-content-card admin-content">
@@ -72,15 +74,14 @@ function AdminUsers({ ownerId }: { ownerId: number }) {
                     className="admin-filters"
                     onSubmit={(event) => {
                         event.preventDefault();
-                        setPage(1);
-                        setSearch(input.trim());
+                        submitSearch();
                     }}
                 >
                     <InputField
                         label={t("admin.search")}
                         value={input}
                         onValueChange={setInput}
-                        maxLength={200}
+                        maxLength={MAX_SEARCH_LENGTH}
                         type="search"
                     />
                     <Button type="submit" disabled={!available}>
@@ -94,8 +95,7 @@ function AdminUsers({ ownerId }: { ownerId: number }) {
                             label: t(id === "all" ? "admin.allRoles" : `admin.${id}`),
                         }))}
                         onSelect={(value) => {
-                            setRole(value);
-                            setPage(1);
+                            setFilters({ ...filters, role: value });
                         }}
                     />
                     <DropdownMenu
@@ -106,8 +106,7 @@ function AdminUsers({ ownerId }: { ownerId: number }) {
                             label: t(id === "all" ? "admin.allStatuses" : `admin.${id}`),
                         }))}
                         onSelect={(value) => {
-                            setStatus(value);
-                            setPage(1);
+                            setFilters({ ...filters, status: value });
                         }}
                     />
                     <Button type="button" disabled={!available || loading} onClick={reload}>

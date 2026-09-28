@@ -614,3 +614,7 @@ The editor uses the catalogue-owned useTheme and ThemePreviewSelector (system/li
 The preview includes catalogue navigation and the surrounding main background; global mode selection updates the sidebar and editor too. Automatic brand assets follow the preview theme. NumberField provides bounded increment/decrement buttons and units, with a rendered catalogue example. Editor font choices reuse DropdownMenu.
 
 ColorPicker uses only the plane and hue/opacity strips, without presets, duplicate code entry or a confirmation button.
+
+## Shared collection state
+
+Use `useCollectionQuery` for draft/applied search and filter/page transitions, `getPagination` for known totals, and `useClientPagination` for complete local collections. Keep domain HTTP hooks and existing shared controls. Follow [rules and examples](notes/collections.md), including unknown-total handling and the existing API-key full-list compatibility exception.
