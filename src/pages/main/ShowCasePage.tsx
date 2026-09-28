@@ -15,6 +15,8 @@ import { useNavigate } from "react-router-dom";
 
 import { ErrorCard, InfoCard, WarningCard } from "../../components/ui/status/StatusCard";
 import { OAuthProviderButton } from "../../components/features/auth/OAuthProviderButton";
+import { useCollectionQuery } from "../../hooks/collections/useCollectionQuery";
+import { useClientPagination } from "../../hooks/collections/useClientPagination";
 import { useTheme } from "../../hooks/useTheme";
 import {
     ColorPicker,
@@ -54,8 +56,15 @@ export function ShowCasePage() {
     const [sampleNumber, setSampleNumber] = useState("1");
     const [sampleColor, setSampleColor] = useState("#3b82f6");
     const { t } = useTranslation();
-    const [query, setQuery] = useState("");
-    const [category, setCategory] = useState("all");
+    const {
+        input: query,
+        setInput: setQuery,
+        search,
+        filters,
+        setFilters,
+        reset,
+    } = useCollectionQuery({ initialFilters: { category: "all" }, searchMode: "immediate" });
+    const { category } = filters;
     const user = { id: 1, name: "Designer", email: "designer@example.com" };
     const [avatar, setAvatar] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
@@ -84,19 +93,18 @@ export function ShowCasePage() {
     const [authPreviewOpen, setAuthPreviewOpen] = useState(false);
     const [previewEmail, setPreviewEmail] = useState("");
     const [sampleModalOpen, setSampleModalOpen] = useState(false);
-    const [sampleCardPage, setSampleCardPage] = useState(1);
     const sampleCards = Array.from({ length: 13 }, (_, index) => ({
         id: index + 1,
         title: t("showCase.demo.card", { count: index + 1 }),
         meta: t("showCase.demo.item", { count: index + 1 }),
     }));
     const sampleCardPageSize = 6;
-    const sampleCardTotalPages = Math.ceil(sampleCards.length / sampleCardPageSize);
-    const sampleCardStartIndex = (sampleCardPage - 1) * sampleCardPageSize;
-    const visibleSampleCards = sampleCards.slice(
-        sampleCardStartIndex,
-        sampleCardStartIndex + sampleCardPageSize,
-    );
+    const {
+        page: sampleCardPage,
+        setPage: setSampleCardPage,
+        totalPages: sampleCardTotalPages,
+        visibleItems: visibleSampleCards,
+    } = useClientPagination(sampleCards, sampleCardPageSize);
     const sampleCardPlaceholderCount = Math.max(0, sampleCardPageSize - visibleSampleCards.length);
     const sampleMenuItems = [
         { key: "profile", label: t("settings.menu.profile"), icon: UserRound },
@@ -637,7 +645,7 @@ export function ShowCasePage() {
     const catalogSections = sections
         .map((section) => ({ ...section, names: getShowcaseNames(section.content) }))
         .sort((a, b) => categoryOrder.indexOf(a.id) - categoryOrder.indexOf(b.id));
-    const normalizedQuery = query.trim().toLocaleLowerCase();
+    const normalizedQuery = search.toLocaleLowerCase();
     const visibleSections = catalogSections.filter(
         (section) =>
             (category === "all" || category === section.id) &&
@@ -680,7 +688,7 @@ export function ShowCasePage() {
                             key={id}
                             className="showcase-category"
                             aria-pressed={category === id}
-                            onClick={() => setCategory(id)}
+                            onClick={() => setFilters({ category: id })}
                         >
                             {t(`showCase.catalog.categories.${id}`)}
                         </Button>
@@ -693,14 +701,7 @@ export function ShowCasePage() {
             {visibleSections.length === 0 ? (
                 <div className="showcase-empty">
                     <p>{t("showCase.catalog.empty")}</p>
-                    <Button
-                        onClick={() => {
-                            setQuery("");
-                            setCategory("all");
-                        }}
-                    >
-                        {t("showCase.catalog.reset")}
-                    </Button>
+                    <Button onClick={reset}>{t("showCase.catalog.reset")}</Button>
                 </div>
             ) : null}
             <div className="showcase-preview__components">

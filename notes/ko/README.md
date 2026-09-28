@@ -106,3 +106,5 @@ name/short_name/identifier를 수정한 뒤 `make project-config-check`와 빌�
 ## 로컬 스타일 미리보기와 적용
 
 백엔드를 별도로 실행하고 `make style-studio`로 프론트엔드를 실행한 뒤 `http://127.0.0.1:5173/show-case`를 엽니다. 우측 고정 패널에서 라이트/다크 공통 색상과 radius·폰트·패딩을 조절하고 기존 쇼케이스 컴포넌트에서 확인합니다. 모바일에서는 스타일 버튼으로 패널을 엽니다. 변경 내역을 확인하고 **파일에 적용**을 누르면 연결된 로컬 `src/styles/app.css`에 저장됩니다. **미리보기 초기화**는 파일을 쓰지 않습니다. 명시적으로 켠 개발 실행에서만 제공하며 프로덕션에는 포함하지 않습니다. 지원 값과 백업/충돌 처리는 FRONTEND.md를 참고하세요.
+
+검색·페이지네이션 공용 규칙과 사용법: [한국어](collections.md) · [English](../collections.md).
