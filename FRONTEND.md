@@ -648,3 +648,5 @@ The empty polite `role="status"` region mounts before message insertion; the toa
 ### Action feedback policy
 
 Notify once from explicit action completion: email login/logout, signup, verification resend, password reset request/completion, profile name/photo changes, API-key create/delete/status and secret copying. Keep validation and actionable error details inline. Signup and reset-email confirmation routes are entered only after success; failed requests retain the form for retry. Email-request wording does not disclose account existence. API-key result callbacks run only for the current owner/request epoch, never from SSE or reload. Session bootstrap, automatic email verification, configuration/list loading, realtime and connectivity recovery retain their persistent page/status feedback without repeated toasts. Never put passwords, API secrets, reset tokens or raw server payloads in notifications.
+
+Korean toast result copy uses formal polite endings (for example, “저장했습니다” and “저장하지 못했습니다”), including showcase examples.

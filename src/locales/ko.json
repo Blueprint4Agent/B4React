@@ -312,7 +312,7 @@
         },
         "toast": {
             "trigger": "토스트 띄우기",
-            "message": "변경사항을 저장했어요."
+            "message": "변경사항을 저장했습니다."
         }
     },
     "nav": {
@@ -597,26 +597,26 @@
         "example": "간격"
     },
     "toast": {
-        "loginSuccess": "로그인했어요.",
-        "loginError": "로그인하지 못했어요. 입력란 안내를 확인해주세요.",
-        "signupSuccess": "가입 요청을 완료했어요.",
-        "signupError": "가입하지 못했어요. 안내를 확인해주세요.",
-        "emailSuccess": "메일 요청을 접수했어요. 받은편지함을 확인해주세요.",
-        "emailError": "메일 요청에 실패했어요. 다시 시도해주세요.",
-        "passwordSuccess": "비밀번호를 변경했어요.",
-        "passwordError": "비밀번호를 변경하지 못했어요.",
-        "logoutSuccess": "로그아웃했어요.",
-        "logoutError": "기기에서 로그아웃했지만 서버 요청은 실패했어요.",
-        "profileSuccess": "프로필을 저장했어요.",
-        "profileError": "프로필을 저장하지 못했어요.",
-        "photoError": "사진을 적용할 수 없어요. 안내를 확인해주세요.",
-        "copySuccess": "API 키를 복사했어요.",
-        "copyError": "복사하지 못했어요. 키를 선택해 직접 복사해주세요.",
-        "keyCreateSuccess": "API 키를 생성했어요.",
-        "keyCreateError": "API 키를 생성하지 못했어요.",
-        "keyDeleteSuccess": "API 키를 삭제했어요.",
-        "keyDeleteError": "API 키를 삭제하지 못했어요.",
-        "keyToggleSuccess": "API 키 상태를 변경했어요.",
-        "keyToggleError": "API 키 상태를 변경하지 못했어요."
+        "loginSuccess": "로그인했습니다.",
+        "loginError": "로그인하지 못했습니다. 입력란 안내를 확인해주세요.",
+        "signupSuccess": "가입 요청을 완료했습니다.",
+        "signupError": "가입하지 못했습니다. 안내를 확인해주세요.",
+        "emailSuccess": "메일 요청을 접수했습니다. 받은편지함을 확인해주세요.",
+        "emailError": "메일 요청에 실패했습니다. 다시 시도해주세요.",
+        "passwordSuccess": "비밀번호를 변경했습니다.",
+        "passwordError": "비밀번호를 변경하지 못했습니다.",
+        "logoutSuccess": "로그아웃했습니다.",
+        "logoutError": "기기에서 로그아웃했습니다. 서버 요청은 실패했습니다.",
+        "profileSuccess": "프로필을 저장했습니다.",
+        "profileError": "프로필을 저장하지 못했습니다.",
+        "photoError": "사진을 적용할 수 없습니다. 안내를 확인해주세요.",
+        "copySuccess": "API 키를 복사했습니다.",
+        "copyError": "복사하지 못했습니다. 키를 선택해 직접 복사해주세요.",
+        "keyCreateSuccess": "API 키를 생성했습니다.",
+        "keyCreateError": "API 키를 생성하지 못했습니다.",
+        "keyDeleteSuccess": "API 키를 삭제했습니다.",
+        "keyDeleteError": "API 키를 삭제하지 못했습니다.",
+        "keyToggleSuccess": "API 키 상태를 변경했습니다.",
+        "keyToggleError": "API 키 상태를 변경하지 못했습니다."
     }
 }
