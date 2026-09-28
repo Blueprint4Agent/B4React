@@ -25,6 +25,7 @@ import {
     CopyField,
     UserAvatar,
     PrimaryCard,
+    SelectionCard,
     BrandMark,
     BrandBanner,
     StatusCard,
@@ -53,6 +54,7 @@ const StyleStudio = __STYLE_STUDIO__ ? lazy(() => import("../development/StyleSt
 
 export function ShowCasePage() {
     const previewRoot = useRef<HTMLDivElement>(null);
+    const [sampleSelection, setSampleSelection] = useState("first");
     const [sampleNumber, setSampleNumber] = useState("1");
     const [sampleColor, setSampleColor] = useState("#3b82f6");
     const { t } = useTranslation();
@@ -549,6 +551,26 @@ export function ShowCasePage() {
             id: "cards",
             content: (
                 <div className="showcase-catalog__cards">
+                    <ShowcaseItem component="SelectionCard">
+                        <div
+                            className="selection-card-group"
+                            role="group"
+                            aria-label={t("showCase.selectionCard.label")}
+                        >
+                            {["first", "second"].map((option) => (
+                                <SelectionCard
+                                    key={option}
+                                    selected={sampleSelection === option}
+                                    onClick={() => setSampleSelection(option)}
+                                >
+                                    {t(`showCase.selectionCard.${option}`)}
+                                </SelectionCard>
+                            ))}
+                            <SelectionCard selected={false} disabled>
+                                {t("showCase.selectionCard.disabled")}
+                            </SelectionCard>
+                        </div>
+                    </ShowcaseItem>
                     <ShowcaseItem component="PrimaryCard">
                         <PrimaryCard>
                             <p>{t("showCase.catalog.container")}</p>
@@ -684,14 +706,14 @@ export function ShowCasePage() {
                     aria-label={t("showCase.catalog.categoriesLabel")}
                 >
                     {["all", ...catalogSections.map((section) => section.id)].map((id) => (
-                        <Button
+                        <SelectionCard
                             key={id}
                             className="showcase-category"
-                            aria-pressed={category === id}
+                            selected={category === id}
                             onClick={() => setFilters({ category: id })}
                         >
                             {t(`showCase.catalog.categories.${id}`)}
-                        </Button>
+                        </SelectionCard>
                     ))}
                 </nav>
                 <p className="showcase-result-count" role="status">

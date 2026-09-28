@@ -1,6 +1,7 @@
 export { Button } from "./buttons/Button";
 export { ModalButton } from "./buttons/ModalButton";
 export { PanelCard } from "./cards/PanelCard";
+export { SelectionCard } from "./cards/SelectionCard";
 export { PrimaryCard } from "./cards/PrimaryCard";
 export { KeyValueCard } from "./cards/KeyValueCard";
 export { ValidationCard } from "./cards/ValidationCard";
