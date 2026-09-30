@@ -8,6 +8,12 @@ export type AuthErrorCode = AuthErrorDetailSchema["error"];
 
 const AUTH_ERROR_CODES = [
     "ADMIN_USERS_FAILED",
+    "ACCOUNT_DELETE_FAILED",
+    "ACCOUNT_DELETE_CODE_INVALID",
+    "ACCOUNT_DELETE_CODE_THROTTLED",
+    "ACCOUNT_DELETE_CODE_SEND_FAILED",
+    "ACCOUNT_DELETE_CONFIRMATION_REQUIRED",
+    "LAST_ADMIN_REQUIRED",
     "ACCOUNT_LOCKED",
     "EMAIL_ALREADY_EXISTS",
     "EMAIL_DISABLED",
@@ -41,6 +47,12 @@ type ApiError = {
 };
 
 const AUTH_ERROR_CODE_TO_KEY: Record<AuthErrorCode, string> = {
+    ACCOUNT_DELETE_CODE_INVALID: "auth.errors.accountDeleteCodeInvalid",
+    ACCOUNT_DELETE_CODE_THROTTLED: "auth.errors.accountDeleteCodeThrottled",
+    ACCOUNT_DELETE_CODE_SEND_FAILED: "auth.errors.accountDeleteCodeSendFailed",
+    ACCOUNT_DELETE_FAILED: "auth.errors.accountDeleteFailed",
+    ACCOUNT_DELETE_CONFIRMATION_REQUIRED: "auth.errors.accountDeleteConfirmationRequired",
+    LAST_ADMIN_REQUIRED: "auth.errors.lastAdminRequired",
     ADMIN_USERS_FAILED: "auth.errors.adminUsersFailed",
     ACCOUNT_LOCKED: "auth.errors.accountLocked",
     EMAIL_ALREADY_EXISTS: "auth.errors.emailAlreadyExists",
@@ -91,6 +103,11 @@ export function resolveAuthErrorMessage(
     fallbackKey: string,
 ): string {
     const code = detail?.error;
+    if (code === "ACCOUNT_DELETE_CODE_THROTTLED") {
+        return t("auth.errors.accountDeleteCodeThrottled", {
+            seconds: detail?.details?.remaining_seconds ?? 60,
+        });
+    }
     if (code) {
         const i18nKey = AUTH_ERROR_CODE_TO_KEY[code];
         if (i18nKey) {

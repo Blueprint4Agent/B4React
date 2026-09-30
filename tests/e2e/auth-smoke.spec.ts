@@ -245,7 +245,7 @@ test("signed-in users add another account and retain the current session until s
     expect(JSON.stringify(records)).not.toContain("fixture-token");
 });
 
-for (const section of ["general", "appearance", "profile", "developers"]) {
+for (const section of ["general", "appearance", "profile", "account", "developers"]) {
     test(`guest settings restrict ${section} to local preferences`, async ({ page }) => {
         const accountRequests: string[] = [];
         page.on("request", (request) => {
@@ -257,7 +257,7 @@ for (const section of ["general", "appearance", "profile", "developers"]) {
         const nav = page.locator("#app-sidebar-navigation");
         await expect(nav.getByRole("link", { name: "General", exact: true })).toBeVisible();
         await expect(nav.getByRole("link", { name: "Appearance", exact: true })).toBeVisible();
-        await expect(nav.getByRole("link", { name: "Profile", exact: true })).toHaveCount(0);
+        await expect(nav.getByRole("link", { name: "Account", exact: true })).toHaveCount(0);
         await expect(nav.getByRole("link", { name: "Developers", exact: true })).toHaveCount(0);
         await expect(
             page.getByRole("heading", {
@@ -404,4 +404,87 @@ test("legacy Google and GitHub history for the same email renders once", async (
     const rows = page.locator(".auth-dialog .recent-accounts li");
     await expect(rows).toHaveCount(1);
     await expect(rows).toContainText("GitHub");
+});
+
+for (const width of [390, 1440]) {
+    test(`modal scroll stays inset and focus stays integrated at ${width}px`, async ({ page }) => {
+        // Given: a short recovery modal; replay any inner entry animation at its first frame.
+        await page.setViewportSize({ width, height: 850 });
+        await page.goto("/forgot-password");
+        const body = page.locator(".ui-modal__body");
+        await expect(body).toBeVisible();
+        const overflow = await body.evaluate((node) => {
+            for (const animation of node.getAnimations({ subtree: true })) {
+                animation.pause();
+                animation.currentTime = 0;
+            }
+            return node.scrollHeight - node.clientHeight;
+        });
+        expect(overflow).toBeLessThanOrEqual(1);
+        // When: a taller signup form needs scrolling.
+        await page.goto("/signup");
+        const panel = page.locator(".ui-modal__panel");
+        await expect(panel).toBeVisible();
+        const input = page.getByRole("dialog").getByLabel("Name", { exact: true });
+        await input.focus();
+        const geometry = await body.evaluate((node) => {
+            const panel = node.closest(".ui-modal__panel")!;
+            const input = node.querySelector("input")!;
+            const outer = panel.getBoundingClientRect();
+            const inner = node.getBoundingClientRect();
+            const field = input.getBoundingClientRect();
+            return {
+                inset: outer.right - inner.right,
+                gap: inner.right - field.right,
+                overflow: node.scrollHeight - node.clientHeight,
+                outlineOffset: parseFloat(getComputedStyle(input).outlineOffset),
+                outlineWidth: parseFloat(getComputedStyle(input).outlineWidth),
+            };
+        });
+        // Then: controls clear the scrollbar, the frame clips corners, and focus has no detached ring.
+        expect(geometry.inset).toBeGreaterThanOrEqual(10);
+        expect(geometry.gap).toBeGreaterThanOrEqual(12);
+        expect(geometry.overflow).toBeGreaterThan(0);
+        expect(geometry.outlineOffset).toBeLessThanOrEqual(0);
+        expect(geometry.outlineWidth).toBeGreaterThanOrEqual(2);
+        await expect(panel).toHaveCSS("overflow-y", "hidden");
+        const close = page.getByRole("button", { name: "Close", exact: true });
+        const before = await close.boundingBox();
+        await body.evaluate((node) => {
+            node.scrollTop = node.scrollHeight;
+        });
+        await expect(
+            page.getByRole("dialog").getByRole("button", { name: "Create account", exact: true }),
+        ).toBeInViewport();
+        expect(await close.boundingBox()).toEqual(before);
+        await page.screenshot({ path: `test-results/account-modal-${width}.png` });
+    });
+}
+
+test("showcase previews email code validation without account requests", async ({ page }) => {
+    // Given: the actual shared deletion dialog in its isolated catalogue fixture.
+    let accountRequests = 0;
+    await page.route("**/api/v1/auth/me**", (route) => {
+        accountRequests += 1;
+        return route.abort();
+    });
+    await page.goto("/show-case");
+    await page.getByRole("button", { name: "Preview account deletion verification" }).click();
+    const dialog = page.getByRole("dialog", { name: "Delete account" });
+    const confirm = dialog.getByRole("button", { name: "Delete account", exact: true });
+    await expect(confirm).toBeDisabled();
+    // When: requesting a preview code and entering an incorrect value.
+    await dialog.getByRole("button", { name: "Send code" }).click();
+    const code = dialog.getByLabel("6-digit verification code");
+    await expect(code).toHaveAttribute("autocomplete", "one-time-code");
+    await code.fill("000000");
+    await confirm.click();
+    await expect(dialog.getByRole("alert")).toContainText("invalid");
+    await code.fill("123456");
+    await confirm.click();
+    // Then: only the local preview completes; no auth mutation or SMTP request was issued.
+    await expect(
+        page.getByText("Preview verification completed. No account was deleted."),
+    ).toBeVisible();
+    expect(accountRequests).toBe(0);
 });

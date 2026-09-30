@@ -1,4 +1,6 @@
-type InlineMessageTone = "error" | "info";
+import { StatusCard } from "./StatusCard";
+
+type InlineMessageTone = "error" | "warning" | "info";
 
 type InlineMessageProps = {
     children: string;
@@ -6,5 +8,9 @@ type InlineMessageProps = {
 };
 
 export function InlineMessage({ children, tone = "error" }: InlineMessageProps) {
-    return <p className={`ui-inline-message ui-inline-message--${tone}`}>{children}</p>;
+    return (
+        <div className={`ui-inline-message ui-inline-message--${tone}`}>
+            <StatusCard message={children} tone={tone} compact />
+        </div>
+    );
 }

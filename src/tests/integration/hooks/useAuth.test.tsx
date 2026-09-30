@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -13,6 +13,7 @@ const loginMock = vi.fn();
 const signupMock = vi.fn();
 const updateMeMock = vi.fn();
 const logoutApiMock = vi.fn();
+const deleteMeMock = vi.fn();
 
 vi.mock("../../../hooks/api/config/useConfigApi", () => ({
     useConfigApi: () => ({
@@ -28,14 +29,31 @@ vi.mock("../../../hooks/api/auth/useAuthApi", () => ({
         signup: signupMock,
         updateMe: updateMeMock,
         logout: logoutApiMock,
+        deleteMe: deleteMeMock,
     }),
 }));
 
 function AuthProbe() {
-    const { loading, user, logout } = useAuthContext();
+    const { loading, user, logout, deleteAccount, updateProfile } = useAuthContext();
 
     return (
         <section>
+            <button
+                onClick={() => {
+                    void deleteAccount(FULL_SYSTEM_SCENARIO.principal.email, "123456").catch(
+                        () => undefined,
+                    );
+                }}
+            >
+                delete
+            </button>
+            <button
+                onClick={() => {
+                    void updateProfile({ name: "Updated" });
+                }}
+            >
+                update
+            </button>
             <p data-testid="loading">{String(loading)}</p>
             <p data-testid="email">{user?.email ?? ""}</p>
             <button
@@ -60,6 +78,7 @@ describe("useAuth bootstrap and exception flows", () => {
         signupMock.mockReset();
         updateMeMock.mockReset();
         logoutApiMock.mockReset();
+        deleteMeMock.mockReset();
     });
 
     it("restores login from the session cookie after the tab-scoped token is lost", async () => {
@@ -135,6 +154,46 @@ describe("useAuth bootstrap and exception flows", () => {
         expect(screen.getByTestId("email").textContent).toBe("");
         expect(sessionStorage.getItem("template_access_token")).toBeNull();
         expect(refreshMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("preserves the session on failed proof and ignores late profile data after deletion", async () => {
+        // Given: an authenticated account and an unresolved profile response.
+        sessionStorage.setItem("template_access_token", "existing-token");
+        getConfigMock.mockResolvedValue({ login_enabled: true });
+        meMock.mockResolvedValue(FULL_SYSTEM_SCENARIO.principal);
+        deleteMeMock
+            .mockRejectedValueOnce(new Error("invalid code"))
+            .mockResolvedValueOnce(undefined);
+        let finishUpdate!: (value: typeof FULL_SYSTEM_SCENARIO.principal) => void;
+        updateMeMock.mockReturnValue(
+            new Promise((resolve) => {
+                finishUpdate = resolve;
+            }),
+        );
+        render(
+            <AppConfigProvider>
+                <AuthProvider>
+                    <AuthProbe />
+                </AuthProvider>
+            </AppConfigProvider>,
+        );
+        await waitFor(() => expect(screen.getByTestId("loading").textContent).toBe("false"));
+        const user = userEvent.setup();
+        await user.click(screen.getByRole("button", { name: "delete" }));
+        expect(screen.getByTestId("email").textContent).toBe(FULL_SYSTEM_SCENARIO.principal.email);
+        // When: successful deletion races a previously started profile mutation.
+        await user.click(screen.getByRole("button", { name: "update" }));
+        await user.click(screen.getByRole("button", { name: "delete" }));
+        await act(async () => {
+            finishUpdate(FULL_SYSTEM_SCENARIO.principal);
+        });
+        // Then: proof is passed to the API, and the old identity cannot be restored.
+        expect(deleteMeMock).toHaveBeenLastCalledWith({
+            email: FULL_SYSTEM_SCENARIO.principal.email,
+            code: "123456",
+        });
+        expect(screen.getByTestId("email").textContent).toBe("");
+        expect(sessionStorage.getItem("template_access_token")).toBeNull();
     });
 
     it("clears token and user even when logout API throws", async () => {

@@ -112,10 +112,10 @@ export function AppSidebar({
                     section: "appearance",
                 },
                 {
-                    path: "/settings?section=profile",
+                    path: "/settings?section=account",
                     label: t("settings.menu.profile"),
                     icon: UserRound,
-                    section: "profile",
+                    section: "account",
                 },
                 {
                     path: "/settings?section=developers",
@@ -209,7 +209,7 @@ export function AppSidebar({
                 )}
             >
                 {items
-                    .filter((item) => user || !["profile", "developers"].includes(item.section))
+                    .filter((item) => user || !["account", "developers"].includes(item.section))
                     .map(({ path, label, icon: Icon, section: itemSection }) => (
                         <Tooltip
                             key={path}

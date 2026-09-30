@@ -1674,14 +1674,16 @@ html[data-theme="dark"] .ui-toggle__track--on {
     position: relative;
     z-index: 1;
     width: min(32rem, 100%);
-    min-height: 12rem;
+    min-height: 0;
+    max-height: calc(100dvh - 2rem);
+    overflow: hidden;
     border: 1px solid color-mix(in oklab, var(--panel-border) 88%, transparent 12%);
     border-radius: var(--radius-panel);
     background: color-mix(in oklab, var(--panel) 97%, transparent 3%);
     box-shadow: 0 24px 50px rgba(9, 14, 24, 0.33);
     padding: var(--space-6);
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto minmax(0, 1fr) auto;
     gap: var(--space-4);
 }
 
@@ -1723,6 +1725,13 @@ html[data-theme="dark"] .ui-toggle__track--on {
 }
 
 .ui-modal__body {
+    min-height: 0;
+    min-width: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    margin-inline: -8px;
+    padding: 6px 12px;
     grid-row: 2;
     display: grid;
     align-content: start;
@@ -2135,8 +2144,9 @@ input {
 }
 
 input:focus {
-    outline: 2px solid color-mix(in oklab, var(--text) 24%, transparent);
-    border-color: color-mix(in oklab, var(--text) 34%, var(--input-border));
+    outline: 2px solid var(--text-soft);
+    outline-offset: -2px;
+    border-color: var(--text-soft);
 }
 
 .checkbox {
@@ -3675,7 +3685,7 @@ input {
 .auth-dialog .ui-modal__panel {
     width: min(420px, 100%);
     max-height: calc(100dvh - 32px);
-    overflow-y: auto;
+    overflow: hidden;
     min-height: 0;
     padding: 28px;
     gap: 24px;
@@ -5059,4 +5069,115 @@ input {
     .ui-toast-card--closing {
         animation: none;
     }
+}
+
+/* Account details reuse the shared controls in a single bordered group. */
+.settings-profile-content {
+    grid-template-columns: minmax(0, 1fr);
+}
+.settings-profile-info {
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-panel);
+    padding: 0 var(--space-5);
+    gap: 0;
+}
+.settings-profile-info .settings-profile-field-card {
+    display: grid;
+    grid-template-columns: minmax(7rem, 1fr) minmax(0, 2fr);
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-5) 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+.settings-profile-info .settings-profile-field-card + .settings-profile-field-card {
+    border-top: 1px solid var(--panel-border);
+}
+.settings-profile-info .settings-profile-name-edit,
+.settings-profile-info .settings-oauth-provider-list,
+.settings-profile-info .settings-profile-field-card > p {
+    margin: 0;
+}
+.settings-feedback-slot--name:empty {
+    display: none;
+}
+.settings-profile-info .settings-feedback-slot--name {
+    grid-column: 2;
+    min-height: 0;
+}
+.settings-account-delete {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+    padding: var(--space-5);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-panel);
+}
+.settings-account-delete h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+}
+.settings-account-delete p {
+    margin: var(--space-2) 0 0;
+    color: var(--text-soft);
+    font-size: 0.875rem;
+}
+@media (max-width: 600px) {
+    .settings-profile-info .settings-profile-field-card {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .settings-profile-info .settings-feedback-slot--name {
+        grid-column: 1;
+    }
+    .settings-account-delete {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+/* Animate dialog chrome, never translate nested cards inside its scroll viewport. */
+.ui-modal__body .panel {
+    animation: none;
+}
+
+.account-deletion-dialog .ui-modal__body {
+    gap: var(--space-4);
+}
+.account-deletion-dialog .ui-modal__header p,
+.account-deletion-hint {
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+}
+.account-deletion-recipient {
+    display: grid;
+    gap: var(--space-1);
+    font-size: 0.875rem;
+    color: var(--text-soft);
+}
+.account-deletion-recipient strong {
+    color: var(--text);
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+.account-deletion-code-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: var(--space-3);
+}
+.account-deletion-code-row .modal-button {
+    margin: 0;
+    height: var(--control-height);
+    min-width: 5.5rem;
+    padding: 0 var(--space-3);
+}
+.account-deletion-hint {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 0.75rem;
+    line-height: 1.5;
 }

@@ -543,6 +543,11 @@ async function textContrast(control: Locator): Promise<number> {
 
 async function expectReadableHover(control: Locator): Promise<void> {
     await expect(control).toBeVisible();
+    // Selection can start a background transition before this helper is called.
+    // Compare settled before/after states rather than a scheduler-dependent frame.
+    await control.evaluate(async (element) => {
+        await Promise.all(element.getAnimations().map((animation) => animation.finished));
+    });
     expect(await textContrast(control)).toBeGreaterThanOrEqual(4.5);
     await control.hover();
     await control.evaluate(async (element) => {

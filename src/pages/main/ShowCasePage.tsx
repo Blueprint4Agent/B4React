@@ -1,3 +1,4 @@
+import { AccountDeletionPreview } from "../../components/features/showcase/AccountDeletionPreview";
 import { ToastPreview } from "../../components/features/showcase/ToastPreview";
 import { ApiKeyPreview } from "../../components/features/showcase/ApiKeyPreview";
 import { ConnectedOAuthProvidersCard } from "../../components/features/auth/ConnectedOAuthProvidersCard";
@@ -462,6 +463,9 @@ export function ShowCasePage() {
             content: (
                 <>
                     <div className="showcase-catalog__row">
+                        <ShowcaseItem component="AccountDeletionDialog + InputField">
+                            <AccountDeletionPreview />
+                        </ShowcaseItem>
                         <ShowcaseItem component="AuthPageFrame + Modal">
                             <Button
                                 appearance="pill-secondary"

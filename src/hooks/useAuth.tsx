@@ -31,6 +31,7 @@ type AuthContextValue = {
     signup: (input: { email: string; name: string; password: string }) => Promise<void>;
     updateProfile: (input: { name?: string; profile_image_url?: string | null }) => Promise<void>;
     logout: () => Promise<void>;
+    deleteAccount: (email: string, code: string) => Promise<void>;
     refreshSession: () => Promise<void>;
     revalidateSession: () => Promise<void>;
 };
@@ -47,6 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login: loginAuth,
         signup: signupAuth,
         updateMe,
+        deleteMe,
         logout: logoutAuth,
     } = useAuthApi();
     const [user, setUser] = useState<RoleAwareUser | null>(null);
@@ -54,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (user) void updateRememberedProfile(user);
     }, [user]);
+    const sessionEpoch = useRef(0);
     const refreshInFlightRef = useRef<Promise<void> | null>(null);
 
     const refreshSession = useCallback(async () => {
@@ -61,10 +64,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return refreshInFlightRef.current;
         }
 
+        const epoch = sessionEpoch.current;
         const refreshTask = (async () => {
             const refreshResult = await refreshAuth();
+            if (epoch !== sessionEpoch.current) return;
             setAccessToken(refreshResult.access_token);
             const nextUser = await me();
+            if (epoch !== sessionEpoch.current) return;
             completeOAuthAccountIntent(nextUser);
             setUser(nextUser);
         })();
@@ -78,8 +84,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [me, refreshAuth]);
 
     const revalidateSession = useCallback(async () => {
+        const epoch = sessionEpoch.current;
         try {
             const config = await ensureConfig();
+            if (epoch !== sessionEpoch.current) return;
             if (config?.login_enabled === false) {
                 if (config.bootstrap_access_token) {
                     setAccessToken(config.bootstrap_access_token);
@@ -94,16 +102,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (token) {
                 try {
                     const nextUser = await me();
+                    if (epoch !== sessionEpoch.current) return;
                     completeOAuthAccountIntent(nextUser);
                     setUser(nextUser);
                     return;
                 } catch {
+                    if (epoch !== sessionEpoch.current) return;
                     clearAccessToken();
                 }
             }
 
             await refreshSession();
         } catch {
+            if (epoch !== sessionEpoch.current) return;
             clearAccessToken();
             setUser(null);
         }
@@ -144,8 +155,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 await signupAuth(input);
             },
             updateProfile: async (input) => {
+                const epoch = sessionEpoch.current;
                 const nextUser = await updateMe(input);
-                setUser(nextUser);
+                if (epoch === sessionEpoch.current) setUser(nextUser);
+            },
+            deleteAccount: async (email, code) => {
+                await deleteMe({ email, code });
+                sessionEpoch.current += 1;
+                removeRecentAccount({ email, provider: "email" });
+                clearAccessToken();
+                setUser(null);
             },
             logout: async () => {
                 try {
@@ -166,6 +185,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             revalidateSession,
             signupAuth,
             updateMe,
+            deleteMe,
             user,
         ],
     );
