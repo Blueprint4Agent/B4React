@@ -2,6 +2,7 @@ import { useToast } from "../../hooks/useToast";
 import { resolveSettingsSection } from "../../utils/settingsSections";
 import {
     AppWindow,
+    BookOpen,
     Users,
     ArrowLeft,
     Code2,
@@ -244,6 +245,45 @@ export function AppSidebar({
             </nav>
             <div className="app-sidebar__footer">
                 <ConnectivityStatus placement="sidebar" />
+                <div className="app-sidebar__nav">
+                    {[
+                        {
+                            href: "https://github.com/Blueprint4Agent/B4FastAPI",
+                            label: t("nav.sidebar.github"),
+                            icon: null,
+                        },
+                        {
+                            href: "https://blueprint4agent.github.io/docs",
+                            label: t("nav.sidebar.documentation"),
+                            icon: BookOpen,
+                        },
+                    ].map(({ href, label, icon: Icon }) => (
+                        <Tooltip
+                            key={href}
+                            content={label}
+                            side="right"
+                            className="app-sidebar__item-tooltip"
+                            disabled={expanded}
+                        >
+                            <a
+                                href={href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="app-sidebar__item"
+                                aria-label={label}
+                            >
+                                {Icon ? (
+                                    <Icon aria-hidden="true" />
+                                ) : (
+                                    <span className="app-sidebar__github-mark" aria-hidden="true" />
+                                )}
+                                {expanded ? (
+                                    <span className="app-sidebar__item-label">{label}</span>
+                                ) : null}
+                            </a>
+                        </Tooltip>
+                    ))}
+                </div>
                 <ProfileDropdown
                     expanded={expanded}
                     showAdmin={user?.role === "admin"}

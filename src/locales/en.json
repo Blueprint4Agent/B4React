@@ -335,7 +335,9 @@
             "settings": "Settings",
             "toggleOpen": "Expand sidebar",
             "toggleClose": "Collapse sidebar",
-            "resize": "Resize sidebar"
+            "resize": "Resize sidebar",
+            "github": "GitHub",
+            "documentation": "User guide"
         },
         "pageTitles": {
             "showCase": "ShowCase Page",

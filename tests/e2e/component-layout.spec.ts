@@ -714,3 +714,43 @@ test("ToastCard replays without stacking and respects reduced motion", async ({ 
     await page.getByRole("searchbox").fill("SelectionCard");
     await expect(page.locator(".ui-toast-card")).toHaveCount(0);
 });
+
+for (const width of [375, 1440]) {
+    test(`project links remain above the profile in collapsed and expanded sidebar at ${width}px`, async ({
+        page,
+    }) => {
+        await page.setViewportSize({ width, height: 800 });
+        const footer = page.locator(".app-sidebar__footer");
+        const links = footer.locator("a[target='_blank']");
+        for (const expanded of [false, true]) {
+            if (expanded) await page.locator(".app-sidebar__toggle").click();
+            await expect(links).toHaveCount(2);
+            await expect(links.nth(0)).toHaveAttribute(
+                "href",
+                "https://github.com/Blueprint4Agent/B4FastAPI",
+            );
+            await expect(links.nth(1)).toHaveAttribute(
+                "href",
+                "https://blueprint4agent.github.io/docs",
+            );
+            const profile = (await footer.locator(".profile-menu__trigger").boundingBox())!;
+            for (const link of await links.all()) {
+                await expect(link).toBeVisible();
+                await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+                await expect(link).toHaveAccessibleName(/\S/);
+                const box = (await link.boundingBox())!;
+                expect(box.y + box.height).toBeLessThanOrEqual(profile.y);
+                expect(box.x).toBeGreaterThanOrEqual(0);
+                expect(box.x + box.width).toBeLessThanOrEqual(width);
+                if (!expanded) {
+                    await link.hover();
+                    await expect(page.getByRole("tooltip")).toHaveText(
+                        (await link.getAttribute("aria-label"))!,
+                    );
+                    await page.keyboard.press("Escape");
+                }
+            }
+        }
+        await page.screenshot({ path: `test-results/sidebar-project-links-${width}.png` });
+    });
+}

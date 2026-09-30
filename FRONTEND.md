@@ -702,3 +702,5 @@ responses from restoring the deleted identity.
 Login verification recovery belongs below the primary login action, keeping email/password entry uninterrupted. Reuse the secondary Button and InlineMessage. Both resend screens render `auth.verificationResent` rather than raw server prose, preserving localized, account-neutral confirmation.
 
 Email verification is a one-time mutation: reuse the current token promise across StrictMode effect replay and locale changes, and ignore results after cleanup/token navigation. Do not persist tokens or resubmit merely to translate the screen.
+
+The sidebar footer places GitHub and User guide links immediately above the profile control. Both open the B4FastAPI repository or https://blueprint4agent.github.io/docs in a new tab. The GitHub link reuses the existing official GitHub SVG as a theme-aware mask. Reuse sidebar row styling and collapsed tooltips; keep these links visible in app, settings and admin shells.

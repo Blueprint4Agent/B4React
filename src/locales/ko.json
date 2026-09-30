@@ -335,7 +335,9 @@
             "settings": "설정",
             "toggleOpen": "사이드바 펼치기",
             "toggleClose": "사이드바 접기",
-            "resize": "사이드바 너비 조절"
+            "resize": "사이드바 너비 조절",
+            "github": "GitHub",
+            "documentation": "사용 가이드"
         },
         "pageTitles": {
             "showCase": "쇼케이스 페이지",

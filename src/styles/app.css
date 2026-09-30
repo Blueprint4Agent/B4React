@@ -433,6 +433,15 @@ a {
     stroke-width: 1.75;
 }
 
+/* Official GitHub mark already used by OAuth; mask inherits the menu theme color. */
+.app-sidebar__github-mark {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+    background-color: currentColor;
+    mask: url("/icons/github-mark-light.svg") center / contain no-repeat;
+}
+
 .app-sidebar__item:hover,
 .app-sidebar:not(.app-sidebar--expanded) .app-sidebar__brand:hover,
 .app-sidebar__item--active {
