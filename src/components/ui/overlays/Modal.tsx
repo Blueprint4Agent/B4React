@@ -36,8 +36,11 @@ export function Modal({
         if (!open || !keyboardDismissible) return;
         const previous = document.activeElement as HTMLElement | null;
         const panel = panelRef.current;
+        const dialog = panel?.closest(".ui-modal");
         panel?.focus();
         const onKeyDown = (event: KeyboardEvent) => {
+            // An open child menu consumes the first Escape, preserving the dialog.
+            if (event.key === "Escape" && dialog?.querySelector('[role="menu"]')) return;
             if (event.key === "Escape") {
                 event.preventDefault();
                 event.stopPropagation();
@@ -45,10 +48,10 @@ export function Modal({
             }
             if (event.key !== "Tab" || !panel) return;
             const controls = Array.from(
-                panel.querySelectorAll<HTMLElement>(
+                (dialog ?? panel).querySelectorAll<HTMLElement>(
                     'a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex="0"]',
                 ),
-            ).filter((element) => element.getClientRects().length > 0);
+            ).filter((element) => element.tabIndex >= 0 && element.getClientRects().length > 0);
             const first = controls[0];
             const last = controls[controls.length - 1];
             if (!first) {
@@ -62,7 +65,8 @@ export function Modal({
                 last.focus();
             } else if (
                 !event.shiftKey &&
-                (document.activeElement === last || !panel.contains(document.activeElement))
+                (document.activeElement === last ||
+                    !(dialog ?? panel).contains(document.activeElement))
             ) {
                 event.preventDefault();
                 first.focus();
