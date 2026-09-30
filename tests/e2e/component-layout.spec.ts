@@ -445,6 +445,52 @@ for (const width of [320, 1440]) {
         const bounds = (await panel.boundingBox())!;
         expect(bounds.x).toBeGreaterThanOrEqual(0);
         expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
+        const body = panel.locator(".ui-modal__body");
+        const trigger = panel.locator(".developer-create-modal__dropdown button");
+        const before = await body.evaluate((e) => ({
+            height: e.clientHeight,
+            scroll: e.scrollHeight,
+        }));
+        await trigger.click();
+        const menu = page.getByRole("menu", { name: "Expiration" });
+        await expect(menu).toBeVisible();
+        // Opening the options must never enlarge the modal's scrollable body.
+        expect(
+            await body.evaluate((e) => ({ height: e.clientHeight, scroll: e.scrollHeight })),
+        ).toEqual(before);
+        expect(await menu.evaluate((e) => e.closest(".ui-modal__body"))).toBeNull();
+        const menuBox = (await menu.boundingBox())!;
+        const triggerBox = (await trigger.boundingBox())!;
+        expect(Math.abs(menuBox.width - triggerBox.width)).toBeLessThan(1);
+        expect(Math.abs(menuBox.y - triggerBox.y - triggerBox.height - 4)).toBeLessThan(1);
+        const never = menu.getByRole("menuitem", { name: "No expiration" });
+        expect(
+            await never.evaluate((e) => {
+                const r = e.getBoundingClientRect();
+                return e.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2));
+            }),
+        ).toBe(true);
+        await never.click();
+        await expect(page.getByRole("alert")).toContainText("never expires automatically");
+        await expect(trigger).toBeFocused();
+        await trigger.click();
+        await page.getByRole("menuitem", { name: "30 days", exact: true }).click();
+        await expect(page.getByRole("alert")).toHaveCount(0);
+        await expect(trigger).toHaveText("30 days");
+        // A short viewport flips or bounds the menu; every option remains reachable.
+        await page.setViewportSize({ width, height: 360 });
+        await trigger.click();
+        await expect(menu).toHaveAttribute("data-side", "top");
+        const shortBox = (await menu.boundingBox())!;
+        expect(shortBox.y).toBeGreaterThanOrEqual(8);
+        expect(shortBox.y + shortBox.height).toBeLessThanOrEqual(352);
+        await page.keyboard.press("Escape");
+        await expect(menu).toHaveCount(0);
+        await expect(panel).toBeVisible();
+        await expect(trigger).toBeFocused();
+        await trigger.click();
+        await panel.locator(".ui-modal__header").click();
+        await expect(menu).toHaveCount(0);
     });
 }
 

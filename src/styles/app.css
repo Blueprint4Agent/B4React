@@ -1424,6 +1424,14 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
     gap: 2px;
 }
 
+.ui-dropdown__menu--floating {
+    position: fixed;
+    top: auto;
+    left: auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
 .ui-dropdown__item {
     min-height: var(--dropdown-height, 2rem);
     overflow-wrap: anywhere;

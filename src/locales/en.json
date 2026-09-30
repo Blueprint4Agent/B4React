@@ -459,7 +459,8 @@
                     "thirtyDays": "30 days",
                     "ninetyDays": "90 days",
                     "never": "No expiration"
-                }
+                },
+                "neverExpiryWarning": "This API key never expires automatically. Disable or delete it when it is no longer needed."
             },
             "revealModal": {
                 "title": "Copy API key now",

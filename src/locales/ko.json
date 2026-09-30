@@ -459,7 +459,8 @@
                     "thirtyDays": "30일",
                     "ninetyDays": "90일",
                     "never": "만료 없음"
-                }
+                },
+                "neverExpiryWarning": "이 API 키는 자동으로 만료되지 않습니다. 더 이상 사용하지 않으면 직접 비활성화하거나 삭제하세요."
             },
             "revealModal": {
                 "title": "지금 API 키를 복사하세요",

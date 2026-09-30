@@ -237,6 +237,11 @@ function CreateApiKeyModal({
                     }}
                 />
             </label>
+            {apiKeyExpiryOption === "never" ? (
+                <InlineMessage tone="warning">
+                    {t("settings.developers.createModal.neverExpiryWarning")}
+                </InlineMessage>
+            ) : null}
         </Modal>
     );
 }
