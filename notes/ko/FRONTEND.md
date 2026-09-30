@@ -625,3 +625,5 @@ AccountDeletionDialog는 설정과 검색 가능한 `AccountDeletionDialog + Inp
 로그인 이메일 인증 안내와 재발송은 로그인 버튼 아래에 묶어 이메일·비밀번호 입력 흐름을 유지합니다. 기존 보조 Button과 InlineMessage를 재사용합니다. 두 재발송 화면은 서버 영문 원문 대신 `auth.verificationResent`를 표시하며 계정 존재 여부를 드러내지 않는 다국어 안내를 유지합니다.
 
 이메일 인증은 일회성 변경 요청입니다. StrictMode effect 재실행과 언어 변경 시 현재 토큰의 Promise를 재사용하고 cleanup/토큰 이동 이후 응답은 무시합니다. 번역을 위해 토큰을 재전송하거나 토큰을 영구 저장하지 않습니다.
+
+사이드바 하단 프로필 버튼 바로 위에 GitHub와 사용 가이드 링크를 배치합니다. B4FastAPI 저장소와 https://blueprint4agent.github.io/docs 를 새 탭으로 열며 기존 메뉴 행 스타일과 접힌 상태의 툴팁을 재사용합니다. 앱, 설정, 관리자 화면에서 같은 링크를 표시합니다. GitHub 아이콘은 기존 공식 SVG를 마스크로 재사용해 테마 색상을 따릅니다.
