@@ -200,8 +200,8 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
         setResending(true);
         setResendMessage("");
         try {
-            const payload = await resendVerificationEmail(email.trim());
-            setResendMessage(payload.message);
+            await resendVerificationEmail(email.trim());
+            setResendMessage(t("auth.verificationResent"));
             showToast(t("toast.emailSuccess"));
         } catch {
             showToast(t("toast.emailError"));
@@ -305,21 +305,8 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
                             }
                         }}
                     />
-                    {emailErrorMessage ? <InlineMessage>{emailErrorMessage}</InlineMessage> : null}
-                    {showResendButton ? (
-                        <div className="login-inline-actions">
-                            <Button
-                                appearance={embedded ? "pill" : "default"}
-                                type="button"
-                                loading={resending}
-                                onClick={onResendVerification}
-                            >
-                                {t("auth.actions.resendVerification")}
-                            </Button>
-                        </div>
-                    ) : null}
-                    {resendMessage ? (
-                        <InlineMessage tone="info">{resendMessage}</InlineMessage>
+                    {emailErrorMessage && !showResendButton ? (
+                        <InlineMessage>{emailErrorMessage}</InlineMessage>
                     ) : null}
                     {passwordStep ? (
                         <>
@@ -355,6 +342,24 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
                     >
                         {t(passwordStep ? "login.submitIdle" : "authDialog.continue")}
                     </Button>
+                    {showResendButton ? (
+                        <div className="form">
+                            <InlineMessage>{emailErrorMessage}</InlineMessage>
+                            <div className="login-inline-actions">
+                                <Button
+                                    appearance="pill-secondary"
+                                    type="button"
+                                    loading={resending}
+                                    onClick={onResendVerification}
+                                >
+                                    {t("auth.actions.resendVerification")}
+                                </Button>
+                            </div>
+                            {resendMessage ? (
+                                <InlineMessage tone="info">{resendMessage}</InlineMessage>
+                            ) : null}
+                        </div>
+                    ) : null}
                 </form>
             ) : (
                 <div className="form">

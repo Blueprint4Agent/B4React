@@ -35,6 +35,7 @@
         "start": "Get started"
     },
     "auth": {
+        "verificationResent": "If an unverified account exists, a verification email has been sent.",
         "actions": {
             "resendVerification": "Resend verification email"
         },

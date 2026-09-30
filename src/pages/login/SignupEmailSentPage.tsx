@@ -31,8 +31,8 @@ export function SignupEmailSentPage({ embedded = false }: { embedded?: boolean }
         setResendMessage("");
 
         try {
-            const payload = await resendVerificationEmail(email);
-            setResendMessage(payload.message);
+            await resendVerificationEmail(email);
+            setResendMessage(t("auth.verificationResent"));
         } catch {
             setResendMessage(t("signupEmailSent.resendFallback"));
         } finally {

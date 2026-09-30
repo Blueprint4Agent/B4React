@@ -698,3 +698,5 @@ retry interval, including rate-limit responses. Email-disabled instances cannot 
 accounts. Codes are bound to the signed-in account; changing accounts clears dialog
 state and ignores stale request responses. Session deletion prevents late refresh/profile
 responses from restoring the deleted identity.
+
+Login verification recovery belongs below the primary login action, keeping email/password entry uninterrupted. Reuse the secondary Button and InlineMessage. Both resend screens render `auth.verificationResent` rather than raw server prose, preserving localized, account-neutral confirmation.

@@ -35,6 +35,7 @@
         "start": "시작하기"
     },
     "auth": {
+        "verificationResent": "이메일 인증이 필요한 계정이 있다면 인증 이메일을 보냈습니다.",
         "actions": {
             "resendVerification": "인증 이메일 다시 보내기"
         },

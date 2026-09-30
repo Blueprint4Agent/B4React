@@ -210,6 +210,11 @@ describe("LoginPage", () => {
         expect(resendVerificationEmailMock).toHaveBeenCalledWith(
             FULL_SYSTEM_SCENARIO.principal.email,
         );
-        expect(screen.getByText("Verification email has been sent.")).toBeInTheDocument();
+        expect(
+            screen.getByText(
+                "If an unverified account exists, a verification email has been sent.",
+            ),
+        ).toBeInTheDocument();
+        expect(screen.queryByText("Verification email has been sent.")).not.toBeInTheDocument();
     });
 });
