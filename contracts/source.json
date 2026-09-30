@@ -1,6 +1,7 @@
 {
     "repository": "https://github.com/Blueprint4Agent/B4FastAPI",
-    "commit": "c4939c276ecb0a7aea69df886bc0dc17999f3377",
     "path": "contracts/openapi.json",
-    "apiVersion": "0.1.0"
+    "apiVersion": "0.1.0",
+    "branch": "feat/stripe-link-card-setup",
+    "note": "Coordinated additive billing contract; verify the checked-in snapshot against the provider before integration."
 }

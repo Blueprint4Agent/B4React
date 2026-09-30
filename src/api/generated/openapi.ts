@@ -334,6 +334,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/billing/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Billing Config */
+        get: operations["billing_config_api_v1_billing_config_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/payment-methods": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Payment Methods */
+        get: operations["list_payment_methods_api_v1_billing_payment_methods_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/setup-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Setup */
+        post: operations["create_setup_api_v1_billing_setup_sessions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/setup-sessions/{session_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Setup Status */
+        get: operations["setup_status_api_v1_billing_setup_sessions__session_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/events/stream": {
         parameters: {
             query?: never;
@@ -612,6 +680,91 @@ export interface components {
         /** AuthErrorResponse */
         AuthErrorResponse: {
             detail: components["schemas"]["AuthErrorDetail"];
+        };
+        /** BillingConfigResponse */
+        BillingConfigResponse: {
+            /** Enabled */
+            enabled: boolean;
+            /** Livemode */
+            livemode: boolean;
+        };
+        /** BillingErrorDetail */
+        BillingErrorDetail: {
+            /** Details */
+            details?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Error
+             * @example BILLING_DISABLED
+             * @enum {string}
+             */
+            error:
+                | "BILLING_DISABLED"
+                | "BILLING_UNAVAILABLE"
+                | "BILLING_NOT_FOUND"
+                | "BILLING_RECONCILIATION_REQUIRED";
+            /** Message */
+            message: string;
+        };
+        /** BillingErrorResponse */
+        BillingErrorResponse: {
+            detail: components["schemas"]["BillingErrorDetail"];
+        };
+        /** BillingPaymentMethodResponse */
+        BillingPaymentMethodResponse: {
+            /** Brand */
+            brand?: string | null;
+            /** Exp Month */
+            exp_month?: number | null;
+            /** Exp Year */
+            exp_year?: number | null;
+            /** Id */
+            id: string;
+            /** Last4 */
+            last4?: string | null;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "card" | "link";
+        };
+        /** BillingPaymentMethodsResponse */
+        BillingPaymentMethodsResponse: {
+            /** Has More */
+            has_more: boolean;
+            /** Items */
+            items: components["schemas"]["BillingPaymentMethodResponse"][];
+            /** Next Cursor */
+            next_cursor?: string | null;
+        };
+        /** BillingSetupForm */
+        BillingSetupForm: {
+            /**
+             * Request Id
+             * Format: uuid
+             * @description Reuse this UUID when retrying the same setup request.
+             */
+            request_id: string;
+        };
+        /** BillingSetupResponse */
+        BillingSetupResponse: {
+            /** Id */
+            id: string;
+            /** Url */
+            url: string;
+        };
+        /** BillingSetupStatusResponse */
+        BillingSetupStatusResponse: {
+            /** Id */
+            id: string;
+            /** Registered */
+            registered: boolean;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "complete" | "expired";
         };
         /** Body_oauth_token_login_api_v1_auth_token_post */
         Body_oauth_token_login_api_v1_auth_token_post: {
@@ -2777,6 +2930,475 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+        };
+    };
+    billing_config_api_v1_billing_config_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingConfigResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "INVALID_TOKEN",
+                     *         "message": "Invalid refresh token."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_RECONCILIATION_REQUIRED",
+                     *         "message": "Customer setup requires operator reconciliation."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_UNAVAILABLE",
+                     *         "message": "Payment provider is temporarily unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_DISABLED",
+                     *         "message": "Billing is not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+        };
+    };
+    list_payment_methods_api_v1_billing_payment_methods_get: {
+        parameters: {
+            query?: {
+                method_type?: "card" | "link";
+                limit?: number;
+                starting_after?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingPaymentMethodsResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "INVALID_TOKEN",
+                     *         "message": "Invalid refresh token."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_RECONCILIATION_REQUIRED",
+                     *         "message": "Customer setup requires operator reconciliation."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_UNAVAILABLE",
+                     *         "message": "Payment provider is temporarily unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_DISABLED",
+                     *         "message": "Billing is not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+        };
+    };
+    create_setup_api_v1_billing_setup_sessions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BillingSetupForm"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingSetupResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "INVALID_TOKEN",
+                     *         "message": "Invalid refresh token."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_RECONCILIATION_REQUIRED",
+                     *         "message": "Customer setup requires operator reconciliation."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_UNAVAILABLE",
+                     *         "message": "Payment provider is temporarily unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_DISABLED",
+                     *         "message": "Billing is not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+        };
+    };
+    setup_status_api_v1_billing_setup_sessions__session_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingSetupStatusResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "INVALID_TOKEN",
+                     *         "message": "Invalid refresh token."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_RECONCILIATION_REQUIRED",
+                     *         "message": "Customer setup requires operator reconciliation."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_UNAVAILABLE",
+                     *         "message": "Payment provider is temporarily unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_DISABLED",
+                     *         "message": "Billing is not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
                 };
             };
         };
