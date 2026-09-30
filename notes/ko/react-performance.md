@@ -47,7 +47,7 @@ memo는 얕은 props 비교를 사용하며 자신의 상태나 Context 갱신�
 - `make react-performance-check`: TypeScript 심볼을 사용한 설정 소유권·보호된 memo 검사, App의 직접 페이지 import 검사, 통과·실패 fixture, 작업 기록 정책 테스트를 실행합니다. 보호된 표에 인라인 객체·배열·함수나 spread props를 전달하면 거절합니다. 변수 뒤에 숨은 재할당까지 증명하지는 않으므로 런타임 검증과 리뷰가 필요합니다.
 - `make check` / `make architecture-check`에 포함됩니다. B4FastAPI에서도 `make frontend-architecture-check`를 통해 실행합니다.
 - Git 하네스는 런타임 `.ts/.tsx` 및 package/Vite 변경 시 커밋 제목이 일치하는 작업 기록에 **State Ownership**, **Memoization**, **Performance Evidence**를 요구합니다. 테스트 전용·생성 파일은 제외합니다. 미적용 이유는 허용하되 빈 값·placeholder는 거절합니다. 동일한 스테이징/커밋 스냅샷의 템플릿과 기록을 읽으므로 과거 커밋에는 당시 정책을 적용합니다. 근거 기록의 존재를 검사하며 성능 개선 자체를 증명하지는 않습니다.
-- `make test`는 관리자 입력 중 불필요한 포맷 생략, 필요한 갱신, 설정 요청 공유·Provider 격리·복구 순서를 검증합니다. `make test-routes`는 빌드 후 실제 청크의 지연·실패·복구를 확인하고 필수 Frontend checks CI에서도 Chromium으로 실행합니다.
+- `make test`는 관리자 입력 중 불필요한 포맷 생략, 필요한 갱신, 설정 요청 공유·Provider 격리·복구 순서를 검증합니다. `make test-routes`는 빌드 후 실제 청크의 지연·실패·복구를 확인하고 로컬 전체 검증에서도 Chromium으로 실행합니다.
 - `make test-ui`는 레이아웃·인증·역할 흐름을 검증합니다. UI 변경 시 실행하며 이전 작업의 테스트 생략을 이후 작업에 적용하지 않습니다.
 - 보조 화면의 lazy 로딩을 유지합니다. 분할 직후 진입 JS는 426.68 kB(gzip 130.36)에서 390.76 kB(gzip 121.26)로 감소했습니다. 공유 CSS는 그대로이며 이 값은 측정 기록이지 보편적 예산·응답 시간 보장은 아닙니다.
 

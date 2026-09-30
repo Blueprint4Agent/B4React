@@ -64,18 +64,18 @@ git submodule update --init --recursive
 `make git-governance-check`는 COMMIT_TITLE을 전달하면 스테이징된 파일과
 COMMIT_BODY_FILE을 검사하고, 전달하지 않으면 HEAD 커밋을 검사합니다.
 PR_TITLE과 PR_BODY_FILE은 함께 전달합니다. 미추적 워크로그는 인정하지 않습니다.
-PR CI는 실제 커밋 범위의 각 일반 커밋과 워크로그 제목·필수 내용을 검사하며,
-PR 제목·본문을 수정해도 다시 실행됩니다. 브랜치 통합용 merge commit은 제외합니다.
-Python 3 표준 라이브러리만 사용합니다. 구체적인 절차는 [AGENTS.md](../../AGENTS.md)를 참고하세요.
-
-main은 PR과 Git governance 및 저장소별 코드 검사를 요구합니다. 1인 작업을 지원해
-필수 승인 수는 0이며, 자동 검사는 사람의 설계 리뷰를 의미하지 않습니다.
-워크로그를 작업 시작 시 작성하는지는 절차로 관리하고, CI는 커밋된 기록을 검증합니다.
+`make hooks-install`(또는 `make init`)으로 로컬 훅을 설치합니다. 커밋 시 실제 메시지와
+스테이징 워크로그를, 푸시 시 전체 브랜치 커밋과 변경 범위별 검사를 실행합니다.
+PR 생성/수정 후와 병합 직전에 `PR_NUMBER=<번호> make git-governance-pr-check`로 실제
+메타데이터를 검사합니다. 통합 merge commit은 워크로그 검사에서 제외합니다.
+main의 PR·대화 해결·삭제/강제 푸시 금지는 유지하고 필수 CI 상태는 제거합니다.
+GitHub Actions는 수동 실행만 유지하며 필수 승인 수는 0입니다.
+[로컬 훅](local-hooks.md) · [English](../local-hooks.md)를 참고하세요.
 
 ## 아키텍처 검사
 
 `make architecture-check`로 문서화된 계층 의존성 규칙을 검사합니다.
-`make check`와 필수 PR CI에서도 실행하며 위반 파일·줄 번호를 출력합니다.
+`make check`와 로컬 검증과 선택적 수동 CI에서도 실행하며 위반 파일·줄 번호를 출력합니다.
 Page·Component의 런타임 API import와 Component의 도메인 API 훅 import를 금지하고,
 명시적인 타입 전용 import는 허용합니다. 브라우저 HTTP 호출은 src/api에서 담당합니다.
 TypeScript가 tsconfig를 사용해 별칭과 재내보내기를 해석합니다. 간접 래퍼 호출과

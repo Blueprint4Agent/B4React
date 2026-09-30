@@ -32,32 +32,44 @@ Historical commits were imported with `git subtree split` from B4FastAPI; worklo
    `COMMIT_TITLE='type(scope): summary' COMMIT_BODY_FILE=/tmp/commit.txt make git-governance-check`.
    Planned validation reads the Git index, not untracked or unstaged content. Run it again after staging changes.
 7. Commit, push and create a ready PR. Validate PR_TITLE and PR_BODY_FILE together.
-8. Wait for required Git governance and code checks before merge; verify MERGE auto-merge registration.
+8. Confirm local hook checks and actual PR metadata validation before merge; use merge commits and verify MERGE if auto-merge is registered.
 
 The worklog template requires Design, Verification Plan, Loop Alignment and Verification
 in addition to the existing four sections. Each authored commit must add/modify a worklog
 whose Commit Title exactly matches that commit. Merge commits used to integrate branch
 history are excluded from per-commit checks; changes must be authored in ordinary commits.
 Start-time planning is a human/agent obligation: Git cannot prove when a plan was written.
-CI enforces committed evidence, nonempty sections and metadata, not design correctness.
+Local governance enforces committed evidence, nonempty sections and metadata, not design correctness.
 
-## PR Governance Enforcement
+## Local Governance and Manual GitHub Workflows
 
-`make git-governance-pr-check` reads the GitHub PR event via GITHUB_EVENT_PATH, checks
-branch/title/body, and validates every non-merge commit in base SHA..head SHA using
-its committed files. The dedicated Git governance workflow fetches full history and
-runs again on PR metadata edits. A local check without COMMIT_TITLE checks HEAD.
-The validator uses Python 3 (standard library only); the shell entry point is retained.
+Install versioned hooks once per clone with `make hooks-install` (also part of `make init`).
+The parent installs hooks in its initialized frontend submodule too. Existing custom
+core.hooksPath settings are preserved and require explicit reconciliation.
 
-Main policy: PR required, Git governance plus repository code checks required, deletion
-and force-push blocked. Approval count is zero to support solo maintenance; CI passing
-does not imply human review. Merge commit is the default, and alternate methods still
-require the user's explicit instruction. Required status contexts must match actual job names.
+`commit-msg` checks the actual message and staged matching worklog. Integration merge
+commits are excluded. `pre-push` requires a clean working tree/submodule and the exact
+checked-out HEAD, fetches remote main, checks every authored commit since its merge base,
+and runs `make verify-plan` then `make verify` against that full branch range. A failed
+check blocks the push. Do not bypass hooks to complete ordinary tasks.
 
-The desired ruleset is versioned in `.github/main-ruleset.json`. Apply it through
-GitHub Rulesets after the named CI jobs exist, preserving existing required checks.
-PR conversations must be resolved before merging. Ruleset changes require repository
-administration permission; do not bypass checks when that permission is unavailable.
+After creating or editing PR metadata run `PR_NUMBER=<number> make git-governance-pr-check`.
+This reads the actual GitHub title/body and verifies the complete commit range locally.
+Planned PR validation with PR_TITLE/PR_BODY_FILE remains available. Rerun the actual PR
+check immediately before merge; metadata edited on GitHub cannot trigger a local hook.
+
+GitHub workflows are workflow_dispatch-only, including image/desktop builds; no automatic
+PR, push, schedule, tag or release runs. Main still requires a PR, resolved conversations,
+and protects deletion/non-fast-forward updates, with zero required approvals. Required
+status checks are removed from `.github/main-ruleset.json` and the live ruleset. Use merge
+commits by default. Local hooks are bypassable and are not a server-side CI guarantee.
+Do not disable PR or history protection. Apply ruleset changes only with repository admin
+permission; never bypass unavailable permissions.
+
+Successful Make command receipts are local and content-bound for at most 24 hours.
+Only unchanged code/docs/config, tool/environment context and required build outputs
+permit reuse; worklog-only outcome edits still receive text and governance validation.
+CI/manual Actions and VERIFY_FULL=1 ignore receipts. See notes/local-hooks.md.
 
 ## Shared UI harness
 
@@ -67,4 +79,4 @@ administration permission; do not bypass checks when that permission is unavaila
 
 Read [state and performance decisions](notes/react-performance.md) before runtime or state-library changes. Establish state ownership first; use React.memo by default at expensive/repeated child boundaries with frequently unchanged props, stable references where useful, and explicit reasons when not applicable. Do not blanket-wrap components or introduce Zustand/Redux without a demonstrated need. Independent optimizations use separate branches/worklogs/PRs.
 
-For runtime/dependency changes, fill State Ownership, Memoization and Performance Evidence in the worklog before implementation and replace planned evidence with actual results. Git governance enforces these sections from the same staged/committed snapshot. `make react-performance-check` is included in check/architecture-check; `make test` protects skipped work and necessary updates; run `make test-routes` for routing/build changes and `make test-ui` for UI changes. Required CI includes production route recovery. Inspect guard failures and update evidence when intentionally changing a protected boundary; do not disable checks merely to pass.
+For runtime/dependency changes, fill State Ownership, Memoization and Performance Evidence in the worklog before implementation and replace planned evidence with actual results. Git governance enforces these sections from the same staged/committed snapshot. `make react-performance-check` is included in check/architecture-check; `make test` protects skipped work and necessary updates; run `make test-routes` for routing/build changes and `make test-ui` for UI changes. Local full verification includes production route recovery. Inspect guard failures and update evidence when intentionally changing a protected boundary; do not disable checks merely to pass.
