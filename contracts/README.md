@@ -31,7 +31,7 @@ login audit/history or live-presence feed. No role changes are exposed through t
 
 ## Billing foundation
 
-The additive `/api/v1/billing` contract provides bearer-only config, hosted setup
+The additive `/api/v1/billing` contract provides bearer-or-application-API-key config, hosted setup
 sessions/status and cursor-paginated card/Link lists. `useBillingApi` exposes typed
 adapters and known error extraction without automatic requests or cached state.
 A future page must create one request UUID per action, reuse it on retry, verify

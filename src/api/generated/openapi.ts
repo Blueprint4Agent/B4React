@@ -2958,15 +2958,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     /**
                      * @example {
                      *       "detail": {
-                     *         "error": "INVALID_TOKEN",
-                     *         "message": "Invalid refresh token."
+                     *         "error": "API_KEY_USER_MISMATCH",
+                     *         "message": "API key does not belong to the authenticated user."
                      *       }
                      *     }
                      */
-                    "application/json": components["schemas"]["AuthErrorResponse"];
+                    "application/json": components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -3070,15 +3081,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     /**
                      * @example {
                      *       "detail": {
-                     *         "error": "INVALID_TOKEN",
-                     *         "message": "Invalid refresh token."
+                     *         "error": "API_KEY_USER_MISMATCH",
+                     *         "message": "API key does not belong to the authenticated user."
                      *       }
                      *     }
                      */
-                    "application/json": components["schemas"]["AuthErrorResponse"];
+                    "application/json": components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -3191,15 +3213,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     /**
                      * @example {
                      *       "detail": {
-                     *         "error": "INVALID_TOKEN",
-                     *         "message": "Invalid refresh token."
+                     *         "error": "API_KEY_USER_MISMATCH",
+                     *         "message": "API key does not belong to the authenticated user."
                      *       }
                      *     }
                      */
-                    "application/json": components["schemas"]["AuthErrorResponse"];
+                    "application/json": components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -3310,15 +3343,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     /**
                      * @example {
                      *       "detail": {
-                     *         "error": "INVALID_TOKEN",
-                     *         "message": "Invalid refresh token."
+                     *         "error": "API_KEY_USER_MISMATCH",
+                     *         "message": "API key does not belong to the authenticated user."
                      *       }
                      *     }
                      */
-                    "application/json": components["schemas"]["AuthErrorResponse"];
+                    "application/json": components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
