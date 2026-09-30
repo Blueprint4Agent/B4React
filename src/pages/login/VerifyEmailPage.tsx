@@ -1,5 +1,5 @@
 import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -22,7 +22,12 @@ export function VerifyEmailPage({ embedded = false }: { embedded?: boolean }) {
         return (params.get("token") || "").trim();
     }, [location.search]);
 
+    const request = useRef<{ token: string; promise: Promise<unknown> } | null>(null);
+
     useEffect(() => {
+        let active = true;
+        setStatus("loading");
+        setErrorMessage("");
         const run = async () => {
             if (!token) {
                 setStatus("error");
@@ -31,9 +36,13 @@ export function VerifyEmailPage({ embedded = false }: { embedded?: boolean }) {
             }
 
             try {
-                await verifyEmail(token);
-                setStatus("success");
+                if (request.current?.token !== token) {
+                    request.current = { token, promise: verifyEmail(token) };
+                }
+                await request.current.promise;
+                if (active) setStatus("success");
             } catch (nextError) {
+                if (!active) return;
                 const detail = extractApiDetail(nextError);
                 setStatus("error");
                 setErrorMessage(resolveAuthErrorMessage(t, detail, "verifyEmail.errors.fallback"));
@@ -41,7 +50,10 @@ export function VerifyEmailPage({ embedded = false }: { embedded?: boolean }) {
         };
 
         void run();
-    }, [token, t]);
+        return () => {
+            active = false;
+        };
+    }, [token, t, verifyEmail, extractApiDetail, resolveAuthErrorMessage]);
 
     if (status === "loading") {
         return (

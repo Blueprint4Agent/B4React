@@ -623,3 +623,5 @@ AccountDeletionDialog는 설정과 검색 가능한 `AccountDeletionDialog + Inp
 비우고 이전 응답을 무시하며 삭제 후 늦은 갱신·프로필 응답이 세션을 복원하지 않습니다.
 
 로그인 이메일 인증 안내와 재발송은 로그인 버튼 아래에 묶어 이메일·비밀번호 입력 흐름을 유지합니다. 기존 보조 Button과 InlineMessage를 재사용합니다. 두 재발송 화면은 서버 영문 원문 대신 `auth.verificationResent`를 표시하며 계정 존재 여부를 드러내지 않는 다국어 안내를 유지합니다.
+
+이메일 인증은 일회성 변경 요청입니다. StrictMode effect 재실행과 언어 변경 시 현재 토큰의 Promise를 재사용하고 cleanup/토큰 이동 이후 응답은 무시합니다. 번역을 위해 토큰을 재전송하거나 토큰을 영구 저장하지 않습니다.
