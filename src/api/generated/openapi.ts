@@ -150,11 +150,32 @@ export interface paths {
         get: operations["me_api_v1_auth_me_get"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete Me
+         * @description Permanently deletes the current account, credentials, OAuth identities and API keys. Requires bearer authentication, matching email confirmation and a single-use emailed code. Clears refresh cookies; all sessions stop authenticating.
+         */
+        delete: operations["delete_me_api_v1_auth_me_delete"];
         options?: never;
         head?: never;
         /** Update Me */
         patch: operations["update_me_api_v1_auth_me_patch"];
+        trace?: never;
+    };
+    "/api/v1/auth/me/deletion-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request Deletion Code */
+        post: operations["request_deletion_code_api_v1_auth_me_deletion_code_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/auth/oauth/providers": {
@@ -562,6 +583,12 @@ export interface components {
              * @enum {string}
              */
             error:
+                | "ACCOUNT_DELETE_CODE_INVALID"
+                | "ACCOUNT_DELETE_CODE_THROTTLED"
+                | "ACCOUNT_DELETE_CODE_SEND_FAILED"
+                | "ACCOUNT_DELETE_FAILED"
+                | "ACCOUNT_DELETE_CONFIRMATION_REQUIRED"
+                | "LAST_ADMIN_REQUIRED"
                 | "ADMIN_USERS_FAILED"
                 | "SIGNUP_FAILED"
                 | "EMAIL_ALREADY_EXISTS"
@@ -646,6 +673,20 @@ export interface components {
             channel: string;
             /** User Id */
             user_id: number;
+        };
+        /** DeleteAccountCodeResponse */
+        DeleteAccountCodeResponse: {
+            /** Expires In */
+            expires_in: number;
+            /** Retry After */
+            retry_after: number;
+        };
+        /** DeleteAccountForm */
+        DeleteAccountForm: {
+            /** Code */
+            code: string;
+            /** Email */
+            email: string;
         };
         /** ForgotPasswordForm */
         ForgotPasswordForm: {
@@ -1734,6 +1775,141 @@ export interface operations {
             };
         };
     };
+    delete_me_api_v1_auth_me_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteAccountForm"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "ACCOUNT_DELETE_CODE_INVALID",
+                     *         "message": "The deletion code is invalid, expired or locked. Request a new code after the cooldown."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "INVALID_TOKEN",
+                     *         "message": "Invalid refresh token."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "LOGIN_DISABLED",
+                     *         "message": "Login is currently disabled."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "USER_NOT_FOUND",
+                     *         "message": "User not found."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "LAST_ADMIN_REQUIRED",
+                     *         "message": "Assign another active administrator before deleting this account."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "ACCOUNT_DELETE_FAILED",
+                     *         "message": "Failed to delete account."
+                     *       }
+                     *     }
+                     */
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["InternalErrorResponse"];
+                };
+            };
+        };
+    };
     update_me_api_v1_auth_me_patch: {
         parameters: {
             query?: never;
@@ -1827,6 +2003,120 @@ export interface operations {
                     "application/json":
                         | components["schemas"]["AuthErrorResponse"]
                         | components["schemas"]["InternalErrorResponse"];
+                };
+            };
+        };
+    };
+    request_deletion_code_api_v1_auth_me_deletion_code_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeleteAccountCodeResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "INVALID_TOKEN",
+                     *         "message": "Invalid refresh token."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "LOGIN_DISABLED",
+                     *         "message": "Login is currently disabled."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "USER_NOT_FOUND",
+                     *         "message": "User not found."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "ACCOUNT_DELETE_CODE_THROTTLED",
+                     *         "message": "Wait before requesting another deletion code."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "ACCOUNT_DELETE_CODE_SEND_FAILED",
+                     *         "message": "Unable to queue the deletion code. Try again later."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
                 };
             };
         };

@@ -64,7 +64,13 @@
             "oauthSignupFailed": "Could not create an account with OAuth.",
             "oauthProviderRequestFailed": "OAuth provider request failed. Please try again.",
             "profileUpdateFailed": "Could not update your profile. Please try again.",
-            "adminUsersFailed": "Could not load users. Please retry."
+            "adminUsersFailed": "Could not load users. Please retry.",
+            "accountDeleteFailed": "Unable to delete your account. Please try again.",
+            "accountDeleteConfirmationRequired": "Enter your current account email to confirm.",
+            "lastAdminRequired": "Assign another active administrator before deleting the last administrator account.",
+            "accountDeleteCodeInvalid": "The code is invalid or expired. After five failed attempts, wait 10 minutes and request a new code.",
+            "accountDeleteCodeThrottled": "You can request another code in {{seconds}} seconds.",
+            "accountDeleteCodeSendFailed": "Unable to send a verification code. Please try again shortly."
         }
     },
     "cards": {
@@ -313,6 +319,11 @@
         "toast": {
             "trigger": "Show toast",
             "message": "Your changes have been saved."
+        },
+        "accountDeletion": {
+            "trigger": "Preview account deletion verification",
+            "description": "Preview only: no emails or accounts are changed. Use code 123456, or another code to preview an error.",
+            "complete": "Preview verification completed. No account was deleted."
         }
     },
     "nav": {
@@ -347,7 +358,7 @@
         "subtitle": "Manage your account and preferences.",
         "menu": {
             "title": "Settings menu",
-            "profile": "Profile",
+            "profile": "Account",
             "general": "General",
             "developers": "Developers",
             "appearance": "Appearance"
@@ -358,8 +369,8 @@
             "userId": "User ID"
         },
         "profile": {
-            "title": "Profile",
-            "subtitle": "Update your profile information.",
+            "title": "Account",
+            "subtitle": "Manage your account details and connected sign-in methods.",
             "photo": "Profile Photo",
             "photoHelp": "Supported: PNG, JPG, WEBP, GIF (max 8MB)",
             "photoSelect": "Choose photo",
@@ -473,7 +484,24 @@
             },
             "listTitle": "API keys"
         },
-        "backToApp": "Back to app"
+        "backToApp": "Back to app",
+        "account": {
+            "deleteTitle": "Delete account",
+            "deleteDescription": "Permanently delete your account and its associated data.",
+            "deleteAction": "Delete account",
+            "deleteWarning": "Your account, sign-in details and all API keys will be permanently deleted. This cannot be undone.",
+            "confirmPrompt": "Enter {{email}} to confirm.",
+            "cancel": "Cancel",
+            "deleted": "Your account has been deleted.",
+            "codeDestination": "A verification code will be sent to your registered email: {{email}}.",
+            "sendCode": "Send code",
+            "resendCode": "Resend",
+            "resendWait": "In {{seconds}}s",
+            "codeSent": "Verification code sent to your email.",
+            "codeLabel": "6-digit verification code",
+            "emailRequired": "Account deletion requires email verification. Email delivery must be enabled.",
+            "codeHint": "Codes expire after 10 minutes. Resending replaces the previous code."
+        }
     },
     "theme": {
         "label": "Theme",

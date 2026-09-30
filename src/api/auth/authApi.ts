@@ -91,6 +91,7 @@ export async function logout() {
 
 export async function verifyEmail(token: string): Promise<VerifyEmailPayload> {
     const { data, error } = await apiClient.POST("/api/v1/auth/verify-email", {
+        headers: getAppLanguageHeader(),
         body: { token },
     });
     if (error || !data) {
@@ -146,6 +147,24 @@ export async function listAdminUsers(
         headers: getAuthHeader(),
         params: { query },
         signal,
+    });
+    if (error || !data) throw error;
+    return data;
+}
+
+export async function deleteMe(input: components["schemas"]["DeleteAccountForm"]): Promise<void> {
+    const { error, response } = await apiClient.DELETE("/api/v1/auth/me", {
+        headers: getAuthHeader(),
+        body: input,
+    });
+    if (error || !response.ok) throw error;
+}
+
+export async function requestDeletionCode(): Promise<
+    components["schemas"]["DeleteAccountCodeResponse"]
+> {
+    const { data, error } = await apiClient.POST("/api/v1/auth/me/deletion-code", {
+        headers: { ...getAuthHeader(), ...getAppLanguageHeader() },
     });
     if (error || !data) throw error;
     return data;

@@ -1,3 +1,5 @@
+import { http, HttpResponse } from "msw";
+import { server } from "../../../mocks/server";
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -12,6 +14,7 @@ const deleteApiKeyMock = vi.fn();
 const listApiKeysMock = vi.fn();
 const updateApiKeyStatusMock = vi.fn();
 const updateProfileMock = vi.fn();
+const deleteAccountMock = vi.fn();
 let mockedAuthUser: typeof FULL_SYSTEM_SCENARIO.principal = FULL_SYSTEM_SCENARIO.principal;
 let mockedApiKeyItems: Array<{
     id: number;
@@ -79,6 +82,7 @@ vi.mock("../../../../hooks/useAuth", () => ({
         login: vi.fn(),
         signup: vi.fn(),
         updateProfile: updateProfileMock,
+        deleteAccount: deleteAccountMock,
         logout: vi.fn(),
         refreshSession: vi.fn(),
     }),
@@ -88,7 +92,7 @@ vi.mock("../../../../hooks/useFeatures", () => ({
     useAppConfig: () => ({
         data: {
             login_enabled: true,
-            email_enabled: false,
+            email_enabled: true,
             oauth_enabled: false,
         },
         loading: false,
@@ -114,11 +118,42 @@ describe("SettingsPage developers scenario", () => {
         listApiKeysMock.mockReset();
         updateApiKeyStatusMock.mockReset();
         updateProfileMock.mockReset();
+        deleteAccountMock.mockReset();
         mockedApiKeyItems = [];
 
         listApiKeysMock.mockImplementation(async () => ({
             items: [...mockedApiKeyItems],
         }));
+    });
+
+    it("requires emailed code and retains actionable deletion failure for retry", async () => {
+        // Given: an authenticated account and a failed deletion request.
+        deleteAccountMock.mockRejectedValue({ detail: { error: "LAST_ADMIN_REQUIRED" } });
+        server.use(
+            http.post("*/api/v1/auth/me/deletion-code", () =>
+                HttpResponse.json({ expires_in: 600, retry_after: 60 }),
+            ),
+        );
+        renderWithRouter(<SettingsPage />, "/settings?section=account");
+        const user = userEvent.setup();
+        await user.click(screen.getByRole("button", { name: "Delete account" }));
+        const dialog = screen.getByRole("dialog", { name: "Delete account" });
+        const submit = within(dialog).getByRole("button", { name: "Delete account" });
+        expect(submit).toBeDisabled();
+        // When: the confirmation matches the current identity.
+        await user.click(within(dialog).getByRole("button", { name: "Send code" }));
+        await waitFor(() =>
+            expect(within(dialog).getByLabelText("6-digit verification code")).toBeEnabled(),
+        );
+        await user.type(within(dialog).getByLabelText("6-digit verification code"), "123456");
+        await waitFor(() => expect(submit).toBeEnabled());
+        await user.click(submit);
+        // Then: one mutation runs; the modal keeps the reason and retry controls.
+        expect(deleteAccountMock).toHaveBeenCalledExactlyOnceWith(mockedAuthUser.email, "123456");
+        await expect(
+            within(dialog).findByText(/Assign another active administrator/),
+        ).resolves.toBeInTheDocument();
+        expect(submit).toBeDisabled();
     });
 
     it("shows admin badge only when current user role is admin", async () => {

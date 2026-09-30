@@ -2,7 +2,7 @@ import { useToast } from "../../hooks/useToast";
 import { resolveSettingsSection } from "../../utils/settingsSections";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { ConnectedOAuthProvidersCard } from "../../components/features/auth/ConnectedOAuthProvidersCard";
 import { DeveloperApiKeysSection } from "../../components/features/apiKey/DeveloperApiKeysSection";
@@ -13,12 +13,15 @@ import {
     InlineMessage,
     InputField,
     PrimaryCard,
+    ModalButton,
     StatusBadge,
     ThemePreviewSelector,
     UserAvatar,
 } from "../../components/ui";
 import type { APIKeyRecord } from "../../hooks/api/apiKey/useApiKeyApi";
 import { useApiKeys } from "../../hooks/api/apiKey/useApiKeys";
+import { useAccountDeletion } from "../../hooks/api/auth/useAccountDeletion";
+import { AccountDeletionDialog } from "../../components/features/auth/AccountDeletionDialog";
 import { useAuthContext } from "../../hooks/useAuth";
 import { useAppConfig } from "../../hooks/useFeatures";
 import { useTheme } from "../../hooks/useTheme";
@@ -38,6 +41,11 @@ type SupportedLanguageId = (typeof SUPPORTED_LANGUAGE_IDS)[number];
 export function SettingsPage() {
     const { t, i18n } = useTranslation();
     const showToast = useToast();
+    const navigate = useNavigate();
+    const accountDeletion = useAccountDeletion(() => {
+        showToast(t("settings.account.deleted"));
+        navigate("/show-case", { replace: true });
+    });
     const { user, loading: authLoading, updateProfile } = useAuthContext();
     const { data: appConfig } = useAppConfig();
     const { themeMode, setThemeMode } = useTheme();
@@ -70,7 +78,7 @@ export function SettingsPage() {
     const [deactivateTarget, setDeactivateTarget] = useState<APIKeyRecord | null>(null);
     const loginEnabled = appConfig?.login_enabled === true;
 
-    const showProfile = activeMenu === "profile";
+    const showProfile = activeMenu === "account";
     const showDevelopers = activeMenu === "developers";
     const {
         items: apiKeyItems,
@@ -440,6 +448,30 @@ export function SettingsPage() {
                                 ) : null}
                             </aside>
                         </section>
+                        {loginEnabled ? (
+                            <section
+                                className="settings-account-delete"
+                                aria-label={t("settings.account.deleteTitle")}
+                            >
+                                <div>
+                                    <h2>{t("settings.account.deleteTitle")}</h2>
+                                    <p>{t("settings.account.deleteDescription")}</p>
+                                </div>
+                                <ModalButton
+                                    variant="danger"
+                                    disabled={!appConfig?.email_enabled}
+                                    onClick={accountDeletion.show}
+                                >
+                                    {t("settings.account.deleteAction")}
+                                </ModalButton>
+                                {!appConfig?.email_enabled ? (
+                                    <InlineMessage tone="info">
+                                        {t("settings.account.emailRequired")}
+                                    </InlineMessage>
+                                ) : null}
+                                <AccountDeletionDialog {...accountDeletion.dialog} />
+                            </section>
+                        ) : null}
                     </>
                 ) : showDevelopers ? (
                     <>

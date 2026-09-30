@@ -654,3 +654,47 @@ Korean toast result copy uses formal polite endings (for example, “저장했�
 ## Scoped verification policy
 
 [Change-scoped verification](notes/verification.md) supersedes unconditional check/test/build lists for documentation and structurally unchanged locale copy. Use make verify-plan / make verify; runtime and UI checks follow the selected plan.
+
+## Account experience and bounded modal scrolling
+
+Settings displays Account; `section=account` is canonical and legacy `section=profile`
+continues resolving to Account. Keep profile name/photo, email and connected provider
+controls, with a separate deletion section at the bottom. Deletion requires explicit
+email confirmation, uses the existing typed auth API/hook, and clears session and
+remembered identity only after success. Last-admin failures remain actionable inline.
+Never expose deletion for bootstrap/login-disabled identities.
+
+Reuse ToastProvider for concise action results and InlineMessage/StatusCard for
+persistent feedback. InlineMessage composes the existing compact StatusCard so
+field errors, server errors and informational notices share one visual treatment.
+ValidationCard still owns live password/email criteria. Do not introduce alternate
+notification components or duplicate appearance at page level.
+
+Rounded modal shells own clipping, bounded viewport height and fixed header/footer;
+only their inset `.ui-modal__body` scrolls. Reserve scrollbar space and at least
+12px between content and the scroll edge. Never add `overflow:auto/scroll` to the
+rounded outer modal or remove inner focus clearance. For other rounded cards with
+scrolling content, use the same shell/inner-viewport separation. Do not translate
+nested cards during entry: transforms can create temporary overflow even when
+content fits. The shared Modal disables nested PanelCard entry animation. Animate
+the outer chrome/opacity if an entrance effect is needed.
+
+Text input focus uses a visible two-pixel inset outline joined to its border,
+without the global detached three-pixel outline gap. Keep keyboard focus visible;
+do not fix clipping by hiding focus indicators. `make test-ui` checks short-modal
+entry overflow, tall-form scrollbar spacing, last-action reachability, stationary
+close controls and integrated focus at mobile/desktop sizes. New scrollable rounded
+surfaces must include equivalent browser geometry and keyboard checks.
+
+AccountDeletionDialog is a controlled feature composition reused by Settings and the
+searchable `AccountDeletionDialog + InputField` showcase. Keep its warning, registered
+recipient, code field and expiry rule persistent. Put successful code requests and
+request/cooldown failures in the existing toast; only invalid-code/deletion failures
+need an inline error. The send/resend button aligns beside the code field. Use the
+existing InputField with numeric input mode, six ASCII digits and one-time-code
+autofill; do not create a competing OTP input. The isolated preview uses code 123456
+and a five-second sample countdown, with no API calls. Production waits on the server's
+retry interval, including rate-limit responses. Email-disabled instances cannot delete
+accounts. Codes are bound to the signed-in account; changing accounts clears dialog
+state and ignores stale request responses. Session deletion prevents late refresh/profile
+responses from restoring the deleted identity.
