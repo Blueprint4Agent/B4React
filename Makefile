@@ -73,3 +73,14 @@ style-studio-check: ## Verify local file access and style application fixtures
 	node --test scripts/style-studio.test.mjs
 test-style-studio: style-studio-check ## Verify style preview and apply UI in Chromium
 	$(NPM) run test:e2e -- --config playwright.style-studio.config.ts
+
+export VERIFY_BASE VERIFY_HEAD VERIFY_FULL
+.PHONY: verify-plan verify verify-light verification-test
+verify-plan: ## Show change-scoped checks (VERIFY_BASE defaults to HEAD)
+	python3 scripts/verification.py plan
+verify: ## Run checks selected by change scope; VERIFY_FULL=1 forces full checks
+	python3 scripts/verification.py run
+verify-light: ## Validate changed text and JSON without installing dependencies
+	python3 scripts/verification.py light
+verification-test: ## Test change classification and verification selection
+	python3 -m unittest discover -s scripts -p 'test_verification.py'

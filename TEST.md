@@ -304,3 +304,7 @@ Theme contrast regressions cover enabled hover text pairs, disabled hover stabil
 ToastCard component tests cover StrictMode expiry/exit, keyed replay, timer cleanup, callback replacement, blank messages/duration bounds and isolated preview renders. `make test-ui` verifies real timed dismissal, top-center capsule geometry, light/dark contrast, focus retention, reduced motion and mobile/desktop screenshots.
 
 Action feedback regressions cover signup/reset-email pending and rejected requests, retry navigation with a surviving success toast, login outcomes, clipboard denial, API-key mutation feedback and stable dispatch consumer render counts.
+
+## Scoped verification policy
+
+[Change-scoped verification](notes/verification.md) supersedes unconditional check/test/build lists for documentation and structurally unchanged locale copy. Use make verify-plan / make verify; runtime and UI checks follow the selected plan.
