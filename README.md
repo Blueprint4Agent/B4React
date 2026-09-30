@@ -71,18 +71,18 @@ Read guides/status → create task branch → draft the [worklog](.github/WORKLO
 With COMMIT_TITLE, `make git-governance-check` validates the staged snapshot and
 COMMIT_BODY_FILE; without it, the command checks HEAD. Supply PR_TITLE and
 PR_BODY_FILE together for planned PR validation. Untracked worklogs do not count.
-PR CI checks each authored commit and its matching worklog in the actual PR range,
-and reruns on title/body edits. History-integration merge commits are excluded.
-Python 3 standard library is required. See AGENTS.md for the complete workflow.
-
-Main requires a PR, Git governance and repository code checks. Required approval
-count is zero for solo maintenance; successful CI does not imply human design review.
-Writing the plan at task start is procedural; CI verifies committed evidence.
+Install local hooks with `make hooks-install` (included in `make init`). Commit messages and
+staged worklogs are checked on commit; every outgoing authored commit and change-scoped
+verification are checked on push. Actual PR metadata must be checked after edits and before
+merge using `PR_NUMBER=<number> make git-governance-pr-check`. Integration merges are excluded.
+Main requires PRs and resolved conversations and blocks deletion/force pushes. GitHub CI is
+manual-only with no required status checks; zero required approvals remain.
+See [local hooks](notes/local-hooks.md) · [한국어](notes/ko/local-hooks.md).
 
 ## Architecture checks
 
 Run `make architecture-check` to validate the documented static layer boundaries.
-It also runs in `make check` and required PR CI. Errors include file/line locations.
+It also runs in `make check` and local verification and optional manual CI. Errors include file/line locations.
 Pages/components cannot import runtime APIs; components cannot import runtime domain
 hooks. Explicit type-only imports remain legal. Browser HTTP belongs in src/api.
 TypeScript resolves aliases/barrels using tsconfig. Indirect wrappers and architectural

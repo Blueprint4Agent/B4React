@@ -6,7 +6,7 @@ ALLOW_NON_MERGE_METHOD ?= false
 .PHONY: help init install dev build check test format api-generate api-check desktop-dev desktop-build git-governance-check
 help: ## Show available targets
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "  %-24s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-init: ## Initialize local configuration
+init: hooks-install ## Initialize local configuration
 	@test -f .env || cp .env.example .env
 install: ## Install locked dependencies
 	$(NPM) ci
@@ -35,8 +35,8 @@ git-governance-check: ## Validate branch, commit, worklog, and PR metadata
 export COMMIT_TITLE COMMIT_BODY_FILE PR_TITLE PR_BODY_FILE MERGE_METHOD ALLOW_NON_MERGE_METHOD
 
 .PHONY: git-governance-pr-check
-git-governance-pr-check: ## Validate actual PR metadata and every authored commit
-	bash ./scripts/validate-git-governance.sh --event-file "$(GITHUB_EVENT_PATH)"
+git-governance-pr-check: ## Validate actual PR metadata locally (PR_NUMBER) or a supplied event
+	@if [ -n "$(PR_NUMBER)" ]; then python3 scripts/git_hooks.py pr-check "$(PR_NUMBER)"; elif [ -n "$(GITHUB_EVENT_PATH)" ]; then bash ./scripts/validate-git-governance.sh --event-file "$(GITHUB_EVENT_PATH)"; else echo 'Set PR_NUMBER or GITHUB_EVENT_PATH' >&2; exit 1; fi
 
 .PHONY: architecture-check
 architecture-check: ui-composition-check react-performance-check ## Check pages/components runtime dependency boundaries
@@ -84,3 +84,10 @@ verify-light: ## Validate changed text and JSON without installing dependencies
 	python3 scripts/verification.py light
 verification-test: ## Test change classification and verification selection
 	python3 -m unittest discover -s scripts -p 'test_verification.py'
+
+.PHONY: hooks-install hooks-test
+hooks-install: ## Install commit-msg and pre-push hooks in this clone
+	python3 scripts/git_hooks.py install
+hooks-test: ## Test Git hooks and verification receipt invalidation
+	python3 -m unittest discover -s scripts -p 'test_git_hooks.py'
+	python3 -m unittest discover -s scripts -p 'test_verification_cache.py'
