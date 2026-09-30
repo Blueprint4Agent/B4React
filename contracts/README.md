@@ -28,3 +28,13 @@ and the latest successful login across linked identities (nullable if never reco
 Active means account enabled, not currently online. IPs, user agents, passwords,
 tokens and provider identifiers are excluded. This read-only snapshot is not a full
 login audit/history or live-presence feed. No role changes are exposed through this API.
+
+## Billing foundation
+
+The additive `/api/v1/billing` contract provides bearer-only config, hosted setup
+sessions/status and cursor-paginated card/Link lists. `useBillingApi` exposes typed
+adapters and known error extraction without automatic requests or cached state.
+A future page must create one request UUID per action, reuse it on retry, verify
+`registered` via the status endpoint, and refetch after return/account/connectivity
+changes. No billing page or Stripe.js dependency is added. The provider remains
+the source of truth; no webhook/realtime notification or charge is implied.
