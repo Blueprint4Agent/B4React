@@ -6,17 +6,34 @@ on:
         branches: [main]
 permissions:
     contents: read
+concurrency:
+    group: frontend-${{ github.event_name }}-${{ github.ref }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
     frontend:
         name: Frontend checks
         runs-on: ubuntu-latest
+        env:
+            VERIFY_BASE: ${{ github.event.pull_request.base.sha || 'HEAD' }}
+            VERIFY_HEAD: HEAD
+            VERIFY_FULL: ${{ github.event_name == 'pull_request' && '0' || '1' }}
         steps:
             - uses: actions/checkout@v7
+              with:
+                  fetch-depth: 0
+            - name: Plan verification
+              id: scope
+              run: python3 scripts/verification.py plan --github-output "$GITHUB_OUTPUT"
+            - name: Verify scope harness
+              run: make verification-test
             - uses: actions/setup-node@v6
+              if: steps.scope.outputs.node == 'true'
               with:
                   node-version: "24"
                   cache: npm
             - run: make install
-            - run: make check test build
+              if: steps.scope.outputs.node == 'true'
             - run: npx playwright install --with-deps chromium
-            - run: make test-routes test-style-studio
+              if: steps.scope.outputs.browser == 'true'
+            - name: Run selected verification
+              run: make verify

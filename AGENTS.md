@@ -8,7 +8,7 @@ Use `contracts/openapi.json` as the local API contract. Regenerate with `make ap
 
 ## Verification and documentation
 
-Run `make check`, `make test`, and `make build` before committing. Keep English and Korean documentation under `notes/ko/` synchronized. Review API state, realtime refresh, desktop recovery, and UI composition loops in `FRONTEND.md`; record non-applicable loops and reasons in the worklog.
+Run `make verify-plan` then `make verify` before committing. The default HEAD comparison includes staged, unstaged and untracked edits; set VERIFY_BASE to review the entire branch. Docs/structurally unchanged locale copy use text/JSON validation; behavior uses check/test/build, UI adds test-ui, and protected/unknown changes use full verification. `VERIFY_FULL=1 make verify` escalates. See [verification policy](notes/verification.md). Do not repeat successful checks for unchanged content, including delegated parent checks. Record selected/omitted checks; keep related edits in one task PR and read failure-focused logs. Required governance and merge protections remain unchanged. Keep English and Korean documentation under `notes/ko/` synchronized. Review API state, realtime refresh, desktop recovery, and UI composition loops in `FRONTEND.md`; record non-applicable loops and reasons in the worklog.
 
 ## Git governance
 
