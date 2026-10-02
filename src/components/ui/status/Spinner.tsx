@@ -1,10 +1,11 @@
 type SpinnerProps = {
     className?: string;
     label?: string;
+    hideLabel?: boolean;
     size?: "sm" | "md" | "lg";
 };
 
-export function Spinner({ className, label, size = "md" }: SpinnerProps) {
+export function Spinner({ className, label, hideLabel = false, size = "md" }: SpinnerProps) {
     const nextClassName = className
         ? `ui-spinner ui-spinner--${size} ${className}`
         : `ui-spinner ui-spinner--${size}`;
@@ -12,7 +13,7 @@ export function Spinner({ className, label, size = "md" }: SpinnerProps) {
     return (
         <span className={nextClassName} role="status" aria-live="polite" aria-label={label}>
             <span className="ui-spinner__ring" aria-hidden="true" />
-            {label ? <span className="ui-spinner__label">{label}</span> : null}
+            {label && !hideLabel ? <span className="ui-spinner__label">{label}</span> : null}
         </span>
     );
 }

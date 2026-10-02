@@ -1,7 +1,7 @@
 import { Check, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { Button, DropdownMenu, InlineMessage } from "../../components/ui";
+import { Button, DropdownMenu, InlineMessage, Spinner } from "../../components/ui";
 import { useSubscription } from "../../hooks/api/billing/useSubscription";
 import { useAuthContext } from "../../hooks/useAuth";
 
@@ -115,7 +115,11 @@ export function PlansPage() {
                             {t(`billing.plans.${plan}.description`)}
                         </p>
                         <p className="plan-card__price">
-                            {priceFor(plan)}
+                            {user && billing.loading && !billing.catalog ? (
+                                <Spinner label={t("billing.loading")} hideLabel />
+                            ) : (
+                                priceFor(plan)
+                            )}
                             <span>{t(`billing.plans.${plan}.period`)}</span>
                         </p>
                         <ul>

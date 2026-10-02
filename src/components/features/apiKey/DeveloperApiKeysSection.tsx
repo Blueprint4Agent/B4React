@@ -15,6 +15,7 @@ import {
     ModalButton,
     Pagination,
     StatusBadge,
+    Spinner,
     ToggleSwitch,
     Tooltip,
 } from "../../ui";
@@ -367,7 +368,9 @@ export function DeveloperApiKeysSection({ controller }: DeveloperApiKeysSectionP
             ) : null}
 
             {controller.loading ? (
-                <p className="developer-section__loading">{t("settings.developers.loading")}</p>
+                <div className="developer-section__loading">
+                    <Spinner label={t("settings.developers.loading")} hideLabel />
+                </div>
             ) : controller.items.length === 0 ? (
                 <p className="developer-section__loading">{t("settings.developers.empty")}</p>
             ) : (

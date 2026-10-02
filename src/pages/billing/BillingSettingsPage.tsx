@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import {
     CreditCard,
     Sparkles,
@@ -10,19 +11,51 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Button, InlineMessage } from "../../components/ui";
+import { Button, InlineMessage, Spinner } from "../../components/ui";
 import { useSubscription } from "../../hooks/api/billing/useSubscription";
 import { useBilling } from "../../hooks/api/billing/useBilling";
+
+import { useToast } from "../../hooks/useToast";
 
 type Props = { ownerId: number; email: string };
 export function BillingSettingsPage({ ownerId, email }: Props) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [params] = useSearchParams();
-    const billing = useBilling(ownerId, params.get("billing_setup"));
+    const [params, setParams] = useSearchParams();
+    const showToast = useToast();
+    const cancellationHandled = useRef(false);
+    const checkoutCancelled = params.get("billing_checkout") === "cancelled";
+    const setupCancelled = params.get("billing_setup") === "cancelled";
+    useEffect(() => {
+        if (!checkoutCancelled && !setupCancelled) {
+            cancellationHandled.current = false;
+            return;
+        }
+        if (cancellationHandled.current) return;
+        cancellationHandled.current = true;
+        showToast(
+            t(
+                checkoutCancelled
+                    ? "billing.checkoutNotices.cancelled"
+                    : "billing.notices.cancelled",
+            ),
+        );
+        setParams(
+            (previous) => {
+                const next = new URLSearchParams(previous);
+                for (const key of ["billing_checkout", "billing_setup"]) {
+                    if (next.get(key) === "cancelled") next.delete(key);
+                }
+                next.set("section", "billing");
+                return next;
+            },
+            { replace: true },
+        );
+    }, [checkoutCancelled, setupCancelled, setParams, showToast, t]);
+    const billing = useBilling(ownerId, setupCancelled ? null : params.get("billing_setup"));
     const subscription = useSubscription(
         ownerId,
-        params.get("billing_checkout"),
+        checkoutCancelled ? null : params.get("billing_checkout"),
         !!billing.config?.enabled,
     );
     const selectedPlan = params.get("plan");
@@ -45,13 +78,13 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                     <div>
                         <span className="billing-eyebrow">{t("billing.currentPlan")}</span>
                         <h2>
-                            {subscription.subscription
-                                ? t(`billing.plans.${subscription.subscription.plan}.name`)
-                                : t(
-                                      subscription.loading
-                                          ? "billing.loading"
-                                          : "billing.subscriptionStatus.unknown",
-                                  )}
+                            {subscription.subscription ? (
+                                t(`billing.plans.${subscription.subscription.plan}.name`)
+                            ) : billing.loading || subscription.loading ? (
+                                <Spinner size="sm" label={t("billing.loading")} hideLabel />
+                            ) : (
+                                t("billing.subscriptionStatus.unknown")
+                            )}
                         </h2>
                         <p>
                             {subscription.subscription?.has_subscription
@@ -61,7 +94,9 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                                   )
                                 : subscription.subscription?.plan === "free"
                                   ? t("billing.freeSummary")
-                                  : t("billing.subscriptionStatus.unknown")}
+                                  : billing.loading || subscription.loading
+                                    ? null
+                                    : t("billing.subscriptionStatus.unknown")}
                         </p>
                         {subscription.subscription?.current_period_end && (
                             <p>
@@ -174,9 +209,9 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                         </div>
                     </header>
                     {billing.loading ? (
-                        <p className="settings-row billing-loading" role="status">
-                            {t("billing.loading")}
-                        </p>
+                        <div className="settings-row billing-loading">
+                            <Spinner label={t("billing.loading")} hideLabel />
+                        </div>
                     ) : null}
                     {!billing.loading &&
                         !billing.error &&
