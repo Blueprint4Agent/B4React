@@ -49,3 +49,39 @@ export async function listBillingPaymentMethods(
     if (error || !data) throw error;
     return data;
 }
+
+export type BillingPlans = components["schemas"]["BillingPlansResponse"];
+export type BillingSubscription = components["schemas"]["BillingSubscriptionResponse"];
+export type BillingCheckoutStatus = components["schemas"]["BillingCheckoutStatusResponse"];
+export type BillingCheckoutForm = components["schemas"]["BillingCheckoutForm"];
+
+export async function getBillingPlans(): Promise<BillingPlans> {
+    const { data, error } = await apiClient.GET("/api/v1/billing/plans", {
+        headers: getAuthHeader(),
+    });
+    if (error || !data) throw error;
+    return data;
+}
+export async function getBillingSubscription(): Promise<BillingSubscription> {
+    const { data, error } = await apiClient.GET("/api/v1/billing/subscription", {
+        headers: getAuthHeader(),
+    });
+    if (error || !data) throw error;
+    return data;
+}
+export async function createBillingCheckout(body: BillingCheckoutForm): Promise<BillingSetup> {
+    const { data, error } = await apiClient.POST("/api/v1/billing/checkout-sessions", {
+        headers: getAuthHeader(),
+        body,
+    });
+    if (error || !data) throw error;
+    return data;
+}
+export async function getBillingCheckoutStatus(sessionId: string): Promise<BillingCheckoutStatus> {
+    const { data, error } = await apiClient.GET("/api/v1/billing/checkout-sessions/{session_id}", {
+        headers: getAuthHeader(),
+        params: { path: { session_id: sessionId } },
+    });
+    if (error || !data) throw error;
+    return data;
+}

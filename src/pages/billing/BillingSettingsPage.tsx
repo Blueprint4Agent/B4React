@@ -11,6 +11,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button, InlineMessage } from "../../components/ui";
+import { useSubscription } from "../../hooks/api/billing/useSubscription";
 import { useBilling } from "../../hooks/api/billing/useBilling";
 
 type Props = { ownerId: number; email: string };
@@ -19,6 +20,11 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
     const navigate = useNavigate();
     const [params] = useSearchParams();
     const billing = useBilling(ownerId, params.get("billing_setup"));
+    const subscription = useSubscription(
+        ownerId,
+        params.get("billing_checkout"),
+        !!billing.config?.enabled,
+    );
     const selectedPlan = params.get("plan");
     const paidSelected = selectedPlan === "monthly" || selectedPlan === "annual";
     const addMethod = async () => {
@@ -38,14 +44,51 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                 >
                     <div>
                         <span className="billing-eyebrow">{t("billing.currentPlan")}</span>
-                        <h2>Free</h2>
-                        <p>{t("billing.freeSummary")}</p>
+                        <h2>
+                            {subscription.subscription
+                                ? t(`billing.plans.${subscription.subscription.plan}.name`)
+                                : t(
+                                      subscription.loading
+                                          ? "billing.loading"
+                                          : "billing.subscriptionStatus.unknown",
+                                  )}
+                        </h2>
+                        <p>
+                            {subscription.subscription?.has_subscription
+                                ? t(
+                                      `billing.subscriptionStatus.${subscription.subscription.status}`,
+                                      { defaultValue: t("billing.subscriptionStatus.unknown") },
+                                  )
+                                : subscription.subscription?.plan === "free"
+                                  ? t("billing.freeSummary")
+                                  : t("billing.subscriptionStatus.unknown")}
+                        </p>
+                        {subscription.subscription?.current_period_end && (
+                            <p>
+                                {t(
+                                    subscription.subscription.cancel_at_period_end
+                                        ? "billing.endsAt"
+                                        : "billing.renewsAt",
+                                    {
+                                        date: new Date(
+                                            subscription.subscription.current_period_end * 1000,
+                                        ).toLocaleDateString(),
+                                    },
+                                )}
+                            </p>
+                        )}
                     </div>
                     <Button appearance="pill-secondary" onClick={() => navigate("/plans")}>
                         <Sparkles aria-hidden="true" />
                         {t("billing.changePlan")}
                     </Button>
                 </section>
+                {subscription.error && <InlineMessage>{t(subscription.error)}</InlineMessage>}
+                {subscription.notice && (
+                    <InlineMessage tone="info">
+                        {t(`billing.checkoutNotices.${subscription.notice}`)}
+                    </InlineMessage>
+                )}
                 {paidSelected && (
                     <InlineMessage tone="info">
                         {t("billing.selectedPlan", {
@@ -107,7 +150,10 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                             <Button
                                 appearance="pill-secondary"
                                 disabled={!billing.available || billing.loading}
-                                onClick={() => void billing.reload()}
+                                onClick={() => {
+                                    void billing.reload();
+                                    void subscription.reload();
+                                }}
                             >
                                 <RefreshCw aria-hidden="true" />
                                 {t("billing.retry")}
@@ -201,13 +247,27 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                         {t("billing.providerNote")}
                     </p>
                 </section>
-                <section className="billing-plan-footer">
-                    <ShieldCheck aria-hidden="true" />
-                    <div>
-                        <h2>{t("billing.noSubscription")}</h2>
-                        <p>{t("billing.noSubscriptionHint")}</p>
-                    </div>
-                </section>
+                {subscription.subscription && (
+                    <section className="billing-plan-footer">
+                        <ShieldCheck aria-hidden="true" />
+                        <div>
+                            <h2>
+                                {t(
+                                    subscription.subscription?.has_subscription
+                                        ? "billing.subscriptionManaged"
+                                        : "billing.noSubscription",
+                                )}
+                            </h2>
+                            <p>
+                                {t(
+                                    subscription.subscription?.has_subscription
+                                        ? "billing.subscriptionManagedHint"
+                                        : "billing.noSubscriptionHint",
+                                )}
+                            </p>
+                        </div>
+                    </section>
+                )}
             </div>
         </>
     );

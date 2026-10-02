@@ -71,7 +71,8 @@
             "lastAdminRequired": "마지막 관리자 계정입니다. 다른 계정에 관리자 권한을 지정한 후 삭제해 주세요.",
             "accountDeleteCodeInvalid": "코드가 올바르지 않거나 만료되었습니다. 5회 실패 시 10분 후 새 코드를 요청해 주세요.",
             "accountDeleteCodeThrottled": "인증 코드는 {{seconds}}초 후에 다시 받을 수 있습니다.",
-            "accountDeleteCodeSendFailed": "인증 코드를 발송하지 못했습니다. 잠시 후 다시 시도해 주세요."
+            "accountDeleteCodeSendFailed": "인증 코드를 발송하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+            "billingReviewRequired": "계정을 삭제하기 전에 운영자에게 구독 확인 및 정리를 요청해 주세요."
         }
     },
     "cards": {
@@ -694,7 +695,9 @@
             "BILLING_DISABLED": "현재 결제수단 등록을 사용할 수 없습니다.",
             "BILLING_UNAVAILABLE": "결제 서비스에 일시적으로 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.",
             "BILLING_NOT_FOUND": "이 계정의 등록 세션을 찾을 수 없습니다.",
-            "BILLING_RECONCILIATION_REQUIRED": "결제 계정 확인이 필요합니다. 관리자에게 문의해 주세요."
+            "BILLING_RECONCILIATION_REQUIRED": "결제 계정 확인이 필요합니다. 관리자에게 문의해 주세요.",
+            "BILLING_PLAN_UNAVAILABLE": "구독 플랜이 설정되지 않았습니다.",
+            "BILLING_CHECKOUT_CONFLICT": "기존 구독 또는 진행 중인 결제가 있습니다. 기존 결제를 완료하거나 결제 시작 후 최대 1시간 뒤 다시 시도해 주세요."
         },
         "plans": {
             "eyebrow": "나에게 맞는 플랜",
@@ -711,7 +714,7 @@
             "paidNext": "결제수단을 먼저 준비하세요",
             "freeHint": "카드 등록 없이 기본 기능을 이용할 수 있습니다.",
             "continueFree": "무료로 계속하기",
-            "unavailable": "표시된 금액은 템플릿 예시 가격입니다. 원화와 달러는 환율 환산값이 아닙니다. 실제 구독·결제는 아직 제공되지 않으며 확정 가격은 출시 시 안내합니다.",
+            "unavailable": "구독 결제가 아직 설정되지 않았습니다. 설정의 결제 화면에서 카드·Link를 등록할 수 있습니다.",
             "free": {
                 "name": "Free",
                 "headline": "시작은 가볍게",
@@ -725,8 +728,8 @@
                 "name": "월간",
                 "headline": "매달 유연하게",
                 "description": "짧은 주기로 시작하고 싶은 분을 위한 월간 플랜입니다.",
-                "period": "/ 월 · 예시",
-                "one": "월 단위 구독 예정",
+                "period": "/ 월",
+                "one": "매월 자동 갱신",
                 "two": "카드·Link 등록 지원",
                 "three": "상세 혜택은 출시 시 안내"
             },
@@ -734,12 +737,38 @@
                 "name": "연간",
                 "headline": "꾸준한 사용을 위해",
                 "description": "오랫동안 함께 사용할 분을 위한 연간 플랜입니다.",
-                "period": "/ 년 · 예시",
-                "one": "연 단위 구독 예정",
+                "period": "/ 년",
+                "one": "매년 자동 갱신",
                 "two": "카드·Link 등록 지원",
                 "three": "상세 혜택은 출시 시 안내"
+            },
+            "unknown": {
+                "name": "확인 필요"
             }
         },
-        "closePlans": "플랜 선택 닫기"
+        "closePlans": "플랜 선택 닫기",
+        "subscribe": "{{plan}} 결제하기",
+        "recurring": "정기 결제",
+        "sandbox": "테스트",
+        "checkoutDisclosure": "Stripe 보안 결제 화면에서 금액과 갱신 주기를 확인하고 결제합니다. 테스트 모드에서는 실제 청구되지 않습니다.",
+        "subscriptionManaged": "구독 상태",
+        "subscriptionManagedHint": "구독 상태는 Stripe에서 확인합니다. 플랜 변경과 취소가 필요하면 운영자에게 문의해 주세요.",
+        "renewsAt": "다음 갱신: {{date}}",
+        "endsAt": "이용 종료: {{date}}",
+        "checkoutNotices": {
+            "paid": "결제를 확인했습니다.",
+            "pending": "결제 확인 중입니다. 잠시 후 새로고침해 주세요.",
+            "expired": "결제 시간이 만료되었습니다.",
+            "cancelled": "결제를 취소했습니다."
+        },
+        "subscriptionStatus": {
+            "active": "이용 중",
+            "trialing": "체험 중",
+            "past_due": "결제 확인 필요",
+            "unpaid": "미결제",
+            "incomplete": "결제 미완료",
+            "paused": "일시 정지",
+            "unknown": "구독 상태 확인 필요"
+        }
     }
 }

@@ -4,6 +4,8 @@ export type BillingErrorCode = components["schemas"]["BillingErrorDetail"]["erro
 
 const BILLING_ERROR_CODES = new Set<BillingErrorCode>([
     "BILLING_DISABLED",
+    "BILLING_PLAN_UNAVAILABLE",
+    "BILLING_CHECKOUT_CONFLICT",
     "BILLING_UNAVAILABLE",
     "BILLING_NOT_FOUND",
     "BILLING_RECONCILIATION_REQUIRED",

@@ -71,7 +71,8 @@
             "lastAdminRequired": "Assign another active administrator before deleting the last administrator account.",
             "accountDeleteCodeInvalid": "The code is invalid or expired. After five failed attempts, wait 10 minutes and request a new code.",
             "accountDeleteCodeThrottled": "You can request another code in {{seconds}} seconds.",
-            "accountDeleteCodeSendFailed": "Unable to send a verification code. Please try again shortly."
+            "accountDeleteCodeSendFailed": "Unable to send a verification code. Please try again shortly.",
+            "billingReviewRequired": "Contact the operator to reconcile subscriptions before deleting this account."
         }
     },
     "cards": {
@@ -694,7 +695,9 @@
             "BILLING_DISABLED": "Payment method registration is currently unavailable.",
             "BILLING_UNAVAILABLE": "The payment service is temporarily unavailable. Please try again shortly.",
             "BILLING_NOT_FOUND": "We could not find that registration session for this account.",
-            "BILLING_RECONCILIATION_REQUIRED": "Your billing account needs review. Please contact your administrator."
+            "BILLING_RECONCILIATION_REQUIRED": "Your billing account needs review. Please contact your administrator.",
+            "BILLING_PLAN_UNAVAILABLE": "Subscription pricing is not configured.",
+            "BILLING_CHECKOUT_CONFLICT": "A subscription or checkout already exists. Complete that checkout, or retry up to one hour after it was started."
         },
         "plans": {
             "eyebrow": "A plan for you",
@@ -711,7 +714,7 @@
             "paidNext": "Get your payment method ready",
             "freeHint": "Explore the basics without adding a card.",
             "continueFree": "Continue for free",
-            "unavailable": "These are example template prices. KRW and USD amounts are not currency conversions. Paid subscriptions and checkout are not available yet; final prices will be announced at launch.",
+            "unavailable": "Subscription checkout is not configured yet. Card and Link registration remains available in Billing settings.",
             "free": {
                 "name": "Free",
                 "headline": "A simple place to start",
@@ -725,8 +728,8 @@
                 "name": "Monthly",
                 "headline": "Flexibility, every month",
                 "description": "A monthly option for those who prefer a shorter commitment.",
-                "period": "/ month · example",
-                "one": "Monthly subscription planned",
+                "period": "/ month",
+                "one": "Renews monthly",
                 "two": "Save a card or Link method",
                 "three": "Full benefits announced at launch"
             },
@@ -734,12 +737,38 @@
                 "name": "Annual",
                 "headline": "Built for the long run",
                 "description": "An annual option for those planning to stay a little longer.",
-                "period": "/ year · example",
-                "one": "Annual subscription planned",
+                "period": "/ year",
+                "one": "Renews annually",
                 "two": "Save a card or Link method",
                 "three": "Full benefits announced at launch"
+            },
+            "unknown": {
+                "name": "Needs review"
             }
         },
-        "closePlans": "Close plan selection"
+        "closePlans": "Close plan selection",
+        "subscribe": "Subscribe {{plan}}",
+        "recurring": "Recurring",
+        "sandbox": "Test mode",
+        "checkoutDisclosure": "Review the amount and renewal interval on Stripe’s secure checkout. Test mode does not charge real money.",
+        "subscriptionManaged": "Subscription status",
+        "subscriptionManagedHint": "Subscription status is verified with Stripe. Contact the operator for plan changes or cancellation.",
+        "renewsAt": "Next renewal: {{date}}",
+        "endsAt": "Access ends: {{date}}",
+        "checkoutNotices": {
+            "paid": "Payment confirmed.",
+            "pending": "Payment is pending. Refresh shortly.",
+            "expired": "Checkout expired.",
+            "cancelled": "Checkout cancelled."
+        },
+        "subscriptionStatus": {
+            "active": "Active",
+            "trialing": "Trial",
+            "past_due": "Payment overdue",
+            "unpaid": "Unpaid",
+            "incomplete": "Payment incomplete",
+            "paused": "Paused",
+            "unknown": "Subscription needs review"
+        }
     }
 }
