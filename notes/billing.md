@@ -49,3 +49,5 @@ The plans screen starts directly with its heading and currency control. No back-
 `/plans` is a standalone full-window route outside AppLayout, with its own scroll surface and a top-right close button. Closing returns to the originating app/settings/admin route when supplied by the profile menu; direct visits fall back to billing for signed-in users or the showcase for guests. The native desktop title bar inset remains reserved.
 
 Signed-in users see the Free template baseline as **Current plan**, with a disabled action. Selecting a monthly/annual candidate never updates that label; future real subscriptions must supply the current plan from the server. Guests retain normal plan selection without claiming a current subscription.
+
+Billing settings reuse the shared settings header/content spacing and settings-row surfaces. Keep billing-specific CSS limited to internal arrangement; compare actual General/Billing geometry in browser checks when changing these layouts.
