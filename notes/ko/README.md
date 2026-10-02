@@ -110,3 +110,5 @@ name/short_name/identifier를 수정한 뒤 `make project-config-check`와 빌�
 검색·페이지네이션 공용 규칙과 사용법: [한국어](collections.md) · [English](../collections.md).
 
 결제 설정·플랜 선택: [한국어](billing.md) · [English](../billing.md).
+
+- [페이지 유형별 일관성](page-families.md) / [English](../page-families.md)

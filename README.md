@@ -122,3 +122,5 @@ Search and pagination: [English](notes/collections.md) · [한국어](notes/ko/c
 Change-scoped verification: [English](notes/verification.md) · [한국어](notes/ko/verification.md).
 
 Billing settings and plan selection: [English](notes/billing.md) · [한국어](notes/ko/billing.md).
+
+- [Page-family consistency](notes/page-families.md) / [페이지 유형별 일관성](notes/ko/page-families.md)

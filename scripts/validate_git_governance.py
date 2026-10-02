@@ -80,6 +80,12 @@ def check_worklogs(paths, read_file, title, source, changed_paths=None):
         or path in {"package.json", "package-lock.json", "vite.config.ts"}
         for path in (changed_paths if changed_paths is not None else paths)
     )
+    ui_changed = any(
+        (path.startswith(("src/pages/", "src/components/")) and path.endswith((".ts", ".tsx")))
+        or (path.startswith("src/styles/") and path.endswith((".css", ".scss", ".sass", ".less")))
+        or path in {"src/App.tsx", "src/main.tsx"}
+        for path in (changed_paths if changed_paths is not None else paths)
+    )
     # Policy comes from the same staged/committed snapshot, not today's worktree.
     # Older commits whose template predates this rule remain valid.
     try:
@@ -101,6 +107,14 @@ def check_worklogs(paths, read_file, title, source, changed_paths=None):
                     require(
                         substantive(section(content, heading, 1)),
                         f"{source}: {path} missing/empty {heading} for frontend runtime change",
+                    )
+            if ui_changed and "# Page Family" in template:
+                review = section(content, "Page Family", 1)
+                for heading in ("Family", "Reference", "Shared Rules", "Exceptions", "Evidence"):
+                    value = section(review, heading, 2)
+                    require(
+                        substantive(value) and re.sub(r"<!--.*?-->", "", value, flags=re.DOTALL).strip().casefold() not in {"n/a", "na", "none"},
+                        f"{source}: {path} missing/empty Page Family / {heading} for UI change",
                     )
             matched = True
     require(
