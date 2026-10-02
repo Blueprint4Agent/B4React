@@ -284,3 +284,103 @@ test("a subscription checkout uses the selected server-priced plan and verifies 
     ).toBeDisabled();
     await expect(page.getByRole("button", { name: "Subscribe Annual" })).toBeDisabled();
 });
+
+for (const [query, message] of [
+    ["billing_checkout", "Checkout cancelled."],
+    ["billing_setup", "Registration was cancelled. You can add a method whenever you are ready."],
+]) {
+    test(`${query} cancellation uses one transient toast and consumes the return`, async ({
+        page,
+    }, info) => {
+        await setup(page);
+        await page.goto(`/settings?${query}=cancelled&currency=usd`);
+        const toast = page.locator(".ui-toast-card");
+        await expect(toast).toHaveText(message);
+        await expect(page.locator(".billing-settings")).not.toContainText(message);
+        await expect(page).toHaveURL(/currency=usd&section=billing$/);
+        await expect(page.getByRole("heading", { name: "Billing", exact: true })).toBeVisible();
+        await page.screenshot({ path: info.outputPath("cancellation-toast.png") });
+        await expect(toast).toHaveCount(0, { timeout: 5000 });
+        await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+        await page.getByRole("button", { name: "Refresh" }).click();
+        await expect(page.getByText("VISA •••• 4242")).toBeVisible();
+        await expect(toast).toHaveCount(0);
+        await page.reload();
+        await expect(page.getByText("VISA •••• 4242")).toBeVisible();
+        await expect(toast).toHaveCount(0);
+    });
+}
+
+for (const width of [390, 1440]) {
+    test(`billing loading uses accessible spinners at ${width}px`, async ({ page }, info) => {
+        await setup(page);
+        await page.setViewportSize({ width, height: 1000 });
+        let release!: () => void;
+        const gate = new Promise<void>((resolve) => {
+            release = resolve;
+        });
+        await page.route("**/api/v1/billing/subscription", async (route) => {
+            await gate;
+            await route.fulfill({
+                json: { plan: "free", status: "none", has_subscription: false },
+            });
+        });
+        await page.route("**/api/v1/billing/payment-methods?*", async (route) => {
+            await gate;
+            await route.fulfill({ json: { items: [], has_more: false } });
+        });
+        await page.goto("/settings?section=billing");
+        const spinners = page.getByRole("status", {
+            name: "Loading billing information…",
+            exact: true,
+        });
+        await expect(spinners).toHaveCount(2);
+        await expect(spinners.first().locator(".ui-spinner__ring")).toBeVisible();
+        await expect(page.getByText("Loading billing information…", { exact: true })).toHaveCount(
+            0,
+        );
+        await page.screenshot({ path: info.outputPath("billing-spinners.png"), fullPage: true });
+        release();
+        await expect(spinners).toHaveCount(0);
+        await expect(page.getByRole("heading", { name: "Free", exact: true })).toBeVisible();
+    });
+}
+
+test("API key loading uses the same accessible spinner", async ({ page }, info) => {
+    await setup(page);
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+        release = resolve;
+    });
+    await page.route("**/api/v1/api-keys", async (route) => {
+        await gate;
+        await route.fulfill({ json: { items: [] } });
+    });
+    await page.goto("/settings?section=developers");
+    const spinner = page.locator(".developer-section__loading .ui-spinner");
+    await expect(spinner).toBeVisible();
+    await expect(spinner).toHaveAttribute("aria-label", /Loading/);
+    await expect(spinner.locator(".ui-spinner__label")).toHaveCount(0);
+    await page.screenshot({ path: info.outputPath("api-key-spinner.png") });
+    release();
+    await expect(spinner).toHaveCount(0);
+});
+
+test("plan catalog loading uses spinners instead of temporary unavailable prices", async ({
+    page,
+}) => {
+    await setup(page);
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+        release = resolve;
+    });
+    await page.route("**/api/v1/billing/plans", async (route) => {
+        await gate;
+        await route.fulfill({ json: { enabled: false, livemode: false, prices: [] } });
+    });
+    await page.goto("/plans");
+    await expect(page.locator(".plan-card__price .ui-spinner")).toHaveCount(3);
+    await expect(page.locator(".plan-card__price .ui-spinner__label")).toHaveCount(0);
+    release();
+    await expect(page.locator(".plan-card__price .ui-spinner")).toHaveCount(0);
+});

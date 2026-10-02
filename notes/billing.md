@@ -44,3 +44,5 @@ separate family. Follow [page-family rules](page-families.md). Small cards need 
 boundary; URL/language/server snapshots are their meaningful changes. Hook race tests,
 provider-mocked browser checkout/return tests, peer geometry comparisons and production
 lazy-route checks protect these flows. Mocked tests do not prove a settled Stripe payment.
+
+Cancellation returns show the shared transient toast once and replace the cancellation query with `section=billing`, preserving unrelated parameters. Billing/plan loading uses the shared spinner with an accessible name and no visible loading sentence; API key settings follows the same convention.

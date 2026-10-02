@@ -524,7 +524,7 @@ export function ShowCasePage() {
                 <>
                     <div className="showcase-catalog__row">
                         <ShowcaseItem component="Spinner (sm)">
-                            <Spinner size="sm" label={t("showCase.demo.text29")} />
+                            <Spinner size="sm" label={t("showCase.demo.text29")} hideLabel />
                         </ShowcaseItem>
                         <ShowcaseItem component="Spinner (md)">
                             <Spinner size="md" label={t("showCase.demo.text30")} />
