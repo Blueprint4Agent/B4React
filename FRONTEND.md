@@ -706,3 +706,7 @@ Email verification is a one-time mutation: reuse the current token promise acros
 The sidebar footer places GitHub and User guide links immediately above the profile control. Both open the B4FastAPI repository or https://blueprint4agent.github.io/docs in a new tab. The GitHub link reuses the existing official GitHub SVG as a theme-aware mask. Reuse sidebar row styling and collapsed tooltips; keep these links visible in app, settings and admin shells.
 
 Modal dropdown menus portal into the enclosing dialog outside its clipped panel/body. Only their measured fixed top/left/width/max-height are dynamic geometry exceptions; appearance remains in app.css. Menus keep trigger width and a 4px gap, flip upward when needed, clamp to viewport edges and scroll internally when height is limited. Reposition on scroll/resize and dismiss when the anchor is hidden. Modal focus containment includes portal controls, and Escape dismisses an open menu before its dialog. Other dropdowns retain inline positioning and scoped styles. API-key creation shows a persistent InlineMessage warning for No expiration; changing to a finite expiry removes it without changing API payloads.
+
+## Billing settings and plan selection
+
+Follow [billing UI ownership, example prices and return verification](notes/billing.md). Plans are lazy and template-only; card/Link registration uses the existing authenticated API. Never promote a selected plan or return query into payment success or an entitlement.

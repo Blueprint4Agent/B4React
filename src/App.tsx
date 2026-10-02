@@ -58,6 +58,10 @@ const SettingsPage = lazy(() =>
     import("./pages/settings/SettingsPage").then((module) => ({ default: module.SettingsPage })),
 );
 
+const PlansPage = lazy(() =>
+    import("./pages/billing/PlansPage").then((module) => ({ default: module.PlansPage })),
+);
+
 function NotFoundRoute({
     loginEnabled,
     configLoading,
@@ -267,6 +271,7 @@ export function App() {
                 />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/plans" element={<PlansPage />} />
             </Route>
             <Route
                 path="*"

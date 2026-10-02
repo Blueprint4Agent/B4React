@@ -28,7 +28,9 @@ test("defers secondary chunks and retains the shell while settings loads", async
     });
     await page.goto("/show-case");
     await expect(page.locator(".showcase-catalog")).toBeVisible();
-    expect(scripts.some((url) => /\/(SettingsPage|AdminPage|LoginPage)-/.test(url))).toBe(false);
+    expect(scripts.some((url) => /\/(SettingsPage|AdminPage|LoginPage|PlansPage)-/.test(url))).toBe(
+        false,
+    );
     // When: navigating to settings without a full page reload.
     await page.locator(".profile-menu__trigger").click();
     await page.getByRole("link", { name: "Settings", exact: true }).click();
@@ -64,4 +66,23 @@ test("failed chunk can return to the eager showcase", async ({ page }) => {
     // Then: route-local failure does not poison the shell or home page.
     await expect(page).toHaveURL(/\/show-case$/);
     await expect(page.locator(".showcase-catalog")).toBeVisible();
+});
+
+test("plan selection loads its own production chunk and preserves example currency", async ({
+    page,
+}) => {
+    const scripts: string[] = [];
+    page.on("request", (request) => {
+        if (request.resourceType() === "script") scripts.push(request.url());
+    });
+    await page.goto("/show-case");
+    await expect(page.locator(".showcase-catalog")).toBeVisible();
+    expect(scripts.some((url) => /\/PlansPage-/.test(url))).toBe(false);
+    await page.locator(".profile-menu__trigger").click();
+    await page.getByRole("link", { name: "Upgrade plan", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Monthly", exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "USD $", exact: true }).click();
+    await page.reload();
+    await expect(page.locator(".plan-card__price").nth(1)).toContainText("US$3.99");
+    expect(scripts.some((url) => /\/PlansPage-/.test(url))).toBe(true);
 });

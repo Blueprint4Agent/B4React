@@ -1,3 +1,4 @@
+import { BillingSettingsPage } from "../billing/BillingSettingsPage";
 import { useToast } from "../../hooks/useToast";
 import { resolveSettingsSection } from "../../utils/settingsSections";
 import { useCallback, useEffect, useState } from "react";
@@ -50,7 +51,7 @@ export function SettingsPage() {
     const { data: appConfig } = useAppConfig();
     const { themeMode, setThemeMode } = useTheme();
     const [searchParams, setSearchParams] = useSearchParams();
-    const section = searchParams.get("section");
+    const section = searchParams.has("billing_setup") ? "billing" : searchParams.get("section");
     const activeMenu = resolveSettingsSection(section, Boolean(user));
     useEffect(() => {
         if (!authLoading && !user && section !== activeMenu) {
@@ -473,6 +474,8 @@ export function SettingsPage() {
                             </section>
                         ) : null}
                     </>
+                ) : activeMenu === "billing" && user ? (
+                    <BillingSettingsPage key={user.id} ownerId={user.id} email={user.email} />
                 ) : showDevelopers ? (
                     <>
                         <header className="settings-content-card__header">

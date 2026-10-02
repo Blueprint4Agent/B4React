@@ -1,4 +1,4 @@
-export type SettingsSection = "account" | "general" | "appearance" | "developers";
+export type SettingsSection = "account" | "general" | "appearance" | "developers" | "billing";
 
 export function resolveSettingsSection(
     section: string | null,
@@ -6,5 +6,5 @@ export function resolveSettingsSection(
 ): SettingsSection {
     if (section === "general" || section === "appearance") return section;
     if (!hasAccount) return "general";
-    return section === "developers" ? "developers" : "account";
+    return section === "billing" ? "billing" : section === "developers" ? "developers" : "account";
 }
