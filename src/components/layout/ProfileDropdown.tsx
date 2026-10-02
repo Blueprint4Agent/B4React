@@ -298,7 +298,11 @@ export function ProfileDropdown({
                         <KeyboardShortcut keys={APP_SHORTCUTS.openSettings} />
                     </Link>
                     {!showLogin && (
-                        <Link to="/plans" className="profile-menu__item">
+                        <Link
+                            to="/plans"
+                            state={{ returnTo: location.pathname + location.search }}
+                            className="profile-menu__item"
+                        >
                             <span className="profile-menu__item-icon" aria-hidden="true">
                                 <Sparkles />
                             </span>
