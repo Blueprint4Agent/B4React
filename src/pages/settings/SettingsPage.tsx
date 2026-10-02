@@ -51,7 +51,10 @@ export function SettingsPage() {
     const { data: appConfig } = useAppConfig();
     const { themeMode, setThemeMode } = useTheme();
     const [searchParams, setSearchParams] = useSearchParams();
-    const section = searchParams.has("billing_setup") ? "billing" : searchParams.get("section");
+    const section =
+        searchParams.has("billing_setup") || searchParams.has("billing_checkout")
+            ? "billing"
+            : searchParams.get("section");
     const activeMenu = resolveSettingsSection(section, Boolean(user));
     useEffect(() => {
         if (!authLoading && !user && section !== activeMenu) {

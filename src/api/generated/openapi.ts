@@ -334,6 +334,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/billing/checkout-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Checkout */
+        post: operations["create_checkout_api_v1_billing_checkout_sessions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/checkout-sessions/{session_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Checkout Status */
+        get: operations["checkout_status_api_v1_billing_checkout_sessions__session_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/billing/config": {
         parameters: {
             query?: never;
@@ -368,6 +402,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/billing/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Plans */
+        get: operations["plans_api_v1_billing_plans_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/billing/setup-sessions": {
         parameters: {
             query?: never;
@@ -394,6 +445,23 @@ export interface paths {
         };
         /** Setup Status */
         get: operations["setup_status_api_v1_billing_setup_sessions__session_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Subscription */
+        get: operations["subscription_api_v1_billing_subscription_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -651,6 +719,7 @@ export interface components {
              * @enum {string}
              */
             error:
+                | "ACCOUNT_BILLING_REVIEW_REQUIRED"
                 | "ACCOUNT_DELETE_CODE_INVALID"
                 | "ACCOUNT_DELETE_CODE_THROTTLED"
                 | "ACCOUNT_DELETE_CODE_SEND_FAILED"
@@ -681,6 +750,37 @@ export interface components {
         AuthErrorResponse: {
             detail: components["schemas"]["AuthErrorDetail"];
         };
+        /** BillingCheckoutForm */
+        BillingCheckoutForm: {
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "krw" | "usd";
+            /**
+             * Plan
+             * @enum {string}
+             */
+            plan: "monthly" | "annual";
+            /**
+             * Request Id
+             * Format: uuid
+             * @description Reuse this UUID when retrying the same setup request.
+             */
+            request_id: string;
+        };
+        /** BillingCheckoutStatusResponse */
+        BillingCheckoutStatusResponse: {
+            /** Id */
+            id: string;
+            /** Paid */
+            paid: boolean;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "complete" | "expired";
+        };
         /** BillingConfigResponse */
         BillingConfigResponse: {
             /** Enabled */
@@ -702,6 +802,8 @@ export interface components {
             error:
                 | "BILLING_DISABLED"
                 | "BILLING_UNAVAILABLE"
+                | "BILLING_PLAN_UNAVAILABLE"
+                | "BILLING_CHECKOUT_CONFLICT"
                 | "BILLING_NOT_FOUND"
                 | "BILLING_RECONCILIATION_REQUIRED";
             /** Message */
@@ -738,6 +840,33 @@ export interface components {
             /** Next Cursor */
             next_cursor?: string | null;
         };
+        /** BillingPlansResponse */
+        BillingPlansResponse: {
+            /** Enabled */
+            enabled: boolean;
+            /** Livemode */
+            livemode: boolean;
+            /** Prices */
+            prices: components["schemas"]["BillingPriceResponse"][];
+        };
+        /** BillingPriceResponse */
+        BillingPriceResponse: {
+            /**
+             * Amount
+             * @description Minor currency units; KRW has no decimal places.
+             */
+            amount: number;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "krw" | "usd";
+            /**
+             * Plan
+             * @enum {string}
+             */
+            plan: "monthly" | "annual";
+        };
         /** BillingSetupForm */
         BillingSetupForm: {
             /**
@@ -765,6 +894,30 @@ export interface components {
              * @enum {string}
              */
             status: "open" | "complete" | "expired";
+        };
+        /** BillingSubscriptionResponse */
+        BillingSubscriptionResponse: {
+            /**
+             * Cancel At Period End
+             * @default false
+             */
+            cancel_at_period_end: boolean;
+            /** Currency */
+            currency?: string | null;
+            /** Current Period End */
+            current_period_end?: number | null;
+            /**
+             * Has Subscription
+             * @default false
+             */
+            has_subscription: boolean;
+            /**
+             * Plan
+             * @enum {string}
+             */
+            plan: "free" | "monthly" | "annual" | "unknown";
+            /** Status */
+            status: string;
         };
         /** Body_oauth_token_login_api_v1_auth_token_post */
         Body_oauth_token_login_api_v1_auth_token_post: {
@@ -2025,8 +2178,8 @@ export interface operations {
                     /**
                      * @example {
                      *       "detail": {
-                     *         "error": "LAST_ADMIN_REQUIRED",
-                     *         "message": "Assign another active administrator before deleting this account."
+                     *         "error": "ACCOUNT_BILLING_REVIEW_REQUIRED",
+                     *         "message": "Contact the operator to reconcile subscriptions before deleting this account."
                      *       }
                      *     }
                      */
@@ -2934,6 +3087,268 @@ export interface operations {
             };
         };
     };
+    create_checkout_api_v1_billing_checkout_sessions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BillingCheckoutForm"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingSetupResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "API_KEY_USER_MISMATCH",
+                     *         "message": "API key does not belong to the authenticated user."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_CHECKOUT_CONFLICT",
+                     *         "message": "An existing subscription or another checkout requires attention."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_UNAVAILABLE",
+                     *         "message": "Payment provider is temporarily unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_DISABLED",
+                     *         "message": "Billing is not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+        };
+    };
+    checkout_status_api_v1_billing_checkout_sessions__session_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingCheckoutStatusResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "API_KEY_USER_MISMATCH",
+                     *         "message": "API key does not belong to the authenticated user."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_CHECKOUT_CONFLICT",
+                     *         "message": "An existing subscription or another checkout requires attention."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_UNAVAILABLE",
+                     *         "message": "Payment provider is temporarily unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_DISABLED",
+                     *         "message": "Billing is not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+        };
+    };
     billing_config_api_v1_billing_config_get: {
         parameters: {
             query?: never;
@@ -3000,8 +3415,8 @@ export interface operations {
                     /**
                      * @example {
                      *       "detail": {
-                     *         "error": "BILLING_RECONCILIATION_REQUIRED",
-                     *         "message": "Customer setup requires operator reconciliation."
+                     *         "error": "BILLING_CHECKOUT_CONFLICT",
+                     *         "message": "An existing subscription or another checkout requires attention."
                      *       }
                      *     }
                      */
@@ -3123,8 +3538,8 @@ export interface operations {
                     /**
                      * @example {
                      *       "detail": {
-                     *         "error": "BILLING_RECONCILIATION_REQUIRED",
-                     *         "message": "Customer setup requires operator reconciliation."
+                     *         "error": "BILLING_CHECKOUT_CONFLICT",
+                     *         "message": "An existing subscription or another checkout requires attention."
                      *       }
                      *     }
                      */
@@ -3138,6 +3553,125 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_UNAVAILABLE",
+                     *         "message": "Payment provider is temporarily unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_DISABLED",
+                     *         "message": "Billing is not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+        };
+    };
+    plans_api_v1_billing_plans_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingPlansResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "API_KEY_USER_MISMATCH",
+                     *         "message": "API key does not belong to the authenticated user."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_CHECKOUT_CONFLICT",
+                     *         "message": "An existing subscription or another checkout requires attention."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
                 };
             };
             /** @description Unexpected server error */
@@ -3255,8 +3789,8 @@ export interface operations {
                     /**
                      * @example {
                      *       "detail": {
-                     *         "error": "BILLING_RECONCILIATION_REQUIRED",
-                     *         "message": "Customer setup requires operator reconciliation."
+                     *         "error": "BILLING_CHECKOUT_CONFLICT",
+                     *         "message": "An existing subscription or another checkout requires attention."
                      *       }
                      *     }
                      */
@@ -3385,8 +3919,8 @@ export interface operations {
                     /**
                      * @example {
                      *       "detail": {
-                     *         "error": "BILLING_RECONCILIATION_REQUIRED",
-                     *         "message": "Customer setup requires operator reconciliation."
+                     *         "error": "BILLING_CHECKOUT_CONFLICT",
+                     *         "message": "An existing subscription or another checkout requires attention."
                      *       }
                      *     }
                      */
@@ -3400,6 +3934,125 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_UNAVAILABLE",
+                     *         "message": "Payment provider is temporarily unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_DISABLED",
+                     *         "message": "Billing is not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
+                };
+            };
+        };
+    };
+    subscription_api_v1_billing_subscription_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingSubscriptionResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "API_KEY_USER_MISMATCH",
+                     *         "message": "API key does not belong to the authenticated user."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["BillingErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "BILLING_CHECKOUT_CONFLICT",
+                     *         "message": "An existing subscription or another checkout requires attention."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BillingErrorResponse"];
                 };
             };
             /** @description Unexpected server error */

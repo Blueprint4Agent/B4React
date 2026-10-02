@@ -4,6 +4,9 @@ import * as billingApi from "../../../api/billing/billingApi";
 import { extractBillingErrorCode } from "../../../api/billing/billingError";
 
 export type {
+    BillingPlans,
+    BillingSubscription,
+    BillingCheckoutForm,
     BillingConfig,
     BillingSetup,
     BillingSetupStatus,

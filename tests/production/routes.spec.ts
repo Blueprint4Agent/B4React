@@ -68,7 +68,7 @@ test("failed chunk can return to the eager showcase", async ({ page }) => {
     await expect(page.locator(".showcase-catalog")).toBeVisible();
 });
 
-test("plan selection loads its own production chunk and preserves example currency", async ({
+test("plan selection loads its own production chunk and preserves currency preference", async ({
     page,
 }) => {
     const scripts: string[] = [];
@@ -85,6 +85,9 @@ test("plan selection loads its own production chunk and preserves example curren
     await page.getByRole("button", { name: "KRW ₩", exact: true }).click();
     await page.getByRole("menuitem", { name: "USD $", exact: true }).click();
     await page.reload();
-    await expect(page.locator(".plan-card__price").nth(1)).toContainText("US$3.99");
+    await expect(page.getByRole("button", { name: "USD $", exact: true })).toBeVisible();
+    await expect(
+        page.getByRole("button", { name: "Sign in to continue", exact: true }).first(),
+    ).toBeVisible();
     expect(scripts.some((url) => /\/PlansPage-/.test(url))).toBe(true);
 });

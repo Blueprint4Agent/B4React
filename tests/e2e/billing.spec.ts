@@ -27,6 +27,23 @@ async function setup(page: Page, language = "en") {
             },
         }),
     );
+    await page.route("**/api/v1/billing/plans", (route) =>
+        route.fulfill({
+            json: {
+                enabled: true,
+                livemode: false,
+                prices: [
+                    { plan: "monthly", currency: "krw", amount: 3990 },
+                    { plan: "monthly", currency: "usd", amount: 399 },
+                    { plan: "annual", currency: "krw", amount: 39900 },
+                    { plan: "annual", currency: "usd", amount: 3999 },
+                ],
+            },
+        }),
+    );
+    await page.route("**/api/v1/billing/subscription", (route) =>
+        route.fulfill({ json: { plan: "free", status: "none", has_subscription: false } }),
+    );
     await page.route("**/api/v1/billing/config", (route) => {
         stats.configCalls++;
         return route.fulfill({ json: { enabled: true, livemode: false } });
@@ -87,11 +104,9 @@ for (const width of [390, 1440])
             await page.getByRole("button", { name: "KRW ₩", exact: true }).click();
             await page.getByRole("menuitem", { name: "USD $", exact: true }).click();
             await expect(page.locator(".plan-card__price").nth(1)).toContainText("US$3.99");
-            await page.getByRole("button", { name: "Select Annual", exact: true }).click();
-            await expect(page.getByRole("button", { name: "Annual selected" })).toHaveAttribute(
-                "aria-pressed",
-                "true",
-            );
+            await expect(
+                page.getByRole("button", { name: "Subscribe Annual", exact: true }),
+            ).toBeEnabled();
             expect(
                 await page.evaluate(
                     () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -208,7 +223,7 @@ test("standalone plans close to their originating page and direct visits have a 
     await expect(page.locator(".app-sidebar")).toHaveCount(0);
     await page.getByRole("button", { name: "KRW ₩", exact: true }).click();
     await page.getByRole("menuitem", { name: "USD $", exact: true }).click();
-    await page.getByRole("button", { name: "Select Annual", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Subscribe Annual", exact: true })).toBeEnabled();
     const close = page.getByRole("button", { name: "Close plan selection" });
     await close.focus();
     await page.keyboard.press("Enter");
@@ -217,4 +232,55 @@ test("standalone plans close to their originating page and direct visits have a 
     await page.goto("/plans");
     await page.getByRole("button", { name: "Close plan selection" }).click();
     await expect(page).toHaveURL(/\/settings\?section=billing$/);
+});
+
+test("a subscription checkout uses the selected server-priced plan and verifies the return", async ({
+    page,
+}) => {
+    await setup(page);
+    let received: Record<string, unknown> | undefined;
+    await page.route("**/api/v1/billing/checkout-sessions", async (route) => {
+        received = route.request().postDataJSON();
+        await route.fulfill({
+            json: {
+                id: "cs_test_subscription",
+                url: "https://checkout.stripe.com/c/pay/subscription",
+            },
+        });
+    });
+    await page.route("https://checkout.stripe.com/**", (route) =>
+        route.fulfill({ contentType: "text/html", body: "<h1>Stripe checkout</h1>" }),
+    );
+    await page.goto("/plans");
+    await page.getByRole("button", { name: "Subscribe Monthly", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Stripe checkout" })).toBeVisible();
+    expect(received).toMatchObject({ plan: "monthly", currency: "krw" });
+    expect(received?.request_id).toMatch(/^[0-9a-f-]{36}$/);
+    await page.route("**/api/v1/billing/checkout-sessions/cs_test_subscription", (route) =>
+        route.fulfill({ json: { id: "cs_test_subscription", status: "complete", paid: false } }),
+    );
+    await page.goto("/settings?billing_checkout=cs_test_subscription");
+    await expect(page.getByText("Payment is pending. Refresh shortly.")).toBeVisible();
+    await expect(page.getByText("Payment confirmed.")).toHaveCount(0);
+    await page.route("**/api/v1/billing/checkout-sessions/cs_test_subscription", (route) =>
+        route.fulfill({ json: { id: "cs_test_subscription", status: "complete", paid: true } }),
+    );
+    await page.route("**/api/v1/billing/subscription", (route) =>
+        route.fulfill({
+            json: {
+                plan: "monthly",
+                status: "active",
+                has_subscription: true,
+                current_period_end: 1900000000,
+            },
+        }),
+    );
+    await page.getByRole("button", { name: "Refresh", exact: true }).click();
+    await expect(page.getByText("Payment confirmed.")).toBeVisible();
+    await expect(page.locator(".billing-plan-summary h2")).toHaveText("Monthly");
+    await page.goto("/plans");
+    await expect(
+        page.locator(".plan-card").nth(1).getByRole("button", { name: "Current plan" }),
+    ).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Subscribe Annual" })).toBeDisabled();
 });
