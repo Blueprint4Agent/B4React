@@ -81,3 +81,21 @@ test("rejects a shared component omitted from the public barrel", () =>
         }).join(),
         /must be exposed through the shared UI barrel/,
     ));
+
+test("settings headers stay outside domain content wrappers", () => {
+    assert.match(
+        fixture({
+            "src/pages/settings/Other.tsx":
+                'export const page = <div className="billing-settings"><header className="settings-content-card__header" /></div>;',
+        }).join(),
+        /Settings header must be/,
+    );
+    for (const content of [
+        '<><header className="settings-content-card__header" /><div className="settings-general-content" /></>',
+        '<div className="settings-content-card"><header className="settings-content-card__header" /></div>',
+    ])
+        assert.deepEqual(
+            fixture({ "src/pages/settings/Other.tsx": `export const page = ${content};` }),
+            [],
+        );
+});

@@ -710,3 +710,5 @@ Modal dropdown menus portal into the enclosing dialog outside its clipped panel/
 ## Billing settings and plan selection
 
 Follow [billing UI ownership, example prices and return verification](notes/billing.md). Plans are lazy and template-only; card/Link registration uses the existing authenticated API. Never promote a selected plan or return query into payment success or an entitlement.
+
+Follow [page-family consistency](notes/page-families.md) before UI changes. Identify a canonical peer and reuse shell, header/content spacing, surfaces, typography, actions and responsive rules. Record the required Page Family review and browser comparisons; document scoped exceptions. A screenshot reference does not override the host family rules.

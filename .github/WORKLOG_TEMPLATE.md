@@ -47,3 +47,30 @@ explain why and how correctness was checked. Do not claim unmeasured latency imp
 # Verification
 
 <!-- Replace with observed results and task-specific reasons for skipped checks. -->
+
+# Page Family
+
+<!-- Required for UI source/style changes. Identify the existing family before implementation;
+record actual peer comparison after verification. Explain non-applicability instead of bare N/A.
+Use the five level-two headings below; see notes/page-families.md. -->
+
+## Family
+
+<!-- Settings, auth, collection, modal, standalone pricing, or documented new family. -->
+
+## Reference
+
+<!-- Concrete existing peer/component paths; for a new family name the new canonical owner. -->
+
+## Shared Rules
+
+<!-- Shell, width, header/content gap, surface, typography, actions and responsive rules reused. -->
+
+## Exceptions
+
+<!-- None with reason, or precisely scoped domain difference and rationale. -->
+
+## Evidence
+
+<!-- Browser comparison at mobile/desktop and light/dark; actual test/artifact paths.
+For nonvisual UI-source edits explain why the existing comparisons remain valid. -->

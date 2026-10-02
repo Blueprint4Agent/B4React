@@ -71,6 +71,39 @@ export function checkUiComposition(root) {
                             );
                     }
                     if (
+                        attribute.name.text === "className" &&
+                        /\bsettings-content-card__header\b/.test(
+                            attribute.initializer?.getText(source) ?? "",
+                        )
+                    ) {
+                        // A settings header belongs at the shell level, never inside a
+                        // domain content/grid wrapper which adds another spacing layer.
+                        let ancestor = ts.isJsxSelfClosingElement(node)
+                            ? node.parent
+                            : node.parent?.parent;
+                        while (
+                            ancestor &&
+                            !ts.isJsxElement(ancestor) &&
+                            !ts.isFunctionLike(ancestor)
+                        )
+                            ancestor = ancestor.parent;
+                        if (ancestor && ts.isJsxElement(ancestor)) {
+                            const classes =
+                                ancestor.openingElement.attributes.properties
+                                    .find(
+                                        (item) =>
+                                            ts.isJsxAttribute(item) &&
+                                            item.name.text === "className",
+                                    )
+                                    ?.initializer?.getText(source) ?? "";
+                            if (!/(?:^|[\s"'])settings-content-card(?:[\s"']|$)/.test(classes))
+                                report(
+                                    node,
+                                    "Settings header must be a shell child or fragment root, not inside a content wrapper; see notes/page-families.md",
+                                );
+                        }
+                    }
+                    if (
                         tag === "button" &&
                         attribute.name.text === "className" &&
                         /ui-button/.test(attribute.initializer?.getText(source) ?? "") &&
