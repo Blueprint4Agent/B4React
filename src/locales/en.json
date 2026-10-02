@@ -655,7 +655,7 @@
         "title": "Billing",
         "subtitle": "Manage your plan and payment methods in one place.",
         "back": "Back to billing",
-        "currentPlan": "Base plan",
+        "currentPlan": "Current plan",
         "freeSummary": "Start for free. No automatic renewal or recurring charges.",
         "changePlan": "Upgrade plan",
         "selectedPlan": "You selected {{plan}}. You can save a payment method now; this does not start a subscription.",
@@ -739,6 +739,7 @@
                 "two": "Save a card or Link method",
                 "three": "Full benefits announced at launch"
             }
-        }
+        },
+        "closePlans": "Close plan selection"
     }
 }

@@ -10,10 +10,11 @@ entitlements, invoices, billing-address editing and cancellation are not impleme
 Free is the baseline for this registration-only template, not a fetched subscription status.
 Do not reuse that baseline as a paid entitlement check when adding subscriptions.
 
-Paid selection leads to `/settings?section=billing&plan=monthly` (or annual). The settings
-sidebar also exposes Billing for authenticated/bootstrap identities. Guests see general
-settings and can browse plans, then sign in. Selection is not a purchase and cannot change
-a user's plan. There are no business/team tiers yet.
+Plan selection stays on this screen. A compact currency dropdown sits above the cards at
+their upper right. Card/Link registration is available only in Settings → Billing;
+the plans screen has no registration action. Authenticated/bootstrap identities can
+open Billing from the settings sidebar. Guests can browse plans. Selection is not a
+purchase and cannot change a user's plan. There are no business/team tiers yet.
 
 The page owns `useBilling`, which calls the typed `useBillingApi` adapter. It checks config,
 lists card and Link methods separately, and offers cursor-based load-more for each.
@@ -42,3 +43,9 @@ Appearance lives in app.css; no global store, new icon library or shared control
 Three small plan cards need no memo wrapper; URL/language/currency are their meaningful
 update sources. Hook request-count and stale-owner tests plus browser/production route tests
 protect refresh behavior, navigation and lazy loading.
+
+The plans screen starts directly with its heading and currency control. No back-to-billing button, decorative card icon/headline or alert-style pricing disclosure is shown; the example-price disclosure remains readable below the cards.
+
+`/plans` is a standalone full-window route outside AppLayout, with its own scroll surface and a top-right close button. Closing returns to the originating app/settings/admin route when supplied by the profile menu; direct visits fall back to billing for signed-in users or the showcase for guests. The native desktop title bar inset remains reserved.
+
+Signed-in users see the Free template baseline as **Current plan**, with a disabled action. Selecting a monthly/annual candidate never updates that label; future real subscriptions must supply the current plan from the server. Guests retain normal plan selection without claiming a current subscription.

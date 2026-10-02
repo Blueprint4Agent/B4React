@@ -161,6 +161,16 @@ export function App() {
             />
             <Route path="/loading" element={<LoadingPage />} />
             <Route
+                path="/plans"
+                element={
+                    <main className="plans-screen">
+                        <RouteBoundary fallback={<LoadingPage />}>
+                            <PlansPage />
+                        </RouteBoundary>
+                    </main>
+                }
+            />
+            <Route
                 element={
                     <AppLayout>
                         <RouteBoundary fallback={<LoadingPage />}>
@@ -271,7 +281,6 @@ export function App() {
                 />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/plans" element={<PlansPage />} />
             </Route>
             <Route
                 path="*"

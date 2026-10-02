@@ -81,7 +81,9 @@ test("plan selection loads its own production chunk and preserves example curren
     await page.locator(".profile-menu__trigger").click();
     await page.getByRole("link", { name: "Upgrade plan", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Monthly", exact: true })).toBeVisible();
-    await page.getByRole("button", { name: "USD $", exact: true }).click();
+    await expect(page.locator(".app-sidebar")).toHaveCount(0);
+    await page.getByRole("button", { name: "KRW ₩", exact: true }).click();
+    await page.getByRole("menuitem", { name: "USD $", exact: true }).click();
     await page.reload();
     await expect(page.locator(".plan-card__price").nth(1)).toContainText("US$3.99");
     expect(scripts.some((url) => /\/PlansPage-/.test(url))).toBe(true);

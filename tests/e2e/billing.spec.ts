@@ -66,11 +66,26 @@ for (const width of [390, 1440])
             await page.locator(".profile-menu__trigger").click();
             await page.getByRole("link", { name: "Upgrade plan", exact: true }).click();
             await expect(page).toHaveURL(/\/plans$/);
+            await expect(page.locator(".app-sidebar")).toHaveCount(0);
+            await expect(page.getByRole("button", { name: "Back to billing" })).toHaveCount(0);
+            await expect(page.getByRole("button", { name: "Close plan selection" })).toBeVisible();
+            expect(
+                await page
+                    .locator(".plans-screen")
+                    .evaluate((element) => element.scrollWidth <= element.clientWidth),
+            ).toBe(true);
             await expect(page.getByRole("heading", { name: "Free", exact: true })).toBeVisible();
+            await expect(
+                page.getByRole("button", { name: "Current plan", exact: true }),
+            ).toBeDisabled();
+            await expect(
+                page.getByRole("button", { name: "Select Free", exact: true }),
+            ).toHaveCount(0);
             await expect(page.getByRole("heading", { name: "Monthly", exact: true })).toBeVisible();
             await expect(page.getByRole("heading", { name: "Annual", exact: true })).toBeVisible();
             await expect(page.locator(".plan-card__price").nth(1)).toContainText("₩3,990");
-            await page.getByRole("button", { name: "USD $", exact: true }).click();
+            await page.getByRole("button", { name: "KRW ₩", exact: true }).click();
+            await page.getByRole("menuitem", { name: "USD $", exact: true }).click();
             await expect(page.locator(".plan-card__price").nth(1)).toContainText("US$3.99");
             await page.getByRole("button", { name: "Select Annual", exact: true }).click();
             await expect(page.getByRole("button", { name: "Annual selected" })).toHaveAttribute(
@@ -82,14 +97,18 @@ for (const width of [390, 1440])
                     () => document.documentElement.scrollWidth <= window.innerWidth,
                 ),
             ).toBe(true);
+            await expect(
+                page.getByRole("button", { name: "Current plan", exact: true }),
+            ).toBeDisabled();
             expect(stats.configCalls).toBe(0);
             await page.screenshot({ path: info.outputPath("plans.png"), fullPage: true });
-            await page.getByRole("button", { name: "Add payment method", exact: true }).click();
-            await expect(page).toHaveURL(/section=billing&plan=annual/);
+            await expect(
+                page.getByRole("button", { name: "Add payment method", exact: true }),
+            ).toHaveCount(0);
+            await page.goto("/settings?section=billing");
             await expect(page.getByRole("heading", { name: "Billing", exact: true })).toBeVisible();
             await expect(page.getByText("VISA •••• 4242")).toBeVisible();
             await expect(page.getByText("Expires 12/2030")).toBeVisible();
-            await expect(page.getByText(/You selected Annual/)).toBeVisible();
             expect(
                 await page.evaluate(
                     () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -145,8 +164,10 @@ test("Korean pricing and settings labels remain readable on mobile", async ({ pa
     await page.setViewportSize({ width: 390, height: 1000 });
     await page.goto("/plans");
     await expect(page.getByRole("heading", { name: "월간", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "현재 플랜", exact: true })).toBeDisabled();
     await expect(page.locator(".plan-card__price").nth(1)).toContainText("₩3,990");
-    await page.getByRole("button", { name: "결제수단 등록", exact: true }).click();
+    await expect(page.getByRole("button", { name: "결제수단 등록", exact: true })).toHaveCount(0);
+    await page.getByRole("button", { name: "플랜 선택 닫기" }).click();
     await expect(page.getByRole("heading", { name: "결제", exact: true })).toBeVisible();
     await expect(page.locator(".settings-content-card")).toHaveCSS("opacity", "1");
     await page.locator(".billing-plan-footer").scrollIntoViewIfNeeded();
@@ -154,4 +175,25 @@ test("Korean pricing and settings labels remain readable on mobile", async ({ pa
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
     ).toBe(true);
     await page.screenshot({ path: info.outputPath("billing-ko.png"), fullPage: true });
+});
+
+test("standalone plans close to their originating page and direct visits have a safe fallback", async ({
+    page,
+}) => {
+    await setup(page);
+    await page.goto("/show-case");
+    await page.locator(".profile-menu__trigger").click();
+    await page.getByRole("link", { name: "Upgrade plan", exact: true }).click();
+    await expect(page.locator(".app-sidebar")).toHaveCount(0);
+    await page.getByRole("button", { name: "KRW ₩", exact: true }).click();
+    await page.getByRole("menuitem", { name: "USD $", exact: true }).click();
+    await page.getByRole("button", { name: "Select Annual", exact: true }).click();
+    const close = page.getByRole("button", { name: "Close plan selection" });
+    await close.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/\/show-case$/);
+    await expect(page.locator(".app-sidebar")).toBeVisible();
+    await page.goto("/plans");
+    await page.getByRole("button", { name: "Close plan selection" }).click();
+    await expect(page).toHaveURL(/\/settings\?section=billing$/);
 });

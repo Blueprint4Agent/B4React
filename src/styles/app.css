@@ -5353,12 +5353,9 @@ input {
     display: grid;
     gap: 1.5rem;
 }
-.plans-back {
-    justify-self: start;
-}
 .plans-header {
     text-align: center;
-    padding: 1.5rem 0 0.5rem;
+    padding: 1rem 0 0.25rem;
 }
 .plans-header h1 {
     margin: 0.75rem 0;
@@ -5372,19 +5369,12 @@ input {
 }
 .plans-currency {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    color: var(--text-soft);
-    font-size: 0.85rem;
+    justify-content: flex-end;
 }
-.plans-currency > div {
-    display: flex;
-    gap: 0.3rem;
-    padding: 0.3rem;
-    border: 1px solid var(--panel-border);
-    border-radius: 2rem;
-    background: var(--panel);
+.plans-currency .ui-dropdown__trigger {
+    min-width: 6rem;
+    min-height: 2rem;
+    font-size: 0.75rem;
 }
 .plans-grid {
     display: grid;
@@ -5426,17 +5416,6 @@ input {
     padding: 0.3rem 0.5rem;
     border-radius: 1rem;
     border: 1px solid var(--panel-border);
-}
-.plan-card__icon {
-    color: var(--accent);
-    padding-top: 0.5rem;
-}
-.plan-card__headline {
-    font-size: 1.35rem;
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    line-height: 1.4;
-    margin: 0;
 }
 .plan-card__description {
     color: var(--text-soft);
@@ -5483,28 +5462,6 @@ input {
     margin-top: auto;
     width: 100%;
 }
-.plans-checkout {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-    padding: 1.4rem 1.6rem;
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 1.3rem;
-}
-.plans-checkout h2 {
-    font-size: 1rem;
-}
-.plans-checkout p {
-    color: var(--text-soft);
-    font-size: 0.85rem;
-    line-height: 1.65;
-    margin: 0.5rem 0 0;
-}
-.plans-checkout .ui-button {
-    flex-shrink: 0;
-}
 @media (max-width: 850px) {
     .plans-grid {
         grid-template-columns: 1fr;
@@ -5521,8 +5478,7 @@ input {
 }
 @media (max-width: 540px) {
     .billing-plan-summary,
-    .billing-info-row,
-    .plans-checkout {
+    .billing-info-row {
         flex-direction: column;
         align-items: stretch;
     }
@@ -5553,4 +5509,37 @@ input {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+}
+
+.plans-disclaimer {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 0.8rem;
+    line-height: 1.7;
+    text-align: center;
+    max-width: 52rem;
+    justify-self: center;
+}
+
+.plans-screen {
+    position: fixed;
+    inset: var(--app-top-inset) 0 0;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    background: var(--bg);
+    padding: 3.5rem 1.5rem 1.5rem;
+}
+.plans-close {
+    position: fixed;
+    top: calc(var(--app-top-inset) + 1rem);
+    right: 1.25rem;
+    z-index: 2;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+}
+@media (max-width: 540px) {
+    .plans-screen {
+        padding: 3.5rem 1rem 1.5rem;
+    }
 }
