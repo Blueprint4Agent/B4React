@@ -34,7 +34,8 @@ login audit/history or live-presence feed. No role changes are exposed through t
 The additive `/api/v1/billing` contract provides bearer-or-application-API-key config, hosted setup
 sessions/status and cursor-paginated card/Link lists. `useBillingApi` exposes typed
 adapters and known error extraction without automatic requests or cached state.
-A future page must create one request UUID per action, reuse it on retry, verify
-`registered` via the status endpoint, and refetch after return/account/connectivity
-changes. No billing page or Stripe.js dependency is added. The provider remains
+The billing settings page creates one request UUID per action, reuses it on retry, verifies
+`registered` via the status endpoint, and refetches after return/account/connectivity
+changes. See [billing UI](../notes/billing.md) for template plans and current limitations.
+No Stripe.js dependency is added. The provider remains
 the source of truth; no webhook/realtime notification or charge is implied.

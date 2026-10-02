@@ -2,6 +2,7 @@ import { useToast } from "../../hooks/useToast";
 import { resolveSettingsSection } from "../../utils/settingsSections";
 import {
     AppWindow,
+    CreditCard,
     BookOpen,
     Users,
     ArrowLeft,
@@ -53,7 +54,7 @@ export function AppSidebar({
     const location = useLocation();
     const isSettings = location.pathname === "/settings";
     const [searchParams] = useSearchParams();
-    const section = searchParams.get("section");
+    const section = searchParams.has("billing_setup") ? "billing" : searchParams.get("section");
     const { user, logout } = useAuthContext();
     const showToast = useToast();
     const activeSection = resolveSettingsSection(section, Boolean(user));
@@ -117,6 +118,12 @@ export function AppSidebar({
                     label: t("settings.menu.profile"),
                     icon: UserRound,
                     section: "account",
+                },
+                {
+                    path: "/settings?section=billing",
+                    label: t("billing.title"),
+                    icon: CreditCard,
+                    section: "billing",
                 },
                 {
                     path: "/settings?section=developers",
@@ -210,7 +217,10 @@ export function AppSidebar({
                 )}
             >
                 {items
-                    .filter((item) => user || !["account", "developers"].includes(item.section))
+                    .filter(
+                        (item) =>
+                            user || !["account", "developers", "billing"].includes(item.section),
+                    )
                     .map(({ path, label, icon: Icon, section: itemSection }) => (
                         <Tooltip
                             key={path}

@@ -120,3 +120,5 @@ Run `make style-studio` and open `/show-case` on `http://127.0.0.1:5173` (run yo
 Search and pagination: [English](notes/collections.md) · [한국어](notes/ko/collections.md).
 
 Change-scoped verification: [English](notes/verification.md) · [한국어](notes/ko/verification.md).
+
+Billing settings and plan selection: [English](notes/billing.md) · [한국어](notes/ko/billing.md).

@@ -1,6 +1,15 @@
 import { createPortal } from "react-dom";
 import { useRecentAccounts } from "../../hooks/useRecentAccounts";
-import { LogOut, Settings, Shield, UserRound, ChevronRight, Check, Plus } from "lucide-react";
+import {
+    Sparkles,
+    LogOut,
+    Settings,
+    Shield,
+    UserRound,
+    ChevronRight,
+    Check,
+    Plus,
+} from "lucide-react";
 import { useEffect, useLayoutEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
@@ -89,7 +98,7 @@ export function ProfileDropdown({
 
     useEffect(() => {
         setMenuOpen(false);
-    }, [location.pathname]);
+    }, [location.pathname, location.search]);
 
     useEffect(() => {
         if (!menuOpen) return;
@@ -288,6 +297,14 @@ export function ProfileDropdown({
                         <span>{t("nav.settings")}</span>
                         <KeyboardShortcut keys={APP_SHORTCUTS.openSettings} />
                     </Link>
+                    {!showLogin && (
+                        <Link to="/plans" className="profile-menu__item">
+                            <span className="profile-menu__item-icon" aria-hidden="true">
+                                <Sparkles />
+                            </span>
+                            <span>{t("billing.changePlan")}</span>
+                        </Link>
+                    )}
                     {showAdmin ? (
                         <Link to="/admin" className="profile-menu__item">
                             <span className="profile-menu__item-icon" aria-hidden="true">
