@@ -5202,7 +5202,6 @@ input {
 /* Billing follows the account shell; all payment data stays in the domain hook. */
 .billing-settings {
     display: grid;
-    gap: 2rem;
     width: 100%;
 }
 .billing-settings h2,
@@ -5213,7 +5212,8 @@ input {
 .billing-settings p {
     margin: 0.45rem 0 0;
     color: var(--text-soft);
-    line-height: 1.65;
+    line-height: 1.5;
+    font-size: 0.8125rem;
 }
 .billing-eyebrow {
     display: block;
@@ -5223,26 +5223,15 @@ input {
     letter-spacing: 0.05em;
 }
 .billing-plan-summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1.6rem;
-    border: 1px solid var(--panel-border);
-    border-radius: 1.3rem;
-    background: linear-gradient(
-        125deg,
-        color-mix(in srgb, var(--accent) 7%, var(--panel)),
-        var(--panel)
-    );
+    gap: var(--space-4);
 }
 .billing-plan-summary h2 {
-    font-size: 1.8rem;
-    margin-top: 0.4rem;
+    font-size: 1.25rem;
+    margin-top: var(--space-1);
 }
 .billing-section {
     display: grid;
-    gap: 1rem;
+    gap: var(--space-3);
 }
 .billing-section > header {
     display: flex;
@@ -5252,18 +5241,12 @@ input {
 }
 .billing-section h2,
 .billing-plan-footer h2 {
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: 0.875rem;
+    font-weight: 500;
 }
 .billing-empty,
-.billing-info-row,
 .billing-method {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    border: 1px solid var(--panel-border);
-    border-radius: 1.2rem;
-    padding: 1.3rem;
+    justify-content: flex-start;
 }
 .billing-empty > svg {
     flex-shrink: 0;
@@ -5271,6 +5254,7 @@ input {
     width: 1.5rem;
 }
 .billing-empty strong {
+    font-size: 0.875rem;
     font-weight: 500;
 }
 .billing-info-row {
@@ -5299,7 +5283,7 @@ input {
     background: color-mix(in srgb, var(--accent) 7%, transparent);
 }
 .billing-method h3 {
-    font-size: 0.95rem;
+    font-size: 0.875rem;
 }
 .billing-method > .billing-muted-label {
     margin-left: auto;
@@ -5341,11 +5325,7 @@ input {
     gap: 0.6rem;
     justify-items: start;
 }
-.billing-loading {
-    padding: 1.3rem;
-    border: 1px solid var(--panel-border);
-    border-radius: 1.2rem;
-}
+
 .plans-page {
     width: min(100%, 1120px);
     margin: 0 auto;
@@ -5485,20 +5465,11 @@ input {
     .billing-section > header {
         flex-wrap: wrap;
     }
-    .billing-plan-summary,
-    .billing-empty,
-    .billing-info-row,
-    .billing-method {
-        padding: 1rem;
-    }
     .billing-method {
         flex-wrap: wrap;
     }
     .billing-method > .billing-muted-label {
         margin-left: 0;
-    }
-    .billing-settings {
-        gap: 1.5rem;
     }
     .plans-header {
         padding-top: 1rem;

@@ -118,6 +118,27 @@ for (const width of [390, 1440])
             await page.screenshot({ path: info.outputPath("billing.png"), fullPage: true });
             await page.locator(".billing-plan-footer").scrollIntoViewIfNeeded();
             await page.screenshot({ path: info.outputPath("billing-methods.png"), fullPage: true });
+            const settingsGeometry = () =>
+                page.locator(".settings-content-card").evaluate((shell) => {
+                    const header = shell.querySelector(".settings-content-card__header")!;
+                    const row = shell.querySelector(".settings-row")!;
+                    const rect = row.getBoundingClientRect();
+                    const style = getComputedStyle(row);
+                    return {
+                        gap: rect.top - header.getBoundingClientRect().bottom,
+                        width: rect.width,
+                        padding: style.padding,
+                        radius: style.borderRadius,
+                        border: style.borderWidth,
+                        background: style.background,
+                    };
+                });
+            const billingGeometry = await settingsGeometry();
+            await page.goto("/settings?section=general");
+            await expect(page.locator(".settings-row").first()).toBeVisible();
+            await expect(page.locator(".settings-content-card")).toHaveCSS("opacity", "1");
+            expect(await settingsGeometry()).toEqual(billingGeometry);
+            await page.screenshot({ path: info.outputPath("general.png"), fullPage: true });
         });
     }
 test("registration opens only the hosted setup URL and verifies the return", async ({ page }) => {
