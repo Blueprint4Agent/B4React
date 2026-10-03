@@ -676,7 +676,7 @@
         "noMethods": "등록된 결제수단이 없습니다",
         "registrationOnly": "카드 또는 Link를 미리 등록하세요. 결제수단만 저장되며 요금은 청구되지 않습니다.",
         "card": "카드",
-        "linkSaved": "Link에 연결된 결제수단",
+        "linkSaved": "Link에서 등록 카드 확인 ↗",
         "expiry": "유효기간 {{month}}/{{year}}",
         "saved": "등록됨",
         "loadMore": "{{type}} 더 보기",

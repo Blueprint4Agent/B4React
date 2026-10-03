@@ -512,3 +512,74 @@ test("billing profile and payment management open only the owner portal", async 
     await page.getByRole("button", { name: "Edit", exact: true }).click();
     await expect(page).toHaveURL("https://billing.stripe.com/p/session/fixture");
 });
+
+for (const width of [390, 1440]) {
+    for (const theme of ["light", "dark"] as const) {
+        test(`Link-only billing uses settings danger actions ${theme} at ${width}px`, async ({
+            page,
+        }, info) => {
+            await setup(page, "ko");
+            await page.setViewportSize({ width, height: 1000 });
+            await page.emulateMedia({ colorScheme: theme });
+            await page.route("**/api/v1/billing/subscription", (route) =>
+                route.fulfill({
+                    json: {
+                        plan: "monthly",
+                        status: "active",
+                        currency: "krw",
+                        has_subscription: true,
+                        can_manage: true,
+                        change_version: "a".repeat(64),
+                        current_period_end: 1900000000,
+                        cancel_at_period_end: false,
+                        pending_plan: null,
+                        pending_effective_at: null,
+                    },
+                }),
+            );
+            await page.route("**/api/v1/billing/payment-methods?*", (route) =>
+                route.fulfill({
+                    json: {
+                        items:
+                            new URL(route.request().url()).searchParams.get("method_type") ===
+                            "link"
+                                ? [{ id: "pm_example", type: "link" }]
+                                : [],
+                        has_more: false,
+                    },
+                }),
+            );
+            await page.goto("/settings?section=billing");
+            await expect(
+                page.getByRole("link", { name: "Link에서 등록 카드 확인 ↗" }),
+            ).toBeVisible();
+            await expect(page.locator(".billing-method-group")).toHaveCount(1);
+            const row = page.locator(".settings-account-delete");
+            await expect(row.getByRole("button", { name: "구독 취소" })).toHaveClass(
+                /modal-button--danger/,
+            );
+            const mark = page.locator(".billing-stripe-badge img:visible");
+            await expect(mark).toHaveCount(1);
+            expect(
+                await mark.evaluate(
+                    (img: HTMLImageElement) => img.complete && img.naturalWidth > 0,
+                ),
+            ).toBe(true);
+            expect(
+                await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+            ).toBe(true);
+            await page.screenshot({
+                path: info.outputPath("billing-provider-style.png"),
+                fullPage: true,
+            });
+            await row.getByRole("button", { name: "구독 취소" }).click();
+            await expect(
+                page.getByRole("dialog").getByRole("button", { name: "변경 확인" }),
+            ).toHaveClass(/modal-button--danger/);
+            await page.screenshot({
+                path: info.outputPath("billing-cancel-style.png"),
+                fullPage: true,
+            });
+        });
+    }
+}

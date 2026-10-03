@@ -676,7 +676,7 @@
         "noMethods": "No saved payment methods",
         "registrationOnly": "Save a card or Link payment method in advance. Registration stores a payment method without charging you.",
         "card": "Card",
-        "linkSaved": "Payment method connected to Link",
+        "linkSaved": "View saved cards in Link ↗",
         "expiry": "Expires {{month}}/{{year}}",
         "saved": "Saved",
         "loadMore": "More {{type}} methods",
