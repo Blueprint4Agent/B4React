@@ -5637,3 +5637,46 @@ input {
         grid-row: 1 / span 2;
     }
 }
+
+/* Official provider marks preserve their palette and adapt to the host theme. */
+.billing-link-logo {
+    display: block;
+    width: 24px;
+    height: 24px;
+}
+.billing-wallet-link {
+    color: var(--text-soft);
+    text-decoration: none;
+    text-underline-offset: 3px;
+}
+.billing-wallet-link:hover {
+    color: var(--text);
+    text-decoration: underline;
+}
+.billing-stripe-badge {
+    display: block;
+    width: fit-content;
+    margin: var(--space-4) auto 0;
+}
+.billing-stripe-badge img {
+    display: block;
+    width: 106px;
+    height: 24px;
+}
+.billing-stripe-badge .payment-brand--dark {
+    display: none;
+}
+html[data-theme="dark"] .billing-stripe-badge .payment-brand--light {
+    display: none;
+}
+html[data-theme="dark"] .billing-stripe-badge .payment-brand--dark {
+    display: block;
+}
+@media (prefers-color-scheme: dark) {
+    html:not([data-theme="light"]) .billing-stripe-badge .payment-brand--light {
+        display: none;
+    }
+    html:not([data-theme="light"]) .billing-stripe-badge .payment-brand--dark {
+        display: block;
+    }
+}

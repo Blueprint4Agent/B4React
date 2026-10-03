@@ -232,6 +232,25 @@ export function PlansPage() {
                         : "billing.plans.unavailable",
                 )}
             </p>
+            {billing.catalog?.enabled && (
+                <a
+                    className="billing-stripe-badge"
+                    href="https://stripe.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <img
+                        className="payment-brand--light"
+                        src="/payment-brands/powered-by-stripe-black.svg"
+                        alt="Powered by Stripe"
+                    />
+                    <img
+                        className="payment-brand--dark"
+                        src="/payment-brands/powered-by-stripe-white.svg"
+                        alt="Powered by Stripe"
+                    />
+                </a>
+            )}
             <PlanChangeDialog
                 selection={confirmation}
                 busy={billing.busy}

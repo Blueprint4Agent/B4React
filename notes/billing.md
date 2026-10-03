@@ -49,3 +49,7 @@ Cancellation returns show the shared transient toast once and replace the cancel
 Server-verified payment and card registration success also use the shared transient toast, consuming the corresponding return query after verification. Pending results retain their query and inline status so refresh can verify completion; focus and reload do not replay a consumed success.
 
 Settings follows Current plan / Transactions / Billing information / Payment methods / Cancel plan. Grouped rows reuse settings-row surfaces; compact dropdowns reuse the shared DropdownMenu variant and its showcase. Current plan stays active until the effective date; the shared confirmation modal captures the version/date and successful changes use a toast. Existing paid plans retain billing currency. Unknown/unsupported plans fail closed. The domain hooks own profile/invoices/portal and plan mutations, pause during desktop outages and ignore stale owners. Card data editing stays in Stripe.
+
+Saved cards show provider-supplied brand, last four digits and expiry. A `link` payment method does not expose the wallet card details; its official Link logo and wallet link identify where to view/manage those cards. Settings and enabled pricing display the official Powered by Stripe badge. Assets are local; see `public/payment-brands/README.md` for provenance.
+
+Subscription cancellation reuses the account-deletion section and danger action, including the Free confirmation. Undo remains neutral. Payment lists omit empty groups; official black/white Stripe badges follow the selected theme.

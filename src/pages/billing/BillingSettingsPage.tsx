@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { CreditCard, Plus, ReceiptText, RefreshCw, ShieldCheck, Wallet } from "lucide-react";
+import { CreditCard, Plus, ReceiptText, RefreshCw, Wallet } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Button, InlineMessage, Spinner, DropdownMenu, StatusBadge } from "../../components/ui";
+import {
+    Button,
+    InlineMessage,
+    Spinner,
+    DropdownMenu,
+    StatusBadge,
+    ModalButton,
+} from "../../components/ui";
 import { useSubscription } from "../../hooks/api/billing/useSubscription";
 import { useBilling } from "../../hooks/api/billing/useBilling";
 
@@ -405,86 +412,115 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                         )}
                     {billing.methods.card.items.length + billing.methods.link.items.length > 0 && (
                         <div className="settings-row billing-method-list">
-                            {(["card", "link"] as const).map((type) => (
-                                <div key={type} className="billing-method-group">
-                                    {billing.methods[type].items.map((method) => (
-                                        <article className="billing-method" key={method.id}>
-                                            <span className="billing-method__icon">
-                                                {type === "card" ? (
-                                                    <CreditCard aria-hidden="true" />
-                                                ) : (
-                                                    <Wallet aria-hidden="true" />
-                                                )}
-                                            </span>
-                                            <div>
-                                                <h3>
-                                                    {type === "link"
-                                                        ? "Link"
-                                                        : `${method.brand?.toUpperCase() ?? t("billing.card")} •••• ${method.last4 ?? ""}`}
-                                                </h3>
-                                                <p>
-                                                    {type === "link"
-                                                        ? t("billing.linkSaved")
-                                                        : t("billing.expiry", {
-                                                              month: String(
-                                                                  method.exp_month ?? "",
-                                                              ).padStart(2, "0"),
-                                                              year: method.exp_year ?? "",
-                                                          })}
-                                                </p>
-                                            </div>
-                                            <div className="billing-method-actions">
-                                                {billing.profile?.default_payment_method ===
-                                                    method.id && (
-                                                    <StatusBadge tone="info">
-                                                        {t("billing.details.default")}
-                                                    </StatusBadge>
-                                                )}
-                                                <DropdownMenu
-                                                    compact
-                                                    label={t("billing.details.manageMethod")}
-                                                    triggerLabel="···"
-                                                    disabled={
-                                                        !billing.profile?.portal_enabled ||
-                                                        billing.busy ||
-                                                        !billing.available
-                                                    }
-                                                    items={[
-                                                        {
-                                                            id: "manage",
-                                                            label: t(
-                                                                "billing.details.manageMethod",
-                                                            ),
-                                                        },
-                                                    ]}
-                                                    onSelect={() => void openPortal("overview")}
-                                                />
-                                            </div>
-                                        </article>
-                                    ))}
-                                    {billing.methods[type].has_more && (
-                                        <Button
-                                            appearance="pill-secondary"
-                                            loading={billing.moreBusy === type}
-                                            disabled={
-                                                !billing.available ||
-                                                billing.loading ||
-                                                billing.moreBusy !== null
-                                            }
-                                            onClick={() => void billing.loadMore(type)}
-                                        >
-                                            {t("billing.loadMore", {
-                                                type: type === "card" ? t("billing.card") : "Link",
-                                            })}
-                                        </Button>
-                                    )}
-                                </div>
-                            ))}
+                            {(["card", "link"] as const)
+                                .filter(
+                                    (type) =>
+                                        billing.methods[type].items.length > 0 ||
+                                        billing.methods[type].has_more,
+                                )
+                                .map((type) => (
+                                    <div key={type} className="billing-method-group">
+                                        {billing.methods[type].items.map((method) => (
+                                            <article className="billing-method" key={method.id}>
+                                                <span className="billing-method__icon">
+                                                    {type === "card" ? (
+                                                        <CreditCard aria-hidden="true" />
+                                                    ) : (
+                                                        <img
+                                                            className="billing-link-logo"
+                                                            src="/payment-brands/link.svg"
+                                                            alt=""
+                                                            aria-hidden="true"
+                                                        />
+                                                    )}
+                                                </span>
+                                                <div>
+                                                    <h3>
+                                                        {type === "link"
+                                                            ? "Link"
+                                                            : `${method.brand?.toUpperCase() ?? t("billing.card")} •••• ${method.last4 ?? ""}`}
+                                                    </h3>
+                                                    <p>
+                                                        {type === "link" ? (
+                                                            <a
+                                                                className="billing-wallet-link"
+                                                                href="https://app.link.com"
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                            >
+                                                                {t("billing.linkSaved")}
+                                                            </a>
+                                                        ) : (
+                                                            t("billing.expiry", {
+                                                                month: String(
+                                                                    method.exp_month ?? "",
+                                                                ).padStart(2, "0"),
+                                                                year: method.exp_year ?? "",
+                                                            })
+                                                        )}
+                                                    </p>
+                                                </div>
+                                                <div className="billing-method-actions">
+                                                    {billing.profile?.default_payment_method ===
+                                                        method.id && (
+                                                        <StatusBadge tone="info">
+                                                            {t("billing.details.default")}
+                                                        </StatusBadge>
+                                                    )}
+                                                    <DropdownMenu
+                                                        compact
+                                                        label={t("billing.details.manageMethod")}
+                                                        triggerLabel="···"
+                                                        disabled={
+                                                            !billing.profile?.portal_enabled ||
+                                                            billing.busy ||
+                                                            !billing.available
+                                                        }
+                                                        items={[
+                                                            {
+                                                                id: "manage",
+                                                                label: t(
+                                                                    "billing.details.manageMethod",
+                                                                ),
+                                                            },
+                                                        ]}
+                                                        onSelect={() => void openPortal("overview")}
+                                                    />
+                                                </div>
+                                            </article>
+                                        ))}
+                                        {billing.methods[type].has_more && (
+                                            <Button
+                                                appearance="pill-secondary"
+                                                loading={billing.moreBusy === type}
+                                                disabled={
+                                                    !billing.available ||
+                                                    billing.loading ||
+                                                    billing.moreBusy !== null
+                                                }
+                                                onClick={() => void billing.loadMore(type)}
+                                            >
+                                                {t("billing.loadMore", {
+                                                    type:
+                                                        type === "card"
+                                                            ? t("billing.card")
+                                                            : "Link",
+                                                })}
+                                            </Button>
+                                        )}
+                                    </div>
+                                ))}
                         </div>
                     )}
                 </section>
                 {subscription.subscription && (
-                    <section className="settings-row billing-plan-footer">
+                    <section
+                        className={
+                            subscription.subscription.has_subscription
+                                ? "settings-account-delete"
+                                : "settings-row billing-plan-footer"
+                        }
+                    >
                         <div>
                             <h2>
                                 {t(
@@ -502,8 +538,10 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                             </p>
                         </div>
                         {subscription.subscription.has_subscription && (
-                            <Button
-                                appearance="pill-secondary"
+                            <ModalButton
+                                variant={
+                                    subscription.subscription.pending_plan ? "cancel" : "danger"
+                                }
                                 disabled={
                                     !subscription.subscription.can_manage ||
                                     subscription.busy ||
@@ -520,11 +558,30 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                                         ? "billing.manage.undo"
                                         : "billing.details.cancel",
                                 )}
-                            </Button>
+                            </ModalButton>
                         )}
                     </section>
                 )}
             </div>
+            {billing.config?.enabled && (
+                <a
+                    className="billing-stripe-badge"
+                    href="https://stripe.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <img
+                        className="payment-brand--light"
+                        src="/payment-brands/powered-by-stripe-black.svg"
+                        alt="Powered by Stripe"
+                    />
+                    <img
+                        className="payment-brand--dark"
+                        src="/payment-brands/powered-by-stripe-white.svg"
+                        alt="Powered by Stripe"
+                    />
+                </a>
+            )}
             <PlanChangeDialog
                 selection={confirmation}
                 busy={subscription.busy}

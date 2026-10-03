@@ -37,7 +37,11 @@ export function PlanChangeDialog({ selection, busy, error, onClose, onConfirm }:
                     <ModalButton variant="cancel" disabled={busy} onClick={onClose}>
                         {t("billing.manage.cancel")}
                     </ModalButton>
-                    <ModalButton loading={busy} onClick={onConfirm}>
+                    <ModalButton
+                        variant={selection?.plan === "free" ? "danger" : "save"}
+                        loading={busy}
+                        onClick={onConfirm}
+                    >
                         {t("billing.manage.confirm")}
                     </ModalButton>
                 </>
