@@ -4,6 +4,10 @@ import * as billingApi from "../../../api/billing/billingApi";
 import { extractBillingErrorCode } from "../../../api/billing/billingError";
 
 export type {
+    BillingChangeForm,
+    BillingProfile,
+    BillingInvoices,
+    BillingPortalForm,
     BillingPlans,
     BillingSubscription,
     BillingCheckoutForm,

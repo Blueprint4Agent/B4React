@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
     useBillingApi,
     type BillingConfig,
+    type BillingProfile,
+    type BillingInvoices,
+    type BillingPortalForm,
     type BillingMethodType,
     type BillingPaymentMethods,
 } from "./useBillingApi";
@@ -19,6 +22,8 @@ export function useBilling(ownerId: number, returnSession: string | null) {
     const api = useBillingApi();
     const { isDesktop, status } = useServerConnectivity();
     const available = !isDesktop || status === "online";
+    const [profile, setProfile] = useState<BillingProfile | null>(null);
+    const [invoices, setInvoices] = useState<BillingInvoices | null>(null);
     const [config, setConfig] = useState<BillingConfig | null>(null);
     const [methods, setMethods] = useState<Methods>(emptyMethods);
     const [loading, setLoading] = useState(true);
@@ -50,6 +55,8 @@ export function useBilling(ownerId: number, returnSession: string | null) {
         actionLock.current = false;
         pageLock.current = false;
         setConfig(null);
+        setProfile(null);
+        setInvoices(null);
         setMethods(emptyMethods());
         setError(null);
         setNotice(null);
@@ -91,11 +98,17 @@ export function useBilling(ownerId: number, returnSession: string | null) {
                           : "pending",
                 );
             }
-            const [card, link] = await Promise.all([
+            const [card, link, nextProfile, nextInvoices] = await Promise.all([
                 api.listBillingPaymentMethods("card"),
                 api.listBillingPaymentMethods("link"),
+                api.getBillingProfile(),
+                api.getBillingInvoices(),
             ]);
-            if (current(generation) && request === loadId.current) setMethods({ card, link });
+            if (current(generation) && request === loadId.current) {
+                setMethods({ card, link });
+                setProfile(nextProfile);
+                setInvoices(nextInvoices);
+            }
         } catch (cause) {
             if (current(generation) && request === loadId.current) setError(errorKey(cause));
         } finally {
@@ -193,7 +206,51 @@ export function useBilling(ownerId: number, returnSession: string | null) {
         [api, current, errorKey, loading, methods],
     );
 
+    const openPortal = useCallback(
+        async (flow: BillingPortalForm["flow"]) => {
+            if (
+                !mounted.current ||
+                !online.current ||
+                !profile?.portal_enabled ||
+                actionLock.current
+            )
+                return null;
+            const generation = epoch.current;
+            actionLock.current = true;
+            setBusy(true);
+            setError(null);
+            try {
+                const result = await api.createBillingPortal({
+                    flow,
+                    request_id: crypto.randomUUID(),
+                });
+                if (!current(generation)) return null;
+                const url = new URL(result.url);
+                if (
+                    url.protocol !== "https:" ||
+                    url.hostname !== "billing.stripe.com" ||
+                    url.username ||
+                    url.password ||
+                    url.port
+                )
+                    throw new Error("Invalid portal URL");
+                return url.href;
+            } catch (cause) {
+                if (current(generation)) setError(errorKey(cause));
+                return null;
+            } finally {
+                if (mounted.current && epoch.current === generation) {
+                    actionLock.current = false;
+                    setBusy(false);
+                }
+            }
+        },
+        [api, profile, current, errorKey],
+    );
     return {
+        profile,
+        invoices,
+        openPortal,
         config,
         methods,
         loading,

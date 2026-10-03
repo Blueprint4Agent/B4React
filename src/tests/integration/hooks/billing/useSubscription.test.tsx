@@ -6,6 +6,7 @@ const api = vi.hoisted(() => ({
     getBillingSubscription: vi.fn(),
     getBillingCheckoutStatus: vi.fn(),
     createBillingCheckout: vi.fn(),
+    changeBillingSubscription: vi.fn(),
     extractBillingErrorCode: vi.fn(),
 }));
 vi.mock("../../../../hooks/api/billing/useBillingApi", () => ({ useBillingApi: () => api }));
@@ -122,4 +123,44 @@ it("disabled catalogs and guests cannot create checkout or claim a current plan"
     rerender({ owner: undefined });
     expect(api.getBillingPlans).toHaveBeenCalledTimes(1);
     expect(api.createBillingCheckout).not.toHaveBeenCalled();
+});
+
+it("serializes plan changes, reuses retry identity and ignores a response after owner switch", async () => {
+    const active = {
+        plan: "monthly",
+        status: "active",
+        has_subscription: true,
+        can_manage: true,
+        change_version: "a".repeat(64),
+    };
+    api.getBillingSubscription.mockResolvedValue(active);
+    const { result, rerender } = renderHook(({ owner }) => useSubscription(owner), {
+        initialProps: { owner: 1 },
+    });
+    await waitFor(() => expect(result.current.subscription).toEqual(active));
+    api.changeBillingSubscription.mockRejectedValueOnce(new Error("network"));
+    await act(async () => {
+        expect(await result.current.change("free", active.change_version)).toBe(false);
+    });
+    const request = api.changeBillingSubscription.mock.calls[0][0];
+    let resolve!: (value: typeof active) => void;
+    api.changeBillingSubscription.mockReturnValueOnce(
+        new Promise((done) => {
+            resolve = done;
+        }),
+    );
+    let pending!: Promise<boolean>;
+    await act(async () => {
+        pending = result.current.change("free", active.change_version);
+        expect(await result.current.change("annual", active.change_version)).toBe(false);
+    });
+    expect(api.changeBillingSubscription.mock.calls[1][0]).toEqual(request);
+    api.getBillingSubscription.mockResolvedValue(free);
+    rerender({ owner: 2 });
+    await waitFor(() => expect(result.current.subscription).toEqual(free));
+    await act(async () => {
+        resolve(active);
+        expect(await pending).toBe(false);
+    });
+    expect(result.current.subscription).toEqual(free);
 });

@@ -27,6 +27,20 @@ async function setup(page: Page, language = "en") {
             },
         }),
     );
+    await page.route("**/api/v1/billing/profile", (route) =>
+        route.fulfill({
+            json: {
+                email: account.email,
+                name: account.name,
+                address: ["Seoul", "KR"],
+                default_payment_method: "pm_example",
+                portal_enabled: true,
+            },
+        }),
+    );
+    await page.route("**/api/v1/billing/invoices", (route) =>
+        route.fulfill({ json: { items: [], has_more: false } }),
+    );
     await page.route("**/api/v1/billing/plans", (route) =>
         route.fulfill({
             json: {
@@ -301,7 +315,7 @@ test("a subscription checkout uses the selected server-priced plan and verifies 
     await expect(
         page.locator(".plan-card").nth(1).getByRole("button", { name: "Current plan" }),
     ).toBeDisabled();
-    await expect(page.getByRole("button", { name: "Subscribe Annual" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Change to Annual" })).toBeDisabled();
 });
 
 for (const [query, message] of [
@@ -353,7 +367,7 @@ for (const width of [390, 1440]) {
             name: "Loading billing information…",
             exact: true,
         });
-        await expect(spinners).toHaveCount(2);
+        await expect(spinners).toHaveCount(4);
         await expect(spinners.first().locator(".ui-spinner__ring")).toBeVisible();
         await expect(page.getByText("Loading billing information…", { exact: true })).toHaveCount(
             0,
@@ -402,4 +416,99 @@ test("plan catalog loading uses spinners instead of temporary unavailable prices
     await expect(page.locator(".plan-card__price .ui-spinner__label")).toHaveCount(0);
     release();
     await expect(page.locator(".plan-card__price .ui-spinner")).toHaveCount(0);
+});
+
+for (const width of [390, 1440]) {
+    test(`paid subscription changes and billing details at ${width}px`, async ({ page }, info) => {
+        await setup(page, "ko");
+        await page.setViewportSize({ width, height: 1000 });
+        let snapshot = {
+            plan: "monthly",
+            status: "active",
+            currency: "krw",
+            has_subscription: true,
+            can_manage: true,
+            change_version: "a".repeat(64),
+            current_period_end: 1900000000,
+            cancel_at_period_end: false,
+            pending_plan: null as string | null,
+            pending_effective_at: null as number | null,
+        };
+        await page.route("**/api/v1/billing/subscription", (route) =>
+            route.fulfill({ json: snapshot }),
+        );
+        await page.route("**/api/v1/billing/subscription/change", (route) => {
+            const body = route.request().postDataJSON();
+            expect(body.expected_version).toBe(snapshot.change_version);
+            snapshot = {
+                ...snapshot,
+                pending_plan: body.plan === "keep" ? null : body.plan,
+                pending_effective_at: body.plan === "keep" ? null : 1900000000,
+                cancel_at_period_end: body.plan === "free",
+                change_version:
+                    snapshot.change_version === "a".repeat(64) ? "b".repeat(64) : "a".repeat(64),
+            };
+            return route.fulfill({ json: snapshot });
+        });
+        await page.route("**/api/v1/billing/invoices", (route) =>
+            route.fulfill({
+                json: {
+                    items: [
+                        {
+                            id: "in_fixture",
+                            number: "INV-001",
+                            created: 1790000000,
+                            status: "paid",
+                            amount: 3990,
+                            currency: "krw",
+                            url: "https://invoice.stripe.com/i/fixture",
+                        },
+                    ],
+                    has_more: false,
+                },
+            }),
+        );
+        await page.goto("/plans");
+        await page.getByRole("button", { name: "연간으로 변경", exact: true }).click();
+        await expect(page.getByRole("dialog")).toContainText(
+            "오늘 추가 결제나 환불은 발생하지 않으며",
+        );
+        await page.screenshot({ path: info.outputPath("change-dialog.png"), fullPage: true });
+        await page.getByRole("button", { name: "변경 확인", exact: true }).click();
+        await expect(page.locator(".ui-toast-card")).toHaveText("요금제 변경을 예약했습니다.");
+        await expect(page.getByRole("button", { name: "현재 플랜", exact: true })).toBeDisabled();
+        await expect(page.getByText(/연간 적용 예정/)).toBeVisible();
+        await page.goto("/settings?section=billing");
+        await expect(page.getByText("INV-001")).toBeVisible();
+        await expect(page.getByText("결제 완료", { exact: true })).toBeVisible();
+        await expect(page.getByText("기본", { exact: true })).toBeVisible();
+        await expect(page.getByText("Seoul, KR")).toBeVisible();
+        await page.screenshot({ path: info.outputPath("billing-details.png"), fullPage: true });
+        await page.getByRole("button", { name: "현재 플랜 유지", exact: true }).click();
+        await page.getByRole("button", { name: "변경 확인", exact: true }).click();
+        await expect(page.locator(".ui-toast-card")).toHaveText("현재 요금제를 유지합니다.");
+        await page.getByRole("button", { name: "구독 취소", exact: true }).click();
+        await page.getByRole("button", { name: "변경 확인", exact: true }).click();
+        await expect(page.getByText(/Free 적용 예정/)).toBeVisible();
+        await expect(page.locator(".billing-plan-summary h2")).toHaveText("월간");
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+            true,
+        );
+    });
+}
+
+test("billing profile and payment management open only the owner portal", async ({ page }) => {
+    await setup(page);
+    await page.route("**/api/v1/billing/portal-sessions", (route) => {
+        expect(route.request().postDataJSON().flow).toBe("customer_update");
+        return route.fulfill({
+            json: { id: "bps_fixture", url: "https://billing.stripe.com/p/session/fixture" },
+        });
+    });
+    await page.route("https://billing.stripe.com/**", (route) =>
+        route.fulfill({ contentType: "text/html", body: "<h1>Billing portal</h1>" }),
+    );
+    await page.goto("/settings?section=billing");
+    await page.getByRole("button", { name: "Edit", exact: true }).click();
+    await expect(page).toHaveURL("https://billing.stripe.com/p/session/fixture");
 });

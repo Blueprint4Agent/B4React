@@ -85,3 +85,41 @@ export async function getBillingCheckoutStatus(sessionId: string): Promise<Billi
     if (error || !data) throw error;
     return data;
 }
+
+export type BillingChangeForm = components["schemas"]["BillingChangeForm"];
+export async function changeBillingSubscription(
+    body: BillingChangeForm,
+): Promise<BillingSubscription> {
+    const { data, error } = await apiClient.POST("/api/v1/billing/subscription/change", {
+        headers: getAuthHeader(),
+        body,
+    });
+    if (error || !data) throw error;
+    return data;
+}
+
+export type BillingProfile = components["schemas"]["BillingProfileResponse"];
+export type BillingInvoices = components["schemas"]["BillingInvoicesResponse"];
+export type BillingPortalForm = components["schemas"]["BillingPortalForm"];
+export async function getBillingProfile(): Promise<BillingProfile> {
+    const { data, error } = await apiClient.GET("/api/v1/billing/profile", {
+        headers: getAuthHeader(),
+    });
+    if (error || !data) throw error;
+    return data;
+}
+export async function getBillingInvoices(): Promise<BillingInvoices> {
+    const { data, error } = await apiClient.GET("/api/v1/billing/invoices", {
+        headers: getAuthHeader(),
+    });
+    if (error || !data) throw error;
+    return data;
+}
+export async function createBillingPortal(body: BillingPortalForm): Promise<BillingSetup> {
+    const { data, error } = await apiClient.POST("/api/v1/billing/portal-sessions", {
+        headers: getAuthHeader(),
+        body,
+    });
+    if (error || !data) throw error;
+    return data;
+}

@@ -5310,8 +5310,6 @@ input {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding-top: 1.4rem;
-    border-top: 1px solid var(--panel-border);
 }
 .billing-plan-footer > svg {
     color: var(--text-soft);
@@ -5512,5 +5510,130 @@ input {
 @media (max-width: 540px) {
     .plans-screen {
         padding: 3.5rem 1rem 1.5rem;
+    }
+}
+
+/* Billing detail groups retain shared settings-row shell tokens. */
+.billing-records {
+    display: block;
+}
+.billing-detail + .billing-detail,
+.billing-invoice + .billing-invoice {
+    border-top: 1px solid var(--panel-border);
+}
+.billing-detail {
+    padding-block: var(--space-4);
+}
+.billing-detail:first-child {
+    padding-top: 0;
+}
+.billing-detail:last-child {
+    padding-bottom: 0;
+}
+.billing-detail p {
+    margin: var(--space-2) 0 0;
+    overflow-wrap: anywhere;
+}
+.billing-invoice {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+    align-items: center;
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+}
+.billing-invoice > span:first-child {
+    overflow-wrap: anywhere;
+}
+.billing-method-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-left: auto;
+}
+.billing-plan-footer > div {
+    flex: 1;
+}
+@media (max-width: 640px) {
+    .billing-invoice {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: var(--space-2);
+    }
+    .billing-invoice > .ui-button {
+        grid-column: 2;
+    }
+    .billing-plan-footer {
+        flex-wrap: wrap;
+    }
+}
+
+.billing-records .billing-empty {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding-block: var(--space-2);
+}
+.billing-summary-heading {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+.billing-method-list {
+    display: block;
+}
+.billing-method-list .billing-method {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding-block: var(--space-3);
+}
+.billing-method-list .billing-method + .billing-method {
+    border-top: 1px solid var(--panel-border);
+}
+.billing-method-list .billing-method-group + .billing-method-group:not(:empty) {
+    border-top: 1px solid var(--panel-border);
+}
+.billing-method-list .billing-method-group {
+    gap: 0;
+}
+.billing-method-list .billing-method__icon {
+    padding: var(--space-2);
+    background: transparent;
+}
+.ui-dropdown--compact .ui-dropdown__trigger {
+    min-width: var(--control-height);
+    width: var(--control-height);
+    height: var(--control-height);
+    justify-content: center;
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+    font-size: 1.25rem;
+}
+.ui-dropdown--compact .ui-dropdown__trigger-icon {
+    display: none;
+}
+
+.billing-invoice > .ui-status-badge {
+    justify-self: start;
+}
+@media (max-width: 640px) {
+    .billing-invoice {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+    }
+    .billing-invoice > time {
+        grid-column: 2;
+        grid-row: 1;
+    }
+    .billing-invoice > .ui-status-badge {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    .billing-invoice > span:last-of-type {
+        grid-column: 2;
+        grid-row: 2;
+    }
+    .billing-invoice > .ui-button {
+        grid-column: 3;
+        grid-row: 1 / span 2;
     }
 }

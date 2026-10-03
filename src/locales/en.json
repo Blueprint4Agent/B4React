@@ -697,7 +697,8 @@
             "BILLING_NOT_FOUND": "We could not find that registration session for this account.",
             "BILLING_RECONCILIATION_REQUIRED": "Your billing account needs review. Please contact your administrator.",
             "BILLING_PLAN_UNAVAILABLE": "Subscription pricing is not configured.",
-            "BILLING_CHECKOUT_CONFLICT": "A subscription or checkout already exists. Complete that checkout, or retry up to one hour after it was started."
+            "BILLING_CHECKOUT_CONFLICT": "A subscription or checkout already exists. Complete that checkout, or retry up to one hour after it was started.",
+            "BILLING_CHANGE_CONFLICT": "Your subscription changed or cannot be changed here. Refresh and review it again."
         },
         "plans": {
             "eyebrow": "A plan for you",
@@ -769,6 +770,44 @@
             "incomplete": "Payment incomplete",
             "paused": "Paused",
             "unknown": "Subscription needs review"
+        },
+        "manage": {
+            "switch": "Change to {{plan}}",
+            "free": "Switch to Free",
+            "pending": "{{plan}} starts on {{date}}.",
+            "undo": "Keep current plan",
+            "title": "Confirm plan change",
+            "description": "Your current plan remains available until {{date}}. {{plan}} starts then. No payment or refund is processed today. The selected plan price applies from the next renewal.",
+            "undoDescription": "Remove the scheduled change and continue renewing your current plan.",
+            "confirm": "Confirm change",
+            "cancel": "Go back",
+            "saved": "Plan change scheduled.",
+            "restored": "Your current plan will continue.",
+            "unavailable": "This subscription requires billing support to make changes.",
+            "currency": "Plan changes keep your current billing currency."
+        },
+        "details": {
+            "viewAll": "View all",
+            "edit": "Edit",
+            "name": "Name",
+            "address": "Billing address",
+            "notSet": "Not provided",
+            "default": "Default",
+            "manageMethod": "Manage payment methods",
+            "invoice": "Invoice",
+            "receipt": "View receipt",
+            "noInvoices": "No transactions yet.",
+            "cancelPlan": "Cancel plan",
+            "cancelHint": "Keep using your plan until the current billing period ends.",
+            "cancel": "Cancel subscription",
+            "status": {
+                "paid": "Paid",
+                "open": "Payment due",
+                "draft": "Draft",
+                "void": "Voided",
+                "uncollectible": "Uncollectible"
+            },
+            "changePlan": "Change plan"
         }
     }
 }
