@@ -133,6 +133,13 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
         const url = await billing.createSetup();
         if (url) window.location.assign(url);
     };
+    const pageErrors = [
+        ...new Set(
+            [billing.error, confirmation ? null : subscription.error]
+                .filter((key): key is string => !!key)
+                .map((key) => t(key)),
+        ),
+    ];
     return (
         <>
             <header className="settings-content-card__header">
@@ -214,7 +221,11 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                         )}
                     </Button>
                 </section>
-                {subscription.error && <InlineMessage>{t(subscription.error)}</InlineMessage>}
+                {pageErrors.length > 0 && (
+                    <div className="billing-feedback">
+                        <InlineMessage>{pageErrors.join(" ")}</InlineMessage>
+                    </div>
+                )}
                 {subscription.notice && subscription.notice !== "paid" && (
                     <InlineMessage tone="info">
                         {t(`billing.checkoutNotices.${subscription.notice}`)}
@@ -229,11 +240,6 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                 )}
                 {!billing.available && (
                     <InlineMessage tone="warning">{t("billing.offline")}</InlineMessage>
-                )}
-                {billing.error && (
-                    <div className="billing-feedback">
-                        <InlineMessage>{t(billing.error)}</InlineMessage>
-                    </div>
                 )}
                 {billing.notice && billing.notice !== "registered" && (
                     <InlineMessage tone="info">

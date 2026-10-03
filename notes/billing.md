@@ -53,3 +53,5 @@ Settings follows Current plan / Transactions / Billing information / Payment met
 Saved cards show provider-supplied brand, last four digits and expiry. A `link` payment method does not expose the wallet card details; its official Link logo and wallet link identify where to view/manage those cards. Settings and enabled pricing display the official Powered by Stripe badge. Assets are local; see `public/payment-brands/README.md` for provenance.
 
 Subscription cancellation reuses the account-deletion section and danger action, including the Free confirmation. Undo remains neutral. Payment lists omit empty groups; official black/white Stripe badges follow the selected theme.
+
+Page-level billing errors are translated, deduplicated and shown in one compact feedback slot. Subscription mutation errors remain in the open confirmation dialog. Hook error state and retry behavior are unchanged.
