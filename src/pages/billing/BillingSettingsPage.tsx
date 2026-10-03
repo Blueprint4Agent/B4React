@@ -58,6 +58,46 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
         checkoutCancelled ? null : params.get("billing_checkout"),
         !!billing.config?.enabled,
     );
+    const handledSuccess = useRef(new Set<string>());
+    useEffect(() => {
+        const confirmations = [
+            {
+                key: "billing_checkout",
+                confirmed: subscription.notice === "paid",
+                message: "billing.checkoutNotices.paid",
+            },
+            {
+                key: "billing_setup",
+                confirmed: billing.notice === "registered",
+                message: "billing.notices.registered",
+            },
+        ];
+        const completed = confirmations.filter(({ key, confirmed }) => {
+            const session = params.get(key);
+            return (
+                confirmed &&
+                session &&
+                session !== "cancelled" &&
+                !handledSuccess.current.has(`${ownerId}:${key}:${session}`)
+            );
+        });
+        if (!completed.length) return;
+        for (const { key, message } of completed) {
+            handledSuccess.current.add(`${ownerId}:${key}:${params.get(key)}`);
+            showToast(t(message));
+        }
+        setParams(
+            (previous) => {
+                const next = new URLSearchParams(previous);
+                for (const { key } of completed) {
+                    if (next.get(key) === params.get(key)) next.delete(key);
+                }
+                next.set("section", "billing");
+                return next;
+            },
+            { replace: true },
+        );
+    }, [ownerId, params, subscription.notice, billing.notice, setParams, showToast, t]);
     const selectedPlan = params.get("plan");
     const paidSelected = selectedPlan === "monthly" || selectedPlan === "annual";
     const addMethod = async () => {
@@ -119,7 +159,7 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                     </Button>
                 </section>
                 {subscription.error && <InlineMessage>{t(subscription.error)}</InlineMessage>}
-                {subscription.notice && (
+                {subscription.notice && subscription.notice !== "paid" && (
                     <InlineMessage tone="info">
                         {t(`billing.checkoutNotices.${subscription.notice}`)}
                     </InlineMessage>
@@ -139,7 +179,7 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                         <InlineMessage>{t(billing.error)}</InlineMessage>
                     </div>
                 )}
-                {billing.notice && (
+                {billing.notice && billing.notice !== "registered" && (
                     <InlineMessage tone="info">
                         {t(`billing.notices.${billing.notice}`)}
                     </InlineMessage>

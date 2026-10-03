@@ -46,3 +46,5 @@ provider-mocked browser checkout/return tests, peer geometry comparisons and pro
 lazy-route checks protect these flows. Mocked tests do not prove a settled Stripe payment.
 
 Cancellation returns show the shared transient toast once and replace the cancellation query with `section=billing`, preserving unrelated parameters. Billing/plan loading uses the shared spinner with an accessible name and no visible loading sentence; API key settings follows the same convention.
+
+Server-verified payment and card registration success also use the shared transient toast, consuming the corresponding return query after verification. Pending results retain their query and inline status so refresh can verify completion; focus and reload do not replay a consumed success.

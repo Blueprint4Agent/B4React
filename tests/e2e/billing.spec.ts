@@ -179,7 +179,17 @@ test("registration opens only the hosted setup URL and verifies the return", asy
         route.fulfill({ json: { id: "cs_test_example", status: "complete", registered: true } }),
     );
     await page.goto("/settings?billing_setup=cs_test_example");
-    await expect(page.getByText("Your payment method registration is confirmed.")).toBeVisible();
+    await expect(page.locator(".ui-toast-card")).toHaveText(
+        "Your payment method registration is confirmed.",
+    );
+    await expect(page.locator(".billing-settings")).not.toContainText(
+        "Your payment method registration is confirmed.",
+    );
+    await expect(page).toHaveURL(/section=billing$/);
+    await expect(page.locator(".ui-toast-card")).toHaveCount(0, { timeout: 5000 });
+    await page.reload();
+    await expect(page.getByText("VISA •••• 4242")).toBeVisible();
+    await expect(page.locator(".ui-toast-card")).toHaveCount(0);
     await expect(page.getByText("VISA •••• 4242")).toBeVisible();
 });
 test("disabled billing never spins forever or creates a setup session", async ({ page }) => {
@@ -276,7 +286,16 @@ test("a subscription checkout uses the selected server-priced plan and verifies 
         }),
     );
     await page.getByRole("button", { name: "Refresh", exact: true }).click();
-    await expect(page.getByText("Payment confirmed.")).toBeVisible();
+    await expect(page.locator(".ui-toast-card")).toHaveText("Payment confirmed.");
+    await expect(page.locator(".billing-settings")).not.toContainText("Payment confirmed.");
+    await expect(page).toHaveURL(/section=billing$/);
+    await expect(page.locator(".ui-toast-card")).toHaveCount(0, { timeout: 5000 });
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await page.getByRole("button", { name: "Refresh", exact: true }).click();
+    await expect(page.locator(".ui-toast-card")).toHaveCount(0);
+    await page.reload();
+    await expect(page.locator(".billing-plan-summary h2")).toHaveText("Monthly");
+    await expect(page.locator(".ui-toast-card")).toHaveCount(0);
     await expect(page.locator(".billing-plan-summary h2")).toHaveText("Monthly");
     await page.goto("/plans");
     await expect(
