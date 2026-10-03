@@ -583,3 +583,31 @@ for (const width of [390, 1440]) {
         });
     }
 }
+
+for (const width of [390, 1440]) {
+    test(`billing deduplicates concurrent errors and recovers at ${width}px`, async ({
+        page,
+    }, info) => {
+        await setup(page, "ko");
+        await page.setViewportSize({ width, height: 1000 });
+        await page.emulateMedia({ colorScheme: "dark" });
+        let failing = true;
+        for (const path of ["subscription", "profile"]) {
+            await page.route(`**/api/v1/billing/${path}`, (route) =>
+                failing
+                    ? route.fulfill({ status: 500, json: { detail: "provider failure" } })
+                    : route.fallback(),
+            );
+        }
+        await page.goto("/settings?section=billing");
+        await expect(page.getByRole("button", { name: "다시 불러오기" })).toBeEnabled();
+        await expect(page.locator(".billing-feedback [role=alert]")).toHaveCount(1);
+        await expect(page.getByRole("alert")).toHaveCount(1);
+        await expect(page.getByRole("alert")).toContainText("결제 정보를 처리하지 못했습니다");
+        await page.screenshot({ path: info.outputPath("billing-error.png"), fullPage: true });
+        failing = false;
+        await page.getByRole("button", { name: "다시 불러오기" }).click();
+        await expect(page.getByRole("alert")).toHaveCount(0);
+        await expect(page.getByText("VISA •••• 4242")).toBeVisible();
+    });
+}
