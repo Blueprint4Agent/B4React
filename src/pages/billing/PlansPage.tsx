@@ -1,3 +1,9 @@
+import { useEffect, useState } from "react";
+import {
+    PlanChangeDialog,
+    type PlanChangeSelection,
+} from "../../components/features/billing/PlanChangeDialog";
+import { useToast } from "../../hooks/useToast";
 import { Check, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -10,6 +16,22 @@ export function PlansPage() {
     const { t } = useTranslation();
     const { user } = useAuthContext();
     const billing = useSubscription(user?.id, null, true, true);
+    const [confirmation, setConfirmation] = useState<PlanChangeSelection | null>(null);
+    const showToast = useToast();
+    useEffect(() => setConfirmation(null), [user?.id]);
+    const confirmChange = async () => {
+        if (!confirmation) return;
+        if (await billing.change(confirmation.plan, confirmation.version)) {
+            showToast(
+                t(
+                    confirmation.plan === "keep"
+                        ? "billing.manage.restored"
+                        : "billing.manage.saved",
+                ),
+            );
+            setConfirmation(null);
+        }
+    };
     const currentPlan = billing.subscription?.plan;
     const navigate = useNavigate();
     const location = useLocation();
@@ -31,7 +53,13 @@ export function PlansPage() {
             : params.get("plan") === "free"
               ? "free"
               : "monthly";
-    const currency = params.get("currency") === "usd" ? "usd" : "krw";
+    const currency = billing.subscription?.has_subscription
+        ? billing.subscription.currency === "usd"
+            ? "usd"
+            : "krw"
+        : params.get("currency") === "usd"
+          ? "usd"
+          : "krw";
     const update = (key: string, value: string) =>
         setParams(
             (previous) => {
@@ -56,6 +84,20 @@ export function PlansPage() {
             navigate("/login");
             return;
         }
+        if (billing.subscription?.has_subscription) {
+            const snapshot = billing.subscription;
+            if (snapshot.can_manage && snapshot.change_version && snapshot.current_period_end)
+                setConfirmation({
+                    plan,
+                    version: snapshot.change_version,
+                    effectiveAt: snapshot.current_period_end,
+                    price:
+                        plan === "free"
+                            ? undefined
+                            : `${priceFor(plan)} ${t(`billing.plans.${plan}.period`)}`,
+                });
+            return;
+        }
         if (plan === "free") return;
         update("plan", plan);
         const url = await billing.checkout(plan, currency);
@@ -75,15 +117,31 @@ export function PlansPage() {
                 <h1>{t("billing.plans.title")}</h1>
                 <p>{t("billing.plans.subtitle")}</p>
             </header>
+            {billing.subscription?.has_subscription && !billing.subscription.can_manage && (
+                <InlineMessage tone="info">{t("billing.manage.unavailable")}</InlineMessage>
+            )}
             {billing.error && <InlineMessage>{t(billing.error)}</InlineMessage>}
             {billing.error && (
                 <Button appearance="pill-secondary" onClick={() => void billing.reload()}>
                     {t("billing.retry")}
                 </Button>
             )}
+            {billing.subscription?.pending_plan && (
+                <InlineMessage tone="info">
+                    {t("billing.manage.pending", {
+                        plan: t(`billing.plans.${billing.subscription.pending_plan}.name`),
+                        date: new Date(
+                            (billing.subscription.pending_effective_at ?? 0) * 1000,
+                        ).toLocaleDateString(),
+                    })}
+                </InlineMessage>
+            )}
+            {billing.subscription?.has_subscription && (
+                <p className="billing-muted-label">{t("billing.manage.currency")}</p>
+            )}
             <div className="plans-currency">
                 <DropdownMenu
-                    disabled={billing.busy}
+                    disabled={billing.busy || !!billing.subscription?.has_subscription}
                     label={t("billing.plans.currency")}
                     triggerLabel={currency === "krw" ? "KRW ₩" : "USD $"}
                     items={[
@@ -139,14 +197,16 @@ export function PlansPage() {
                             disabled={
                                 !!user &&
                                 (plan === currentPlan ||
-                                    plan === "free" ||
+                                    (plan === "free" && !billing.subscription?.has_subscription) ||
                                     billing.loading ||
                                     billing.busy ||
                                     !billing.available ||
                                     !billing.catalog?.enabled ||
                                     !!billing.error ||
                                     !billing.subscription ||
-                                    billing.subscription.has_subscription)
+                                    (billing.subscription.has_subscription &&
+                                        !billing.subscription.can_manage) ||
+                                    billing.subscription.pending_plan === plan)
                             }
                             loading={billing.busy && selected === plan}
                             onClick={() => void choose(plan)}
@@ -156,7 +216,9 @@ export function PlansPage() {
                                     ? "billing.currentPlan"
                                     : !user
                                       ? "billing.signIn"
-                                      : "billing.subscribe",
+                                      : billing.subscription?.has_subscription
+                                        ? "billing.manage.switch"
+                                        : "billing.subscribe",
                                 { plan: t(`billing.plans.${plan}.name`) },
                             )}
                         </Button>
@@ -170,6 +232,13 @@ export function PlansPage() {
                         : "billing.plans.unavailable",
                 )}
             </p>
+            <PlanChangeDialog
+                selection={confirmation}
+                busy={billing.busy}
+                error={billing.error}
+                onClose={() => setConfirmation(null)}
+                onConfirm={() => void confirmChange()}
+            />
         </section>
     );
 }

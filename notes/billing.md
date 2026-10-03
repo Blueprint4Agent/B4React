@@ -12,8 +12,7 @@ Guests sign in first; missing pricing shows an unavailable state rather than a p
 hardcoded amount. A selected URL plan is never a current subscription or payment proof.
 
 The current-plan button is disabled using the server snapshot, including Free only after
-it is verified. Existing subscriptions block additional checkout; operators handle plan
-changes/cancellation in Stripe for this initial integration. Monthly/Annual actions send
+it is verified. Existing subscriptions block additional checkout; supported active subscriptions offer period-end plan changes/cancellation and undo. Monthly/Annual actions send
 only plan, currency and an action UUID to `POST /billing/checkout-sessions`. The hook
 locks repeated clicks and reuses an action UUID after failure. The server additionally
 reserves a per-customer attempt across devices. The only accepted checkout destination
@@ -29,7 +28,7 @@ Unknown, failed and overdue subscriptions must not be displayed as Free.
 Card/Link setup remains exclusively in Settings Billing using `useBilling`, the existing
 typed adapter and `/setup-sessions`; return URLs use `billing_setup`. Only `registered=true`
 confirms setup. Card/Link pagination, retry, test-mode and disabled/offline states remain.
-Transactions/invoices and address editing remain unavailable in this initial integration.
+Recent invoices and billing profile are read from Stripe; View all/Edit/payment-method management opens the restricted customer portal.
 Account deletion with subscription-checkout history requires operator reconciliation to
 avoid orphaned recurring billing. The backend returns a localized actionable auth error.
 
@@ -48,3 +47,5 @@ lazy-route checks protect these flows. Mocked tests do not prove a settled Strip
 Cancellation returns show the shared transient toast once and replace the cancellation query with `section=billing`, preserving unrelated parameters. Billing/plan loading uses the shared spinner with an accessible name and no visible loading sentence; API key settings follows the same convention.
 
 Server-verified payment and card registration success also use the shared transient toast, consuming the corresponding return query after verification. Pending results retain their query and inline status so refresh can verify completion; focus and reload do not replay a consumed success.
+
+Settings follows Current plan / Transactions / Billing information / Payment methods / Cancel plan. Grouped rows reuse settings-row surfaces; compact dropdowns reuse the shared DropdownMenu variant and its showcase. Current plan stays active until the effective date; the shared confirmation modal captures the version/date and successful changes use a toast. Existing paid plans retain billing currency. Unknown/unsupported plans fail closed. The domain hooks own profile/invoices/portal and plan mutations, pause during desktop outages and ignore stale owners. Card data editing stays in Stripe.

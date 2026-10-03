@@ -1,20 +1,15 @@
-import { useEffect, useRef } from "react";
-import {
-    CreditCard,
-    Sparkles,
-    ExternalLink,
-    Plus,
-    ReceiptText,
-    RefreshCw,
-    ShieldCheck,
-    Wallet,
-} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { CreditCard, Plus, ReceiptText, RefreshCw, ShieldCheck, Wallet } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Button, InlineMessage, Spinner } from "../../components/ui";
+import { Button, InlineMessage, Spinner, DropdownMenu, StatusBadge } from "../../components/ui";
 import { useSubscription } from "../../hooks/api/billing/useSubscription";
 import { useBilling } from "../../hooks/api/billing/useBilling";
 
+import {
+    PlanChangeDialog,
+    type PlanChangeSelection,
+} from "../../components/features/billing/PlanChangeDialog";
 import { useToast } from "../../hooks/useToast";
 
 type Props = { ownerId: number; email: string };
@@ -98,6 +93,33 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
             { replace: true },
         );
     }, [ownerId, params, subscription.notice, billing.notice, setParams, showToast, t]);
+    const [confirmation, setConfirmation] = useState<PlanChangeSelection | null>(null);
+    useEffect(() => setConfirmation(null), [ownerId]);
+    const requestChange = (plan: "free" | "keep") => {
+        const snapshot = subscription.subscription;
+        if (snapshot?.can_manage && snapshot.change_version && snapshot.current_period_end)
+            setConfirmation({
+                plan,
+                version: snapshot.change_version,
+                effectiveAt: snapshot.current_period_end,
+            });
+    };
+    const confirmChange = async () => {
+        if (confirmation && (await subscription.change(confirmation.plan, confirmation.version))) {
+            showToast(
+                t(
+                    confirmation.plan === "keep"
+                        ? "billing.manage.restored"
+                        : "billing.manage.saved",
+                ),
+            );
+            setConfirmation(null);
+        }
+    };
+    const openPortal = async (flow: "overview" | "customer_update" | "payment_method_update") => {
+        const url = await billing.openPortal(flow);
+        if (url) window.location.assign(url);
+    };
     const selectedPlan = params.get("plan");
     const paidSelected = selectedPlan === "monthly" || selectedPlan === "annual";
     const addMethod = async () => {
@@ -116,7 +138,12 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                     aria-label={t("billing.currentPlan")}
                 >
                     <div>
-                        <span className="billing-eyebrow">{t("billing.currentPlan")}</span>
+                        <div className="billing-summary-heading">
+                            <span className="billing-eyebrow">{t("billing.currentPlan")}</span>
+                            {billing.config?.enabled && !billing.config.livemode && (
+                                <StatusBadge tone="info">{t("billing.sandbox")}</StatusBadge>
+                            )}
+                        </div>
                         <h2>
                             {subscription.subscription ? (
                                 t(`billing.plans.${subscription.subscription.plan}.name`)
@@ -126,36 +153,58 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                                 t("billing.subscriptionStatus.unknown")
                             )}
                         </h2>
-                        <p>
-                            {subscription.subscription?.has_subscription
-                                ? t(
-                                      `billing.subscriptionStatus.${subscription.subscription.status}`,
-                                      { defaultValue: t("billing.subscriptionStatus.unknown") },
-                                  )
-                                : subscription.subscription?.plan === "free"
-                                  ? t("billing.freeSummary")
-                                  : billing.loading || subscription.loading
-                                    ? null
-                                    : t("billing.subscriptionStatus.unknown")}
-                        </p>
-                        {subscription.subscription?.current_period_end && (
+                        {!(
+                            subscription.subscription?.has_subscription &&
+                            subscription.subscription.status === "active"
+                        ) && (
                             <p>
-                                {t(
-                                    subscription.subscription.cancel_at_period_end
-                                        ? "billing.endsAt"
-                                        : "billing.renewsAt",
-                                    {
-                                        date: new Date(
-                                            subscription.subscription.current_period_end * 1000,
-                                        ).toLocaleDateString(),
-                                    },
-                                )}
+                                {subscription.subscription?.has_subscription
+                                    ? t(
+                                          `billing.subscriptionStatus.${subscription.subscription.status}`,
+                                          { defaultValue: t("billing.subscriptionStatus.unknown") },
+                                      )
+                                    : subscription.subscription?.plan === "free"
+                                      ? t("billing.freeSummary")
+                                      : billing.loading || subscription.loading
+                                        ? null
+                                        : t("billing.subscriptionStatus.unknown")}
                             </p>
                         )}
+                        {subscription.subscription?.pending_plan && (
+                            <p>
+                                {t("billing.manage.pending", {
+                                    plan: t(
+                                        `billing.plans.${subscription.subscription.pending_plan}.name`,
+                                    ),
+                                    date: new Date(
+                                        (subscription.subscription.pending_effective_at ?? 0) *
+                                            1000,
+                                    ).toLocaleDateString(),
+                                })}
+                            </p>
+                        )}
+                        {subscription.subscription?.current_period_end &&
+                            !subscription.subscription.pending_plan && (
+                                <p>
+                                    {t(
+                                        subscription.subscription.cancel_at_period_end
+                                            ? "billing.endsAt"
+                                            : "billing.renewsAt",
+                                        {
+                                            date: new Date(
+                                                subscription.subscription.current_period_end * 1000,
+                                            ).toLocaleDateString(),
+                                        },
+                                    )}
+                                </p>
+                            )}
                     </div>
                     <Button appearance="pill-secondary" onClick={() => navigate("/plans")}>
-                        <Sparkles aria-hidden="true" />
-                        {t("billing.changePlan")}
+                        {t(
+                            subscription.subscription?.has_subscription
+                                ? "billing.details.changePlan"
+                                : "billing.changePlan",
+                        )}
                     </Button>
                 </section>
                 {subscription.error && <InlineMessage>{t(subscription.error)}</InlineMessage>}
@@ -187,35 +236,123 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                 {billing.config?.enabled === false && (
                     <InlineMessage tone="info">{t("billing.disabled")}</InlineMessage>
                 )}
-                {billing.config?.enabled && !billing.config.livemode && (
-                    <p className="billing-test-note">
-                        <ShieldCheck aria-hidden="true" />
-                        {t("billing.testMode")}
-                    </p>
-                )}
                 <section className="billing-section" aria-labelledby="billing-history-title">
                     <header>
                         <h2 id="billing-history-title">{t("billing.history")}</h2>
-                        <span className="billing-muted-label">{t("billing.plans.soon")}</span>
+                        <Button
+                            appearance="pill-secondary"
+                            disabled={
+                                !billing.profile?.portal_enabled ||
+                                billing.busy ||
+                                !billing.available
+                            }
+                            onClick={() => void openPortal("overview")}
+                        >
+                            {t("billing.details.viewAll")}
+                        </Button>
                     </header>
-                    <div className="settings-row billing-empty">
-                        <ReceiptText aria-hidden="true" />
-                        <div>
-                            <strong>{t("billing.historyEmpty")}</strong>
-                            <p>{t("billing.historyHint")}</p>
-                        </div>
+                    <div className="settings-row billing-records">
+                        {billing.loading ? (
+                            <Spinner label={t("billing.loading")} hideLabel />
+                        ) : billing.invoices?.items.length ? (
+                            billing.invoices.items.map((invoice) => (
+                                <div className="billing-invoice" key={invoice.id}>
+                                    <span>{invoice.number ?? t("billing.details.invoice")}</span>
+                                    <time>
+                                        {new Date(invoice.created * 1000).toLocaleDateString()}
+                                    </time>
+                                    <StatusBadge tone="info">
+                                        {t(`billing.details.status.${invoice.status}`, {
+                                            defaultValue: invoice.status,
+                                        })}
+                                    </StatusBadge>
+                                    <span>
+                                        {new Intl.NumberFormat(undefined, {
+                                            style: "currency",
+                                            currency: invoice.currency,
+                                        }).format(
+                                            invoice.currency === "krw"
+                                                ? invoice.amount
+                                                : invoice.amount / 100,
+                                        )}
+                                    </span>
+                                    {invoice.url && (
+                                        <Button
+                                            appearance="pill-secondary"
+                                            aria-label={t("billing.details.receipt")}
+                                            onClick={() => {
+                                                const url = new URL(invoice.url!);
+                                                if (
+                                                    url.protocol === "https:" &&
+                                                    [
+                                                        "invoice.stripe.com",
+                                                        "pay.stripe.com",
+                                                    ].includes(url.hostname)
+                                                )
+                                                    window.open(
+                                                        url.href,
+                                                        "_blank",
+                                                        "noopener,noreferrer",
+                                                    );
+                                            }}
+                                        >
+                                            ›
+                                        </Button>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            <div className="billing-empty">
+                                <ReceiptText aria-hidden="true" />
+                                <p>{t("billing.details.noInvoices")}</p>
+                            </div>
+                        )}
                     </div>
                 </section>
                 <section className="billing-section" aria-labelledby="billing-info-title">
                     <header>
                         <h2 id="billing-info-title">{t("billing.info")}</h2>
+                        <Button
+                            appearance="pill-secondary"
+                            disabled={
+                                !billing.profile?.portal_enabled ||
+                                billing.busy ||
+                                !billing.available
+                            }
+                            onClick={() => void openPortal("customer_update")}
+                        >
+                            {t("billing.details.edit")}
+                        </Button>
                     </header>
-                    <div className="settings-row billing-info-row">
-                        <div>
-                            <span className="billing-eyebrow">{t("billing.accountEmail")}</span>
-                            <p>{email}</p>
-                        </div>
-                        <p>{t("billing.infoHint")}</p>
+                    <div className="settings-row billing-records">
+                        {billing.loading ? (
+                            <Spinner label={t("billing.loading")} hideLabel />
+                        ) : (
+                            <>
+                                <div className="billing-detail">
+                                    <span className="billing-eyebrow">
+                                        {t("billing.accountEmail")}
+                                    </span>
+                                    <p>{billing.profile?.email ?? email}</p>
+                                </div>
+                                <div className="billing-detail">
+                                    <span className="billing-eyebrow">
+                                        {t("billing.details.name")}
+                                    </span>
+                                    <p>{billing.profile?.name ?? t("billing.details.notSet")}</p>
+                                </div>
+                                <div className="billing-detail">
+                                    <span className="billing-eyebrow">
+                                        {t("billing.details.address")}
+                                    </span>
+                                    <p>
+                                        {billing.profile?.address?.length
+                                            ? billing.profile.address.join(", ")
+                                            : t("billing.details.notSet")}
+                                    </p>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </section>
                 <section className="billing-section" aria-labelledby="billing-methods-title">
@@ -266,84 +403,135 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                                 </div>
                             </div>
                         )}
-                    {(["card", "link"] as const).map((type) => (
-                        <div key={type} className="billing-method-group">
-                            {billing.methods[type].items.map((method) => (
-                                <article className="settings-row billing-method" key={method.id}>
-                                    <span className="billing-method__icon">
-                                        {type === "card" ? (
-                                            <CreditCard aria-hidden="true" />
-                                        ) : (
-                                            <Wallet aria-hidden="true" />
-                                        )}
-                                    </span>
-                                    <div>
-                                        <h3>
-                                            {type === "link"
-                                                ? "Link"
-                                                : `${method.brand?.toUpperCase() ?? t("billing.card")} •••• ${method.last4 ?? ""}`}
-                                        </h3>
-                                        <p>
-                                            {type === "link"
-                                                ? t("billing.linkSaved")
-                                                : t("billing.expiry", {
-                                                      month: String(
-                                                          method.exp_month ?? "",
-                                                      ).padStart(2, "0"),
-                                                      year: method.exp_year ?? "",
-                                                  })}
-                                        </p>
-                                    </div>
-                                    <span className="billing-muted-label">
-                                        {t("billing.saved")}
-                                    </span>
-                                </article>
+                    {billing.methods.card.items.length + billing.methods.link.items.length > 0 && (
+                        <div className="settings-row billing-method-list">
+                            {(["card", "link"] as const).map((type) => (
+                                <div key={type} className="billing-method-group">
+                                    {billing.methods[type].items.map((method) => (
+                                        <article className="billing-method" key={method.id}>
+                                            <span className="billing-method__icon">
+                                                {type === "card" ? (
+                                                    <CreditCard aria-hidden="true" />
+                                                ) : (
+                                                    <Wallet aria-hidden="true" />
+                                                )}
+                                            </span>
+                                            <div>
+                                                <h3>
+                                                    {type === "link"
+                                                        ? "Link"
+                                                        : `${method.brand?.toUpperCase() ?? t("billing.card")} •••• ${method.last4 ?? ""}`}
+                                                </h3>
+                                                <p>
+                                                    {type === "link"
+                                                        ? t("billing.linkSaved")
+                                                        : t("billing.expiry", {
+                                                              month: String(
+                                                                  method.exp_month ?? "",
+                                                              ).padStart(2, "0"),
+                                                              year: method.exp_year ?? "",
+                                                          })}
+                                                </p>
+                                            </div>
+                                            <div className="billing-method-actions">
+                                                {billing.profile?.default_payment_method ===
+                                                    method.id && (
+                                                    <StatusBadge tone="info">
+                                                        {t("billing.details.default")}
+                                                    </StatusBadge>
+                                                )}
+                                                <DropdownMenu
+                                                    compact
+                                                    label={t("billing.details.manageMethod")}
+                                                    triggerLabel="···"
+                                                    disabled={
+                                                        !billing.profile?.portal_enabled ||
+                                                        billing.busy ||
+                                                        !billing.available
+                                                    }
+                                                    items={[
+                                                        {
+                                                            id: "manage",
+                                                            label: t(
+                                                                "billing.details.manageMethod",
+                                                            ),
+                                                        },
+                                                    ]}
+                                                    onSelect={() => void openPortal("overview")}
+                                                />
+                                            </div>
+                                        </article>
+                                    ))}
+                                    {billing.methods[type].has_more && (
+                                        <Button
+                                            appearance="pill-secondary"
+                                            loading={billing.moreBusy === type}
+                                            disabled={
+                                                !billing.available ||
+                                                billing.loading ||
+                                                billing.moreBusy !== null
+                                            }
+                                            onClick={() => void billing.loadMore(type)}
+                                        >
+                                            {t("billing.loadMore", {
+                                                type: type === "card" ? t("billing.card") : "Link",
+                                            })}
+                                        </Button>
+                                    )}
+                                </div>
                             ))}
-                            {billing.methods[type].has_more && (
-                                <Button
-                                    appearance="pill-secondary"
-                                    loading={billing.moreBusy === type}
-                                    disabled={
-                                        !billing.available ||
-                                        billing.loading ||
-                                        billing.moreBusy !== null
-                                    }
-                                    onClick={() => void billing.loadMore(type)}
-                                >
-                                    {t("billing.loadMore", {
-                                        type: type === "card" ? t("billing.card") : "Link",
-                                    })}
-                                </Button>
-                            )}
                         </div>
-                    ))}
-                    <p className="billing-provider-note">
-                        <ExternalLink aria-hidden="true" />
-                        {t("billing.providerNote")}
-                    </p>
+                    )}
                 </section>
                 {subscription.subscription && (
-                    <section className="billing-plan-footer">
-                        <ShieldCheck aria-hidden="true" />
+                    <section className="settings-row billing-plan-footer">
                         <div>
                             <h2>
                                 {t(
-                                    subscription.subscription?.has_subscription
-                                        ? "billing.subscriptionManaged"
+                                    subscription.subscription.has_subscription
+                                        ? "billing.details.cancelPlan"
                                         : "billing.noSubscription",
                                 )}
                             </h2>
                             <p>
                                 {t(
-                                    subscription.subscription?.has_subscription
-                                        ? "billing.subscriptionManagedHint"
+                                    subscription.subscription.has_subscription
+                                        ? "billing.details.cancelHint"
                                         : "billing.noSubscriptionHint",
                                 )}
                             </p>
                         </div>
+                        {subscription.subscription.has_subscription && (
+                            <Button
+                                appearance="pill-secondary"
+                                disabled={
+                                    !subscription.subscription.can_manage ||
+                                    subscription.busy ||
+                                    !subscription.available
+                                }
+                                onClick={() =>
+                                    requestChange(
+                                        subscription.subscription?.pending_plan ? "keep" : "free",
+                                    )
+                                }
+                            >
+                                {t(
+                                    subscription.subscription.pending_plan
+                                        ? "billing.manage.undo"
+                                        : "billing.details.cancel",
+                                )}
+                            </Button>
+                        )}
                     </section>
                 )}
             </div>
+            <PlanChangeDialog
+                selection={confirmation}
+                busy={subscription.busy}
+                error={subscription.error}
+                onClose={() => setConfirmation(null)}
+                onConfirm={() => void confirmChange()}
+            />
         </>
     );
 }

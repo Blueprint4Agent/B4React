@@ -9,6 +9,7 @@ type DropdownItem = {
 
 type DropdownMenuProps = {
     className?: string;
+    compact?: boolean;
     disabled?: boolean;
     fieldLabel?: string;
     items: DropdownItem[];
@@ -19,6 +20,7 @@ type DropdownMenuProps = {
 
 export function DropdownMenu({
     className,
+    compact = false,
     disabled = false,
     fieldLabel,
     items,
@@ -33,7 +35,12 @@ export function DropdownMenu({
     const menuId = useId();
     const visible = open && !disabled;
     const modalRoot = visible ? rootRef.current?.closest<HTMLElement>(".ui-modal") : null;
-    const nextClassName = ["ui-dropdown", fieldLabel && "ui-dropdown--field", className]
+    const nextClassName = [
+        "ui-dropdown",
+        compact && "ui-dropdown--compact",
+        fieldLabel && "ui-dropdown--field",
+        className,
+    ]
         .filter(Boolean)
         .join(" ");
 

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerConnectivity } from "../../connectivity/useServerConnectivity";
 import {
     useBillingApi,
+    type BillingChangeForm,
     type BillingPlans,
     type BillingSubscription,
     type BillingCheckoutForm,
@@ -148,5 +149,52 @@ export function useSubscription(
         },
         [available, loading, catalog, subscription, api, errorKey],
     );
-    return { subscription, catalog, loading, busy, error, notice, available, reload, checkout };
+    const change = useCallback(
+        async (plan: BillingChangeForm["plan"], expectedVersion: string) => {
+            if (!available || !active.current || action.current || !subscription?.can_manage)
+                return false;
+            const epoch = generation.current;
+            action.current = true;
+            ++sequence.current;
+            setBusy(true);
+            setError(null);
+            const key = `change:${plan}:${expectedVersion}`;
+            if (retry.current?.key !== key) retry.current = { key, id: crypto.randomUUID() };
+            try {
+                const next = await api.changeBillingSubscription({
+                    plan,
+                    expected_version: expectedVersion,
+                    request_id: retry.current.id,
+                });
+                if (!active.current || generation.current !== epoch) return false;
+                setSubscription(next);
+                retry.current = null;
+                return true;
+            } catch (cause) {
+                if (active.current && generation.current === epoch) {
+                    setError(errorKey(cause));
+                }
+                return false;
+            } finally {
+                if (active.current && generation.current === epoch) {
+                    action.current = false;
+                    setBusy(false);
+                    setLoading(false);
+                }
+            }
+        },
+        [available, subscription, api, errorKey],
+    );
+    return {
+        subscription,
+        catalog,
+        loading,
+        busy,
+        error,
+        notice,
+        available,
+        reload,
+        checkout,
+        change,
+    };
 }

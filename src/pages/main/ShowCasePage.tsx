@@ -300,6 +300,12 @@ export function ShowCasePage() {
                     <div className="showcase-catalog__row">
                         <ShowcaseItem component="DropdownMenu">
                             <DropdownMenu
+                                compact
+                                triggerLabel="···"
+                                label={t("billing.details.manageMethod")}
+                                items={[{ id: "manage", label: t("billing.details.manageMethod") }]}
+                            />
+                            <DropdownMenu
                                 triggerLabel={t(`showCase.demo.${sampleDropdown}`)}
                                 onSelect={setSampleDropdown}
                                 label={t("showCase.demo.text5")}

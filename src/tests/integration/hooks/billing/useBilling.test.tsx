@@ -4,6 +4,9 @@ import { useBilling } from "../../../../hooks/api/billing/useBilling";
 
 const api = vi.hoisted(() => ({
     getBillingConfig: vi.fn(),
+    getBillingProfile: vi.fn(),
+    getBillingInvoices: vi.fn(),
+    createBillingPortal: vi.fn(),
     listBillingPaymentMethods: vi.fn(),
     getBillingSetupStatus: vi.fn(),
     createBillingSetup: vi.fn(),
@@ -30,6 +33,8 @@ beforeEach(() => {
     connection = { isDesktop: false, status: "online" };
     api.getBillingConfig.mockResolvedValue({ enabled: true, livemode: false });
     api.listBillingPaymentMethods.mockResolvedValue(empty);
+    api.getBillingProfile.mockResolvedValue({ portal_enabled: false });
+    api.getBillingInvoices.mockResolvedValue(empty);
     api.getBillingSetupStatus.mockResolvedValue({
         id: "cs_test_return",
         status: "complete",
