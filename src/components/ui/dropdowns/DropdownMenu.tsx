@@ -53,6 +53,7 @@ export function DropdownMenu({
         const menu = menuRef.current;
         if (!trigger || !menu) return;
         const update = () => {
+            const scrollTop = menu.scrollTop;
             const rect = trigger.getBoundingClientRect();
             const edge = 8;
             const gap = 4;
@@ -66,15 +67,15 @@ export function DropdownMenu({
                 viewportWidth - edge * 2,
             );
             menu.style.width = `${width}px`;
-            // Measure natural content before choosing the side; an earlier cap must not bias it.
-            menu.style.maxHeight = "none";
-            const naturalHeight = menu.offsetHeight;
+            // Measure all content without removing the cap: expansion would reset scrollTop.
+            const naturalHeight = menu.scrollHeight + menu.offsetHeight - menu.clientHeight;
             const up = naturalHeight > below && above > below;
             menu.style.maxHeight = `${up ? above : below}px`;
             const height = menu.offsetHeight;
             menu.style.left = `${Math.max(edge, Math.min(compact ? rect.right - width : rect.left, viewportWidth - width - edge))}px`;
             menu.style.top = `${Math.max(edge, up ? rect.top - height - gap : rect.bottom + gap)}px`;
             menu.dataset.side = up ? "top" : "bottom";
+            menu.scrollTop = scrollTop;
             // Dismiss when scrolling has fully hidden the anchor inside its modal body.
             const body = trigger.closest(".ui-modal__body")?.getBoundingClientRect();
             if (body && (rect.bottom <= body.top || rect.top >= body.bottom)) setOpen(false);
@@ -83,12 +84,17 @@ export function DropdownMenu({
         const observer = new ResizeObserver(update);
         observer.observe(trigger);
         observer.observe(menu);
+        const onScroll = (event: Event) => {
+            // Internal list scrolling does not move the trigger or require repositioning.
+            if (event.target instanceof Node && menu.contains(event.target)) return;
+            update();
+        };
         window.addEventListener("resize", update);
-        window.addEventListener("scroll", update, true);
+        window.addEventListener("scroll", onScroll, true);
         return () => {
             observer.disconnect();
             window.removeEventListener("resize", update);
-            window.removeEventListener("scroll", update, true);
+            window.removeEventListener("scroll", onScroll, true);
         };
     }, [visible, portalRoot, compact, items]);
 
