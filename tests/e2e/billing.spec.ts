@@ -715,3 +715,65 @@ for (const registered of [true, false]) {
         await expect(page).toHaveURL(/keep=value/);
     });
 }
+
+for (const width of [390, 1440]) {
+    for (const theme of ["light", "dark"] as const) {
+        test(`country list scrolls ${theme} at ${width}px`, async ({ page }, info) => {
+            await setup(page, "ko");
+            await page.setViewportSize({ width, height: 900 });
+            await page.emulateMedia({ colorScheme: theme });
+            await page.route("**/api/v1/billing/profile", (route) =>
+                route.fulfill({
+                    json: {
+                        email: "billing@example.com",
+                        name: "Billing User",
+                        address: [],
+                        address_fields: {
+                            country: "KR",
+                            city: "",
+                            state: "",
+                            line1: "",
+                            line2: "",
+                            postal_code: "",
+                        },
+                        default_payment_method: null,
+                        portal_enabled: true,
+                    },
+                }),
+            );
+            await page.goto("/settings?section=billing");
+            await page.getByRole("button", { name: "편집", exact: true }).click();
+            const dialog = page.getByRole("dialog");
+            await dialog.getByRole("button", { name: "대한민국", exact: true }).click();
+            const menu = page.getByRole("menu", { name: "국가 또는 지역", exact: true });
+            await expect(menu).toBeVisible();
+            await menu.hover();
+            await page.mouse.wheel(0, 600);
+            await expect.poll(() => menu.evaluate((el) => el.scrollTop)).toBeGreaterThan(100);
+            const position = await menu.evaluate((el) => el.scrollTop);
+            await page.setViewportSize({ width, height: 790 });
+            await expect
+                .poll(() => menu.evaluate((el) => el.getBoundingClientRect().bottom))
+                .toBeLessThanOrEqual(782);
+            await expect
+                .poll(() => menu.evaluate((el) => el.scrollTop))
+                .toBeGreaterThanOrEqual(position - 1);
+            await menu.evaluate((el) => {
+                el.scrollTop = el.scrollHeight;
+            });
+            const last = menu.getByRole("menuitem").last();
+            await expect(last).toBeVisible();
+            const label = (await last.textContent())!;
+            const bounds = (await menu.boundingBox())!;
+            expect(bounds.y).toBeGreaterThanOrEqual(8);
+            expect(bounds.y + bounds.height).toBeLessThanOrEqual(782);
+            await page.screenshot({
+                path: info.outputPath("country-menu-bottom.png"),
+                fullPage: true,
+            });
+            await last.click();
+            await expect(menu).toHaveCount(0);
+            await expect(dialog.getByRole("button", { name: label, exact: true })).toBeFocused();
+        });
+    }
+}
