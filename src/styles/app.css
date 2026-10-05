@@ -5612,6 +5612,34 @@ input {
 .ui-dropdown--compact .ui-dropdown__trigger-icon {
     display: none;
 }
+.ui-dropdown__menu--actions {
+    width: max-content;
+    min-width: 10rem;
+    max-width: calc(100vw - 1rem);
+}
+.ui-dropdown--compact .ui-dropdown__trigger > svg {
+    width: 1.125rem;
+    height: 1.125rem;
+}
+.ui-dropdown__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+.ui-dropdown__item-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+}
+.ui-dropdown__item-icon svg {
+    width: 1rem;
+    height: 1rem;
+}
+.ui-dropdown__item--danger {
+    color: var(--error-text);
+}
+.ui-dropdown__item--danger:hover {
+    background: var(--error-bg);
+}
 
 .billing-invoice > .ui-status-badge {
     justify-self: start;
@@ -5679,4 +5707,13 @@ html[data-theme="dark"] .billing-stripe-badge .payment-brand--dark {
     html:not([data-theme="light"]) .billing-stripe-badge .payment-brand--dark {
         display: block;
     }
+}
+
+.billing-profile-form {
+    display: grid;
+    gap: var(--space-4);
+}
+.billing-method-detail {
+    display: grid;
+    gap: var(--space-1);
 }

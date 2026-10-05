@@ -60,7 +60,9 @@ async function setup(page: Page, language = "en") {
     );
     await page.route("**/api/v1/billing/config", (route) => {
         stats.configCalls++;
-        return route.fulfill({ json: { enabled: true, livemode: false } });
+        return route.fulfill({
+            json: { enabled: true, livemode: false, publishable_key: "pk_test_fixture" },
+        });
     });
     await page.route("**/api/v1/billing/payment-methods?*", (route) =>
         route.fulfill({
@@ -131,13 +133,11 @@ for (const width of [390, 1440])
             ).toBeDisabled();
             expect(stats.configCalls).toBe(0);
             await page.screenshot({ path: info.outputPath("plans.png"), fullPage: true });
-            await expect(
-                page.getByRole("button", { name: "Add payment method", exact: true }),
-            ).toHaveCount(0);
+            await expect(page.getByRole("button", { name: "Add new", exact: true })).toHaveCount(0);
             await page.goto("/settings?section=billing");
             await expect(page.getByRole("heading", { name: "Billing", exact: true })).toBeVisible();
-            await expect(page.getByText("VISA •••• 4242")).toBeVisible();
-            await expect(page.getByText("Expires 12/2030")).toBeVisible();
+            await expect(page.getByRole("heading", { name: "Visa", exact: true })).toBeVisible();
+            await expect(page.getByText("•••• 4242 · Expires 12/2030")).toBeVisible();
             expect(
                 await page.evaluate(
                     () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -172,23 +172,6 @@ for (const width of [390, 1440])
     }
 test("registration opens only the hosted setup URL and verifies the return", async ({ page }) => {
     await setup(page);
-    let calls = 0;
-    await page.route("**/api/v1/billing/setup-sessions", (route) => {
-        calls++;
-        expect(route.request().headers().authorization).toBe("Bearer billing-test-token");
-        expect(route.request().postDataJSON().request_id).toMatch(/^[a-f0-9-]{36}$/);
-        return route.fulfill({
-            status: 201,
-            json: { id: "cs_test_example", url: "https://checkout.stripe.com/c/pay/example" },
-        });
-    });
-    await page.route("https://checkout.stripe.com/**", (route) =>
-        route.fulfill({ contentType: "text/html", body: "<h1>Hosted registration fixture</h1>" }),
-    );
-    await page.goto("/settings?section=billing");
-    await page.getByRole("button", { name: "Add payment method" }).click();
-    await expect(page).toHaveURL("https://checkout.stripe.com/c/pay/example");
-    expect(calls).toBe(1);
     await page.route("**/api/v1/billing/setup-sessions/cs_test_example", (route) =>
         route.fulfill({ json: { id: "cs_test_example", status: "complete", registered: true } }),
     );
@@ -202,9 +185,9 @@ test("registration opens only the hosted setup URL and verifies the return", asy
     await expect(page).toHaveURL(/section=billing$/);
     await expect(page.locator(".ui-toast-card")).toHaveCount(0, { timeout: 5000 });
     await page.reload();
-    await expect(page.getByText("VISA •••• 4242")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Visa", exact: true })).toBeVisible();
     await expect(page.locator(".ui-toast-card")).toHaveCount(0);
-    await expect(page.getByText("VISA •••• 4242")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Visa", exact: true })).toBeVisible();
 });
 test("disabled billing never spins forever or creates a setup session", async ({ page }) => {
     await setup(page);
@@ -215,7 +198,7 @@ test("disabled billing never spins forever or creates a setup session", async ({
     await expect(
         page.getByText("Payment registration is not available yet. Please check back later."),
     ).toBeVisible();
-    await expect(page.getByRole("button", { name: "Add payment method" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Add new" })).toBeDisabled();
     await expect(page.getByText("Loading billing information…")).toHaveCount(0);
 });
 
@@ -299,13 +282,13 @@ test("a subscription checkout uses the selected server-priced plan and verifies 
             },
         }),
     );
-    await page.getByRole("button", { name: "Refresh", exact: true }).click();
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
     await expect(page.locator(".ui-toast-card")).toHaveText("Payment confirmed.");
     await expect(page.locator(".billing-settings")).not.toContainText("Payment confirmed.");
     await expect(page).toHaveURL(/section=billing$/);
     await expect(page.locator(".ui-toast-card")).toHaveCount(0, { timeout: 5000 });
     await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-    await page.getByRole("button", { name: "Refresh", exact: true }).click();
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
     await expect(page.locator(".ui-toast-card")).toHaveCount(0);
     await page.reload();
     await expect(page.locator(".billing-plan-summary h2")).toHaveText("Monthly");
@@ -335,11 +318,11 @@ for (const [query, message] of [
         await page.screenshot({ path: info.outputPath("cancellation-toast.png") });
         await expect(toast).toHaveCount(0, { timeout: 5000 });
         await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-        await page.getByRole("button", { name: "Refresh" }).click();
-        await expect(page.getByText("VISA •••• 4242")).toBeVisible();
+        await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+        await expect(page.getByRole("heading", { name: "Visa", exact: true })).toBeVisible();
         await expect(toast).toHaveCount(0);
         await page.reload();
-        await expect(page.getByText("VISA •••• 4242")).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Visa", exact: true })).toBeVisible();
         await expect(toast).toHaveCount(0);
     });
 }
@@ -497,22 +480,6 @@ for (const width of [390, 1440]) {
     });
 }
 
-test("billing profile and payment management open only the owner portal", async ({ page }) => {
-    await setup(page);
-    await page.route("**/api/v1/billing/portal-sessions", (route) => {
-        expect(route.request().postDataJSON().flow).toBe("customer_update");
-        return route.fulfill({
-            json: { id: "bps_fixture", url: "https://billing.stripe.com/p/session/fixture" },
-        });
-    });
-    await page.route("https://billing.stripe.com/**", (route) =>
-        route.fulfill({ contentType: "text/html", body: "<h1>Billing portal</h1>" }),
-    );
-    await page.goto("/settings?section=billing");
-    await page.getByRole("button", { name: "Edit", exact: true }).click();
-    await expect(page).toHaveURL("https://billing.stripe.com/p/session/fixture");
-});
-
 for (const width of [390, 1440]) {
     for (const theme of ["light", "dark"] as const) {
         test(`Link-only billing uses settings danger actions ${theme} at ${width}px`, async ({
@@ -550,10 +517,31 @@ for (const width of [390, 1440]) {
                 }),
             );
             await page.goto("/settings?section=billing");
-            await expect(
-                page.getByRole("link", { name: "Link에서 등록 카드 확인 ↗" }),
-            ).toBeVisible();
+            await expect(page.getByText("Link 지갑", { exact: true })).toBeVisible();
             await expect(page.locator(".billing-method-group")).toHaveCount(1);
+            await page.getByRole("button", { name: "결제수단 관리" }).click();
+            const remove = page.getByRole("menuitem", { name: "삭제", exact: true });
+            await expect(remove).toBeVisible();
+            const menuGeometry = await remove.evaluate((element) => {
+                const range = document.createRange();
+                range.selectNodeContents(element.lastElementChild!);
+                const menu = element.parentElement!.getBoundingClientRect();
+                return {
+                    lines: range.getClientRects().length,
+                    left: menu.left,
+                    right: menu.right,
+                    width: menu.width,
+                };
+            });
+            expect(menuGeometry.lines).toBe(1);
+            expect(menuGeometry.width).toBeGreaterThanOrEqual(160);
+            expect(menuGeometry.left).toBeGreaterThanOrEqual(0);
+            expect(menuGeometry.right).toBeLessThanOrEqual(width);
+            await page.screenshot({
+                path: info.outputPath("billing-method-menu.png"),
+                fullPage: true,
+            });
+            await page.keyboard.press("Escape");
             const row = page.locator(".settings-account-delete");
             await expect(row.getByRole("button", { name: "구독 취소" })).toHaveClass(
                 /modal-button--danger/,
@@ -600,14 +588,130 @@ for (const width of [390, 1440]) {
             );
         }
         await page.goto("/settings?section=billing");
-        await expect(page.getByRole("button", { name: "다시 불러오기" })).toBeEnabled();
+        await expect(page.getByRole("button", { name: "다시 시도" })).toBeEnabled();
         await expect(page.locator(".billing-feedback [role=alert]")).toHaveCount(1);
         await expect(page.getByRole("alert")).toHaveCount(1);
         await expect(page.getByRole("alert")).toContainText("결제 정보를 처리하지 못했습니다");
         await page.screenshot({ path: info.outputPath("billing-error.png"), fullPage: true });
         failing = false;
-        await page.getByRole("button", { name: "다시 불러오기" }).click();
+        await page.getByRole("button", { name: "다시 시도" }).click();
         await expect(page.getByRole("alert")).toHaveCount(0);
-        await expect(page.getByText("VISA •••• 4242")).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Visa", exact: true })).toBeVisible();
+    });
+}
+
+for (const width of [390, 1440]) {
+    test(`native billing profile and saved card management at ${width}px`, async ({
+        page,
+    }, info) => {
+        await setup(page, "ko");
+        await page.setViewportSize({ width, height: 1000 });
+        let profile = {
+            email: "billing@example.com",
+            name: "Billing User",
+            address: ["Seoul", "KR"],
+            address_fields: {
+                country: "KR",
+                city: "Seoul",
+                state: "",
+                line1: "Street",
+                line2: "Unit",
+                postal_code: "06943",
+            },
+            default_payment_method: "pm_other",
+            portal_enabled: true,
+        };
+        let removed = false;
+        await page.route("**/api/v1/billing/profile", (route) => {
+            if (route.request().method() === "PUT") {
+                const body = route.request().postDataJSON();
+                expect(body.request_id).toMatch(/^[a-f0-9-]{36}$/);
+                profile = {
+                    ...profile,
+                    ...body,
+                    address: [body.address.line1, body.address.country],
+                    address_fields: body.address,
+                };
+            }
+            return route.fulfill({ json: profile });
+        });
+        await page.route("**/api/v1/billing/payment-methods?*", (route) =>
+            route.fulfill({
+                json: {
+                    items:
+                        !removed &&
+                        new URL(route.request().url()).searchParams.get("method_type") === "card"
+                            ? [
+                                  {
+                                      id: "pm_example",
+                                      type: "card",
+                                      brand: "mastercard",
+                                      last4: "3114",
+                                      exp_month: 12,
+                                      exp_year: 2030,
+                                  },
+                              ]
+                            : [],
+                    has_more: false,
+                },
+            }),
+        );
+        await page.route("**/api/v1/billing/payment-methods/pm_example", (route) => {
+            const body = route.request().postDataJSON();
+            if (body.action === "default") profile.default_payment_method = "pm_example";
+            else removed = true;
+            return route.fulfill({ json: profile });
+        });
+        await page.goto("/settings?section=billing");
+        await expect(page.getByRole("button", { name: "다시 불러오기" })).toHaveCount(0);
+        await expect(page.getByRole("heading", { name: "Mastercard" })).toBeVisible();
+        await expect(page.getByText(/•••• 3114/)).toBeVisible();
+        await page.getByRole("button", { name: "편집", exact: true }).click();
+        const dialog = page.getByRole("dialog");
+        await expect(dialog.getByLabel("결제 이메일")).toHaveValue("billing@example.com");
+        await expect(dialog.getByLabel("주소란 2")).toHaveValue("Unit");
+        await dialog.getByLabel("이름", { exact: true }).fill("New Billing Name");
+        await page.screenshot({ path: info.outputPath("profile-dialog.png"), fullPage: true });
+        await dialog.getByRole("button", { name: "저장", exact: true }).click();
+        await expect(page.getByRole("dialog")).toHaveCount(0);
+        await expect(page.getByText("New Billing Name", { exact: true })).toBeVisible();
+        await expect(page).toHaveURL(/settings\?section=billing/);
+        await page.getByRole("button", { name: "결제수단 관리" }).click();
+        await page.getByRole("menuitem", { name: "기본 결제수단으로 설정" }).click();
+        await expect(page.getByText("기본", { exact: true })).toBeVisible();
+        await page.getByRole("button", { name: "결제수단 관리" }).click();
+        await page.getByRole("menuitem", { name: "삭제", exact: true }).click();
+        await page.getByRole("dialog").getByRole("button", { name: "삭제", exact: true }).click();
+        await expect(page.getByRole("heading", { name: "Mastercard" })).toHaveCount(0);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+            true,
+        );
+    });
+}
+
+for (const registered of [true, false]) {
+    test(`embedded card return verifies server status registered=${registered}`, async ({
+        page,
+    }) => {
+        await setup(page, "ko");
+        await page.route("**/api/v1/billing/card-setups/seti_example", (route) =>
+            route.fulfill({ json: { registered } }),
+        );
+        await page.goto(
+            "/settings?billing_card_setup=seti_example&setup_intent_client_secret=fixture_secret&redirect_status=succeeded&keep=value",
+        );
+        await expect(page).not.toHaveURL(/setup_intent_client_secret|redirect_status/);
+        if (registered) {
+            await expect(page.locator(".ui-toast-layer")).toContainText(
+                "결제수단 등록을 확인했습니다.",
+            );
+            await expect(page).not.toHaveURL(/billing_card_setup/);
+        } else {
+            await expect(page).toHaveURL(/billing_card_setup=seti_example/);
+            await expect(
+                page.getByText("결제수단 등록을 확인했습니다.", { exact: true }),
+            ).toHaveCount(0);
+        }
+        await expect(page).toHaveURL(/keep=value/);
     });
 }

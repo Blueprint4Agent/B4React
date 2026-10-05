@@ -1,10 +1,12 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Ellipsis } from "lucide-react";
 
 type DropdownItem = {
     id: string;
     label: string;
+    icon?: ReactNode;
+    tone?: "danger";
 };
 
 type DropdownMenuProps = {
@@ -35,6 +37,7 @@ export function DropdownMenu({
     const menuId = useId();
     const visible = open && !disabled;
     const modalRoot = visible ? rootRef.current?.closest<HTMLElement>(".ui-modal") : null;
+    const portalRoot = modalRoot || (visible && compact ? document.body : null);
     const nextClassName = [
         "ui-dropdown",
         compact && "ui-dropdown--compact",
@@ -45,7 +48,7 @@ export function DropdownMenu({
         .join(" ");
 
     useLayoutEffect(() => {
-        if (!visible || !modalRoot) return;
+        if (!visible || !portalRoot) return;
         const trigger = triggerRef.current;
         const menu = menuRef.current;
         if (!trigger || !menu) return;
@@ -57,7 +60,11 @@ export function DropdownMenu({
             const viewportHeight = document.documentElement.clientHeight;
             const below = Math.max(0, viewportHeight - rect.bottom - gap - edge);
             const above = Math.max(0, rect.top - gap - edge);
-            const width = Math.min(rect.width, viewportWidth - edge * 2);
+            menu.style.width = compact ? "max-content" : `${rect.width}px`;
+            const width = Math.min(
+                compact ? menu.offsetWidth : rect.width,
+                viewportWidth - edge * 2,
+            );
             menu.style.width = `${width}px`;
             // Measure natural content before choosing the side; an earlier cap must not bias it.
             menu.style.maxHeight = "none";
@@ -65,7 +72,7 @@ export function DropdownMenu({
             const up = naturalHeight > below && above > below;
             menu.style.maxHeight = `${up ? above : below}px`;
             const height = menu.offsetHeight;
-            menu.style.left = `${Math.max(edge, Math.min(rect.left, viewportWidth - width - edge))}px`;
+            menu.style.left = `${Math.max(edge, Math.min(compact ? rect.right - width : rect.left, viewportWidth - width - edge))}px`;
             menu.style.top = `${Math.max(edge, up ? rect.top - height - gap : rect.bottom + gap)}px`;
             menu.dataset.side = up ? "top" : "bottom";
             // Dismiss when scrolling has fully hidden the anchor inside its modal body.
@@ -83,7 +90,7 @@ export function DropdownMenu({
             window.removeEventListener("resize", update);
             window.removeEventListener("scroll", update, true);
         };
-    }, [visible, modalRoot, items]);
+    }, [visible, portalRoot, compact, items]);
 
     useEffect(() => {
         if (!visible) return;
@@ -117,9 +124,13 @@ export function DropdownMenu({
         <div
             ref={menuRef}
             id={menuId}
-            className={
-                modalRoot ? "ui-dropdown__menu ui-dropdown__menu--floating" : "ui-dropdown__menu"
-            }
+            className={[
+                "ui-dropdown__menu",
+                portalRoot && "ui-dropdown__menu--floating",
+                compact && "ui-dropdown__menu--actions",
+            ]
+                .filter(Boolean)
+                .join(" ")}
             role="menu"
             aria-label={label}
         >
@@ -127,7 +138,12 @@ export function DropdownMenu({
                 <button
                     key={item.id}
                     type="button"
-                    className="ui-dropdown__item"
+                    className={[
+                        "ui-dropdown__item",
+                        item.tone === "danger" && "ui-dropdown__item--danger",
+                    ]
+                        .filter(Boolean)
+                        .join(" ")}
                     role="menuitem"
                     onClick={() => {
                         onSelect?.(item.id);
@@ -135,7 +151,12 @@ export function DropdownMenu({
                         triggerRef.current?.focus({ preventScroll: true });
                     }}
                 >
-                    {item.label}
+                    {item.icon && (
+                        <span className="ui-dropdown__item-icon" aria-hidden="true">
+                            {item.icon}
+                        </span>
+                    )}
+                    <span>{item.label}</span>
                 </button>
             ))}
         </div>
@@ -149,13 +170,15 @@ export function DropdownMenu({
                 ref={triggerRef}
                 className="ui-dropdown__trigger"
                 disabled={disabled}
-                aria-label={fieldLabel ? `${fieldLabel}: ${triggerLabel}` : undefined}
+                aria-label={
+                    fieldLabel ? `${fieldLabel}: ${triggerLabel}` : compact ? label : undefined
+                }
                 aria-haspopup="menu"
                 aria-expanded={visible}
                 aria-controls={visible ? menuId : undefined}
                 onClick={() => setOpen((prev) => !prev)}
             >
-                <span>{triggerLabel}</span>
+                {compact ? <Ellipsis aria-hidden="true" /> : <span>{triggerLabel}</span>}
                 <span
                     className={
                         open
@@ -167,7 +190,7 @@ export function DropdownMenu({
                     <ChevronDown />
                 </span>
             </button>
-            {menu && (modalRoot ? createPortal(menu, modalRoot) : menu)}
+            {menu && (portalRoot ? createPortal(menu, portalRoot) : menu)}
         </div>
     );
 }

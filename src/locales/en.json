@@ -698,7 +698,8 @@
             "BILLING_RECONCILIATION_REQUIRED": "Your billing account needs review. Please contact your administrator.",
             "BILLING_PLAN_UNAVAILABLE": "Subscription pricing is not configured.",
             "BILLING_CHECKOUT_CONFLICT": "A subscription or checkout already exists. Complete that checkout, or retry up to one hour after it was started.",
-            "BILLING_CHANGE_CONFLICT": "Your subscription changed or cannot be changed here. Refresh and review it again."
+            "BILLING_CHANGE_CONFLICT": "Your subscription changed or cannot be changed here. Refresh and review it again.",
+            "BILLING_METHOD_REQUIRED": "Choose another default payment method before removing the one used by your subscription."
         },
         "plans": {
             "eyebrow": "A plan for you",
@@ -808,6 +809,31 @@
                 "uncollectible": "Uncollectible"
             },
             "changePlan": "Change plan"
+        },
+        "native": {
+            "editTitle": "Edit billing information",
+            "email": "Billing email",
+            "save": "Save",
+            "country": "Country or region",
+            "selectCountry": "Select country",
+            "state": "State / province",
+            "city": "City",
+            "line1": "Address line 1",
+            "line2": "Address line 2",
+            "postal_code": "Postal code",
+            "addCard": "Add new",
+            "saveCard": "Save card",
+            "setDefault": "Set as default",
+            "remove": "Remove",
+            "defaultSaved": "Default payment method updated.",
+            "profileSaved": "Billing information saved.",
+            "removed": "Payment method removed.",
+            "removeTitle": "Remove payment method",
+            "removeHint": "Remove this payment method? Choose another default first if this method is used by an active subscription.",
+            "linkWallet": "Link wallet",
+            "cardUnavailable": "Card registration is currently unavailable.",
+            "verifyPending": "Card registration is not confirmed yet. Please try again shortly.",
+            "retry": "Try again"
         }
     }
 }

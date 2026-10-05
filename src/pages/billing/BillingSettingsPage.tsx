@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { CreditCard, Plus, ReceiptText, RefreshCw, Wallet } from "lucide-react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { Check, CreditCard, Plus, ReceiptText, Trash2, Wallet } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -9,6 +9,7 @@ import {
     DropdownMenu,
     StatusBadge,
     ModalButton,
+    Modal,
 } from "../../components/ui";
 import { useSubscription } from "../../hooks/api/billing/useSubscription";
 import { useBilling } from "../../hooks/api/billing/useBilling";
@@ -19,12 +20,24 @@ import {
 } from "../../components/features/billing/PlanChangeDialog";
 import { useToast } from "../../hooks/useToast";
 
+import { BillingProfileDialog } from "../../components/features/billing/BillingProfileDialog";
+import type { BillingCardSetup } from "../../api/billing/billingApi";
+const BillingCardDialog = lazy(() => import("../../components/features/billing/BillingCardDialog"));
+
 type Props = { ownerId: number; email: string };
 export function BillingSettingsPage({ ownerId, email }: Props) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [params, setParams] = useSearchParams();
     const showToast = useToast();
+    const [editingProfile, setEditingProfile] = useState(false);
+    const [cardSetup, setCardSetup] = useState<BillingCardSetup | null>(null);
+    const [removeMethod, setRemoveMethod] = useState<string | null>(null);
+    useEffect(() => {
+        setEditingProfile(false);
+        setCardSetup(null);
+        setRemoveMethod(null);
+    }, [ownerId]);
     const cancellationHandled = useRef(false);
     const checkoutCancelled = params.get("billing_checkout") === "cancelled";
     const setupCancelled = params.get("billing_setup") === "cancelled";
@@ -54,7 +67,29 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
             { replace: true },
         );
     }, [checkoutCancelled, setupCancelled, setParams, showToast, t]);
-    const billing = useBilling(ownerId, setupCancelled ? null : params.get("billing_setup"));
+    const billing = useBilling(
+        ownerId,
+        setupCancelled ? null : params.get("billing_setup"),
+        params.get("billing_card_setup"),
+    );
+    useEffect(() => {
+        if (!params.has("billing_card_setup")) return;
+        if (
+            !["setup_intent_client_secret", "setup_intent", "redirect_status"].some((key) =>
+                params.has(key),
+            )
+        )
+            return;
+        setParams(
+            (previous) => {
+                const next = new URLSearchParams(previous);
+                for (const key of ["setup_intent_client_secret", "setup_intent", "redirect_status"])
+                    next.delete(key);
+                return next;
+            },
+            { replace: true },
+        );
+    }, [params, setParams]);
     const subscription = useSubscription(
         ownerId,
         checkoutCancelled ? null : params.get("billing_checkout"),
@@ -70,6 +105,11 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
             },
             {
                 key: "billing_setup",
+                confirmed: billing.notice === "registered",
+                message: "billing.notices.registered",
+            },
+            {
+                key: "billing_card_setup",
                 confirmed: billing.notice === "registered",
                 message: "billing.notices.registered",
             },
@@ -130,12 +170,15 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
     const selectedPlan = params.get("plan");
     const paidSelected = selectedPlan === "monthly" || selectedPlan === "annual";
     const addMethod = async () => {
-        const url = await billing.createSetup();
-        if (url) window.location.assign(url);
+        const setup = await billing.startCard();
+        if (setup) setCardSetup(setup);
     };
     const pageErrors = [
         ...new Set(
-            [billing.error, confirmation ? null : subscription.error]
+            [
+                editingProfile || cardSetup || removeMethod ? null : billing.error,
+                confirmation ? null : subscription.error,
+            ]
                 .filter((key): key is string => !!key)
                 .map((key) => t(key)),
         ),
@@ -224,6 +267,16 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                 {pageErrors.length > 0 && (
                     <div className="billing-feedback">
                         <InlineMessage>{pageErrors.join(" ")}</InlineMessage>
+                        <Button
+                            appearance="pill-secondary"
+                            disabled={billing.loading || subscription.loading || !billing.available}
+                            onClick={() => {
+                                void billing.reload();
+                                void subscription.reload();
+                            }}
+                        >
+                            {t("billing.native.retry")}
+                        </Button>
                     </div>
                 )}
                 {subscription.notice && subscription.notice !== "paid" && (
@@ -328,11 +381,15 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                         <Button
                             appearance="pill-secondary"
                             disabled={
-                                !billing.profile?.portal_enabled ||
+                                !billing.config?.enabled ||
+                                billing.loading ||
                                 billing.busy ||
                                 !billing.available
                             }
-                            onClick={() => void openPortal("customer_update")}
+                            onClick={() => {
+                                billing.clearError();
+                                setEditingProfile(true);
+                            }}
                         >
                             {t("billing.details.edit")}
                         </Button>
@@ -374,30 +431,25 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                         <div className="billing-section__actions">
                             <Button
                                 appearance="pill-secondary"
-                                disabled={!billing.available || billing.loading}
-                                onClick={() => {
-                                    void billing.reload();
-                                    void subscription.reload();
-                                }}
-                            >
-                                <RefreshCw aria-hidden="true" />
-                                {t("billing.retry")}
-                            </Button>
-                            <Button
-                                appearance="pill-secondary"
                                 loading={billing.busy}
                                 disabled={
                                     !billing.available ||
                                     !billing.config?.enabled ||
+                                    !billing.config?.publishable_key ||
                                     billing.loading
                                 }
                                 onClick={() => void addMethod()}
                             >
                                 <Plus aria-hidden="true" />
-                                {t("billing.addMethod")}
+                                {t("billing.native.addCard")}
                             </Button>
                         </div>
                     </header>
+                    {!billing.config?.publishable_key && billing.config?.enabled && (
+                        <InlineMessage tone="info">
+                            {t("billing.native.cardUnavailable")}
+                        </InlineMessage>
+                    )}
                     {billing.loading ? (
                         <div className="settings-row billing-loading">
                             <Spinner label={t("billing.loading")} hideLabel />
@@ -444,26 +496,25 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                                                     <h3>
                                                         {type === "link"
                                                             ? "Link"
-                                                            : `${method.brand?.toUpperCase() ?? t("billing.card")} •••• ${method.last4 ?? ""}`}
+                                                            : method.brand
+                                                              ? method.brand
+                                                                    .charAt(0)
+                                                                    .toUpperCase() +
+                                                                method.brand.slice(1)
+                                                              : t("billing.card")}
                                                     </h3>
                                                     <p>
-                                                        {type === "link" ? (
-                                                            <a
-                                                                className="billing-wallet-link"
-                                                                href="https://app.link.com"
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                            >
-                                                                {t("billing.linkSaved")}
-                                                            </a>
-                                                        ) : (
-                                                            t("billing.expiry", {
-                                                                month: String(
-                                                                    method.exp_month ?? "",
-                                                                ).padStart(2, "0"),
-                                                                year: method.exp_year ?? "",
-                                                            })
-                                                        )}
+                                                        {type === "link"
+                                                            ? t("billing.native.linkWallet")
+                                                            : `•••• ${method.last4 ?? ""} · ${t(
+                                                                  "billing.expiry",
+                                                                  {
+                                                                      month: String(
+                                                                          method.exp_month ?? "",
+                                                                      ).padStart(2, "0"),
+                                                                      year: method.exp_year ?? "",
+                                                                  },
+                                                              )}`}
                                                     </p>
                                                 </div>
                                                 <div className="billing-method-actions">
@@ -478,19 +529,50 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                                                         label={t("billing.details.manageMethod")}
                                                         triggerLabel="···"
                                                         disabled={
-                                                            !billing.profile?.portal_enabled ||
+                                                            billing.loading ||
                                                             billing.busy ||
                                                             !billing.available
                                                         }
                                                         items={[
+                                                            ...(billing.profile
+                                                                ?.default_payment_method !==
+                                                            method.id
+                                                                ? [
+                                                                      {
+                                                                          id: "default",
+                                                                          icon: <Check />,
+                                                                          label: t(
+                                                                              "billing.native.setDefault",
+                                                                          ),
+                                                                      },
+                                                                  ]
+                                                                : []),
                                                             {
-                                                                id: "manage",
-                                                                label: t(
-                                                                    "billing.details.manageMethod",
-                                                                ),
+                                                                id: "remove",
+                                                                icon: <Trash2 />,
+                                                                tone: "danger",
+                                                                label: t("billing.native.remove"),
                                                             },
                                                         ]}
-                                                        onSelect={() => void openPortal("overview")}
+                                                        onSelect={(action) => {
+                                                            billing.clearError();
+                                                            if (action === "remove")
+                                                                setRemoveMethod(method.id);
+                                                            else
+                                                                void billing
+                                                                    .manageMethod(
+                                                                        method.id,
+                                                                        "default",
+                                                                    )
+                                                                    .then((result) => {
+                                                                        if (result)
+                                                                            showToast(
+                                                                                t(
+                                                                                    "billing.native.defaultSaved",
+                                                                                ),
+                                                                            );
+                                                                    });
+                                                        }}
                                                     />
                                                 </div>
                                             </article>
@@ -588,6 +670,77 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                     />
                 </a>
             )}
+            {editingProfile && (
+                <BillingProfileDialog
+                    profile={billing.profile}
+                    email={email}
+                    busy={billing.busy}
+                    error={billing.error}
+                    onClose={() => setEditingProfile(false)}
+                    onSave={async (draft) => {
+                        if (await billing.saveProfile(draft)) {
+                            setEditingProfile(false);
+                            showToast(t("billing.native.profileSaved"));
+                        }
+                    }}
+                />
+            )}
+            {cardSetup && billing.config?.publishable_key && (
+                <Suspense fallback={<Spinner label={t("billing.loading")} hideLabel />}>
+                    <BillingCardDialog
+                        setup={cardSetup}
+                        publicKey={billing.config.publishable_key}
+                        error={billing.error}
+                        onClose={() => setCardSetup(null)}
+                        onRegistered={async (id) => {
+                            const result = await billing.finishCard(id);
+                            if (result?.registered) {
+                                setCardSetup(null);
+                                showToast(t("billing.notices.registered"));
+                                return true;
+                            }
+                            return false;
+                        }}
+                    />
+                </Suspense>
+            )}
+            <Modal
+                open={!!removeMethod}
+                size="compact"
+                title={t("billing.native.removeTitle")}
+                description={t("billing.native.removeHint")}
+                onClose={() => {
+                    if (!billing.busy) setRemoveMethod(null);
+                }}
+                footer={
+                    <>
+                        <ModalButton
+                            variant="cancel"
+                            disabled={billing.busy}
+                            onClick={() => setRemoveMethod(null)}
+                        >
+                            {t("billing.manage.cancel")}
+                        </ModalButton>
+                        <ModalButton
+                            variant="danger"
+                            loading={billing.busy}
+                            onClick={async () => {
+                                if (
+                                    removeMethod &&
+                                    (await billing.manageMethod(removeMethod, "remove"))
+                                ) {
+                                    setRemoveMethod(null);
+                                    showToast(t("billing.native.removed"));
+                                }
+                            }}
+                        >
+                            {t("billing.native.remove")}
+                        </ModalButton>
+                    </>
+                }
+            >
+                {removeMethod && billing.error && <InlineMessage>{t(billing.error)}</InlineMessage>}
+            </Modal>
             <PlanChangeDialog
                 selection={confirmation}
                 busy={subscription.busy}

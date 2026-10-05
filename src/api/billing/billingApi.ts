@@ -123,3 +123,43 @@ export async function createBillingPortal(body: BillingPortalForm): Promise<Bill
     if (error || !data) throw error;
     return data;
 }
+
+export type BillingProfileForm = components["schemas"]["BillingProfileForm"];
+export type BillingMethodForm = components["schemas"]["BillingMethodForm"];
+export type BillingCardSetup = components["schemas"]["BillingCardSetupResponse"];
+export async function updateBillingProfile(body: BillingProfileForm): Promise<BillingProfile> {
+    const { data, error } = await apiClient.PUT("/api/v1/billing/profile", {
+        headers: getAuthHeader(),
+        body,
+    });
+    if (error || !data) throw error;
+    return data;
+}
+export async function manageBillingMethod(
+    methodId: string,
+    body: BillingMethodForm,
+): Promise<BillingProfile> {
+    const { data, error } = await apiClient.POST("/api/v1/billing/payment-methods/{method_id}", {
+        headers: getAuthHeader(),
+        params: { path: { method_id: methodId } },
+        body,
+    });
+    if (error || !data) throw error;
+    return data;
+}
+export async function createBillingCardSetup(requestId: string): Promise<BillingCardSetup> {
+    const { data, error } = await apiClient.POST("/api/v1/billing/card-setups", {
+        headers: getAuthHeader(),
+        body: { request_id: requestId },
+    });
+    if (error || !data) throw error;
+    return data;
+}
+export async function getBillingCardSetupStatus(intentId: string) {
+    const { data, error } = await apiClient.GET("/api/v1/billing/card-setups/{intent_id}", {
+        headers: getAuthHeader(),
+        params: { path: { intent_id: intentId } },
+    });
+    if (error || !data) throw error;
+    return data;
+}
