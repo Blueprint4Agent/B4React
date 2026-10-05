@@ -800,3 +800,35 @@ for (const width of [375, 1440]) {
         await page.screenshot({ path: `test-results/sidebar-project-links-${width}.png` });
     });
 }
+
+for (const width of [390, 1440]) {
+    for (const theme of ["light", "dark"] as const) {
+        test(`compact action menu showcase ${theme} at ${width}px`, async ({ page }, info) => {
+            await page.setViewportSize({ width, height: 800 });
+            await page.emulateMedia({ colorScheme: theme });
+            await page.evaluate(() => localStorage.setItem("b4a_language", "ko"));
+            await page.reload();
+            await page.getByRole("searchbox").fill("DropdownMenu actions");
+            const example = page.locator('[data-component="DropdownMenu actions"]');
+            const trigger = example.getByRole("button", { name: "결제수단 관리" });
+            await trigger.click();
+            const menu = page.getByRole("menu", { name: "결제수단 관리" });
+            const remove = menu.getByRole("menuitem", { name: "삭제", exact: true });
+            await expect(remove).toHaveClass(/ui-dropdown__item--danger/);
+            await expect(remove.locator("svg")).toBeVisible();
+            const bounds = (await menu.boundingBox())!;
+            expect(bounds.width).toBeGreaterThanOrEqual(160);
+            expect(bounds.x).toBeGreaterThanOrEqual(8);
+            expect(bounds.x + bounds.width).toBeLessThanOrEqual(width - 8);
+            expect(bounds.y + bounds.height).toBeLessThanOrEqual(792);
+            await page.screenshot({ path: info.outputPath("action-menu.png"), fullPage: true });
+            await page.keyboard.press("Escape");
+            await expect(menu).toHaveCount(0);
+            await expect(trigger).toBeFocused();
+            await trigger.click();
+            await remove.click();
+            await expect(menu).toHaveCount(0);
+            await expect(page.locator(".ui-toast-layer")).toContainText("결제수단을 삭제했습니다.");
+        });
+    }
+}

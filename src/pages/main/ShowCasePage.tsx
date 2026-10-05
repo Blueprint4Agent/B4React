@@ -6,7 +6,8 @@ import { RecentAccountList } from "../../components/features/auth/RecentAccountL
 import type { RecentAccount } from "../../utils/recentAccounts";
 import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { useTranslation } from "react-i18next";
-import { KeyRound, SlidersHorizontal, UserRound } from "lucide-react";
+import { Check, KeyRound, SlidersHorizontal, Trash2, UserRound } from "lucide-react";
+import { useToast } from "../../hooks/useToast";
 import { lazy, Suspense, useRef, useState } from "react";
 import {
     ShowcaseItem,
@@ -55,6 +56,7 @@ import {
 const StyleStudio = __STYLE_STUDIO__ ? lazy(() => import("../development/StyleStudio")) : null;
 
 export function ShowCasePage() {
+    const showToast = useToast();
     const previewRoot = useRef<HTMLDivElement>(null);
     const [sampleSelection, setSampleSelection] = useState("first");
     const [sampleNumber, setSampleNumber] = useState("1");
@@ -300,12 +302,6 @@ export function ShowCasePage() {
                     <div className="showcase-catalog__row">
                         <ShowcaseItem component="DropdownMenu">
                             <DropdownMenu
-                                compact
-                                triggerLabel="···"
-                                label={t("billing.details.manageMethod")}
-                                items={[{ id: "manage", label: t("billing.details.manageMethod") }]}
-                            />
-                            <DropdownMenu
                                 triggerLabel={t(`showCase.demo.${sampleDropdown}`)}
                                 onSelect={setSampleDropdown}
                                 label={t("showCase.demo.text5")}
@@ -314,6 +310,35 @@ export function ShowCasePage() {
                                     { id: "item-2", label: t("showCase.demo.text7") },
                                     { id: "item-3", label: t("showCase.demo.text8") },
                                 ]}
+                            />
+                        </ShowcaseItem>
+                        <ShowcaseItem component="DropdownMenu actions">
+                            <DropdownMenu
+                                compact
+                                triggerLabel="···"
+                                label={t("billing.details.manageMethod")}
+                                items={[
+                                    {
+                                        id: "default",
+                                        label: t("billing.native.setDefault"),
+                                        icon: <Check />,
+                                    },
+                                    {
+                                        id: "remove",
+                                        label: t("billing.native.remove"),
+                                        icon: <Trash2 />,
+                                        tone: "danger",
+                                    },
+                                ]}
+                                onSelect={(id) =>
+                                    showToast(
+                                        t(
+                                            id === "remove"
+                                                ? "billing.native.removed"
+                                                : "billing.native.defaultSaved",
+                                        ),
+                                    )
+                                }
                             />
                         </ShowcaseItem>
                         <ShowcaseItem component="Tooltip">

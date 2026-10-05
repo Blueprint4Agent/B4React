@@ -698,7 +698,8 @@
             "BILLING_RECONCILIATION_REQUIRED": "결제 계정 확인이 필요합니다. 관리자에게 문의해 주세요.",
             "BILLING_PLAN_UNAVAILABLE": "구독 플랜이 설정되지 않았습니다.",
             "BILLING_CHECKOUT_CONFLICT": "기존 구독 또는 진행 중인 결제가 있습니다. 기존 결제를 완료하거나 결제 시작 후 최대 1시간 뒤 다시 시도해 주세요.",
-            "BILLING_CHANGE_CONFLICT": "구독 상태가 변경되었거나 여기서 변경할 수 없습니다. 새로고침 후 다시 확인해 주세요."
+            "BILLING_CHANGE_CONFLICT": "구독 상태가 변경되었거나 여기서 변경할 수 없습니다. 새로고침 후 다시 확인해 주세요.",
+            "BILLING_METHOD_REQUIRED": "구독에 사용 중인 기본 결제수단입니다. 다른 결제수단을 기본으로 설정한 후 삭제해 주세요."
         },
         "plans": {
             "eyebrow": "나에게 맞는 플랜",
@@ -808,6 +809,31 @@
                 "uncollectible": "미수"
             },
             "changePlan": "플랜 변경"
+        },
+        "native": {
+            "editTitle": "결제 정보 편집",
+            "email": "결제 이메일",
+            "save": "저장",
+            "country": "국가 또는 지역",
+            "selectCountry": "국가 선택",
+            "state": "시·도",
+            "city": "도시",
+            "line1": "주소란 1",
+            "line2": "주소란 2",
+            "postal_code": "우편번호",
+            "addCard": "새로 추가",
+            "saveCard": "카드 등록",
+            "setDefault": "기본 결제수단으로 설정",
+            "remove": "삭제",
+            "defaultSaved": "기본 결제수단을 변경했습니다.",
+            "profileSaved": "결제 정보를 저장했습니다.",
+            "removed": "결제수단을 삭제했습니다.",
+            "removeTitle": "결제수단 삭제",
+            "removeHint": "이 결제수단을 삭제하시겠습니까? 구독에 사용 중인 기본 결제수단은 먼저 다른 수단으로 변경해야 합니다.",
+            "linkWallet": "Link 지갑",
+            "cardUnavailable": "현재 카드 등록을 사용할 수 없습니다.",
+            "verifyPending": "카드 등록 확인이 완료되지 않았습니다. 잠시 후 다시 확인해 주세요.",
+            "retry": "다시 시도"
         }
     }
 }

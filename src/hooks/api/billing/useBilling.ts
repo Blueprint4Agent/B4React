@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
     useBillingApi,
     type BillingConfig,
+    type BillingProfileForm,
+    type BillingMethodForm,
     type BillingProfile,
     type BillingInvoices,
     type BillingPortalForm,
@@ -18,7 +20,11 @@ const emptyMethods = (): Methods => ({
 export type BillingNotice = "registered" | "pending" | "expired" | "cancelled" | null;
 
 /** All snapshots/actions belong to one mounted account page; ignore obsolete async results. */
-export function useBilling(ownerId: number, returnSession: string | null) {
+export function useBilling(
+    ownerId: number,
+    returnSession: string | null,
+    returnIntent: string | null = null,
+) {
     const api = useBillingApi();
     const { isDesktop, status } = useServerConnectivity();
     const available = !isDesktop || status === "online";
@@ -38,6 +44,7 @@ export function useBilling(ownerId: number, returnSession: string | null) {
     online.current = available;
     const actionLock = useRef(false);
     const pageLock = useRef(false);
+    const nativeRequest = useRef<{ key: string; id: string } | null>(null);
     const retryId = useRef<string | null>(null);
     const errorKey = useCallback(
         (cause: unknown) => `billing.errors.${api.extractBillingErrorCode(cause) ?? "unknown"}`,
@@ -52,6 +59,7 @@ export function useBilling(ownerId: number, returnSession: string | null) {
         mounted.current = true;
         ++epoch.current;
         retryId.current = null;
+        nativeRequest.current = null;
         actionLock.current = false;
         pageLock.current = false;
         setConfig(null);
@@ -84,7 +92,13 @@ export function useBilling(ownerId: number, returnSession: string | null) {
                 setMethods(emptyMethods());
                 return;
             }
-            if (returnSession === "cancelled") setNotice("cancelled");
+            if (returnIntent) {
+                if (!/^seti_[A-Za-z0-9]{1,252}$/.test(returnIntent))
+                    throw new Error("Invalid setup reference");
+                const result = await api.getBillingCardSetupStatus(returnIntent);
+                if (!current(generation) || request !== loadId.current) return;
+                setNotice(result.registered ? "registered" : "pending");
+            } else if (returnSession === "cancelled") setNotice("cancelled");
             else if (returnSession) {
                 if (!/^cs_[A-Za-z0-9_]{1,252}$/.test(returnSession))
                     throw new Error("Invalid setup reference");
@@ -114,7 +128,7 @@ export function useBilling(ownerId: number, returnSession: string | null) {
         } finally {
             if (current(generation) && request === loadId.current) setLoading(false);
         }
-    }, [api, current, errorKey, returnSession]);
+    }, [api, current, errorKey, returnSession, returnIntent]);
 
     useEffect(() => {
         if (available) void reload();
@@ -247,7 +261,56 @@ export function useBilling(ownerId: number, returnSession: string | null) {
         },
         [api, profile, current, errorKey],
     );
+    const nativeAction = useCallback(
+        async <T>(
+            key: string,
+            operation: (id: string) => Promise<T>,
+            refresh = true,
+        ): Promise<T | null> => {
+            if (!mounted.current || !online.current || actionLock.current) return null;
+            const generation = epoch.current;
+            actionLock.current = true;
+            setBusy(true);
+            setError(null);
+            if (nativeRequest.current?.key !== key)
+                nativeRequest.current = { key, id: crypto.randomUUID() };
+            try {
+                const result = await operation(nativeRequest.current.id);
+                if (!current(generation)) return null;
+                nativeRequest.current = null;
+                if (refresh) await reload();
+                return current(generation) ? result : null;
+            } catch (cause) {
+                if (current(generation)) setError(errorKey(cause));
+                return null;
+            } finally {
+                if (mounted.current && epoch.current === generation) {
+                    actionLock.current = false;
+                    setBusy(false);
+                }
+            }
+        },
+        [current, errorKey, reload],
+    );
+    const saveProfile = (draft: Omit<BillingProfileForm, "request_id">) =>
+        nativeAction(JSON.stringify(draft), (id) =>
+            api.updateBillingProfile({ ...draft, request_id: id }),
+        );
+    const manageMethod = (methodId: string, action: BillingMethodForm["action"]) =>
+        nativeAction(`${methodId}:${action}`, (id) =>
+            api.manageBillingMethod(methodId, { action, request_id: id }),
+        );
+    const startCard = () =>
+        nativeAction("card-setup", (id) => api.createBillingCardSetup(id), false);
+    const finishCard = (intentId: string) =>
+        nativeAction(`card-status:${intentId}`, () => api.getBillingCardSetupStatus(intentId));
+    const clearError = () => setError(null);
     return {
+        saveProfile,
+        manageMethod,
+        startCard,
+        finishCard,
+        clearError,
         profile,
         invoices,
         openPortal,

@@ -52,7 +52,9 @@ export function SettingsPage() {
     const { themeMode, setThemeMode } = useTheme();
     const [searchParams, setSearchParams] = useSearchParams();
     const section =
-        searchParams.has("billing_setup") || searchParams.has("billing_checkout")
+        searchParams.has("billing_setup") ||
+        searchParams.has("billing_checkout") ||
+        searchParams.has("billing_card_setup")
             ? "billing"
             : searchParams.get("section");
     const activeMenu = resolveSettingsSection(section, Boolean(user));

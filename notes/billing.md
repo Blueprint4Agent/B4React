@@ -25,10 +25,8 @@ remains pending. Refresh retries status reads. Current plan, status and renewal/
 come from the subscription API. There is no local entitlement grant or webhook projection.
 Unknown, failed and overdue subscriptions must not be displayed as Free.
 
-Card/Link setup remains exclusively in Settings Billing using `useBilling`, the existing
-typed adapter and `/setup-sessions`; return URLs use `billing_setup`. Only `registered=true`
-confirms setup. Card/Link pagination, retry, test-mode and disabled/offline states remain.
-Recent invoices and billing profile are read from Stripe; View all/Edit/payment-method management opens the restricted customer portal.
+Card registration stays in Settings Billing using `useBilling`, the typed adapter and embedded Stripe Elements. Hosted card/Link setup APIs and `billing_setup` returns remain compatible. Only server-verified `registered=true` confirms setup. Card/Link pagination, retry, test-mode and disabled/offline states remain.
+Recent invoices and billing profile are read from Stripe; View all opens the restricted customer portal. Profile editing, card registration and saved-method management stay in the app.
 Account deletion with subscription-checkout history requires operator reconciliation to
 avoid orphaned recurring billing. The backend returns a localized actionable auth error.
 
@@ -48,10 +46,18 @@ Cancellation returns show the shared transient toast once and replace the cancel
 
 Server-verified payment and card registration success also use the shared transient toast, consuming the corresponding return query after verification. Pending results retain their query and inline status so refresh can verify completion; focus and reload do not replay a consumed success.
 
-Settings follows Current plan / Transactions / Billing information / Payment methods / Cancel plan. Grouped rows reuse settings-row surfaces; compact dropdowns reuse the shared DropdownMenu variant and its showcase. Current plan stays active until the effective date; the shared confirmation modal captures the version/date and successful changes use a toast. Existing paid plans retain billing currency. Unknown/unsupported plans fail closed. The domain hooks own profile/invoices/portal and plan mutations, pause during desktop outages and ignore stale owners. Card data editing stays in Stripe.
+Settings follows Current plan / Transactions / Billing information / Payment methods / Cancel plan. Grouped rows reuse settings-row surfaces; compact dropdowns reuse the shared DropdownMenu variant and its showcase. Current plan stays active until the effective date; the shared confirmation modal captures the version/date and successful changes use a toast. Existing paid plans retain billing currency. Unknown/unsupported plans fail closed. The domain hooks own profile/invoices/portal and plan mutations, pause during desktop outages and ignore stale owners. Sensitive card entry is hosted by Stripe Elements inside the application dialog.
 
-Saved cards show provider-supplied brand, last four digits and expiry. A `link` payment method does not expose the wallet card details; its official Link logo and wallet link identify where to view/manage those cards. Settings and enabled pricing display the official Powered by Stripe badge. Assets are local; see `public/payment-brands/README.md` for provenance.
+Saved cards show provider-supplied brand, last four digits and expiry. A `link` payment method does not expose the wallet card details; its official Link logo and wallet label identify the saved method without inventing card details. Settings and enabled pricing display the official Powered by Stripe badge. Assets are local; see `public/payment-brands/README.md` for provenance.
 
 Subscription cancellation reuses the account-deletion section and danger action, including the Free confirmation. Undo remains neutral. Payment lists omit empty groups; official black/white Stripe badges follow the selected theme.
 
 Page-level billing errors are translated, deduplicated and shown in one compact feedback slot. Subscription mutation errors remain in the open confirmation dialog. Hook error state and retry behavior are unchanged.
+
+## In-app billing management
+
+`PUT /billing/profile` saves email/name/structured address from the shared compact dialog. `POST /billing/payment-methods/{id}` sets the effective default or removes an owned method. Removing an active subscription default requires selecting a replacement first. The hook serializes mutations, reuses UUIDs after failure and refreshes the provider snapshot after success. The permanent refresh control is removed; errors expose a retry action. Mutation errors stay inside the active dialog.
+
+Set optional `STRIPE_PUBLISHABLE_KEY` in the backend environment to enable embedded card entry. `POST /billing/card-setups` returns a card-only SetupIntent client secret used only in the lazy Stripe Element dialog; never persist or log it. Only owner/mode-checked `GET /billing/card-setups/{id}` with `registered=true` confirms registration. Required authentication returns preserve the settings base path, remove Stripe secret query fields and reverify the SetupIntent on the server. Existing hosted setup APIs remain compatible.
+
+The shared `DropdownMenu` compact action variant uses an Ellipsis icon and a content-width floating menu, right alignment, viewport flipping/clamping and Escape focus restoration. Items support optional icons and `tone="danger"`. Billing uses Check/Trash2 icons; the searchable `DropdownMenu actions` showcase exercises default/delete selection without API calls. No page-specific menu styling is required.

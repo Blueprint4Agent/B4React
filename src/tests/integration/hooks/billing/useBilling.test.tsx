@@ -3,6 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useBilling } from "../../../../hooks/api/billing/useBilling";
 
 const api = vi.hoisted(() => ({
+    updateBillingProfile: vi.fn(),
+    manageBillingMethod: vi.fn(),
+    createBillingCardSetup: vi.fn(),
+    getBillingCardSetupStatus: vi.fn(),
     getBillingConfig: vi.fn(),
     getBillingProfile: vi.fn(),
     getBillingInvoices: vi.fn(),
@@ -182,5 +186,29 @@ describe("billing owner lifecycle", () => {
             await result.current.reload();
         });
         expect(result.current.error).toBeNull();
+    });
+});
+
+describe("native billing action ownership", () => {
+    it("locks native mutations and ignores completion after changing account", async () => {
+        const pending = deferred<{ id: string; client_secret: string }>();
+        api.createBillingCardSetup.mockReturnValue(pending.promise);
+        const { result, rerender } = renderHook(({ owner }) => useBilling(owner, null), {
+            initialProps: { owner: 1 },
+        });
+        await waitFor(() => expect(result.current.loading).toBe(false));
+        let first!: ReturnType<typeof result.current.startCard>;
+        act(() => {
+            first = result.current.startCard();
+        });
+        await act(async () => {
+            expect(await result.current.startCard()).toBeNull();
+        });
+        expect(api.createBillingCardSetup).toHaveBeenCalledTimes(1);
+        rerender({ owner: 2 });
+        await act(async () => {
+            pending.resolve({ id: "seti_old", client_secret: "secret" });
+            expect(await first).toBeNull();
+        });
     });
 });
