@@ -4,6 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../App";
+import { ToastProvider } from "../../hooks/useToast";
 
 const reloadConfigMock = vi.fn();
 const useAppConfigMock = vi.fn();
@@ -46,7 +47,9 @@ describe("App configuration guard", () => {
         // Given: desktop startup cannot load /config and the requested URL is protected.
         render(
             <MemoryRouter initialEntries={["/show-case"]}>
-                <App />
+                <ToastProvider>
+                    <App />
+                </ToastProvider>
             </MemoryRouter>,
         );
 
@@ -54,16 +57,10 @@ describe("App configuration guard", () => {
         expect(screen.getByRole("heading", { name: "Server unavailable" })).toBeInTheDocument();
         expect(screen.getByText(/protected pages remain locked/i)).toBeInTheDocument();
         expect(screen.queryByText("User")).not.toBeInTheDocument();
-        const publicNav = screen.getByRole("banner", {
-            name: "Server connection navigation",
-        });
-        expect(
-            within(publicNav).getByText(__PROJECT_BRAND__?.name ?? "Blueprint4FastAPI"),
-        ).toBeInTheDocument();
-        expect(within(publicNav).getByRole("status")).toBeInTheDocument();
-        expect(
-            within(publicNav).queryByRole("group", { name: "Theme mode" }),
-        ).not.toBeInTheDocument();
+        expect(screen.queryByRole("banner")).not.toBeInTheDocument();
+        const sidebar = screen.getByRole("complementary");
+        expect(within(sidebar).getByRole("navigation")).toBeInTheDocument();
+        expect(within(sidebar).getByRole("status")).toBeInTheDocument();
 
         // When: the user requests another connection attempt.
         const user = userEvent.setup();
@@ -78,7 +75,9 @@ describe("App configuration guard", () => {
         reloadConfigMock.mockReturnValue(new Promise(() => undefined));
         render(
             <MemoryRouter initialEntries={["/show-case"]}>
-                <App />
+                <ToastProvider>
+                    <App />
+                </ToastProvider>
             </MemoryRouter>,
         );
 
