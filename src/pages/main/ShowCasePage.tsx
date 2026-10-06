@@ -6,7 +6,7 @@ import { RecentAccountList } from "../../components/features/auth/RecentAccountL
 import type { RecentAccount } from "../../utils/recentAccounts";
 import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { useTranslation } from "react-i18next";
-import { Check, KeyRound, SlidersHorizontal, Trash2, UserRound } from "lucide-react";
+import { Check, ChevronRight, KeyRound, SlidersHorizontal, Trash2, UserRound } from "lucide-react";
 import { useToast } from "../../hooks/useToast";
 import { lazy, Suspense, useRef, useState } from "react";
 import {
@@ -265,6 +265,26 @@ export function ShowCasePage() {
                                     {t("authDialog.buttonLoading")}
                                 </Button>
                                 <Button appearance="pill-secondary" disabled>
+                                    {t("authDialog.buttonDisabled")}
+                                </Button>
+                            </div>
+                        </ShowcaseItem>
+                        <ShowcaseItem component="Button (text section actions)">
+                            <div className="showcase-catalog__stack">
+                                <header className="section-action-header">
+                                    <h2>{t("billing.history")}</h2>
+                                    <Button
+                                        appearance="text"
+                                        onClick={() => showToast(t("showCase.catalog.localOnly"))}
+                                    >
+                                        {t("billing.details.viewAll")}
+                                        <ChevronRight aria-hidden="true" />
+                                    </Button>
+                                </header>
+                                <Button appearance="text" loading>
+                                    {t("authDialog.buttonLoading")}
+                                </Button>
+                                <Button appearance="text" disabled>
                                     {t("authDialog.buttonDisabled")}
                                 </Button>
                             </div>
@@ -656,6 +676,20 @@ export function ShowCasePage() {
                     </ShowcaseItem>
                     <ShowcaseItem component="StatusCard">
                         <StatusCard tone="info" message={t("showCase.catalog.localOnly")} />
+                    </ShowcaseItem>
+                    <ShowcaseItem component="StatusCard (retry action)">
+                        <StatusCard
+                            tone="error"
+                            message={t("billing.errors.unknown")}
+                            action={
+                                <Button
+                                    appearance="text"
+                                    onClick={() => showToast(t("showCase.catalog.localOnly"))}
+                                >
+                                    {t("billing.native.retry")}
+                                </Button>
+                            }
+                        />
                     </ShowcaseItem>
                     <ShowcaseItem component="InfoCard">
                         <InfoCard

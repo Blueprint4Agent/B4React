@@ -573,39 +573,54 @@ for (const width of [390, 1440]) {
 }
 
 for (const width of [390, 1440]) {
-    test(`billing deduplicates concurrent errors and recovers at ${width}px`, async ({
-        page,
-    }, info) => {
-        await setup(page, "ko");
-        await page.setViewportSize({ width, height: 1000 });
-        await page.emulateMedia({ colorScheme: "dark" });
-        let failing = true;
-        for (const path of ["subscription", "profile"]) {
-            await page.route(`**/api/v1/billing/${path}`, (route) =>
-                failing
-                    ? route.fulfill({ status: 500, json: { detail: "provider failure" } })
-                    : route.fallback(),
-            );
-        }
-        await page.goto("/settings?section=billing");
-        await expect(page.getByRole("button", { name: "다시 시도" })).toBeEnabled();
-        await expect(page.locator(".billing-feedback [role=alert]")).toHaveCount(1);
-        await expect(page.getByRole("alert")).toHaveCount(1);
-        await expect(page.getByRole("alert")).toContainText("결제 정보를 처리하지 못했습니다");
-        await page.screenshot({ path: info.outputPath("billing-error.png"), fullPage: true });
-        failing = false;
-        await page.getByRole("button", { name: "다시 시도" }).click();
-        await expect(page.getByRole("alert")).toHaveCount(0);
-        await expect(page.getByRole("heading", { name: "Visa", exact: true })).toBeVisible();
-    });
+    for (const theme of ["light", "dark"] as const) {
+        test(`billing deduplicates concurrent errors and recovers ${theme} at ${width}px`, async ({
+            page,
+        }, info) => {
+            await setup(page, "ko");
+            await page.setViewportSize({ width, height: 1000 });
+            await page.emulateMedia({ colorScheme: theme });
+            let failing = true;
+            for (const path of ["subscription", "profile"]) {
+                await page.route(`**/api/v1/billing/${path}`, (route) =>
+                    failing
+                        ? route.fulfill({ status: 500, json: { detail: "provider failure" } })
+                        : route.fallback(),
+                );
+            }
+            await page.goto("/settings?section=billing");
+            await expect(page.getByRole("button", { name: "다시 시도" })).toBeEnabled();
+            await expect(page.locator(".billing-feedback [role=alert]")).toHaveCount(1);
+            await expect(page.getByRole("alert")).toHaveCount(1);
+            await expect(page.getByRole("alert")).toContainText("결제 정보를 처리하지 못했습니다");
+            const alert = page.getByRole("alert");
+            const retry = alert.getByRole("button", { name: "다시 시도" });
+            await expect(retry).toBeVisible();
+            const alertBox = (await alert.boundingBox())!;
+            const retryBox = (await retry.boundingBox())!;
+            const planBox = (await page.locator(".billing-plan-summary").boundingBox())!;
+            expect(alertBox.y + alertBox.height).toBeLessThanOrEqual(planBox.y);
+            expect(retryBox.x).toBeGreaterThanOrEqual(alertBox.x);
+            expect(retryBox.x + retryBox.width).toBeLessThanOrEqual(alertBox.x + alertBox.width);
+            expect(retryBox.y + retryBox.height).toBeLessThanOrEqual(alertBox.y + alertBox.height);
+            await page.screenshot({ path: info.outputPath("billing-error.png"), fullPage: true });
+            failing = false;
+            await page.getByRole("button", { name: "다시 시도" }).click();
+            await expect(page.getByRole("alert")).toHaveCount(0);
+            await expect(page.getByRole("heading", { name: "Visa", exact: true })).toBeVisible();
+        });
+    }
 }
 
 for (const width of [390, 1440]) {
-    test(`native billing profile and saved card management at ${width}px`, async ({
+    test(`manual billing profile fallback and saved card management at ${width}px`, async ({
         page,
     }, info) => {
         await setup(page, "ko");
         await page.setViewportSize({ width, height: 1000 });
+        await page.route("**/api/v1/billing/config", (route) =>
+            route.fulfill({ json: { enabled: true, livemode: false, publishable_key: null } }),
+        );
         let profile = {
             email: "billing@example.com",
             name: "Billing User",
@@ -666,6 +681,17 @@ for (const width of [390, 1440]) {
         await expect(page.getByRole("button", { name: "다시 불러오기" })).toHaveCount(0);
         await expect(page.getByRole("heading", { name: "Mastercard" })).toBeVisible();
         await expect(page.getByText(/•••• 3114/)).toBeVisible();
+        const historyHeader = page
+            .getByRole("heading", { name: "거래 내역", exact: true })
+            .locator("..");
+        const viewAll = historyHeader.getByRole("button", { name: "모두 보기", exact: true });
+        await expect(viewAll).toHaveClass(/ui-button--text/);
+        const titleBox = (await historyHeader.getByRole("heading").boundingBox())!;
+        const actionBox = (await viewAll.boundingBox())!;
+        expect(actionBox.x - titleBox.x - titleBox.width).toBeLessThanOrEqual(16);
+        expect(
+            Math.abs(actionBox.y + actionBox.height / 2 - titleBox.y - titleBox.height / 2),
+        ).toBeLessThanOrEqual(2);
         await page.getByRole("button", { name: "편집", exact: true }).click();
         const dialog = page.getByRole("dialog");
         await expect(dialog.getByLabel("결제 이메일")).toHaveValue("billing@example.com");
@@ -720,6 +746,9 @@ for (const width of [390, 1440]) {
     for (const theme of ["light", "dark"] as const) {
         test(`country list scrolls ${theme} at ${width}px`, async ({ page }, info) => {
             await setup(page, "ko");
+            await page.route("**/api/v1/billing/config", (route) =>
+                route.fulfill({ json: { enabled: true, livemode: false, publishable_key: null } }),
+            );
             await page.setViewportSize({ width, height: 900 });
             await page.emulateMedia({ colorScheme: theme });
             await page.route("**/api/v1/billing/profile", (route) =>
