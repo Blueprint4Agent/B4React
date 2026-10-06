@@ -206,7 +206,7 @@ When a new frontend domain is added:
 12. `src/tests/integration/hooks/useServerConnectivity.test.tsx`
     - Browser polling exclusion and Tauri offline-to-online recovery.
 13. `src/tests/component/App.test.tsx`
-    - Fail-closed protected routing, shared public-navbar structure, and delayed retry loading state when `/config` is unavailable.
+    - Fail-closed protected routing, shared app-sidebar structure without a public navbar, and delayed retry loading state when `/config` is unavailable.
 14. `src/tests/integration/hooks/useFeatures.test.tsx`
     - Configuration failure remains distinct from explicit login disablement and recovers on retry.
 15. `src/tests/component/components/layout/AppSidebar.test.tsx`

@@ -50,3 +50,5 @@ Static checks cannot determine all semantic page families or prove visual equali
 The worklog gate enforces recorded review, not truthfulness of prose. Browser comparisons
 cover registered cases, not arbitrary new pages. New families require review and coverage;
 passing shared-control checks alone is never evidence of consistent page composition.
+
+Server-unavailable recovery uses the main `AppLayout` sidebar (the showcase route is its peer), shared PanelCard typography and Button. Center one panel capped at 30rem inside the existing content area; omit the public navbar and nested warning card. Keep config retry and delayed loading behavior in the existing owners.

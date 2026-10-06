@@ -206,7 +206,7 @@ it("<behavior>", async () => {
 12. `src/tests/integration/hooks/useServerConnectivity.test.tsx`
     - 브라우저 polling 제외 및 Tauri offline-to-online 복구
 13. `src/tests/component/App.test.tsx`
-    - `/config`를 사용할 수 없을 때 보호 라우팅의 fail-closed 처리, 공용 public Nav 구조, 지연된 재시도 로딩 상태
+    - `/config`를 사용할 수 없을 때 보호 라우팅의 fail-closed 처리, 공개 네브바 없는 메인 사이드바 구조, 지연된 재시도 로딩 상태
 14. `src/tests/integration/hooks/useFeatures.test.tsx`
     - 설정 실패와 명시적 로그인 비활성화 구분 및 재시도 복구
 15. `src/tests/component/components/layout/AppSidebar.test.tsx`
@@ -309,3 +309,5 @@ ToastCard 컴포넌트 테스트는 StrictMode 표시/퇴장, key 재생, 타이
 ## 변경 범위별 검증
 
 [검증 하네스](verification.md)가 작은 변경의 일괄 검사 규칙보다 우선합니다. `make verify-plan` / `make verify`로 범위를 선택하고 문서·문구에는 경량 검사만 실행합니다. 동작·UI·보호 경로는 계획에 따른 검사를 유지하며 동일 내용에 통과한 위임 검사는 반복하지 않습니다. Git 규칙·PR·필수 상태·병합 보호는 유지합니다.
+
+서버 설정을 불러오지 못한 화면은 공개 네브바 없이 메인 AppLayout 사이드바와 단일 복구 패널을 사용합니다. App 컴포넌트 테스트는 실제 앱과 동일한 ToastProvider로 감싸고, 보호된 페이지 잠금과 재시도 로딩 지연을 검증합니다.

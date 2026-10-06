@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { PublicNavbar } from "../../components/layout/PublicNavbar";
-import { Button, PanelCard, WarningCard } from "../../components/ui";
+import { AppLayout } from "../../components/layout/AppLayout";
+import { Button, PanelCard } from "../../components/ui";
 
 type ServerUnavailablePageProps = {
     checking: boolean;
@@ -27,32 +27,26 @@ export function ServerUnavailablePage({ checking, error, onRetry }: ServerUnavai
     }, [checking]);
 
     return (
-        <div className="landing-shell">
-            <PublicNavbar ariaLabel={t("serverUnavailable.navAria")} />
-            <main className="page server-unavailable-page">
+        <AppLayout>
+            <div className="page server-unavailable-page">
                 <PanelCard
                     title={t("serverUnavailable.title")}
                     subtitle={t("serverUnavailable.subtitle")}
-                    className="loading-panel"
                 >
-                    <WarningCard
-                        title={t("serverUnavailable.statusTitle")}
-                        message={
-                            error
-                                ? t("serverUnavailable.configError")
-                                : t("serverUnavailable.waiting")
-                        }
-                    >
-                        <div className="status-card__actions">
-                            <Button loading={showChecking} disabled={checking} onClick={onRetry}>
-                                {showChecking
-                                    ? t("serverUnavailable.retrying")
-                                    : t("serverUnavailable.retry")}
-                            </Button>
-                        </div>
-                    </WarningCard>
+                    <p className="muted" role="status">
+                        {error
+                            ? t("serverUnavailable.configError")
+                            : t("serverUnavailable.waiting")}
+                    </p>
+                    <div className="status-card__actions">
+                        <Button loading={showChecking} disabled={checking} onClick={onRetry}>
+                            {showChecking
+                                ? t("serverUnavailable.retrying")
+                                : t("serverUnavailable.retry")}
+                        </Button>
+                    </div>
                 </PanelCard>
-            </main>
-        </div>
+            </div>
+        </AppLayout>
     );
 }

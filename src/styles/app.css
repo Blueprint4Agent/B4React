@@ -566,7 +566,14 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 
 .server-unavailable-page {
     min-height: 0;
-    height: 100%;
+    flex: 1;
+    display: grid;
+    place-items: center;
+}
+
+.server-unavailable-page > .panel {
+    width: 100%;
+    max-width: 30rem;
 }
 
 .landing-page {
