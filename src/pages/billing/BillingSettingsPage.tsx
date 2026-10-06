@@ -451,8 +451,8 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                                 }
                                 onClick={() => void addMethod()}
                             >
-                                <Plus aria-hidden="true" />
                                 {t("billing.native.addCard")}
+                                <Plus aria-hidden="true" />
                             </Button>
                         </div>
                     </header>
