@@ -5387,18 +5387,8 @@ input {
     line-height: 1.25;
     letter-spacing: -0.04em;
 }
-.plans-header p {
-    color: var(--text-soft);
-    margin: 0;
-}
 .plans-currency {
-    display: flex;
-    justify-content: flex-end;
-}
-.plans-currency .ui-dropdown__trigger {
-    min-width: 6rem;
-    min-height: 2rem;
-    font-size: 0.75rem;
+    justify-self: end;
 }
 .plans-grid {
     display: grid;
@@ -5759,4 +5749,28 @@ html[data-theme="dark"] .billing-stripe-badge .payment-brand--dark {
 .billing-method-detail {
     display: grid;
     gap: var(--space-1);
+}
+
+/* Compact, controlled selection shared by plans and the component showcase. */
+.ui-segmented-control {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    gap: var(--space-1);
+    padding: var(--space-1);
+    border-radius: var(--radius-pill);
+    background: var(--input-bg);
+}
+.ui-segmented-control .ui-button {
+    min-width: 2rem;
+    min-height: 1.75rem;
+    padding: 2px 8px;
+    border: 0;
+    font-size: 0.8rem;
+}
+@media (pointer: coarse) {
+    .ui-segmented-control .ui-button {
+        min-width: 44px;
+        min-height: 44px;
+    }
 }

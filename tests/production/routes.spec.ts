@@ -82,10 +82,12 @@ test("plan selection loads its own production chunk and preserves currency prefe
     await page.getByRole("link", { name: "Upgrade plan", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Monthly", exact: true })).toBeVisible();
     await expect(page.locator(".app-sidebar")).toHaveCount(0);
-    await page.getByRole("button", { name: "KRW ₩", exact: true }).click();
-    await page.getByRole("menuitem", { name: "USD $", exact: true }).click();
+    await page.getByRole("button", { name: "Dollar", exact: true }).click();
     await page.reload();
-    await expect(page.getByRole("button", { name: "USD $", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Dollar", exact: true })).toHaveAttribute(
+        "aria-pressed",
+        "true",
+    );
     await expect(
         page.getByRole("button", { name: "Sign in to continue", exact: true }).first(),
     ).toBeVisible();

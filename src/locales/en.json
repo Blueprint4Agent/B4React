@@ -704,7 +704,6 @@
         "plans": {
             "eyebrow": "A plan for you",
             "title": "Choose your plan",
-            "subtitle": "Start simply. Choose the rhythm that works for you.",
             "choose": "Choose a plan",
             "basic": "Free",
             "soon": "Coming soon",
@@ -746,7 +745,9 @@
             },
             "unknown": {
                 "name": "Needs review"
-            }
+            },
+            "usd": "Dollar",
+            "krw": "Won"
         },
         "closePlans": "Close plan selection",
         "subscribe": "Subscribe {{plan}}",
@@ -784,8 +785,7 @@
             "cancel": "Go back",
             "saved": "Plan change scheduled.",
             "restored": "Your current plan will continue.",
-            "unavailable": "This subscription requires billing support to make changes.",
-            "currency": "Plan changes keep your current billing currency."
+            "unavailable": "This subscription requires billing support to make changes."
         },
         "details": {
             "viewAll": "View all",

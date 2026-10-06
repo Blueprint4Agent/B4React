@@ -716,3 +716,9 @@ Follow [page-family consistency](notes/page-families.md) before UI changes. Iden
 Account-name save success uses only the existing success toast, matching photo-save success. Do not render a persistent success InlineMessage or reserve an empty feedback slot; keep actionable name-save errors beside the field.
 
 Shared ToastCard uses a borderless capsule; distinguish it through the existing inverse-theme surface and shadow. This applies to the app and showcase alike.
+
+Standalone plans use visible $/₩ pill buttons with localized accessible names and aria-pressed. Currency preview is URL-based and available to existing subscribers too; plan-change confirmation always quotes the actual subscription currency. Omit the introductory subtitle and currency-maintenance paragraph.
+
+Use the shared SegmentedControl for the compact currency symbols and its interactive/disabled showcase example. Desktop controls are 28px high; coarse-pointer targets retain 44px.
+
+The plan selection page omits the pending-plan status card; Billing settings remains the place to review scheduled changes.

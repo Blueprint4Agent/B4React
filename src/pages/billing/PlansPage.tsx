@@ -7,7 +7,7 @@ import { useToast } from "../../hooks/useToast";
 import { Check, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { Button, DropdownMenu, InlineMessage, Spinner } from "../../components/ui";
+import { Button, InlineMessage, SegmentedControl, Spinner } from "../../components/ui";
 import { useSubscription } from "../../hooks/api/billing/useSubscription";
 import { useAuthContext } from "../../hooks/useAuth";
 
@@ -53,13 +53,12 @@ export function PlansPage() {
             : params.get("plan") === "free"
               ? "free"
               : "monthly";
-    const currency = billing.subscription?.has_subscription
-        ? billing.subscription.currency === "usd"
-            ? "usd"
-            : "krw"
-        : params.get("currency") === "usd"
-          ? "usd"
-          : "krw";
+    const billingCurrency = billing.subscription?.currency === "usd" ? "usd" : "krw";
+    const requestedCurrency = params.get("currency");
+    const currency =
+        requestedCurrency === "usd" || requestedCurrency === "krw"
+            ? requestedCurrency
+            : billingCurrency;
     const update = (key: string, value: string) =>
         setParams(
             (previous) => {
@@ -69,13 +68,13 @@ export function PlansPage() {
             },
             { replace: true, state: location.state },
         );
-    const priceFor = (plan: (typeof plans)[number]) => {
+    const priceFor = (plan: (typeof plans)[number], priceCurrency = currency) => {
         const price = billing.catalog?.prices.find(
-            (item) => item.plan === plan && item.currency === currency,
+            (item) => item.plan === plan && item.currency === priceCurrency,
         );
         if (plan !== "free" && !price) return t("billing.plans.soon");
         const amount = plan === "free" ? 0 : price!.amount;
-        return currency === "krw"
+        return priceCurrency === "krw"
             ? `₩${amount.toLocaleString("en-US")}`
             : `US$${(amount / 100).toFixed(amount === 0 ? 0 : 2)}`;
     };
@@ -94,7 +93,7 @@ export function PlansPage() {
                     price:
                         plan === "free"
                             ? undefined
-                            : `${priceFor(plan)} ${t(`billing.plans.${plan}.period`)}`,
+                            : `${priceFor(plan, billingCurrency)} ${t(`billing.plans.${plan}.period`)}`,
                 });
             return;
         }
@@ -115,7 +114,6 @@ export function PlansPage() {
             </Button>
             <header className="plans-header">
                 <h1>{t("billing.plans.title")}</h1>
-                <p>{t("billing.plans.subtitle")}</p>
             </header>
             {billing.subscription?.has_subscription && !billing.subscription.can_manage && (
                 <InlineMessage tone="info">{t("billing.manage.unavailable")}</InlineMessage>
@@ -126,31 +124,17 @@ export function PlansPage() {
                     {t("billing.retry")}
                 </Button>
             )}
-            {billing.subscription?.pending_plan && (
-                <InlineMessage tone="info">
-                    {t("billing.manage.pending", {
-                        plan: t(`billing.plans.${billing.subscription.pending_plan}.name`),
-                        date: new Date(
-                            (billing.subscription.pending_effective_at ?? 0) * 1000,
-                        ).toLocaleDateString(),
-                    })}
-                </InlineMessage>
-            )}
-            {billing.subscription?.has_subscription && (
-                <p className="billing-muted-label">{t("billing.manage.currency")}</p>
-            )}
-            <div className="plans-currency">
-                <DropdownMenu
-                    disabled={billing.busy || !!billing.subscription?.has_subscription}
-                    label={t("billing.plans.currency")}
-                    triggerLabel={currency === "krw" ? "KRW ₩" : "USD $"}
-                    items={[
-                        { id: "krw", label: "KRW ₩" },
-                        { id: "usd", label: "USD $" },
-                    ]}
-                    onSelect={(value) => update("currency", value)}
-                />
-            </div>
+            <SegmentedControl
+                className="plans-currency"
+                label={t("billing.plans.currency")}
+                options={[
+                    { value: "usd", label: "$", accessibleLabel: t("billing.plans.usd") },
+                    { value: "krw", label: "₩", accessibleLabel: t("billing.plans.krw") },
+                ]}
+                value={currency}
+                onChange={(value) => update("currency", value)}
+                disabled={billing.busy}
+            />
             <div className="plans-grid" role="group" aria-label={t("billing.plans.choose")}>
                 {plans.map((plan) => (
                     <article
