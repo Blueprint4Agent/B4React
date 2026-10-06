@@ -5097,7 +5097,7 @@ input {
 .ui-toast-card {
     max-width: min(28rem, 100%);
     padding: 10px 20px;
-    border: 1px solid color-mix(in srgb, var(--tooltip-fg) 18%, transparent);
+    border: 0;
     border-radius: var(--radius-pill);
     background: var(--tooltip-bg);
     color: var(--tooltip-fg);

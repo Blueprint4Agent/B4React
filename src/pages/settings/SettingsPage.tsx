@@ -30,7 +30,7 @@ import { resolveAPIKeyExpiresAt, type APIKeyExpiryOption } from "../../utils/dat
 
 type SaveFeedback = {
     message: string;
-    tone: "error" | "info";
+    tone: "error";
     source: "name" | "photo";
 } | null;
 const MAX_PROFILE_PHOTO_SIZE_MB = 8;
@@ -299,11 +299,6 @@ export function SettingsPage() {
         try {
             await updateProfile({ name: nextName });
             showToast(t("toast.profileSuccess"));
-            setSaveFeedback({
-                tone: "info",
-                source: "name",
-                message: t("settings.profile.nameSaveSuccess"),
-            });
         } catch (error) {
             showToast(t("toast.profileError"));
             setSaveFeedback({
@@ -371,24 +366,15 @@ export function SettingsPage() {
                                             {t("settings.profile.save")}
                                         </Button>
                                     </form>
-                                    <div className="settings-feedback-slot settings-feedback-slot--name">
-                                        {saveFeedback?.source === "name" &&
-                                        saveFeedback?.tone === "info" ? (
-                                            <div className="settings-feedback settings-feedback--name">
-                                                <InlineMessage tone="info">
-                                                    {saveFeedback.message}
-                                                </InlineMessage>
-                                            </div>
-                                        ) : null}
-                                        {saveFeedback?.source === "name" &&
-                                        saveFeedback?.tone === "error" ? (
+                                    {saveFeedback?.source === "name" ? (
+                                        <div className="settings-feedback-slot settings-feedback-slot--name">
                                             <div className="settings-feedback settings-feedback--name">
                                                 <InlineMessage>
                                                     {saveFeedback.message}
                                                 </InlineMessage>
                                             </div>
-                                        ) : null}
-                                    </div>
+                                        </div>
+                                    ) : null}
                                 </article>
 
                                 <article className="settings-profile-field-card">
