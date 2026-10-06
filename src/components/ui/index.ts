@@ -35,3 +35,5 @@ export { KeyboardShortcut } from "./navigation/KeyboardShortcut";
 export { ColorPicker } from "./inputs/ColorPicker";
 
 export { NumberField } from "./inputs/NumberField";
+
+export { SegmentedControl } from "./toggles/SegmentedControl";

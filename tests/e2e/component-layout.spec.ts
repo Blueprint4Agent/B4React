@@ -878,3 +878,29 @@ for (const width of [390, 1440]) {
         });
     }
 }
+
+for (const colorScheme of ["light", "dark"] as const) {
+    test(`compact SegmentedControl supports keyboard selection in ${colorScheme}`, async ({
+        page,
+    }, info) => {
+        await page.emulateMedia({ colorScheme });
+        await page.getByRole("searchbox").fill("SegmentedControl");
+        const example = page.locator('[data-component="SegmentedControl"]');
+        const active = example.getByRole("group").first();
+        const dollar = active.getByRole("button", { name: "Dollar", exact: true });
+        const won = active.getByRole("button", { name: "Won", exact: true });
+        await expect(dollar).toHaveText("$");
+        await expect(won).toHaveText("₩");
+        await expect(won).toHaveAttribute("aria-pressed", "true");
+        await dollar.focus();
+        await page.keyboard.press("Enter");
+        await expect(dollar).toHaveAttribute("aria-pressed", "true");
+        await expect(won).toHaveAttribute("aria-pressed", "false");
+        await expect(example.getByRole("group").last().getByRole("button").first()).toBeDisabled();
+        expect((await active.boundingBox())!.width).toBeLessThan(100);
+        expect((await dollar.boundingBox())!.height).toBeLessThanOrEqual(32);
+        await expectReadableHover(dollar);
+        await expectReadableHover(won);
+        await page.screenshot({ path: info.outputPath("segmented-control.png") });
+    });
+}

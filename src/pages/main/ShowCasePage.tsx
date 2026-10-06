@@ -29,6 +29,7 @@ import {
     UserAvatar,
     PrimaryCard,
     SelectionCard,
+    SegmentedControl,
     BrandMark,
     BrandBanner,
     StatusCard,
@@ -82,6 +83,7 @@ export function ShowCasePage() {
     const [sampleUnchecked, setSampleUnchecked] = useState(false);
     const [sampleMenu, setSampleMenu] = useState("profile");
     const [sampleToggle, setSampleToggle] = useState(true);
+    const [sampleCurrency, setSampleCurrency] = useState("krw");
     const [sampleAccounts, setSampleAccounts] = useState<RecentAccount[]>([
         {
             email: "designer@example.com",
@@ -267,6 +269,31 @@ export function ShowCasePage() {
                                 <Button appearance="pill-secondary" disabled>
                                     {t("authDialog.buttonDisabled")}
                                 </Button>
+                            </div>
+                        </ShowcaseItem>
+                        <ShowcaseItem component="SegmentedControl">
+                            <div className="showcase-catalog__stack">
+                                {[false, true].map((disabled) => (
+                                    <SegmentedControl
+                                        key={String(disabled)}
+                                        label={t("billing.plans.currency")}
+                                        options={[
+                                            {
+                                                value: "usd",
+                                                label: "$",
+                                                accessibleLabel: t("billing.plans.usd"),
+                                            },
+                                            {
+                                                value: "krw",
+                                                label: "₩",
+                                                accessibleLabel: t("billing.plans.krw"),
+                                            },
+                                        ]}
+                                        value={sampleCurrency}
+                                        onChange={setSampleCurrency}
+                                        disabled={disabled}
+                                    />
+                                ))}
                             </div>
                         </ShowcaseItem>
                         <ShowcaseItem component="Button (text section actions)">

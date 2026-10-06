@@ -117,9 +117,25 @@ for (const width of [390, 1440])
             await expect(page.getByRole("heading", { name: "Monthly", exact: true })).toBeVisible();
             await expect(page.getByRole("heading", { name: "Annual", exact: true })).toBeVisible();
             await expect(page.locator(".plan-card__price").nth(1)).toContainText("₩3,990");
-            await page.getByRole("button", { name: "KRW ₩", exact: true }).click();
-            await page.getByRole("menuitem", { name: "USD $", exact: true }).click();
+            await expect(page.getByRole("button", { name: "Won", exact: true })).toHaveAttribute(
+                "aria-pressed",
+                "true",
+            );
+            await page.getByRole("button", { name: "Dollar", exact: true }).click();
+            await expect(page.getByRole("button", { name: "Dollar", exact: true })).toHaveAttribute(
+                "aria-pressed",
+                "true",
+            );
             await expect(page.locator(".plan-card__price").nth(1)).toContainText("US$3.99");
+            await expect(page.locator(".plans-header p")).toHaveCount(0);
+            await expect(page.locator(".plans-currency .ui-dropdown")).toHaveCount(0);
+            const currencyBox = await page.locator(".plans-currency").boundingBox();
+            const gridBox = await page.locator(".plans-grid").boundingBox();
+            expect(currencyBox!.x + currencyBox!.width).toBeCloseTo(gridBox!.x + gridBox!.width, 0);
+            await page.getByRole("button", { name: "Won", exact: true }).focus();
+            await page.keyboard.press("Enter");
+            await expect(page.locator(".plan-card__price").nth(1)).toContainText("₩3,990");
+            await page.getByRole("button", { name: "Dollar", exact: true }).click();
             await expect(
                 page.getByRole("button", { name: "Subscribe Annual", exact: true }),
             ).toBeEnabled();
@@ -228,8 +244,15 @@ test("standalone plans close to their originating page and direct visits have a 
     await page.locator(".profile-menu__trigger").click();
     await page.getByRole("link", { name: "Upgrade plan", exact: true }).click();
     await expect(page.locator(".app-sidebar")).toHaveCount(0);
-    await page.getByRole("button", { name: "KRW ₩", exact: true }).click();
-    await page.getByRole("menuitem", { name: "USD $", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Won", exact: true })).toHaveAttribute(
+        "aria-pressed",
+        "true",
+    );
+    await page.getByRole("button", { name: "Dollar", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Dollar", exact: true })).toHaveAttribute(
+        "aria-pressed",
+        "true",
+    );
     await expect(page.getByRole("button", { name: "Subscribe Annual", exact: true })).toBeEnabled();
     const close = page.getByRole("button", { name: "Close plan selection" });
     await close.focus();
@@ -452,15 +475,29 @@ for (const width of [390, 1440]) {
             }),
         );
         await page.goto("/plans");
+        await expect(page.getByRole("button", { name: "원", exact: true })).toHaveAttribute(
+            "aria-pressed",
+            "true",
+        );
+        await expect(page.getByRole("button", { name: "달러", exact: true })).toHaveText("$");
+        await page.getByRole("button", { name: "달러", exact: true }).click();
+        await expect(page.locator(".plan-card__price").nth(1)).toContainText("US$3.99");
+        await expect(page.getByRole("button", { name: "달러", exact: true })).toHaveAttribute(
+            "aria-pressed",
+            "true",
+        );
+        await expect(page.getByText("요금제 변경 시 현재 결제 통화를 유지합니다.")).toHaveCount(0);
         await page.getByRole("button", { name: "연간으로 변경", exact: true }).click();
         await expect(page.getByRole("dialog")).toContainText(
             "오늘 추가 결제나 환불은 발생하지 않으며",
         );
+        await expect(page.getByRole("dialog")).toContainText("₩39,900");
+        await expect(page.getByRole("dialog")).not.toContainText("US$39.99");
         await page.screenshot({ path: info.outputPath("change-dialog.png"), fullPage: true });
         await page.getByRole("button", { name: "변경 확인", exact: true }).click();
         await expect(page.locator(".ui-toast-card")).toHaveText("요금제 변경을 예약했습니다.");
         await expect(page.getByRole("button", { name: "현재 플랜", exact: true })).toBeDisabled();
-        await expect(page.getByText(/연간 적용 예정/)).toBeVisible();
+        await expect(page.getByText(/연간 적용 예정/)).toHaveCount(0);
         await page.goto("/settings?section=billing");
         await expect(page.getByText("INV-001")).toBeVisible();
         await expect(page.getByText("결제 완료", { exact: true })).toBeVisible();
