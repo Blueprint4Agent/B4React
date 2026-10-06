@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { Check, CreditCard, Plus, ReceiptText, Trash2, Wallet } from "lucide-react";
+import { Check, ChevronRight, CreditCard, Plus, ReceiptText, Trash2, Wallet } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -8,6 +8,7 @@ import {
     Spinner,
     DropdownMenu,
     StatusBadge,
+    StatusCard,
     ModalButton,
     Modal,
 } from "../../components/ui";
@@ -190,6 +191,30 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                 <p>{t("billing.subtitle")}</p>
             </header>
             <div className="settings-general-content billing-settings">
+                {pageErrors.length > 0 && (
+                    <div className="billing-feedback">
+                        <StatusCard
+                            tone="error"
+                            message={pageErrors.join(" ")}
+                            action={
+                                <Button
+                                    appearance="text"
+                                    disabled={
+                                        billing.loading ||
+                                        subscription.loading ||
+                                        !billing.available
+                                    }
+                                    onClick={() => {
+                                        void billing.reload();
+                                        void subscription.reload();
+                                    }}
+                                >
+                                    {t("billing.native.retry")}
+                                </Button>
+                            }
+                        />
+                    </div>
+                )}
                 <section
                     className="settings-row billing-plan-summary"
                     aria-label={t("billing.currentPlan")}
@@ -264,21 +289,6 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                         )}
                     </Button>
                 </section>
-                {pageErrors.length > 0 && (
-                    <div className="billing-feedback">
-                        <InlineMessage>{pageErrors.join(" ")}</InlineMessage>
-                        <Button
-                            appearance="pill-secondary"
-                            disabled={billing.loading || subscription.loading || !billing.available}
-                            onClick={() => {
-                                void billing.reload();
-                                void subscription.reload();
-                            }}
-                        >
-                            {t("billing.native.retry")}
-                        </Button>
-                    </div>
-                )}
                 {subscription.notice && subscription.notice !== "paid" && (
                     <InlineMessage tone="info">
                         {t(`billing.checkoutNotices.${subscription.notice}`)}
@@ -303,10 +313,10 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                     <InlineMessage tone="info">{t("billing.disabled")}</InlineMessage>
                 )}
                 <section className="billing-section" aria-labelledby="billing-history-title">
-                    <header>
+                    <header className="section-action-header">
                         <h2 id="billing-history-title">{t("billing.history")}</h2>
                         <Button
-                            appearance="pill-secondary"
+                            appearance="text"
                             disabled={
                                 !billing.profile?.portal_enabled ||
                                 billing.busy ||
@@ -315,6 +325,7 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                             onClick={() => void openPortal("overview")}
                         >
                             {t("billing.details.viewAll")}
+                            <ChevronRight aria-hidden="true" />
                         </Button>
                     </header>
                     <div className="settings-row billing-records">
@@ -344,7 +355,7 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                                     </span>
                                     {invoice.url && (
                                         <Button
-                                            appearance="pill-secondary"
+                                            appearance="text"
                                             aria-label={t("billing.details.receipt")}
                                             onClick={() => {
                                                 const url = new URL(invoice.url!);
@@ -362,7 +373,7 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                                                     );
                                             }}
                                         >
-                                            ›
+                                            <ChevronRight aria-hidden="true" />
                                         </Button>
                                     )}
                                 </div>
@@ -376,10 +387,10 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                     </div>
                 </section>
                 <section className="billing-section" aria-labelledby="billing-info-title">
-                    <header>
+                    <header className="section-action-header">
                         <h2 id="billing-info-title">{t("billing.info")}</h2>
                         <Button
-                            appearance="pill-secondary"
+                            appearance="text"
                             disabled={
                                 !billing.config?.enabled ||
                                 billing.loading ||
@@ -426,11 +437,11 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                     </div>
                 </section>
                 <section className="billing-section" aria-labelledby="billing-methods-title">
-                    <header>
+                    <header className="section-action-header">
                         <h2 id="billing-methods-title">{t("billing.methods")}</h2>
                         <div className="billing-section__actions">
                             <Button
-                                appearance="pill-secondary"
+                                appearance="text"
                                 loading={billing.busy}
                                 disabled={
                                     !billing.available ||
@@ -672,6 +683,7 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
             )}
             {editingProfile && (
                 <BillingProfileDialog
+                    publicKey={billing.config?.publishable_key}
                     profile={billing.profile}
                     email={email}
                     busy={billing.busy}

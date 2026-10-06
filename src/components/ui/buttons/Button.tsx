@@ -3,7 +3,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
     children: ReactNode;
     loading?: boolean;
-    appearance?: "default" | "pill" | "pill-secondary";
+    appearance?: "default" | "pill" | "pill-secondary" | "text";
 };
 
 export function Button({

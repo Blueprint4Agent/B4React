@@ -832,3 +832,48 @@ for (const width of [390, 1440]) {
         });
     }
 }
+
+for (const width of [390, 1440]) {
+    for (const theme of ["light", "dark"] as const) {
+        test(`text section actions and retry feedback ${theme} at ${width}px`, async ({
+            page,
+        }, info) => {
+            // Given: shared section actions in both themes and viewport sizes.
+            await page.setViewportSize({ width, height: 900 });
+            await page.emulateMedia({ colorScheme: theme });
+            await page.getByRole("searchbox").fill("Button (text section actions)");
+            const example = page.locator('[data-component="Button (text section actions)"]');
+            const action = example.getByRole("button", { name: "View all" });
+            await expect(action).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+            await expect(example.locator("button:disabled")).toHaveCount(2);
+            const titleBox = (await example
+                .getByRole("heading", { name: "Transactions" })
+                .boundingBox())!;
+            const actionBox = (await action.boundingBox())!;
+            expect(actionBox.x - titleBox.x - titleBox.width).toBeLessThanOrEqual(16);
+            // When: keyboard focus and hover expose an unmistakable text action.
+            await action.focus();
+            await expect(action).toHaveCSS("outline-style", "solid");
+            await action.hover();
+            await expect(action).toHaveCSS("text-decoration-line", "underline");
+            await page.screenshot({ path: info.outputPath("text-actions.png"), fullPage: true });
+            await action.click();
+            await expect(page.locator(".ui-toast-layer")).toBeVisible();
+            // Then: the retry example keeps its action inside the alert boundary.
+            await page.getByRole("searchbox").fill("StatusCard (retry action)");
+            const alert = page
+                .locator('[data-component="StatusCard (retry action)"]')
+                .getByRole("alert");
+            const retry = alert.getByRole("button", { name: "Try again" });
+            await expect(retry).toBeVisible();
+            const bounds = (await alert.boundingBox())!;
+            const buttonBox = (await retry.boundingBox())!;
+            expect(buttonBox.x).toBeGreaterThanOrEqual(bounds.x);
+            expect(buttonBox.x + buttonBox.width).toBeLessThanOrEqual(bounds.x + bounds.width);
+            expect(
+                await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+            ).toBe(true);
+            await page.screenshot({ path: info.outputPath("retry-feedback.png"), fullPage: true });
+        });
+    }
+}
