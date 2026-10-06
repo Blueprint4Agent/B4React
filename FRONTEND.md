@@ -712,3 +712,7 @@ Modal dropdown menus portal into the enclosing dialog outside its clipped panel/
 Follow [billing UI ownership, example prices and return verification](notes/billing.md). Plans are lazy and use server pricing; card/Link registration and period-end subscription management use authenticated APIs. Never promote a selected plan or return query into payment success or an entitlement.
 
 Follow [page-family consistency](notes/page-families.md) before UI changes. Identify a canonical peer and reuse shell, header/content spacing, surfaces, typography, actions and responsive rules. Record the required Page Family review and browser comparisons; document scoped exceptions. A screenshot reference does not override the host family rules.
+
+Account-name save success uses only the existing success toast, matching photo-save success. Do not render a persistent success InlineMessage or reserve an empty feedback slot; keep actionable name-save errors beside the field.
+
+Shared ToastCard uses a borderless capsule; distinguish it through the existing inverse-theme surface and shadow. This applies to the app and showcase alike.

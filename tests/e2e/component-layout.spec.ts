@@ -720,6 +720,7 @@ for (const width of [390, 1440]) {
             // When: the local example triggers an actual timed viewport toast.
             await trigger.click();
             const toast = page.locator(".ui-toast-card");
+            await expect(toast).toHaveCSS("border-width", "0px");
             await expect(toast).toHaveText("Your changes have been saved.");
             await toast.evaluate(async (element) => {
                 await Promise.all(element.getAnimations().map((animation) => animation.finished));
