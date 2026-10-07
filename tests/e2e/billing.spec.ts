@@ -50,8 +50,12 @@ async function setup(page: Page, language = "en") {
                 prices: [
                     { plan: "monthly", currency: "krw", amount: 3990 },
                     { plan: "monthly", currency: "usd", amount: 399 },
-                    { plan: "annual", currency: "krw", amount: 39900 },
-                    { plan: "annual", currency: "usd", amount: 3999 },
+                    { plan: "annual", currency: "krw", amount: 43092 },
+                    { plan: "annual", currency: "usd", amount: 4309 },
+                    { plan: "pro_monthly", currency: "krw", amount: 11970 },
+                    { plan: "pro_monthly", currency: "usd", amount: 1197 },
+                    { plan: "pro_annual", currency: "krw", amount: 129276 },
+                    { plan: "pro_annual", currency: "usd", amount: 12928 },
                 ],
             },
         }),
@@ -115,8 +119,8 @@ for (const width of [390, 1440])
             await expect(
                 page.getByRole("button", { name: "Select Free", exact: true }),
             ).toHaveCount(0);
-            await expect(page.getByRole("heading", { name: "Monthly", exact: true })).toBeVisible();
-            await expect(page.getByRole("heading", { name: "Annual", exact: true })).toBeVisible();
+            await expect(page.getByRole("heading", { name: "Plus", exact: true })).toBeVisible();
+            await expect(page.getByRole("heading", { name: "Pro", exact: true })).toBeVisible();
             await expect(page.locator(".plan-card__price").nth(1)).toContainText("₩3,990");
             await expect(page.getByRole("button", { name: "Won", exact: true })).toHaveAttribute(
                 "aria-pressed",
@@ -127,7 +131,7 @@ for (const width of [390, 1440])
                 "aria-pressed",
                 "true",
             );
-            await expect(page.locator(".plan-card__price").nth(1)).toContainText("US$3.99");
+            await expect(page.locator(".plan-card__price").nth(1)).toContainText("$3.99");
             await expect(page.locator(".plans-header p")).toHaveCount(0);
             await expect(page.locator(".plans-currency .ui-dropdown")).toHaveCount(0);
             const currencyBox = await page.locator(".plans-currency").boundingBox();
@@ -138,7 +142,7 @@ for (const width of [390, 1440])
             await expect(page.locator(".plan-card__price").nth(1)).toContainText("₩3,990");
             await page.getByRole("button", { name: "Dollar", exact: true }).click();
             await expect(
-                page.getByRole("button", { name: "Subscribe Annual", exact: true }),
+                page.getByRole("button", { name: "Subscribe Pro", exact: true }),
             ).toBeEnabled();
             expect(
                 await page.evaluate(
@@ -149,7 +153,27 @@ for (const width of [390, 1440])
                 page.getByRole("button", { name: "Current plan", exact: true }),
             ).toBeDisabled();
             expect(stats.configCalls).toBe(0);
-            await page.screenshot({ path: info.outputPath("plans.png"), fullPage: true });
+            const plus = page
+                .locator(".plan-card")
+                .filter({ has: page.getByRole("heading", { name: "Plus", exact: true }) });
+            const pro = page
+                .locator(".plan-card")
+                .filter({ has: page.getByRole("heading", { name: "Pro", exact: true }) });
+            await plus.getByRole("button", { name: "Annual", exact: true }).click();
+            await expect(plus.locator(".plan-card__billing-note")).toContainText("10%");
+            await expect(plus.locator(".plan-card__billing-note")).toContainText("43.09");
+            await expect(pro.getByRole("button", { name: "Monthly", exact: true })).toHaveAttribute(
+                "aria-pressed",
+                "true",
+            );
+            await pro.getByRole("button", { name: "Annual", exact: true }).click();
+            await expect(pro.locator(".plan-card__billing-note")).toContainText("129.28");
+            await expect(pro.locator(".plan-card__price del")).toContainText("11.97");
+            await page.screenshot({
+                path: info.outputPath("plans.png"),
+                fullPage: true,
+                animations: "disabled",
+            });
             await expect(page.getByRole("button", { name: "Add new", exact: true })).toHaveCount(0);
             await page.goto("/settings?section=billing");
             await expect(page.getByRole("heading", { name: "Billing", exact: true })).toBeVisible();
@@ -223,7 +247,7 @@ test("Korean pricing and settings labels remain readable on mobile", async ({ pa
     await setup(page, "ko");
     await page.setViewportSize({ width: 390, height: 1000 });
     await page.goto("/plans");
-    await expect(page.getByRole("heading", { name: "월간", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Plus", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "현재 플랜", exact: true })).toBeDisabled();
     await expect(page.locator(".plan-card__price").nth(1)).toContainText("₩3,990");
     await expect(page.getByRole("button", { name: "결제수단 등록", exact: true })).toHaveCount(0);
@@ -254,7 +278,7 @@ test("standalone plans close to their originating page and direct visits have a 
         "aria-pressed",
         "true",
     );
-    await expect(page.getByRole("button", { name: "Subscribe Annual", exact: true })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Subscribe Pro", exact: true })).toBeEnabled();
     const close = page.getByRole("button", { name: "Close plan selection" });
     await close.focus();
     await page.keyboard.press("Enter");
@@ -283,7 +307,7 @@ test("a subscription checkout uses the selected server-priced plan and verifies 
         route.fulfill({ contentType: "text/html", body: "<h1>Stripe checkout</h1>" }),
     );
     await page.goto("/plans");
-    await page.getByRole("button", { name: "Subscribe Monthly", exact: true }).click();
+    await page.getByRole("button", { name: "Subscribe Plus", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Stripe checkout" })).toBeVisible();
     expect(received).toMatchObject({ plan: "monthly", currency: "krw" });
     expect(received?.request_id).toMatch(/^[0-9a-f-]{36}$/);
@@ -315,14 +339,14 @@ test("a subscription checkout uses the selected server-priced plan and verifies 
     await page.evaluate(() => window.dispatchEvent(new Event("focus")));
     await expect(page.locator(".ui-toast-card")).toHaveCount(0);
     await page.reload();
-    await expect(page.locator(".billing-plan-summary h2")).toHaveText("Monthly");
+    await expect(page.locator(".billing-plan-summary h2")).toHaveText("Plus");
     await expect(page.locator(".ui-toast-card")).toHaveCount(0);
-    await expect(page.locator(".billing-plan-summary h2")).toHaveText("Monthly");
+    await expect(page.locator(".billing-plan-summary h2")).toHaveText("Plus");
     await page.goto("/plans");
     await expect(
         page.locator(".plan-card").nth(1).getByRole("button", { name: "Current plan" }),
     ).toBeDisabled();
-    await expect(page.getByRole("button", { name: "Change to Annual" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Change to Pro" })).toBeDisabled();
 });
 
 for (const [query, message] of [
@@ -482,22 +506,29 @@ for (const width of [390, 1440]) {
         );
         await expect(page.getByRole("button", { name: "달러", exact: true })).toHaveText("$");
         await page.getByRole("button", { name: "달러", exact: true }).click();
-        await expect(page.locator(".plan-card__price").nth(1)).toContainText("US$3.99");
+        await expect(page.locator(".plan-card__price").nth(1)).toContainText("$3.99");
         await expect(page.getByRole("button", { name: "달러", exact: true })).toHaveAttribute(
             "aria-pressed",
             "true",
         );
         await expect(page.getByText("요금제 변경 시 현재 결제 통화를 유지합니다.")).toHaveCount(0);
-        await page.getByRole("button", { name: "연간으로 변경", exact: true }).click();
+        await page
+            .locator(".plan-card")
+            .filter({ has: page.getByRole("heading", { name: "Plus", exact: true }) })
+            .getByRole("button", { name: "연간", exact: true })
+            .click();
+        await page.getByRole("button", { name: "Plus으로 변경", exact: true }).click();
         await expect(page.getByRole("dialog")).toContainText(
             "오늘 추가 결제나 환불은 발생하지 않으며",
         );
-        await expect(page.getByRole("dialog")).toContainText("₩39,900");
+        await expect(page.getByRole("dialog")).toContainText("₩43,092");
         await expect(page.getByRole("dialog")).not.toContainText("US$39.99");
         await page.screenshot({ path: info.outputPath("change-dialog.png"), fullPage: true });
         await page.getByRole("button", { name: "변경 확인", exact: true }).click();
         await expect(page.locator(".ui-toast-card")).toHaveText("요금제 변경을 예약했습니다.");
-        await expect(page.getByRole("button", { name: "현재 플랜", exact: true })).toBeDisabled();
+        await expect(
+            page.getByRole("button", { name: "Plus으로 변경", exact: true }),
+        ).toBeDisabled();
         await expect(page.getByText(/연간 적용 예정/)).toHaveCount(0);
         await page.goto("/settings?section=billing");
         await expect(page.getByText("INV-001")).toBeVisible();
@@ -511,7 +542,7 @@ for (const width of [390, 1440]) {
         await page.getByRole("button", { name: "구독 취소", exact: true }).click();
         await page.getByRole("button", { name: "변경 확인", exact: true }).click();
         await expect(page.getByText(/Free 적용 예정/)).toBeVisible();
-        await expect(page.locator(".billing-plan-summary h2")).toHaveText("월간");
+        await expect(page.locator(".billing-plan-summary h2")).toHaveText("Plus");
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
             true,
         );
@@ -844,3 +875,133 @@ for (const width of [390, 1440]) {
         });
     }
 }
+
+for (const [plan, tier] of [
+    ["free", "Free"],
+    ["monthly", "Plus"],
+    ["annual", "Plus"],
+    ["pro_monthly", "Pro"],
+    ["pro_annual", "Pro"],
+]) {
+    test(`sidebar displays server-confirmed ${plan} as ${tier}`, async ({ page }) => {
+        await setup(page);
+        await page.route("**/api/v1/billing/subscription", (route) =>
+            route.fulfill({
+                json: {
+                    plan,
+                    status: plan === "free" ? "none" : "active",
+                    has_subscription: plan !== "free",
+                },
+            }),
+        );
+        await page.goto("/home");
+        await expect(
+            page.getByLabel(`Current subscription: ${tier}`, { exact: true }),
+        ).toBeVisible();
+        await page.locator(".profile-menu__trigger").click();
+        await expect(page.locator(".profile-menu__tier-label")).toHaveText(tier);
+    });
+}
+
+test("unknown subscription does not invent a Free profile badge", async ({ page }) => {
+    await setup(page);
+    await page.route("**/api/v1/billing/subscription", (route) =>
+        route.fulfill({ json: { plan: "unknown", status: "active", has_subscription: true } }),
+    );
+    await page.goto("/home");
+    await expect(page.locator(".profile-menu__trigger")).toBeVisible();
+    await expect(page.locator(".profile-menu__tier")).toHaveCount(0);
+});
+
+for (const pending of [false, true]) {
+    test(`upgrade ${pending ? "awaits payment without changing tier" : "applies immediately after payment"}`, async ({
+        page,
+    }) => {
+        await setup(page);
+        let snapshot = {
+            plan: "monthly",
+            status: "active",
+            currency: "krw",
+            has_subscription: true,
+            can_manage: true,
+            change_version: "a".repeat(64),
+            current_period_end: 1900000000,
+            payment_required: false,
+            payment_url: null as string | null,
+        };
+        await page.route("**/api/v1/billing/subscription", (route) =>
+            route.fulfill({ json: snapshot }),
+        );
+        await page.route("**/api/v1/billing/subscription/change", async (route) => {
+            expect(route.request().postDataJSON().plan).toBe("pro_monthly");
+            snapshot = {
+                ...snapshot,
+                plan: pending ? "monthly" : "pro_monthly",
+                payment_required: pending,
+                can_manage: !pending,
+                payment_url: pending ? "https://invoice.stripe.com/i/fixture" : null,
+            };
+            await route.fulfill({ json: snapshot });
+        });
+        await page.goto("/plans");
+        await page.getByRole("button", { name: "Change to Pro", exact: true }).click();
+        await expect(page.getByRole("dialog")).toContainText("immediately after payment");
+        await page.getByRole("button", { name: "Confirm change", exact: true }).click();
+        if (pending) {
+            await expect(
+                page.getByRole("button", { name: "Complete payment", exact: true }),
+            ).toBeVisible();
+            await expect(page.locator(".ui-toast-card")).toHaveCount(0);
+        } else
+            await expect(page.locator(".ui-toast-card")).toHaveText("Your plan has been upgraded.");
+        await page.goto("/home");
+        await expect(
+            page.getByLabel(`Current subscription: ${pending ? "Plus" : "Pro"}`, { exact: true }),
+        ).toBeVisible();
+        if (pending) {
+            snapshot = {
+                ...snapshot,
+                plan: "pro_monthly",
+                can_manage: true,
+                payment_required: false,
+                payment_url: null,
+            };
+            await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+            await expect(
+                page.getByLabel("Current subscription: Pro", { exact: true }),
+            ).toBeVisible();
+        }
+    });
+}
+
+for (const width of [390, 1440])
+    for (const theme of ["light", "dark"] as const) {
+        test(`profile tier typography ${theme} at ${width}px`, async ({ page }, info) => {
+            await setup(page, "ko");
+            await page.setViewportSize({ width, height: 900 });
+            await page.emulateMedia({ colorScheme: theme });
+            await page.route("**/api/v1/billing/subscription", (route) =>
+                route.fulfill({
+                    json: { plan: "pro_annual", status: "active", has_subscription: true },
+                }),
+            );
+            await page.goto("/home");
+            await expect(page.getByLabel("현재 구독: Pro", { exact: true })).toBeVisible();
+            await page.locator(".profile-menu__trigger").click();
+            const tier = page.locator(".profile-menu__tier-label");
+            await expect(tier).toHaveText("Pro");
+            expect(
+                Number(await tier.evaluate((el) => getComputedStyle(el).fontWeight)),
+            ).toBeGreaterThanOrEqual(700);
+            const labelBox = await tier.boundingBox();
+            const emailBox = await page.locator(".profile-menu__email").boundingBox();
+            expect(labelBox!.y + labelBox!.height).toBeLessThanOrEqual(emailBox!.y + 1);
+            expect(
+                await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+            ).toBe(true);
+            await page.screenshot({
+                path: info.outputPath("profile-tier.png"),
+                animations: "disabled",
+            });
+        });
+    }

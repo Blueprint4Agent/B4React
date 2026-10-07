@@ -2,17 +2,18 @@
 
 [Korean](ko/billing.md)
 
-The profile menu opens standalone `/plans`. Its Free/Monthly/Annual cards retain the
-existing fullscreen close/scroll layout and small currency dropdown. Authenticated
+The profile menu opens standalone `/plans`. Its Free/Plus/Pro cards retain the
+existing fullscreen close/scroll layout and compact currency selector. Authenticated
 users load `GET /billing/plans` and `/billing/subscription` through `useSubscription`.
 Prices come from the server's Stripe allowlist, in minor currency units (KRW has no
-fractional units). The sandbox example catalog is ₩3,990 / US$3.99 monthly and
-₩39,900 / US$39.99 annually; these are independent prices, not FX conversions.
+fractional units). The Plus sandbox catalog is ₩3,990 / US$3.99 monthly and
+₩43,092 / US$43.09 annually; the Pro prices are listed below. Currencies use independent
+prices, not FX conversions.
 Guests sign in first; missing pricing shows an unavailable state rather than a purchasable
 hardcoded amount. A selected URL plan is never a current subscription or payment proof.
 
 The current-plan button is disabled using the server snapshot, including Free only after
-it is verified. Existing subscriptions block additional checkout; supported active subscriptions offer period-end plan changes/cancellation and undo. Monthly/Annual actions send
+it is verified. Existing subscriptions block additional checkout; supported active subscriptions offer immediate paid upgrades and period-end downgrades/cancellation and undo. Paid-tier actions send
 only plan, currency and an action UUID to `POST /billing/checkout-sessions`. The hook
 locks repeated clicks and reuses an action UUID after failure. The server additionally
 reserves a per-customer attempt across devices. The only accepted checkout destination
@@ -69,3 +70,44 @@ With a configured publishable key, the profile dialog lazy-loads Stripe AddressE
 Profile address entry does not create a SetupIntent, require payment data or enable Google Maps address autocomplete. Without a publishable key, the existing manual form remains available; changing country clears city/state/postcode so stale regions cannot be submitted. Provider-hosted field rendering differs by country; city dropdowns are not universal.
 
 Billing section headings group their secondary actions using the shared text Button and `section-action-header`; view-all, edit, add-card and receipt actions no longer use filled pills. Page errors are deduplicated in a single StatusCard above the current-plan section with its retry action inside the same surface. Dialog mutation errors stay in their dialog. The showcase covers text actions (normal/loading/disabled) and StatusCard retry.
+
+## Tiers and billing intervals
+
+Free, Plus and Pro are product tiers. Each paid pricing card owns an independent
+monthly/annual SegmentedControl; currency remains a shared preview control.
+The server-owned purchase keys `monthly`/`annual` represent Plus and
+`pro_monthly`/`pro_annual` represent Pro. These preserve existing clients and
+subscriptions while separating tier labels from billing intervals in the UI.
+
+| Tier | Monthly KRW / USD | Annual KRW / USD |
+| ---- | ----------------- | ---------------- |
+| Plus | 3,990 / 3.99      | 43,092 / 43.09   |
+| Pro  | 11,970 / 11.97    | 129,276 / 129.28 |
+
+These are the configured sandbox examples, not hardcoded checkout amounts. Annual
+billing is approximately 10% less than twelve monthly payments (USD rounds to cents).
+The cards show a monthly equivalent, annual total and provider-derived discount.
+`STRIPE_PLUS_{MONTHLY|ANNUAL}_{KRW|USD}_PRICE_ID` optionally overrides the legacy Plus
+purchase prices. Keep legacy `STRIPE_{MONTHLY|ANNUAL}_{KRW|USD}_PRICE_ID` values so
+existing subscriptions remain recognized and retain their price. Pro uses optional
+`STRIPE_PRO_{MONTHLY|ANNUAL}_{KRW|USD}_PRICE_ID` values; unavailable options cannot be
+purchased. Every configured price is checked for mode, currency and recurring interval.
+No existing subscription is migrated by changing the catalog.
+
+Plus → Pro applies immediately only after Stripe accepts payment, using
+`payment_behavior=pending_if_incomplete` and `proration_behavior=always_invoice`.
+Changing the interval during an upgrade can start a new billing cycle. A pending
+payment retains the old plan, blocks further mutations and exposes an owner/mode-checked
+hosted invoice link for payment/authentication. This explicit recovery action opens
+Stripe; it is not the deferred in-app invoice-history modal. Focus/online recovery
+reads the provider again; no client-side entitlement is granted. Pro → Plus, same-tier
+interval changes and cancellation apply at period end, preserving paid time.
+See [Stripe pending updates](https://docs.stripe.com/billing/subscriptions/pending-updates).
+
+The route shell owns the sidebar subscription snapshot through the existing
+hook and passes its tier through layout props. It resets on account changes and never maps roles or URL selections to a paid tier.
+A successful mutation invalidates other mounted subscription consumers; each rereads
+the server. Unknown/error states do not display a misleading Free badge. The collapsed
+avatar shows an accessible compact tier mark; the expanded profile menu shows the
+full name above email with stronger weight and tier text treatment. No new state store,
+webhook, feature quota or tier-specific application entitlement is introduced here.

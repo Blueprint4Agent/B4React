@@ -1,3 +1,4 @@
+import type { SubscriptionTier } from "../../utils/billingPlans";
 import type { CSSProperties, ReactNode } from "react";
 import { useCallback, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -17,9 +18,9 @@ function readSidebarWidth(): number {
     }
 }
 
-type AppLayoutProps = { children: ReactNode };
+type AppLayoutProps = { children: ReactNode; subscriptionTier?: SubscriptionTier | null };
 
-export function AppLayout({ children }: AppLayoutProps) {
+export function AppLayout({ children, subscriptionTier }: AppLayoutProps) {
     const { t } = useTranslation();
     const [expanded, setExpanded] = useState(false);
     const [sidebarWidth, setSidebarWidth] = useState(readSidebarWidth);
@@ -57,6 +58,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             ) : null}
             <AppSidebar
                 expanded={expanded}
+                subscriptionTier={subscriptionTier}
                 onToggleExpanded={toggleSidebar}
                 width={sidebarWidth}
                 onWidthChange={onWidthChange}

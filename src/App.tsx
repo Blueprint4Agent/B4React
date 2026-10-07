@@ -1,3 +1,5 @@
+import { useSubscription } from "./hooks/api/billing/useSubscription";
+import { tierFor } from "./utils/billingPlans";
 import { useTranslation } from "react-i18next";
 import { lazy, useState, type ReactNode } from "react";
 import { Navigate, Outlet, Route, Routes, useSearchParams } from "react-router-dom";
@@ -66,6 +68,13 @@ const PlansPage = lazy(() =>
     import("./pages/billing/PlansPage").then((module) => ({ default: module.PlansPage })),
 );
 
+function AppShell({ children }: { children: ReactNode }) {
+    const { user } = useAuthContext();
+    const billing = useSubscription(user?.id);
+    const tier = !billing.error && billing.subscription ? tierFor(billing.subscription.plan) : null;
+    return <AppLayout subscriptionTier={tier}>{children}</AppLayout>;
+}
+
 function NotFoundRoute({
     loginEnabled,
     configLoading,
@@ -81,9 +90,9 @@ function NotFoundRoute({
 
     if (user || !loginEnabled) {
         return (
-            <AppLayout>
+            <AppShell>
                 <ShowCaseNotFoundPage />
-            </AppLayout>
+            </AppShell>
         );
     }
 
@@ -182,11 +191,11 @@ export function App() {
             />
             <Route
                 element={
-                    <AppLayout>
+                    <AppShell>
                         <RouteBoundary fallback={<LoadingPage />}>
                             <Outlet />
                         </RouteBoundary>
-                    </AppLayout>
+                    </AppShell>
                 }
             >
                 <Route path="/home" element={<HomePage />} />

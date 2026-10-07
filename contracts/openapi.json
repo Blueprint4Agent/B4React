@@ -518,7 +518,7 @@
                         "type": "string"
                     },
                     "plan": {
-                        "enum": ["free", "monthly", "annual", "keep"],
+                        "enum": ["free", "monthly", "annual", "pro_monthly", "pro_annual", "keep"],
                         "title": "Plan",
                         "type": "string"
                     },
@@ -542,7 +542,7 @@
                         "type": "string"
                     },
                     "plan": {
-                        "enum": ["monthly", "annual"],
+                        "enum": ["monthly", "annual", "pro_monthly", "pro_annual"],
                         "title": "Plan",
                         "type": "string"
                     },
@@ -882,7 +882,7 @@
                         "type": "string"
                     },
                     "plan": {
-                        "enum": ["monthly", "annual"],
+                        "enum": ["monthly", "annual", "pro_monthly", "pro_annual"],
                         "title": "Plan",
                         "type": "string"
                     }
@@ -1073,6 +1073,22 @@
                         "title": "Has Subscription",
                         "type": "boolean"
                     },
+                    "payment_required": {
+                        "default": false,
+                        "title": "Payment Required",
+                        "type": "boolean"
+                    },
+                    "payment_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Payment Url"
+                    },
                     "pending_effective_at": {
                         "anyOf": [
                             {
@@ -1087,7 +1103,7 @@
                     "pending_plan": {
                         "anyOf": [
                             {
-                                "enum": ["free", "monthly", "annual"],
+                                "enum": ["free", "monthly", "annual", "pro_monthly", "pro_annual"],
                                 "type": "string"
                             },
                             {
@@ -1097,7 +1113,14 @@
                         "title": "Pending Plan"
                     },
                     "plan": {
-                        "enum": ["free", "monthly", "annual", "unknown"],
+                        "enum": [
+                            "free",
+                            "monthly",
+                            "annual",
+                            "pro_monthly",
+                            "pro_annual",
+                            "unknown"
+                        ],
                         "title": "Plan",
                         "type": "string"
                     },

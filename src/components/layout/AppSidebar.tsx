@@ -1,3 +1,4 @@
+import type { SubscriptionTier } from "../../utils/billingPlans";
 import { useToast } from "../../hooks/useToast";
 import { resolveSettingsSection } from "../../utils/settingsSections";
 import {
@@ -29,6 +30,7 @@ import { SidebarResizeHandle, SIDEBAR_DEFAULT_WIDTH } from "./SidebarResizeHandl
 
 type AppSidebarProps = {
     expanded: boolean;
+    subscriptionTier?: SubscriptionTier | null;
     width?: number;
     onWidthChange?: (width: number) => void;
     onResizingChange?: (resizing: boolean) => void;
@@ -37,6 +39,7 @@ type AppSidebarProps = {
 
 export function AppSidebar({
     expanded,
+    subscriptionTier,
     onToggleExpanded,
     width = SIDEBAR_DEFAULT_WIDTH,
     onWidthChange,
@@ -316,6 +319,7 @@ export function AppSidebar({
                     showAdmin={user?.role === "admin" || user?.role === "manager"}
                     avatarLabel={user ? displayName.slice(0, 1).toUpperCase() : undefined}
                     avatarImageUrl={user?.profile_image_url}
+                    subscriptionTier={subscriptionTier}
                     busy={busy}
                     displayName={displayName}
                     email={user?.email}

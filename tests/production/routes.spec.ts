@@ -81,7 +81,7 @@ test("plan selection loads its own production chunk and preserves currency prefe
     expect(scripts.some((url) => /\/PlansPage-/.test(url))).toBe(false);
     await page.locator(".profile-menu__trigger").click();
     await page.getByRole("link", { name: "Upgrade plan", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Monthly", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Plus", exact: true })).toBeVisible();
     await expect(page.locator(".app-sidebar")).toHaveCount(0);
     await page.getByRole("button", { name: "Dollar", exact: true }).click();
     await page.reload();

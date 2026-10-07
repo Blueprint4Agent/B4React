@@ -5837,3 +5837,74 @@ html[data-theme="dark"] .billing-stripe-badge .payment-brand--dark {
     grid-column: 1 / -1;
     width: 100%;
 }
+
+.plan-card__price del {
+    font-size: 0.55em;
+    color: var(--text-soft);
+    margin-right: 0.5rem;
+    font-weight: 400;
+}
+.plan-card__billing-note {
+    color: var(--text-soft);
+    font-size: 0.85rem;
+    min-height: 2.5em;
+}
+.profile-menu__avatar-wrap {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+}
+.profile-menu__tier {
+    position: absolute;
+    right: -0.2rem;
+    bottom: -0.15rem;
+    min-width: 1.15rem;
+    height: 1.15rem;
+    padding: 0 0.15rem;
+    border-radius: 999px;
+    background: var(--text);
+    color: var(--bg);
+    border: 2px solid var(--sidebar-bg);
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.profile-menu__tier-label {
+    color: var(--text-soft);
+    font-size: 0.75rem;
+    margin: 0;
+}
+
+.plan-card__top {
+    flex-wrap: wrap;
+    min-height: 2.25rem;
+}
+
+.profile-menu__tier-label {
+    font-weight: 750;
+    letter-spacing: 0.045em;
+    line-height: 1.6;
+}
+.profile-menu__tier-label--plus {
+    color: color-mix(in srgb, var(--accent) 45%, var(--text));
+}
+.profile-menu__tier-label--pro {
+    color: var(--text);
+    background: linear-gradient(
+        100deg,
+        color-mix(in srgb, var(--accent) 40%, var(--text)),
+        var(--text)
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    width: fit-content;
+}
+@media (forced-colors: active) {
+    .profile-menu__tier-label--pro {
+        background: none;
+        -webkit-text-fill-color: currentColor;
+    }
+}
