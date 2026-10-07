@@ -14,6 +14,8 @@ for (const locale of ["en", "ko"]) {
                 configCalls++;
                 return route.fulfill({
                     json: {
+                        billing_enabled: true,
+                        subscriptions_enabled: true,
                         api_base_path: "/api/v1",
                         app_mode: "development",
                         login_enabled: false,
@@ -55,6 +57,8 @@ test("production excludes the local editor and filesystem protocol", async ({ pa
     await page.route("**/config", (route) =>
         route.fulfill({
             json: {
+                billing_enabled: true,
+                subscriptions_enabled: true,
                 api_base_path: "/api/v1",
                 app_mode: "development",
                 login_enabled: false,

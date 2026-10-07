@@ -8,7 +8,12 @@ const account = {
     created_at: "2026-01-01T00:00:00Z",
     oauth_providers: [],
 };
-async function setup(page: Page, language = "en") {
+async function setup(
+    page: Page,
+    language = "en",
+    billingEnabled = true,
+    subscriptionsEnabled = true,
+) {
     const stats = { configCalls: 0 };
     await page.addInitScript((lang) => {
         localStorage.setItem("b4a_language", lang);
@@ -16,6 +21,8 @@ async function setup(page: Page, language = "en") {
     await page.route("**/config", (route) =>
         route.fulfill({
             json: {
+                billing_enabled: billingEnabled,
+                subscriptions_enabled: subscriptionsEnabled,
                 api_base_path: "/api/v1",
                 app_mode: "development",
                 login_enabled: false,
@@ -1005,3 +1012,51 @@ for (const width of [390, 1440])
             });
         });
     }
+
+for (const width of [390, 1440]) {
+    test(`disabled billing hides navigation and direct routes without requests at ${width}`, async ({
+        page,
+    }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await setup(page, "en", false, false);
+        const requests: string[] = [];
+        page.on("request", (request) => {
+            if (request.url().includes("/api/v1/billing/")) requests.push(request.url());
+        });
+        await page.goto("/home");
+        await expect(page.locator('a[href*="section=billing"]')).toHaveCount(0);
+        await page.locator(".profile-menu__trigger").click();
+        await expect(page.locator('a[href="/plans"]')).toHaveCount(0);
+        await expect(page.locator(".profile-menu__tier")).toHaveCount(0);
+        await page.goto("/settings?section=billing&billing_setup=cs_fixture");
+        await expect(page.locator(".settings-general-content")).toBeVisible();
+        await expect(page.locator(".billing-settings")).toHaveCount(0);
+        await expect(page.locator('a[href*="section=billing"]')).toHaveCount(0);
+        await page.goto("/plans");
+        await expect(page).toHaveURL(/\/home$/);
+        await page.evaluate(() => {
+            window.dispatchEvent(new Event("focus"));
+            window.dispatchEvent(new Event("online"));
+        });
+        expect(requests).toEqual([]);
+    });
+}
+test("disabled subscriptions retain payment management without subscription calls", async ({
+    page,
+}) => {
+    await setup(page, "en", true, false);
+    const requests: string[] = [];
+    page.on("request", (request) => {
+        if (/\/billing\/(subscription|plans|checkout)/.test(request.url()))
+            requests.push(request.url());
+    });
+    await page.goto("/settings?section=billing&billing_checkout=cs_fixture");
+    await expect(page.locator(".billing-settings")).toBeVisible();
+    await expect(page.locator(".billing-plan-summary")).toHaveCount(0);
+    await expect(page.locator("#billing-history-title")).toBeVisible();
+    await page.locator(".profile-menu__trigger").click();
+    await expect(page.locator('a[href="/plans"]')).toHaveCount(0);
+    await page.goto("/plans");
+    await expect(page).toHaveURL(/\/home$/);
+    expect(requests).toEqual([]);
+});

@@ -185,11 +185,15 @@ export function App() {
             <Route
                 path="/plans"
                 element={
-                    <main className="plans-screen">
-                        <RouteBoundary fallback={<LoadingPage />}>
-                            <PlansPage />
-                        </RouteBoundary>
-                    </main>
+                    appConfig.billing_enabled && appConfig.subscriptions_enabled ? (
+                        <main className="plans-screen">
+                            <RouteBoundary fallback={<LoadingPage />}>
+                                <PlansPage />
+                            </RouteBoundary>
+                        </main>
+                    ) : (
+                        <Navigate to={homePath} replace />
+                    )
                 }
             />
             <Route
@@ -250,7 +254,7 @@ export function App() {
                 <Route
                     path="/signup/email-sent"
                     element={
-                        loginEnabled ? (
+                        loginEnabled && appConfig.email_enabled ? (
                             <AuthDialogRoute>
                                 <SignupEmailSentPage embedded />
                             </AuthDialogRoute>
@@ -262,7 +266,7 @@ export function App() {
                 <Route
                     path="/forgot-password"
                     element={
-                        loginEnabled ? (
+                        loginEnabled && appConfig.email_enabled ? (
                             <AuthDialogRoute>
                                 <ForgotPasswordPage embedded />
                             </AuthDialogRoute>
@@ -274,7 +278,7 @@ export function App() {
                 <Route
                     path="/forgot-password/email-sent"
                     element={
-                        loginEnabled ? (
+                        loginEnabled && appConfig.email_enabled ? (
                             <AuthDialogRoute>
                                 <ForgotPasswordEmailSentPage embedded />
                             </AuthDialogRoute>
@@ -286,7 +290,7 @@ export function App() {
                 <Route
                     path="/reset-password"
                     element={
-                        loginEnabled ? (
+                        loginEnabled && appConfig.email_enabled ? (
                             <AuthDialogRoute>
                                 <ResetPasswordPage embedded />
                             </AuthDialogRoute>
@@ -298,7 +302,7 @@ export function App() {
                 <Route
                     path="/reset-password/success"
                     element={
-                        loginEnabled ? (
+                        loginEnabled && appConfig.email_enabled ? (
                             <AuthDialogRoute>
                                 <ResetPasswordSuccessPage embedded />
                             </AuthDialogRoute>
@@ -310,7 +314,7 @@ export function App() {
                 <Route
                     path="/verify-email"
                     element={
-                        loginEnabled ? (
+                        loginEnabled && appConfig.email_enabled ? (
                             <AuthDialogRoute>
                                 <VerifyEmailPage embedded />
                             </AuthDialogRoute>

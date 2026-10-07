@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 const guestConfig = {
+    billing_enabled: true,
+    subscriptions_enabled: true,
     api_base_path: "/api/v1",
     app_mode: "development",
     login_enabled: true,
@@ -496,4 +498,71 @@ test("showcase previews email code validation without account requests", async (
         page.getByText("Preview verification completed. No account was deleted."),
     ).toBeVisible();
     expect(accountRequests).toBe(0);
+});
+
+test("disabled email and OAuth hide entry points and do not call their APIs", async ({ page }) => {
+    await page.route("**/config", (route) =>
+        route.fulfill({
+            json: {
+                ...guestConfig,
+                email_enabled: false,
+                oauth_enabled: false,
+                oauth_providers: [],
+            },
+        }),
+    );
+    const requests: string[] = [];
+    page.on("request", (request) => {
+        if (
+            /\/auth\/(oauth|verify-email|resend-verification|forgot-password|reset-password)/.test(
+                request.url(),
+            )
+        )
+            requests.push(request.url());
+    });
+    await page.goto("/login");
+    await expect(page.getByRole("dialog", { name: "Log in or sign up" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Continue with GitHub" })).toHaveCount(0);
+    await expect(page.locator('a[href="/forgot-password"]')).toHaveCount(0);
+    for (const path of [
+        "/verify-email?token=fixture",
+        "/forgot-password",
+        "/reset-password?token=fixture",
+        "/signup/email-sent",
+    ]) {
+        await page.goto(path);
+        await expect(page).toHaveURL(/\/home$/);
+    }
+    expect(requests).toEqual([]);
+});
+
+test("disabled login redirects auth routes without session or provider calls", async ({ page }) => {
+    await page.route("**/config", (route) =>
+        route.fulfill({
+            json: {
+                ...guestConfig,
+                login_enabled: false,
+                email_enabled: false,
+                oauth_enabled: false,
+                oauth_providers: [],
+                billing_enabled: false,
+                subscriptions_enabled: false,
+            },
+        }),
+    );
+    const requests: string[] = [];
+    page.on("request", (request) => {
+        if (request.url().includes("/api/v1/auth/")) requests.push(request.url());
+    });
+    for (const path of [
+        "/login",
+        "/signup",
+        "/verify-email?token=fixture",
+        "/reset-password?token=fixture",
+    ]) {
+        await page.goto(path);
+        await expect(page).toHaveURL(/\/home$/);
+    }
+    expect(requests).toEqual([]);
 });

@@ -1,3 +1,4 @@
+import { useAppConfig } from "../../hooks/useFeatures";
 import { openSubscriptionPayment } from "../../utils/billingPlans";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Check, ChevronRight, CreditCard, Plus, ReceiptText, Trash2, Wallet } from "lucide-react";
@@ -69,6 +70,8 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
             { replace: true },
         );
     }, [checkoutCancelled, setupCancelled, setParams, showToast, t]);
+    const { data: appConfig } = useAppConfig();
+    const subscriptionsEnabled = appConfig?.subscriptions_enabled === true;
     const billing = useBilling(
         ownerId,
         setupCancelled ? null : params.get("billing_setup"),
@@ -235,86 +238,93 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                         />
                     </div>
                 )}
-                <section
-                    className="settings-row billing-plan-summary"
-                    aria-label={t("billing.currentPlan")}
-                >
-                    <div>
-                        <div className="billing-summary-heading">
-                            <span className="billing-eyebrow">{t("billing.currentPlan")}</span>
-                            {billing.config?.enabled && !billing.config.livemode && (
-                                <StatusBadge tone="info">{t("billing.sandbox")}</StatusBadge>
-                            )}
-                        </div>
-                        <h2>
-                            {subscription.subscription ? (
-                                t(`billing.plans.${subscription.subscription.plan}.name`)
-                            ) : billing.loading || subscription.loading ? (
-                                <Spinner size="sm" label={t("billing.loading")} hideLabel />
-                            ) : (
-                                t("billing.subscriptionStatus.unknown")
-                            )}
-                        </h2>
-                        {!(
-                            subscription.subscription?.has_subscription &&
-                            subscription.subscription.status === "active"
-                        ) && (
-                            <p>
-                                {subscription.subscription?.has_subscription
-                                    ? t(
-                                          `billing.subscriptionStatus.${subscription.subscription.status}`,
-                                          { defaultValue: t("billing.subscriptionStatus.unknown") },
-                                      )
-                                    : subscription.subscription?.plan === "free"
-                                      ? t("billing.freeSummary")
-                                      : billing.loading || subscription.loading
-                                        ? null
-                                        : t("billing.subscriptionStatus.unknown")}
-                            </p>
-                        )}
-                        {subscription.subscription?.pending_plan && (
-                            <p>
-                                {t("billing.manage.pending", {
-                                    plan: t(
-                                        `billing.plans.${subscription.subscription.pending_plan}.name`,
-                                    ),
-                                    date: new Date(
-                                        (subscription.subscription.pending_effective_at ?? 0) *
-                                            1000,
-                                    ).toLocaleDateString(),
-                                })}
-                            </p>
-                        )}
-                        {subscription.subscription?.current_period_end &&
-                            !subscription.subscription.pending_plan && (
+                {subscriptionsEnabled && (
+                    <section
+                        className="settings-row billing-plan-summary"
+                        aria-label={t("billing.currentPlan")}
+                    >
+                        <div>
+                            <div className="billing-summary-heading">
+                                <span className="billing-eyebrow">{t("billing.currentPlan")}</span>
+                                {billing.config?.enabled && !billing.config.livemode && (
+                                    <StatusBadge tone="info">{t("billing.sandbox")}</StatusBadge>
+                                )}
+                            </div>
+                            <h2>
+                                {subscription.subscription ? (
+                                    t(`billing.plans.${subscription.subscription.plan}.name`)
+                                ) : billing.loading || subscription.loading ? (
+                                    <Spinner size="sm" label={t("billing.loading")} hideLabel />
+                                ) : (
+                                    t("billing.subscriptionStatus.unknown")
+                                )}
+                            </h2>
+                            {!(
+                                subscription.subscription?.has_subscription &&
+                                subscription.subscription.status === "active"
+                            ) && (
                                 <p>
-                                    {t(
-                                        subscription.subscription.cancel_at_period_end
-                                            ? "billing.endsAt"
-                                            : "billing.renewsAt",
-                                        {
-                                            date: new Date(
-                                                subscription.subscription.current_period_end * 1000,
-                                            ).toLocaleDateString(),
-                                        },
-                                    )}
+                                    {subscription.subscription?.has_subscription
+                                        ? t(
+                                              `billing.subscriptionStatus.${subscription.subscription.status}`,
+                                              {
+                                                  defaultValue: t(
+                                                      "billing.subscriptionStatus.unknown",
+                                                  ),
+                                              },
+                                          )
+                                        : subscription.subscription?.plan === "free"
+                                          ? t("billing.freeSummary")
+                                          : billing.loading || subscription.loading
+                                            ? null
+                                            : t("billing.subscriptionStatus.unknown")}
                                 </p>
                             )}
-                    </div>
-                    <Button appearance="pill-secondary" onClick={() => navigate("/plans")}>
-                        {t(
-                            subscription.subscription?.has_subscription
-                                ? "billing.details.changePlan"
-                                : "billing.changePlan",
-                        )}
-                    </Button>
-                </section>
+                            {subscription.subscription?.pending_plan && (
+                                <p>
+                                    {t("billing.manage.pending", {
+                                        plan: t(
+                                            `billing.plans.${subscription.subscription.pending_plan}.name`,
+                                        ),
+                                        date: new Date(
+                                            (subscription.subscription.pending_effective_at ?? 0) *
+                                                1000,
+                                        ).toLocaleDateString(),
+                                    })}
+                                </p>
+                            )}
+                            {subscription.subscription?.current_period_end &&
+                                !subscription.subscription.pending_plan && (
+                                    <p>
+                                        {t(
+                                            subscription.subscription.cancel_at_period_end
+                                                ? "billing.endsAt"
+                                                : "billing.renewsAt",
+                                            {
+                                                date: new Date(
+                                                    subscription.subscription.current_period_end *
+                                                        1000,
+                                                ).toLocaleDateString(),
+                                            },
+                                        )}
+                                    </p>
+                                )}
+                        </div>
+                        <Button appearance="pill-secondary" onClick={() => navigate("/plans")}>
+                            {t(
+                                subscription.subscription?.has_subscription
+                                    ? "billing.details.changePlan"
+                                    : "billing.changePlan",
+                            )}
+                        </Button>
+                    </section>
+                )}
                 {subscription.notice && subscription.notice !== "paid" && (
                     <InlineMessage tone="info">
                         {t(`billing.checkoutNotices.${subscription.notice}`)}
                     </InlineMessage>
                 )}
-                {paidSelected && (
+                {subscriptionsEnabled && paidSelected && (
                     <InlineMessage tone="info">
                         {t("billing.selectedPlan", {
                             plan: t(`billing.plans.${selectedPlan}.name`),

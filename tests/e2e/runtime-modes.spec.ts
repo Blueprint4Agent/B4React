@@ -14,6 +14,8 @@ async function setup(page: Page, role: string | null, mode = "production") {
         route.fulfill({
             json: {
                 app_mode: mode,
+                billing_enabled: true,
+                subscriptions_enabled: true,
                 api_base_path: "/api/v1",
                 login_enabled: true,
                 frontend_base_path: "",

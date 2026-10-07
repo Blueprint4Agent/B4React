@@ -248,7 +248,9 @@ export function AppSidebar({
                 {items
                     .filter(
                         (item) =>
-                            user || !["account", "developers", "billing"].includes(item.section),
+                            (user ||
+                                !["account", "developers", "billing"].includes(item.section)) &&
+                            (item.section !== "billing" || appConfig?.billing_enabled === true),
                     )
                     .map(({ path, label, icon: Icon, section: itemSection }) => (
                         <Tooltip
@@ -328,6 +330,10 @@ export function AppSidebar({
                     ))}
                 </div>
                 <ProfileDropdown
+                    showPlans={
+                        appConfig?.billing_enabled === true &&
+                        appConfig.subscriptions_enabled === true
+                    }
                     expanded={expanded}
                     showAdmin={user?.role === "admin" || user?.role === "manager"}
                     avatarLabel={user ? displayName.slice(0, 1).toUpperCase() : undefined}

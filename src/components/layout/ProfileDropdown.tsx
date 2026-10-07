@@ -21,6 +21,7 @@ import { APP_SHORTCUTS, shortcutAriaKeys } from "../../utils/keyboardShortcuts";
 type ProfileDropdownProps = {
     expanded?: boolean;
     subscriptionTier?: SubscriptionTier | null;
+    showPlans?: boolean;
     showLogin?: boolean;
     showAdmin?: boolean;
     allowAccountSwitching?: boolean;
@@ -38,6 +39,7 @@ type ProfileDropdownProps = {
 export function ProfileDropdown({
     expanded = false,
     subscriptionTier,
+    showPlans = false,
     showLogin = false,
     showAdmin = false,
     allowAccountSwitching = false,
@@ -323,7 +325,7 @@ export function ProfileDropdown({
                         <span>{t("nav.settings")}</span>
                         <KeyboardShortcut keys={APP_SHORTCUTS.openSettings} />
                     </Link>
-                    {!showLogin && (
+                    {!showLogin && showPlans && (
                         <Link
                             to="/plans"
                             state={{ returnTo: location.pathname + location.search }}

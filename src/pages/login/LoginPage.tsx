@@ -80,6 +80,7 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
     }, []);
 
     useEffect(() => {
+        let active = true;
         const run = async () => {
             if (!oauthEnabled || !loginEnabled) {
                 setOAuthProviders([]);
@@ -87,17 +88,21 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
             }
             try {
                 const payload = await getOAuthProviders();
+                if (!active) return;
                 setOAuthProviders(
                     payload.providers.filter(
                         (item) => item.provider === "google" || item.provider === "github",
                     ),
                 );
             } catch {
-                setOAuthProviders([]);
+                if (active) setOAuthProviders([]);
             }
         };
         void run();
-    }, [oauthEnabled, loginEnabled]);
+        return () => {
+            active = false;
+        };
+    }, [oauthEnabled, loginEnabled, getOAuthProviders]);
 
     const onSubmit = async (event: FormEvent) => {
         event.preventDefault();
@@ -196,7 +201,7 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
     };
 
     const onResendVerification = async () => {
-        if (!email.trim() || resending) return;
+        if (!emailEnabled || !loginEnabled || !email.trim() || resending) return;
         setResending(true);
         setResendMessage("");
         try {
@@ -342,7 +347,7 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
                     >
                         {t(passwordStep ? "login.submitIdle" : "authDialog.continue")}
                     </Button>
-                    {showResendButton ? (
+                    {emailEnabled && showResendButton ? (
                         <div className="form">
                             <InlineMessage>{emailErrorMessage}</InlineMessage>
                             <div className="login-inline-actions">

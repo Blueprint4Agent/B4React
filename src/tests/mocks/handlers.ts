@@ -3,6 +3,8 @@ import { http, HttpResponse } from "msw";
 export const handlers = [
     http.get(/.*\/config$/, () =>
         HttpResponse.json({
+            billing_enabled: true,
+            subscriptions_enabled: true,
             api_base_path: "/api/v1",
             app_mode: "development",
             login_enabled: true,
