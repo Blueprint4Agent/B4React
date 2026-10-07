@@ -1,4 +1,21 @@
 export interface paths {
+    "/api/v1/admin/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Status */
+        get: operations["status_api_v1_admin_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/api-keys": {
         parameters: {
             query?: never;
@@ -774,6 +791,139 @@ export interface components {
             /** Items */
             items: components["schemas"]["APIKeyResponse"][];
         };
+        /** AdminConnection */
+        AdminConnection: {
+            /** Host */
+            host?: string | null;
+            /**
+             * Id
+             * @enum {string}
+             */
+            id: "server" | "database" | "cache";
+            /** Latency Ms */
+            latency_ms?: number | null;
+            /** Port */
+            port?: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "failed" | "timeout";
+            /**
+             * Technology
+             * @enum {string}
+             */
+            technology:
+                | "fastapi"
+                | "sqlite"
+                | "postgresql"
+                | "mysql"
+                | "mariadb"
+                | "database"
+                | "redis"
+                | "memory";
+        };
+        /** AdminEnvironment */
+        AdminEnvironment: {
+            /**
+             * Admin Access
+             * @default admin_only
+             * @constant
+             */
+            admin_access: "admin_only";
+            /**
+             * App Mode
+             * @enum {string}
+             */
+            app_mode: "development" | "production";
+            /** Billing Configured */
+            billing_configured: boolean;
+            /** Billing Enabled */
+            billing_enabled: boolean;
+            /**
+             * Billing Mode
+             * @enum {string}
+             */
+            billing_mode: "disabled" | "test" | "live";
+            /** Developer Enabled */
+            developer_enabled: boolean;
+            /** Email Enabled */
+            email_enabled: boolean;
+            /** Login Enabled */
+            login_enabled: boolean;
+            /** Oauth Enabled */
+            oauth_enabled: boolean;
+            /** Oauth Providers */
+            oauth_providers: string[];
+            /** Redis In Memory */
+            redis_in_memory: boolean;
+            /** Subscriptions Enabled */
+            subscriptions_enabled: boolean;
+        };
+        /** AdminEnvironmentValues */
+        AdminEnvironmentValues: {
+            /**
+             * App Mode
+             * @enum {string}
+             */
+            APP_MODE: "development" | "production";
+            /** Email Enabled */
+            EMAIL_ENABLED: boolean;
+            /** Login Enabled */
+            LOGIN_ENABLED: boolean;
+            /** Oauth Enabled */
+            OAUTH_ENABLED: boolean;
+            /** Redis In Memory */
+            REDIS_IN_MEMORY: boolean;
+            /** Stripe Enabled */
+            STRIPE_ENABLED: boolean;
+            /** Stripe Subscriptions Enabled */
+            STRIPE_SUBSCRIPTIONS_ENABLED: boolean;
+        };
+        /** AdminErrorDetail */
+        AdminErrorDetail: {
+            /** Details */
+            details?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Error
+             * @example ADMIN_STATUS_FAILED
+             * @enum {string}
+             */
+            error: "ADMIN_STATUS_FAILED";
+            /** Message */
+            message: string;
+        };
+        /** AdminErrorResponse */
+        AdminErrorResponse: {
+            detail: components["schemas"]["AdminErrorDetail"];
+        };
+        /** AdminStatusResponse */
+        AdminStatusResponse: {
+            /**
+             * Checked At
+             * Format: date-time
+             */
+            checked_at: string;
+            /** Connections */
+            connections: components["schemas"]["AdminConnection"][];
+            environment: components["schemas"]["AdminEnvironment"];
+            environment_values: components["schemas"]["AdminEnvironmentValues"];
+            /** Integration Checks */
+            integration_checks: {
+                [key: string]: components["schemas"]["IntegrationCheck"];
+            };
+            /** Startup Checks */
+            startup_checks: {
+                [key: string]: components["schemas"]["StartupCheck"];
+            };
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "degraded";
+        };
         /** AdminUserListResponse */
         AdminUserListResponse: {
             /** Items */
@@ -1309,6 +1459,19 @@ export interface components {
              */
             status: "ok";
         };
+        /** IntegrationCheck */
+        IntegrationCheck: {
+            /**
+             * Checked At
+             * Format: date-time
+             */
+            checked_at: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "failed" | "timeout" | "disabled";
+        };
         /** InternalErrorResponse */
         InternalErrorResponse: {
             /**
@@ -1468,6 +1631,16 @@ export interface components {
             /** Password */
             password: string;
         };
+        /** StartupCheck */
+        StartupCheck: {
+            /** Checked At */
+            checked_at?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "configured" | "disabled" | "unverified";
+        };
         /** UpdateProfileForm */
         UpdateProfileForm: {
             /** Name */
@@ -1548,6 +1721,91 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    status_api_v1_admin_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStatusResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "USER_NOT_FOUND",
+                     *         "message": "User not found."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "ADMIN_STATUS_FAILED",
+                     *         "message": "Unable to inspect server status."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminErrorResponse"];
+                };
+            };
+        };
+    };
     list_api_keys_api_v1_api_keys_get: {
         parameters: {
             query?: never;

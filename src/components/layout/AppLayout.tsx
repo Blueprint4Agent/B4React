@@ -42,7 +42,11 @@ export function AppLayout({ children, subscriptionTier }: AppLayoutProps) {
     const openSettings = useCallback(() => navigate("/settings"), [navigate]);
     useAppShortcuts({ toggleSidebar, openSettings });
     const pathname = useLocation().pathname;
-    const isSettings = pathname === "/settings" || pathname === "/home";
+    const isSettings =
+        pathname === "/settings" ||
+        pathname === "/home" ||
+        pathname === "/admin" ||
+        pathname.startsWith("/admin/");
     return (
         <div
             className={`app-shell${expanded ? " app-shell--expanded" : ""}${isSettings ? " app-shell--settings" : ""}${resizing ? " app-shell--resizing" : ""}`}

@@ -903,5 +903,64 @@
         "templateContentHint": "Add lists, cards or widgets here.",
         "guestWelcome": "Welcome. Choose where you would like to start.",
         "signIn": "Log in"
+    },
+    "serverStatus": {
+        "technology": {
+            "fastapi": "FastAPI",
+            "sqlite": "SQLite",
+            "postgresql": "PostgreSQL",
+            "mysql": "MySQL",
+            "mariadb": "MariaDB",
+            "redis": "Redis",
+            "memory": "In-memory",
+            "database": "Database"
+        },
+        "title": "Server status",
+        "description": "Connections and effective runtime settings at a glance.",
+        "ok": "Healthy",
+        "degraded": "Degraded",
+        "failed": "Failed",
+        "timeout": "Timed out",
+        "stale": "Stale",
+        "loading": "Checking…",
+        "unavailable": "Unavailable",
+        "checked": "Last checked {{time}}",
+        "loadError": "Unable to refresh status. Previous results may be out of date. Try refreshing when the connection recovers.",
+        "environment": "Environment settings",
+        "environmentNote": "While this page is open, email and Stripe connectivity is checked once a minute. No email is sent or payment created.",
+        "accessPolicy": "Access policy",
+        "refreshNote": "Updates every 30 seconds while visible. Database/cache checks wait up to 2 seconds; provider checks reuse results for 60 seconds. Worker monitoring is separate.",
+        "connection": {
+            "server": "Application server",
+            "database": "Database connection",
+            "cache": "Cache connection"
+        },
+        "feature": {
+            "app": "Runtime mode",
+            "email": "Email",
+            "login": "Login",
+            "oauth": "Social login",
+            "billing": "Payments",
+            "subscriptions": "Subscriptions",
+            "admin": "Administrator access",
+            "developer": "Developer UI",
+            "cache": "Cache mode"
+        },
+        "mode": {
+            "enabled": "Enabled",
+            "disabled": "Disabled",
+            "development": "Development",
+            "production": "Production",
+            "test": "Test",
+            "live": "Live",
+            "incomplete": "Incomplete configuration",
+            "admin_only": "Admin only",
+            "memory": "In-memory",
+            "redis": "External Redis"
+        },
+        "overall": "Overall status",
+        "latency": "Response time",
+        "localFile": "Local file",
+        "localSocket": "Local connection"
     }
 }

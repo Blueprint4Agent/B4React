@@ -72,7 +72,15 @@ for (const width of [390, 1440]) {
         await page.getByRole("link", { name: "Admin panel", exact: true }).click();
         // When: browsing the directory and paging/searching.
         await expect(page).toHaveURL(/\/admin$/);
-        await expect(page.getByRole("heading", { name: "Admin panel" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+        await page.getByRole("button", { name: "All statuses", exact: true }).click();
+        const trigger = await page
+            .getByRole("button", { name: "All statuses", exact: true })
+            .boundingBox();
+        const menu = await page.getByRole("menu").boundingBox();
+        expect(menu?.width).toBe(trigger?.width);
+        expect(menu?.x).toBe(trigger?.x);
+        await page.keyboard.press("Escape");
         await expect(page.getByRole("navigation", { name: "Admin panel" })).toBeVisible();
         await expect(page.getByText("member1@example.com", { exact: true })).toBeVisible();
         await expect(page.getByText("No recorded sign-in", { exact: true })).toBeVisible();

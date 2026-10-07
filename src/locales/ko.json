@@ -903,5 +903,64 @@
         "templateContentHint": "목록, 카드, 위젯을 배치할 수 있습니다.",
         "guestWelcome": "환영합니다. 필요한 메뉴로 바로 이동하세요.",
         "signIn": "로그인"
+    },
+    "serverStatus": {
+        "technology": {
+            "fastapi": "FastAPI",
+            "sqlite": "SQLite",
+            "postgresql": "PostgreSQL",
+            "mysql": "MySQL",
+            "mariadb": "MariaDB",
+            "redis": "Redis",
+            "memory": "In-memory",
+            "database": "Database"
+        },
+        "title": "서버 상태",
+        "description": "서버 연결과 현재 적용된 환경 설정을 확인합니다.",
+        "ok": "정상",
+        "degraded": "일부 연결 이상",
+        "failed": "연결 실패",
+        "timeout": "시간 초과",
+        "stale": "이전 결과",
+        "loading": "확인 중…",
+        "unavailable": "확인 불가",
+        "checked": "마지막 확인 {{time}}",
+        "loadError": "상태를 갱신하지 못했습니다. 이전 결과는 현재 상태와 다를 수 있습니다. 연결 복구 후 다시 불러와 주세요.",
+        "environment": "환경 설정",
+        "environmentNote": "화면을 보는 동안 이메일·Stripe 연결을 1분마다 확인합니다. 메일 발송이나 결제는 발생하지 않습니다.",
+        "accessPolicy": "접근 정책",
+        "refreshNote": "화면을 보는 동안 30초마다 갱신합니다. DB·캐시 검사는 최대 2초, 외부 서비스 결과는 60초간 재사용합니다. 작업자 상태는 별도입니다.",
+        "connection": {
+            "server": "애플리케이션 서버",
+            "database": "데이터베이스 연결",
+            "cache": "캐시 연결"
+        },
+        "feature": {
+            "app": "실행 모드",
+            "email": "이메일",
+            "login": "로그인",
+            "oauth": "소셜 로그인",
+            "billing": "결제",
+            "subscriptions": "구독",
+            "admin": "관리자 접근",
+            "developer": "개발자 UI",
+            "cache": "캐시 모드"
+        },
+        "mode": {
+            "enabled": "활성화",
+            "disabled": "비활성화",
+            "development": "개발",
+            "production": "운영",
+            "test": "테스트",
+            "live": "실결제",
+            "incomplete": "설정 미완료",
+            "admin_only": "관리자만 허용",
+            "memory": "메모리",
+            "redis": "외부 Redis"
+        },
+        "overall": "전체 상태",
+        "latency": "응답 시간",
+        "localFile": "로컬 파일",
+        "localSocket": "로컬 연결"
     }
 }

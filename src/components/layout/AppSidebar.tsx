@@ -7,6 +7,7 @@ import {
     CreditCard,
     BookOpen,
     Users,
+    Server,
     ArrowLeft,
     Code2,
     SlidersHorizontal,
@@ -89,7 +90,8 @@ export function AppSidebar({
         }
     };
     const isAdminPanel =
-        location.pathname === "/admin" && (user?.role === "admin" || user?.role === "manager");
+        location.pathname.startsWith("/admin") &&
+        (user?.role === "admin" || user?.role === "manager");
     const items = isAdminPanel
         ? [
               {
@@ -99,6 +101,16 @@ export function AppSidebar({
                   section: "back",
               },
               { path: "/admin", label: t("admin.users"), icon: Users, section: "users" },
+              ...(user?.role === "admin"
+                  ? [
+                        {
+                            path: "/admin/server",
+                            label: t("serverStatus.title"),
+                            icon: Server,
+                            section: "server",
+                        },
+                    ]
+                  : []),
           ]
         : isSettings
           ? [
@@ -248,6 +260,7 @@ export function AppSidebar({
                         >
                             <NavLink
                                 to={path}
+                                end={isAdminPanel}
                                 aria-current={
                                     isSettings
                                         ? itemSection === activeSection

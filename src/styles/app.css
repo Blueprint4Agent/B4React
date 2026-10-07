@@ -4491,12 +4491,8 @@ input {
     }
 }
 
-.admin-layout {
-    max-width: 1280px;
-}
 .admin-content {
     min-width: 0;
-    width: min(100%, 76rem);
     display: grid;
     gap: var(--space-6);
 }
@@ -4506,13 +4502,13 @@ input {
 .admin-summary {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
+    gap: var(--space-4);
     margin: 0;
 }
 .admin-summary > div {
-    padding: 16px;
-    border: 0.5px solid var(--panel-border);
-    border-radius: 12px;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-card);
 }
 .admin-summary dt {
     overflow-wrap: anywhere;
@@ -4535,6 +4531,9 @@ input {
 }
 .admin-filters .ui-dropdown {
     min-width: 132px;
+}
+.admin-filters .ui-dropdown__trigger {
+    width: 100%;
 }
 .admin-table-region {
     overflow: auto;
@@ -5907,4 +5906,310 @@ html[data-theme="dark"] .billing-stripe-badge .payment-brand--dark {
         background: none;
         -webkit-text-fill-color: currentColor;
     }
+}
+
+/* Administrator status follows the settings page family. */
+.server-status-content {
+    display: grid;
+    gap: var(--space-6);
+    min-width: 0;
+}
+.server-status-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+}
+.server-status-meta > span,
+.server-status-note,
+.server-environment header p {
+    color: var(--text-soft);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+}
+.server-status-connections {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+}
+.server-status-connection {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+.server-stack-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--text);
+}
+.server-stack-icon img,
+.server-stack-icon svg {
+    width: 1.75rem;
+    height: 1.75rem;
+}
+.server-stack-icon img {
+    filter: var(--server-icon-filter, none);
+}
+.server-status-copy {
+    flex: 1;
+    min-width: 0;
+}
+.server-status-copy h2,
+.server-environment header h2 {
+    margin: 0;
+    font-size: 0.9375rem;
+}
+.server-status-copy p {
+    margin: var(--space-1) 0 0;
+    color: var(--text-soft);
+    font-size: 0.8125rem;
+}
+.server-status-result {
+    display: grid;
+    grid-template-columns: 5.5rem 5.5rem;
+    align-items: center;
+    gap: var(--space-4);
+    text-align: right;
+    font-size: 0.8125rem;
+}
+.server-status-result small {
+    color: var(--text-soft);
+}
+.server-environment-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) calc(11rem + var(--space-4));
+    align-items: center;
+    gap: var(--space-4);
+}
+.server-environment-list dt {
+    min-width: 0;
+}
+.server-environment-list dt strong {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+.server-environment-list dt small {
+    display: block;
+    overflow-wrap: anywhere;
+    color: var(--text-soft);
+    margin-top: var(--space-1);
+    font-size: 0.75rem;
+}
+.server-environment-list dd {
+    display: grid;
+    grid-template-columns: 5.5rem 5.5rem;
+    align-items: center;
+    gap: var(--space-4);
+    margin: 0;
+    text-align: left;
+    font-size: 0.8125rem;
+}
+.server-status-note {
+    margin: 0;
+}
+[data-theme="dark"] .server-stack-icon img {
+    filter: invert(1);
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .server-stack-icon img {
+        filter: invert(1);
+    }
+}
+
+.server-status-dot {
+    display: inline-block;
+    flex: 0 0 0.5rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--radius-pill);
+    background: var(--text-soft);
+}
+.server-status-dot--ok {
+    background: #22c55e;
+}
+.server-status-dot--failed,
+.server-status-dot--timeout {
+    background: #ef4444;
+}
+.server-status-result .ui-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+.server-oauth-providers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    padding: 0;
+    margin: 0;
+    justify-content: flex-start;
+    list-style: none;
+}
+.server-oauth-providers li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.875rem;
+}
+.server-oauth-providers .oauth-provider-button__logo-wrap {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+.server-oauth-providers .oauth-provider-button__logo {
+    width: 100%;
+    height: 100%;
+}
+
+.server-status-overview {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    font-size: 0.8125rem;
+}
+.server-status-overview .ui-status-badge {
+    gap: var(--space-2);
+}
+.server-status-latency {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 4.5rem;
+    font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+    .server-status-connection {
+        flex-wrap: wrap;
+    }
+    .server-status-result {
+        flex: 1 0 100%;
+        justify-content: flex-end;
+    }
+}
+
+/* Asset suffixes describe ink color; OAuth buttons use an inverse surface. */
+.server-oauth-providers .oauth-provider-button__logo--github {
+    filter: invert(1);
+}
+
+.server-status-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+}
+.server-status-checked {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--text-soft);
+}
+.server-integration-check {
+    display: block;
+}
+.server-integration-check .ui-status-badge {
+    gap: var(--space-2);
+}
+@media (max-width: 640px) {
+    .server-environment-row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--space-3);
+    }
+    .server-environment-list dd {
+        justify-content: end;
+    }
+}
+
+.server-environment-panel.panel {
+    width: 100%;
+    padding: 0 var(--space-4);
+    box-shadow: none;
+    animation: none;
+}
+.server-environment-list {
+    margin: 0;
+}
+.server-environment-row {
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--panel-border);
+}
+.server-environment-row:last-child {
+    border-bottom: 0;
+}
+.server-environment-name {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+}
+.server-oauth-providers {
+    gap: var(--space-3);
+}
+.server-oauth-providers li {
+    font-size: 0.75rem;
+}
+.server-oauth-providers .oauth-provider-button__logo-wrap {
+    width: 1rem;
+    height: 1rem;
+}
+
+.server-connection-address {
+    display: block;
+    margin-top: var(--space-1);
+    color: var(--text-soft);
+    overflow-wrap: anywhere;
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.server-connection-description {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--space-2);
+}
+.server-connection-description .server-connection-address {
+    display: inline;
+}
+
+.server-status-result > .ui-status-badge,
+.server-integration-check .ui-status-badge {
+    width: 100%;
+}
+.server-status-latency {
+    text-align: left;
+}
+
+.ui-code-badge {
+    display: inline-block;
+    max-width: 100%;
+    padding: 2px 6px;
+    border: 0;
+    border-radius: 5px;
+    background: color-mix(in oklab, currentColor 12%, transparent);
+    color: var(--text-soft);
+    font:
+        500 0.6875rem/1.4 var(--font-family),
+        system-ui,
+        sans-serif;
+    overflow-wrap: anywhere;
+    vertical-align: baseline;
+}
+.showcase-code-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+}
+.server-environment-value {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-1);
+}
+
+.server-payment-mode {
+    color: var(--text-soft);
+    font-size: 0.75rem;
 }

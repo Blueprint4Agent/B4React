@@ -53,6 +53,9 @@ const VerifyEmailPage = lazy(() =>
 const LandingPage = lazy(() =>
     import("./pages/main/LandingPage").then((module) => ({ default: module.LandingPage })),
 );
+const AdminServerPage = lazy(() =>
+    import("./pages/admin/AdminServerPage").then((module) => ({ default: module.AdminServerPage })),
+);
 const AdminPage = lazy(() =>
     import("./pages/admin/AdminPage").then((module) => ({ default: module.AdminPage })),
 );
@@ -317,6 +320,7 @@ export function App() {
                     }
                 />
                 <Route path="/admin" element={<AdminPage />} />
+                <Route path="/admin/server" element={<AdminServerPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
             </Route>
             <Route
