@@ -1,3 +1,4 @@
+import { useAppConfig } from "../../useFeatures";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
     useBillingApi,
@@ -26,8 +27,9 @@ export function useBilling(
     returnIntent: string | null = null,
 ) {
     const api = useBillingApi();
+    const { data: appConfig } = useAppConfig();
     const { isDesktop, status } = useServerConnectivity();
-    const available = !isDesktop || status === "online";
+    const available = appConfig?.billing_enabled === true && (!isDesktop || status === "online");
     const [profile, setProfile] = useState<BillingProfile | null>(null);
     const [invoices, setInvoices] = useState<BillingInvoices | null>(null);
     const [config, setConfig] = useState<BillingConfig | null>(null);
@@ -75,7 +77,7 @@ export function useBilling(
             ++epoch.current;
             ++loadId.current;
         };
-    }, [ownerId]);
+    }, [ownerId, available]);
 
     const reload = useCallback(async () => {
         if (!mounted.current || !online.current) return;

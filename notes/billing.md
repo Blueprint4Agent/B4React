@@ -111,3 +111,19 @@ the server. Unknown/error states do not display a misleading Free badge. The col
 avatar shows an accessible compact tier mark; the expanded profile menu shows the
 full name above email with stronger weight and tier text treatment. No new state store,
 webhook, feature quota or tier-specific application entitlement is introduced here.
+
+## Feature gates
+
+The shared public config owns `billing_enabled` and `subscriptions_enabled`. Missing,
+loading or false flags never authorize billing requests. The sidebar subscription hook,
+Home shortcuts, billing settings, profile upgrade/tier display and direct `/plans` route
+use these flags. Disabled billing falls back to General settings; disabled plans redirect
+home. Subscription-only disablement retains cards/profile/invoices and removes subscription
+UI and requests, including checkout return URLs. Hook resets invalidate old snapshots on
+flag changes, and recovery events obey the same gates. Enabled features retain existing
+server-authoritative verification; the flags are not entitlements.
+
+Email-only routes likewise require email plus login; OAuth controls require OAuth plus login.
+Disabled email still permits ordinary password signup/login. Account-connected OAuth details
+are hidden when OAuth is disabled. Server guards also reject disabled mutations independently
+of UI visibility.

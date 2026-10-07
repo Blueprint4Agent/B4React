@@ -968,6 +968,8 @@ export interface components {
              * @enum {string}
              */
             app_mode: "development" | "production";
+            /** Billing Enabled */
+            billing_enabled: boolean;
             /** Bootstrap Access Token */
             bootstrap_access_token?: string | null;
             bootstrap_user?: components["schemas"]["UserResponse"] | null;
@@ -981,6 +983,8 @@ export interface components {
             oauth_enabled: boolean;
             /** Oauth Providers */
             oauth_providers: string[];
+            /** Subscriptions Enabled */
+            subscriptions_enabled: boolean;
         };
         /** AuthErrorDetail */
         AuthErrorDetail: {
@@ -2334,8 +2338,8 @@ export interface operations {
                     /**
                      * @example {
                      *       "detail": {
-                     *         "error": "EMAIL_DISABLED",
-                     *         "message": "Email-based features are disabled."
+                     *         "error": "LOGIN_DISABLED",
+                     *         "message": "Login is currently disabled."
                      *       }
                      *     }
                      */
@@ -3187,6 +3191,23 @@ export interface operations {
                     "application/json": components["schemas"]["AuthErrorResponse"];
                 };
             };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "LOGIN_DISABLED",
+                     *         "message": "Login is currently disabled."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
             /** @description Not Found */
             404: {
                 headers: {
@@ -3244,6 +3265,23 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResendVerificationResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "LOGIN_DISABLED",
+                     *         "message": "Login is currently disabled."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
                 };
             };
             /** @description Validation Error */
@@ -3314,8 +3352,8 @@ export interface operations {
                     /**
                      * @example {
                      *       "detail": {
-                     *         "error": "EMAIL_DISABLED",
-                     *         "message": "Email-based features are disabled."
+                     *         "error": "LOGIN_DISABLED",
+                     *         "message": "Login is currently disabled."
                      *       }
                      *     }
                      */
@@ -3379,6 +3417,23 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "LOGIN_DISABLED",
+                     *         "message": "Login is currently disabled."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
                 };
             };
             /** @description Conflict */
@@ -3557,6 +3612,23 @@ export interface operations {
                      *       "detail": {
                      *         "error": "INVALID_TOKEN",
                      *         "message": "Invalid refresh token."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "LOGIN_DISABLED",
+                     *         "message": "Login is currently disabled."
                      *       }
                      *     }
                      */

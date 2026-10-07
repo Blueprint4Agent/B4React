@@ -1,6 +1,13 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
 import { useSubscription } from "../../../../hooks/api/billing/useSubscription";
+const flags = vi.hoisted(() => ({
+    data: { billing_enabled: true, subscriptions_enabled: true } as {
+        billing_enabled: boolean;
+        subscriptions_enabled: boolean;
+    } | null,
+}));
+vi.mock("../../../../hooks/useFeatures", () => ({ useAppConfig: () => flags }));
 const api = vi.hoisted(() => ({
     getBillingPlans: vi.fn(),
     getBillingSubscription: vi.fn(),
@@ -16,6 +23,7 @@ vi.mock("../../../../hooks/connectivity/useServerConnectivity", () => ({
 const free = { plan: "free", status: "none", has_subscription: false };
 beforeEach(() => {
     vi.resetAllMocks();
+    flags.data = { billing_enabled: true, subscriptions_enabled: true };
     api.getBillingPlans.mockResolvedValue({ enabled: true, livemode: false, prices: [] });
     api.getBillingSubscription.mockResolvedValue(free);
     api.createBillingCheckout.mockResolvedValue({
@@ -187,4 +195,21 @@ it("refreshes the profile consumer once after a successful plan mutation", async
     await waitFor(() => expect(profile.result.current.subscription).toEqual(pro));
     expect(api.getBillingSubscription).toHaveBeenCalledTimes(3);
     expect(actor.result.current.subscription).toEqual(pro);
+});
+
+it("does not request disabled or unresolved features, including recovery events", async () => {
+    flags.data = null;
+    const { result, rerender } = renderHook(() => useSubscription(1, null));
+    await act(async () => {
+        await result.current.reload();
+        window.dispatchEvent(new Event("focus"));
+        window.dispatchEvent(new Event("online"));
+    });
+    flags.data = { billing_enabled: false, subscriptions_enabled: false };
+    rerender();
+    await act(async () => {
+        await result.current.reload();
+    });
+    expect(result.current.available).toBe(false);
+    for (const mock of Object.values(api)) expect(mock).not.toHaveBeenCalled();
 });

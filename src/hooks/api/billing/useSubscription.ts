@@ -1,3 +1,4 @@
+import { useAppConfig } from "../../useFeatures";
 import { SUBSCRIPTION_CHANGED } from "../../../utils/billingPlans";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerConnectivity } from "../../connectivity/useServerConnectivity";
@@ -17,8 +18,14 @@ export function useSubscription(
     withPlans = false,
 ) {
     const api = useBillingApi();
+    const { data: appConfig } = useAppConfig();
     const { isDesktop, status } = useServerConnectivity();
-    const available = enabled && !!ownerId && (!isDesktop || status === "online");
+    const available =
+        appConfig?.billing_enabled === true &&
+        appConfig.subscriptions_enabled === true &&
+        enabled &&
+        !!ownerId &&
+        (!isDesktop || status === "online");
     const [subscription, setSubscription] = useState<BillingSubscription | null>(null);
     const [catalog, setCatalog] = useState<BillingPlans | null>(null);
     const [loading, setLoading] = useState(true);

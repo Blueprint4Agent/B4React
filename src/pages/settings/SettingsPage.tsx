@@ -57,7 +57,10 @@ export function SettingsPage() {
         searchParams.has("billing_card_setup")
             ? "billing"
             : searchParams.get("section");
-    const activeMenu = resolveSettingsSection(section, Boolean(user));
+    const activeMenu = resolveSettingsSection(
+        section === "billing" && !appConfig?.billing_enabled ? "general" : section,
+        Boolean(user),
+    );
     useEffect(() => {
         if (!authLoading && !user && section !== activeMenu) {
             setSearchParams(
@@ -382,7 +385,7 @@ export function SettingsPage() {
                                     <p>{user?.email ?? "-"}</p>
                                 </article>
 
-                                {loginEnabled ? (
+                                {loginEnabled && appConfig?.oauth_enabled ? (
                                     <ConnectedOAuthProvidersCard
                                         title={t("settings.profile.oauthConnectedTitle")}
                                         providers={connectedOAuthProviders}

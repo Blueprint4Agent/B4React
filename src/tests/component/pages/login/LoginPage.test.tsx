@@ -44,9 +44,10 @@ vi.mock("../../../../hooks/useFeatures", () => ({
     }),
 }));
 
+const getOAuthProvidersMock = vi.fn().mockResolvedValue({ providers: [] });
 vi.mock("../../../../hooks/api/auth/useAuthApi", () => ({
     useAuthApi: () => ({
-        getOAuthProviders: vi.fn().mockResolvedValue({ providers: [] }),
+        getOAuthProviders: getOAuthProvidersMock,
         resendVerificationEmail: resendVerificationEmailMock,
         extractApiDetail: extractApiDetailMock,
         resolveAuthErrorMessage: resolveAuthErrorMessageMock,

@@ -12,6 +12,8 @@ describe("configApi.getConfig", () => {
         // Given: api client returns config payload.
         vi.spyOn(apiClient, "GET").mockResolvedValue({
             data: {
+                billing_enabled: true,
+                subscriptions_enabled: true,
                 api_base_path: "/api/v1",
                 app_mode: "development",
                 login_enabled: true,

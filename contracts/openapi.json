@@ -591,6 +591,10 @@
                         "title": "App Mode",
                         "type": "string"
                     },
+                    "billing_enabled": {
+                        "title": "Billing Enabled",
+                        "type": "boolean"
+                    },
                     "bootstrap_access_token": {
                         "anyOf": [
                             {
@@ -634,6 +638,10 @@
                         },
                         "title": "Oauth Providers",
                         "type": "array"
+                    },
+                    "subscriptions_enabled": {
+                        "title": "Subscriptions Enabled",
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -643,6 +651,8 @@
                     "frontend_base_path",
                     "email_enabled",
                     "oauth_enabled",
+                    "billing_enabled",
+                    "subscriptions_enabled",
                     "oauth_providers"
                 ],
                 "title": "AppConfigResponse",
@@ -3039,8 +3049,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "EMAIL_DISABLED",
-                                        "message": "Email-based features are disabled."
+                                        "error": "LOGIN_DISABLED",
+                                        "message": "Login is currently disabled."
                                     }
                                 },
                                 "schema": {
@@ -4086,6 +4096,22 @@
                         },
                         "description": "Unauthorized"
                     },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "LOGIN_DISABLED",
+                                        "message": "Login is currently disabled."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Forbidden"
+                    },
                     "404": {
                         "content": {
                             "application/json": {
@@ -4150,6 +4176,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "LOGIN_DISABLED",
+                                        "message": "Login is currently disabled."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Forbidden"
                     },
                     "422": {
                         "content": {
@@ -4221,8 +4263,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "EMAIL_DISABLED",
-                                        "message": "Email-based features are disabled."
+                                        "error": "LOGIN_DISABLED",
+                                        "message": "Login is currently disabled."
                                     }
                                 },
                                 "schema": {
@@ -4296,6 +4338,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "LOGIN_DISABLED",
+                                        "message": "Login is currently disabled."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Forbidden"
                     },
                     "409": {
                         "content": {
@@ -4490,6 +4548,22 @@
                             }
                         },
                         "description": "Unauthorized"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "LOGIN_DISABLED",
+                                        "message": "Login is currently disabled."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Forbidden"
                     },
                     "404": {
                         "content": {

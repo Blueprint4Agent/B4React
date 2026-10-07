@@ -51,13 +51,19 @@ export function HomePage() {
                 ) : undefined
             }
             menuLabel={t("home.shortcuts")}
-            menuItems={destinations.map(({ key, to, icon: Icon }) => ({
-                id: key,
-                to,
-                icon: <Icon />,
-                title: t(`home.${key}.title`),
-                description: t(`home.${key}.description`),
-            }))}
+            menuItems={destinations
+                .filter(
+                    ({ key }) =>
+                        key !== "billing" ||
+                        (config?.billing_enabled && (user || config.subscriptions_enabled)),
+                )
+                .map(({ key, to, icon: Icon }) => ({
+                    id: key,
+                    to,
+                    icon: <Icon />,
+                    title: t(`home.${key}.title`),
+                    description: t(`home.${key}.description`),
+                }))}
         />
     );
 }
