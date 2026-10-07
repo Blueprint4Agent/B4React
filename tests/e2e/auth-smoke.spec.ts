@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const guestConfig = {
     billing_enabled: true,
-    subscriptions_enabled: true,
+
     api_base_path: "/api/v1",
     app_mode: "development",
     login_enabled: true,
@@ -547,7 +547,6 @@ test("disabled login redirects auth routes without session or provider calls", a
                 oauth_enabled: false,
                 oauth_providers: [],
                 billing_enabled: false,
-                subscriptions_enabled: false,
             },
         }),
     );

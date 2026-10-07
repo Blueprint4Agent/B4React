@@ -2,9 +2,8 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
 import { useSubscription } from "../../../../hooks/api/billing/useSubscription";
 const flags = vi.hoisted(() => ({
-    data: { billing_enabled: true, subscriptions_enabled: true } as {
+    data: { billing_enabled: true } as {
         billing_enabled: boolean;
-        subscriptions_enabled: boolean;
     } | null,
 }));
 vi.mock("../../../../hooks/useFeatures", () => ({ useAppConfig: () => flags }));
@@ -23,7 +22,7 @@ vi.mock("../../../../hooks/connectivity/useServerConnectivity", () => ({
 const free = { plan: "free", status: "none", has_subscription: false };
 beforeEach(() => {
     vi.resetAllMocks();
-    flags.data = { billing_enabled: true, subscriptions_enabled: true };
+    flags.data = { billing_enabled: true };
     api.getBillingPlans.mockResolvedValue({ enabled: true, livemode: false, prices: [] });
     api.getBillingSubscription.mockResolvedValue(free);
     api.createBillingCheckout.mockResolvedValue({
@@ -205,7 +204,7 @@ it("does not request disabled or unresolved features, including recovery events"
         window.dispatchEvent(new Event("focus"));
         window.dispatchEvent(new Event("online"));
     });
-    flags.data = { billing_enabled: false, subscriptions_enabled: false };
+    flags.data = { billing_enabled: false };
     rerender();
     await act(async () => {
         await result.current.reload();

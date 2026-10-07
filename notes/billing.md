@@ -114,14 +114,14 @@ webhook, feature quota or tier-specific application entitlement is introduced he
 
 ## Feature gates
 
-The shared public config owns `billing_enabled` and `subscriptions_enabled`. Missing,
+The shared public config owns one `billing_enabled` flag for payments and subscriptions. Missing,
 loading or false flags never authorize billing requests. The sidebar subscription hook,
 Home shortcuts, billing settings, profile upgrade/tier display and direct `/plans` route
-use these flags. Disabled billing falls back to General settings; disabled plans redirect
-home. Subscription-only disablement retains cards/profile/invoices and removes subscription
-UI and requests, including checkout return URLs. Hook resets invalidate old snapshots on
+use this flag. Disabled billing falls back to General settings; disabled plans redirect
+home. Payment methods, billing profiles, invoices and subscription UI/requests are enabled
+or disabled together, including checkout return URLs. Hook resets invalidate old snapshots on
 flag changes, and recovery events obey the same gates. Enabled features retain existing
-server-authoritative verification; the flags are not entitlements.
+server-authoritative verification; the flag is not an entitlement.
 
 Email-only routes likewise require email plus login; OAuth controls require OAuth plus login.
 Disabled email still permits ordinary password signup/login. Account-connected OAuth details

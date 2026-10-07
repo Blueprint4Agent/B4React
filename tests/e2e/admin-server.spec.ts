@@ -7,7 +7,7 @@ const snapshot = {
         LOGIN_ENABLED: true,
         OAUTH_ENABLED: true,
         STRIPE_ENABLED: true,
-        STRIPE_SUBSCRIPTIONS_ENABLED: true,
+
         REDIS_IN_MEMORY: false,
     },
     integration_checks: {
@@ -42,7 +42,7 @@ const snapshot = {
         billing_configured: true,
         billing_enabled: true,
         billing_mode: "test",
-        subscriptions_enabled: true,
+
         admin_access: "admin_only",
         developer_enabled: true,
         redis_in_memory: false,
@@ -53,7 +53,7 @@ async function setup(page: Page, role = "admin") {
         route.fulfill({
             json: {
                 billing_enabled: true,
-                subscriptions_enabled: true,
+
                 api_base_path: "/api/v1",
                 app_mode: "development",
                 login_enabled: false,

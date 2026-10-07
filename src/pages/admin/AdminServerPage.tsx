@@ -37,7 +37,6 @@ function ServerStatus({ owner }: { owner: number }) {
                   "STRIPE_ENABLED",
                   env.billing_enabled ? true : env.billing_configured ? "incomplete" : "disabled",
               ],
-              ["subscriptions", "STRIPE_SUBSCRIPTIONS_ENABLED", env.subscriptions_enabled],
               ["admin", "", "admin_only"],
               ["developer", "APP_MODE", env.developer_enabled],
               ["cache", "REDIS_IN_MEMORY", env.redis_in_memory ? "memory" : "redis"],

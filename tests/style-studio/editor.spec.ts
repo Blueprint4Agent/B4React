@@ -11,7 +11,7 @@ for (const width of [390, 1440]) {
             route.fulfill({
                 json: {
                     billing_enabled: true,
-                    subscriptions_enabled: true,
+
                     api_base_path: "/api/v1",
                     app_mode: "development",
                     login_enabled: false,
@@ -140,7 +140,7 @@ test("theme selector updates the whole app, persists and follows system changes"
         route.fulfill({
             json: {
                 billing_enabled: true,
-                subscriptions_enabled: true,
+
                 api_base_path: "/api/v1",
                 app_mode: "development",
                 login_enabled: false,

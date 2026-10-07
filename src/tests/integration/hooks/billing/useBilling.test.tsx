@@ -3,9 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useBilling } from "../../../../hooks/api/billing/useBilling";
 
 const flags = vi.hoisted(() => ({
-    data: { billing_enabled: true, subscriptions_enabled: true } as {
+    data: { billing_enabled: true } as {
         billing_enabled: boolean;
-        subscriptions_enabled: boolean;
     } | null,
 }));
 vi.mock("../../../../hooks/useFeatures", () => ({ useAppConfig: () => flags }));
@@ -41,7 +40,7 @@ async function ready(result: { current: { loading: boolean } }) {
 }
 beforeEach(() => {
     vi.resetAllMocks();
-    flags.data = { billing_enabled: true, subscriptions_enabled: true };
+    flags.data = { billing_enabled: true };
     connection = { isDesktop: false, status: "online" };
     api.getBillingConfig.mockResolvedValue({ enabled: true, livemode: false });
     api.listBillingPaymentMethods.mockResolvedValue(empty);
@@ -229,7 +228,7 @@ it("does not request disabled or unresolved features, including recovery events"
         window.dispatchEvent(new Event("focus"));
         window.dispatchEvent(new Event("online"));
     });
-    flags.data = { billing_enabled: false, subscriptions_enabled: false };
+    flags.data = { billing_enabled: false };
     rerender();
     await act(async () => {
         await result.current.reload();

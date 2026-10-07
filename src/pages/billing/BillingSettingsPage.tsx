@@ -71,7 +71,7 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
         );
     }, [checkoutCancelled, setupCancelled, setParams, showToast, t]);
     const { data: appConfig } = useAppConfig();
-    const subscriptionsEnabled = appConfig?.subscriptions_enabled === true;
+    const billingEnabled = appConfig?.billing_enabled === true;
     const billing = useBilling(
         ownerId,
         setupCancelled ? null : params.get("billing_setup"),
@@ -238,7 +238,7 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                         />
                     </div>
                 )}
-                {subscriptionsEnabled && (
+                {billingEnabled && (
                     <section
                         className="settings-row billing-plan-summary"
                         aria-label={t("billing.currentPlan")}
@@ -324,7 +324,7 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                         {t(`billing.checkoutNotices.${subscription.notice}`)}
                     </InlineMessage>
                 )}
-                {subscriptionsEnabled && paidSelected && (
+                {billingEnabled && paidSelected && (
                     <InlineMessage tone="info">
                         {t("billing.selectedPlan", {
                             plan: t(`billing.plans.${selectedPlan}.name`),

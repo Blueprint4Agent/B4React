@@ -185,7 +185,7 @@ export function App() {
             <Route
                 path="/plans"
                 element={
-                    appConfig.billing_enabled && appConfig.subscriptions_enabled ? (
+                    appConfig.billing_enabled ? (
                         <main className="plans-screen">
                             <RouteBoundary fallback={<LoadingPage />}>
                                 <PlansPage />
