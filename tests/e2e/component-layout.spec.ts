@@ -167,9 +167,15 @@ test("menu items keep a single icon gap and consistent touch height", async ({ p
     await menu.scrollIntoViewIfNeeded();
     // Then: each row has predictable geometry, with no compounded icon margin.
     for (const row of await menu.locator(".menu-list__item").all()) {
-        const box = (await row.boundingBox())!;
-        const icon = (await row.locator(".menu-list__item-icon").boundingBox())!;
-        const label = (await row.locator(".menu-list__item-label").boundingBox())!;
+        // Measure one animation frame atomically rather than mixing translated frames.
+        const { box, icon, label } = await row.evaluate((element) => ({
+            box: element.getBoundingClientRect().toJSON(),
+            icon: element.querySelector(".menu-list__item-icon")!.getBoundingClientRect().toJSON(),
+            label: element
+                .querySelector(".menu-list__item-label")!
+                .getBoundingClientRect()
+                .toJSON(),
+        }));
         expect(box.height).toBeGreaterThanOrEqual(32);
         expect(Math.abs(label.x - icon.x - icon.width - 8)).toBeLessThan(1);
         expect(Math.abs(icon.y + icon.height / 2 - box.y - box.height / 2)).toBeLessThan(1);

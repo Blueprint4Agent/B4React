@@ -65,7 +65,13 @@ function AdminUsers({ ownerId }: { ownerId: number }) {
                     ).map(([label, value]) => (
                         <div key={label}>
                             <dt>{t(`admin.${label}`)}</dt>
-                            <dd>{value?.toLocaleString(i18n.language) ?? "—"}</dd>
+                            <dd>
+                                {loading ? (
+                                    <Spinner size="sm" label={t("admin.loading")} hideLabel />
+                                ) : (
+                                    (value?.toLocaleString(i18n.language) ?? "—")
+                                )}
+                            </dd>
                         </div>
                     ))}
                 </dl>
@@ -121,9 +127,11 @@ function AdminUsers({ ownerId }: { ownerId: number }) {
                 <AdminUserTable items={data?.items} loading={loading} hasError={Boolean(error)} />
                 <footer className="admin-footer">
                     <span aria-live="polite">
-                        {loading
-                            ? t("admin.loading")
-                            : t("admin.count", { count: data?.total ?? 0 })}
+                        {loading ? (
+                            <Spinner size="sm" label={t("admin.loading")} hideLabel />
+                        ) : (
+                            t("admin.count", { count: data?.total ?? 0 })
+                        )}
                     </span>
                     <Pagination
                         currentPage={data ? Math.min(page, totalPages) : page}

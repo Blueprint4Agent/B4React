@@ -672,7 +672,17 @@ for (const width of [390, 1440]) {
             const alertBox = (await alert.boundingBox())!;
             const retryBox = (await retry.boundingBox())!;
             const planBox = (await page.locator(".billing-plan-summary").boundingBox())!;
-            expect(alertBox.y + alertBox.height).toBeLessThanOrEqual(planBox.y);
+            expect(alertBox.y).toBeGreaterThanOrEqual(planBox.y);
+            expect(alertBox.y + alertBox.height).toBeLessThanOrEqual(planBox.y + planBox.height);
+            for (const card of await page
+                .locator(".billing-records, .billing-method-surface")
+                .all()) {
+                expect((await card.boundingBox())!.height).toBeGreaterThanOrEqual(127.5);
+            }
+            const profileCard = page.locator(
+                '[aria-labelledby="billing-info-title"] .settings-row',
+            );
+            await expect(profileCard.getByRole("alert")).toHaveCount(1);
             expect(retryBox.x).toBeGreaterThanOrEqual(alertBox.x);
             expect(retryBox.x + retryBox.width).toBeLessThanOrEqual(alertBox.x + alertBox.width);
             expect(retryBox.y + retryBox.height).toBeLessThanOrEqual(alertBox.y + alertBox.height);

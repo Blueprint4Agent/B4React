@@ -221,30 +221,6 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                         )}
                     </div>
                 )}
-                {pageErrors.length > 0 && (
-                    <div className="billing-feedback">
-                        <StatusCard
-                            tone="error"
-                            message={pageErrors.join(" ")}
-                            action={
-                                <Button
-                                    appearance="text"
-                                    disabled={
-                                        billing.loading ||
-                                        subscription.loading ||
-                                        !billing.available
-                                    }
-                                    onClick={() => {
-                                        void billing.reload();
-                                        void subscription.reload();
-                                    }}
-                                >
-                                    {t("billing.native.retry")}
-                                </Button>
-                            }
-                        />
-                    </div>
-                )}
                 {billingEnabled && (
                     <section
                         className="settings-row billing-plan-summary"
@@ -324,6 +300,30 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                                     : "billing.changePlan",
                             )}
                         </Button>
+                        {pageErrors.length > 0 && (
+                            <div className="billing-feedback">
+                                <StatusCard
+                                    tone="error"
+                                    message={pageErrors.join(" ")}
+                                    action={
+                                        <Button
+                                            appearance="text"
+                                            disabled={
+                                                billing.loading ||
+                                                subscription.loading ||
+                                                !billing.available
+                                            }
+                                            onClick={() => {
+                                                void billing.reload();
+                                                void subscription.reload();
+                                            }}
+                                        >
+                                            {t("billing.native.retry")}
+                                        </Button>
+                                    }
+                                />
+                            </div>
+                        )}
                     </section>
                 )}
                 {subscription.notice && subscription.notice !== "paid" && (
@@ -361,22 +361,23 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                             <ChevronRight aria-hidden="true" />
                         </Button>
                     </header>
-                    {billing.sectionErrors.invoices && (
-                        <StatusCard
-                            tone="error"
-                            message={t(billing.sectionErrors.invoices)}
-                            action={
-                                <Button
-                                    appearance="text"
-                                    loading={billing.sectionLoading.invoices}
-                                    onClick={() => void billing.reloadSection("invoices")}
-                                >
-                                    {t("billing.native.retry")}
-                                </Button>
-                            }
-                        />
-                    )}
                     <div className="settings-row billing-records">
+                        {billing.sectionErrors.invoices && (
+                            <StatusCard
+                                tone="error"
+                                message={t(billing.sectionErrors.invoices)}
+                                action={
+                                    <Button
+                                        appearance="text"
+                                        loading={billing.sectionLoading.invoices}
+                                        onClick={() => void billing.reloadSection("invoices")}
+                                    >
+                                        {t("billing.native.retry")}
+                                    </Button>
+                                }
+                            />
+                        )}
+
                         {billing.loading ? (
                             <Spinner label={t("billing.loading")} hideLabel />
                         ) : billing.invoices?.items.length ? (
@@ -410,26 +411,26 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                             {t("billing.details.edit")}
                         </Button>
                     </header>
-                    {billing.sectionErrors.profile && (
-                        <StatusCard
-                            tone="error"
-                            message={t(billing.sectionErrors.profile)}
-                            action={
-                                <Button
-                                    appearance="text"
-                                    loading={billing.sectionLoading.profile}
-                                    onClick={() => void billing.reloadSection("profile")}
-                                >
-                                    {t("billing.native.retry")}
-                                </Button>
-                            }
-                        />
-                    )}
-
                     <div className="settings-row billing-records">
+                        {billing.sectionErrors.profile && (
+                            <StatusCard
+                                tone="error"
+                                message={t(billing.sectionErrors.profile)}
+                                action={
+                                    <Button
+                                        appearance="text"
+                                        loading={billing.sectionLoading.profile}
+                                        onClick={() => void billing.reloadSection("profile")}
+                                    >
+                                        {t("billing.native.retry")}
+                                    </Button>
+                                }
+                            />
+                        )}
+
                         {billing.loading ? (
                             <Spinner label={t("billing.loading")} hideLabel />
-                        ) : (
+                        ) : !billing.sectionErrors.profile || billing.profile ? (
                             <>
                                 <div className="billing-detail">
                                     <span className="billing-eyebrow">
@@ -454,7 +455,7 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                                     </p>
                                 </div>
                             </>
-                        )}
+                        ) : null}
                     </div>
                 </section>
                 <section className="billing-section" aria-labelledby="billing-methods-title">
@@ -477,182 +478,191 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                             </Button>
                         </div>
                     </header>
-                    {!billing.config?.publishable_key && billing.config?.enabled && (
-                        <InlineMessage tone="info">
-                            {t("billing.native.cardUnavailable")}
-                        </InlineMessage>
-                    )}
-                    {(["card", "link"] as const).map(
-                        (type) =>
-                            billing.sectionErrors[type] && (
-                                <StatusCard
-                                    key={type}
-                                    tone="error"
-                                    message={`${type === "card" ? t("billing.card") : "Link"}: ${t(billing.sectionErrors[type]!)}`}
-                                    action={
-                                        <Button
-                                            appearance="text"
-                                            loading={billing.sectionLoading[type]}
-                                            onClick={() => void billing.reloadSection(type)}
-                                        >
-                                            {t("billing.native.retry")}
-                                        </Button>
-                                    }
-                                />
-                            ),
-                    )}
-                    {billing.loading ? (
-                        <div className="settings-row billing-loading">
-                            <Spinner label={t("billing.loading")} hideLabel />
-                        </div>
-                    ) : null}
-                    {!billing.loading &&
-                        !billing.error &&
-                        !billing.sectionErrors.card &&
-                        !billing.sectionErrors.link &&
-                        billing.config?.enabled &&
-                        billing.methods.card.items.length === 0 &&
-                        billing.methods.link.items.length === 0 && (
-                            <div className="settings-row billing-empty">
-                                <Wallet aria-hidden="true" />
-                                <div>
-                                    <strong>{t("billing.noMethods")}</strong>
-                                    <p>{t("billing.registrationOnly")}</p>
+                    <div className="settings-row billing-method-surface">
+                        {!billing.config?.publishable_key && billing.config?.enabled && (
+                            <InlineMessage tone="info">
+                                {t("billing.native.cardUnavailable")}
+                            </InlineMessage>
+                        )}
+                        {(["card", "link"] as const).map(
+                            (type) =>
+                                billing.sectionErrors[type] && (
+                                    <StatusCard
+                                        key={type}
+                                        tone="error"
+                                        message={`${type === "card" ? t("billing.card") : "Link"}: ${t(billing.sectionErrors[type]!)}`}
+                                        action={
+                                            <Button
+                                                appearance="text"
+                                                loading={billing.sectionLoading[type]}
+                                                onClick={() => void billing.reloadSection(type)}
+                                            >
+                                                {t("billing.native.retry")}
+                                            </Button>
+                                        }
+                                    />
+                                ),
+                        )}
+                        {billing.loading ? (
+                            <div className="billing-loading">
+                                <Spinner label={t("billing.loading")} hideLabel />
+                            </div>
+                        ) : null}
+                        {!billing.loading &&
+                            !billing.error &&
+                            !billing.sectionErrors.card &&
+                            !billing.sectionErrors.link &&
+                            billing.config?.enabled &&
+                            billing.methods.card.items.length === 0 &&
+                            billing.methods.link.items.length === 0 && (
+                                <div className="billing-empty">
+                                    <Wallet aria-hidden="true" />
+                                    <div>
+                                        <strong>{t("billing.noMethods")}</strong>
+                                        <p>{t("billing.registrationOnly")}</p>
+                                    </div>
                                 </div>
+                            )}
+                        {billing.methods.card.items.length + billing.methods.link.items.length >
+                            0 && (
+                            <div className="billing-method-list">
+                                {(["card", "link"] as const)
+                                    .filter(
+                                        (type) =>
+                                            billing.methods[type].items.length > 0 ||
+                                            billing.methods[type].has_more,
+                                    )
+                                    .map((type) => (
+                                        <div key={type} className="billing-method-group">
+                                            {billing.methods[type].items.map((method) => (
+                                                <article className="billing-method" key={method.id}>
+                                                    <span className="billing-method__icon">
+                                                        {type === "card" ? (
+                                                            <CreditCard aria-hidden="true" />
+                                                        ) : (
+                                                            <img
+                                                                className="billing-link-logo"
+                                                                src="/payment-brands/link.svg"
+                                                                alt=""
+                                                                aria-hidden="true"
+                                                            />
+                                                        )}
+                                                    </span>
+                                                    <div>
+                                                        <h3>
+                                                            {type === "link"
+                                                                ? "Link"
+                                                                : method.brand
+                                                                  ? method.brand
+                                                                        .charAt(0)
+                                                                        .toUpperCase() +
+                                                                    method.brand.slice(1)
+                                                                  : t("billing.card")}
+                                                        </h3>
+                                                        <p>
+                                                            {type === "link"
+                                                                ? t("billing.native.linkWallet")
+                                                                : `•••• ${method.last4 ?? ""} · ${t(
+                                                                      "billing.expiry",
+                                                                      {
+                                                                          month: String(
+                                                                              method.exp_month ??
+                                                                                  "",
+                                                                          ).padStart(2, "0"),
+                                                                          year:
+                                                                              method.exp_year ?? "",
+                                                                      },
+                                                                  )}`}
+                                                        </p>
+                                                    </div>
+                                                    <div className="billing-method-actions">
+                                                        {billing.profile?.default_payment_method ===
+                                                            method.id && (
+                                                            <StatusBadge tone="info">
+                                                                {t("billing.details.default")}
+                                                            </StatusBadge>
+                                                        )}
+                                                        <DropdownMenu
+                                                            compact
+                                                            label={t(
+                                                                "billing.details.manageMethod",
+                                                            )}
+                                                            triggerLabel="···"
+                                                            disabled={
+                                                                billing.loading ||
+                                                                billing.busy ||
+                                                                !billing.available
+                                                            }
+                                                            items={[
+                                                                ...(billing.profile
+                                                                    ?.default_payment_method !==
+                                                                method.id
+                                                                    ? [
+                                                                          {
+                                                                              id: "default",
+                                                                              icon: <Check />,
+                                                                              label: t(
+                                                                                  "billing.native.setDefault",
+                                                                              ),
+                                                                          },
+                                                                      ]
+                                                                    : []),
+                                                                {
+                                                                    id: "remove",
+                                                                    icon: <Trash2 />,
+                                                                    tone: "danger",
+                                                                    label: t(
+                                                                        "billing.native.remove",
+                                                                    ),
+                                                                },
+                                                            ]}
+                                                            onSelect={(action) => {
+                                                                billing.clearError();
+                                                                if (action === "remove")
+                                                                    setRemoveMethod(method.id);
+                                                                else
+                                                                    void billing
+                                                                        .manageMethod(
+                                                                            method.id,
+                                                                            "default",
+                                                                        )
+                                                                        .then((result) => {
+                                                                            if (result)
+                                                                                showToast(
+                                                                                    t(
+                                                                                        "billing.native.defaultSaved",
+                                                                                    ),
+                                                                                );
+                                                                        });
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </article>
+                                            ))}
+                                            {billing.methods[type].has_more && (
+                                                <Button
+                                                    appearance="pill-secondary"
+                                                    loading={billing.moreBusy === type}
+                                                    disabled={
+                                                        !billing.available ||
+                                                        billing.loading ||
+                                                        billing.moreBusy !== null
+                                                    }
+                                                    onClick={() => void billing.loadMore(type)}
+                                                >
+                                                    {t("billing.loadMore", {
+                                                        type:
+                                                            type === "card"
+                                                                ? t("billing.card")
+                                                                : "Link",
+                                                    })}
+                                                </Button>
+                                            )}
+                                        </div>
+                                    ))}
                             </div>
                         )}
-                    {billing.methods.card.items.length + billing.methods.link.items.length > 0 && (
-                        <div className="settings-row billing-method-list">
-                            {(["card", "link"] as const)
-                                .filter(
-                                    (type) =>
-                                        billing.methods[type].items.length > 0 ||
-                                        billing.methods[type].has_more,
-                                )
-                                .map((type) => (
-                                    <div key={type} className="billing-method-group">
-                                        {billing.methods[type].items.map((method) => (
-                                            <article className="billing-method" key={method.id}>
-                                                <span className="billing-method__icon">
-                                                    {type === "card" ? (
-                                                        <CreditCard aria-hidden="true" />
-                                                    ) : (
-                                                        <img
-                                                            className="billing-link-logo"
-                                                            src="/payment-brands/link.svg"
-                                                            alt=""
-                                                            aria-hidden="true"
-                                                        />
-                                                    )}
-                                                </span>
-                                                <div>
-                                                    <h3>
-                                                        {type === "link"
-                                                            ? "Link"
-                                                            : method.brand
-                                                              ? method.brand
-                                                                    .charAt(0)
-                                                                    .toUpperCase() +
-                                                                method.brand.slice(1)
-                                                              : t("billing.card")}
-                                                    </h3>
-                                                    <p>
-                                                        {type === "link"
-                                                            ? t("billing.native.linkWallet")
-                                                            : `•••• ${method.last4 ?? ""} · ${t(
-                                                                  "billing.expiry",
-                                                                  {
-                                                                      month: String(
-                                                                          method.exp_month ?? "",
-                                                                      ).padStart(2, "0"),
-                                                                      year: method.exp_year ?? "",
-                                                                  },
-                                                              )}`}
-                                                    </p>
-                                                </div>
-                                                <div className="billing-method-actions">
-                                                    {billing.profile?.default_payment_method ===
-                                                        method.id && (
-                                                        <StatusBadge tone="info">
-                                                            {t("billing.details.default")}
-                                                        </StatusBadge>
-                                                    )}
-                                                    <DropdownMenu
-                                                        compact
-                                                        label={t("billing.details.manageMethod")}
-                                                        triggerLabel="···"
-                                                        disabled={
-                                                            billing.loading ||
-                                                            billing.busy ||
-                                                            !billing.available
-                                                        }
-                                                        items={[
-                                                            ...(billing.profile
-                                                                ?.default_payment_method !==
-                                                            method.id
-                                                                ? [
-                                                                      {
-                                                                          id: "default",
-                                                                          icon: <Check />,
-                                                                          label: t(
-                                                                              "billing.native.setDefault",
-                                                                          ),
-                                                                      },
-                                                                  ]
-                                                                : []),
-                                                            {
-                                                                id: "remove",
-                                                                icon: <Trash2 />,
-                                                                tone: "danger",
-                                                                label: t("billing.native.remove"),
-                                                            },
-                                                        ]}
-                                                        onSelect={(action) => {
-                                                            billing.clearError();
-                                                            if (action === "remove")
-                                                                setRemoveMethod(method.id);
-                                                            else
-                                                                void billing
-                                                                    .manageMethod(
-                                                                        method.id,
-                                                                        "default",
-                                                                    )
-                                                                    .then((result) => {
-                                                                        if (result)
-                                                                            showToast(
-                                                                                t(
-                                                                                    "billing.native.defaultSaved",
-                                                                                ),
-                                                                            );
-                                                                    });
-                                                        }}
-                                                    />
-                                                </div>
-                                            </article>
-                                        ))}
-                                        {billing.methods[type].has_more && (
-                                            <Button
-                                                appearance="pill-secondary"
-                                                loading={billing.moreBusy === type}
-                                                disabled={
-                                                    !billing.available ||
-                                                    billing.loading ||
-                                                    billing.moreBusy !== null
-                                                }
-                                                onClick={() => void billing.loadMore(type)}
-                                            >
-                                                {t("billing.loadMore", {
-                                                    type:
-                                                        type === "card"
-                                                            ? t("billing.card")
-                                                            : "Link",
-                                                })}
-                                            </Button>
-                                        )}
-                                    </div>
-                                ))}
-                        </div>
-                    )}
+                    </div>
                 </section>
                 {subscription.subscription && (
                     <section
