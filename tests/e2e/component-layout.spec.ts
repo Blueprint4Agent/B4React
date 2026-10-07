@@ -520,6 +520,8 @@ for (const [platform, userAgent, modifier] of [
         await page.keyboard.press(`${modifier}+,`);
         await expect(page).toHaveURL(/\/settings/);
         await page.getByRole("link", { name: "Back to app", exact: true }).click();
+        await expect(page).toHaveURL(/\/home$/);
+        await page.locator('.app-sidebar__item[href="/show-case"]').click();
         await page
             .locator(".showcase-catalog input:not([type=checkbox]):not([type=radio])")
             .first()

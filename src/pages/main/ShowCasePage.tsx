@@ -4,6 +4,7 @@ import { ApiKeyPreview } from "../../components/features/showcase/ApiKeyPreview"
 import { ConnectedOAuthProvidersCard } from "../../components/features/auth/ConnectedOAuthProvidersCard";
 import { RecentAccountList } from "../../components/features/auth/RecentAccountList";
 import type { RecentAccount } from "../../utils/recentAccounts";
+import { MainPageTemplate } from "../../components/layout/MainPageTemplate";
 import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { useTranslation } from "react-i18next";
 import { Check, ChevronRight, KeyRound, SlidersHorizontal, Trash2, UserRound } from "lucide-react";
@@ -656,6 +657,46 @@ export function ShowCasePage() {
                                 {t("showCase.selectionCard.disabled")}
                             </SelectionCard>
                         </div>
+                    </ShowcaseItem>
+                    <ShowcaseItem
+                        component="MainPageTemplate"
+                        className="showcase-catalog__template-demo"
+                    >
+                        <MainPageTemplate
+                            title={t("nav.home")}
+                            description={t("home.templateDescription")}
+                            actions={
+                                <Button
+                                    appearance="text"
+                                    onClick={() => showToast(t("home.templateActionFeedback"))}
+                                >
+                                    {t("home.templateAction")}
+                                </Button>
+                            }
+                            menuLabel={t("home.shortcuts")}
+                            menuLayout="grid"
+                            menuItems={[
+                                {
+                                    id: "account",
+                                    title: t("home.account.title"),
+                                    description: t("home.account.description"),
+                                    icon: <UserRound />,
+                                    to: "/settings?section=account",
+                                },
+                                {
+                                    id: "preferences",
+                                    title: t("home.preferences.title"),
+                                    description: t("home.preferences.description"),
+                                    icon: <SlidersHorizontal />,
+                                    to: "/settings?section=general",
+                                },
+                            ]}
+                        >
+                            <div className="settings-row">
+                                <h2>{t("home.templateContent")}</h2>
+                                <span className="muted">{t("home.templateContentHint")}</span>
+                            </div>
+                        </MainPageTemplate>
                     </ShowcaseItem>
                     <ShowcaseItem component="PrimaryCard">
                         <PrimaryCard>

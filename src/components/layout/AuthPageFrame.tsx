@@ -24,7 +24,7 @@ export function AuthPageFrame({
                 open
                 title={title}
                 description={subtitle}
-                onClose={onClose ?? (() => navigate("/show-case", { replace: true }))}
+                onClose={onClose ?? (() => navigate("/home", { replace: true }))}
                 className="auth-dialog"
                 returnFocusSelector=".profile-menu__trigger"
                 keyboardDismissible

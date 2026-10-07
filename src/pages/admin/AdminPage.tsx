@@ -20,8 +20,7 @@ import { LoadingPage } from "../main/LoadingPage";
 export function AdminPage() {
     const { user, loading } = useAuthContext();
     if (loading) return <LoadingPage />;
-    if (user?.role !== "admin" && user?.role !== "manager")
-        return <Navigate to="/show-case" replace />;
+    if (user?.role !== "admin" && user?.role !== "manager") return <Navigate to="/home" replace />;
     return <AdminUsers ownerId={user.id} />;
 }
 

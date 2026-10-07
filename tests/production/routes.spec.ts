@@ -57,16 +57,16 @@ test("failed chunk offers an explicit reload that restores the current route", a
     await expect(page).toHaveURL(/\/settings(?:\?|$)/);
 });
 
-test("failed chunk can return to the eager showcase", async ({ page }) => {
+test("failed chunk can return to the default home", async ({ page }) => {
     // Given: an unavailable secondary route.
     await page.route(/\/assets\/AdminPage-[^/]+\.js$/, (route) => route.abort());
     await page.goto("/admin");
     await expect(page.getByRole("heading", { name: "Unable to load this page" })).toBeVisible();
     // When: choosing the home recovery action.
-    await page.getByRole("button", { name: "Back to components" }).click();
+    await page.getByRole("button", { name: "Home", exact: true }).click();
     // Then: route-local failure does not poison the shell or home page.
-    await expect(page).toHaveURL(/\/show-case$/);
-    await expect(page.locator(".showcase-catalog")).toBeVisible();
+    await expect(page).toHaveURL(/\/home$/);
+    await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
 });
 
 test("plan selection loads its own production chunk and preserves currency preference", async ({
@@ -95,9 +95,7 @@ test("plan selection loads its own production chunk and preserves currency prefe
     expect(scripts.some((url) => /\/PlansPage-/.test(url))).toBe(true);
 });
 
-test("production runtime blocks showcase and renders only guest authentication", async ({
-    page,
-}) => {
+test("production runtime redirects showcase to the guest home", async ({ page }) => {
     await page.route("**/config", (route) =>
         route.fulfill({ json: { ...config, app_mode: "production", login_enabled: true } }),
     );
@@ -105,8 +103,43 @@ test("production runtime blocks showcase and renders only guest authentication",
         route.fulfill({ status: 401, json: { detail: { error: "INVALID_TOKEN" } } }),
     );
     await page.goto("/show-case");
-    await expect(page).toHaveURL(/\/login$/);
-    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(page).toHaveURL(/\/home$/);
+    await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
     await expect(page.locator(".showcase-catalog")).toHaveCount(0);
     await expect(page.getByRole("link", { name: "GitHub", exact: true })).toHaveCount(0);
+});
+
+test("production home remains available when a secondary route chunk fails", async ({ page }) => {
+    await page.route("**/config", (route) =>
+        route.fulfill({ json: { ...config, app_mode: "production", login_enabled: true } }),
+    );
+    await page.route("**/api/v1/auth/refresh", (route) =>
+        route.fulfill({
+            json: {
+                access_token: "home-test",
+                refresh_token: "home-refresh",
+                token_type: "bearer",
+            },
+        }),
+    );
+    await page.route("**/api/v1/auth/me", (route) =>
+        route.fulfill({
+            json: {
+                id: 1,
+                name: "Home user",
+                email: "home@example.com",
+                role: "user",
+                is_verified: true,
+                created_at: "2026-01-01T00:00:00Z",
+                oauth_providers: [],
+            },
+        }),
+    );
+    await page.route(/\/assets\/SettingsPage-[^/]+\.js$/, (route) => route.abort());
+    await page.goto("/settings");
+    await expect(page.getByRole("heading", { name: "Unable to load this page" })).toBeVisible();
+    await page.getByRole("button", { name: "Home", exact: true }).click();
+    await expect(page).toHaveURL(/\/home$/);
+    await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
+    await expect(page.locator(".main-page-template__link")).toHaveCount(3);
 });

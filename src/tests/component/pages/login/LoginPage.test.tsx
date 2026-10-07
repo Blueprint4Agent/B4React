@@ -94,7 +94,7 @@ describe("LoginPage", () => {
         expect(document.querySelector(".ui-toast-card")).toBeNull();
     });
 
-    it("navigates to show-case after successful login", async () => {
+    it("navigates to home after successful login", async () => {
         // Given: successful login response from auth context.
         loginMock.mockResolvedValue(undefined);
         renderWithRouter(<LoginPage />, "/login");
@@ -112,7 +112,7 @@ describe("LoginPage", () => {
             remember_me: false,
             remember_account: false,
         });
-        expect(navigateMock).toHaveBeenCalledWith("/show-case", { replace: true });
+        expect(navigateMock).toHaveBeenCalledWith("/home", { replace: true });
         expect(screen.getByText("Signed in.")).toBeInTheDocument();
     });
 

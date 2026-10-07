@@ -838,5 +838,32 @@
             "verifyPending": "Card registration is not confirmed yet. Please try again shortly.",
             "retry": "Try again"
         }
+    },
+    "home": {
+        "welcome": "Welcome, {{name}}. Everything you need is right here.",
+        "shortcuts": "Quick links",
+        "account": {
+            "title": "My account",
+            "description": "Manage your profile and account details."
+        },
+        "billing": {
+            "title": "Billing",
+            "description": "Review your plan, payment methods and invoices."
+        },
+        "preferences": {
+            "title": "Preferences",
+            "description": "Choose your preferred language."
+        },
+        "directory": {
+            "title": "User directory",
+            "description": "View users and their roles."
+        },
+        "templateDescription": "Compose a home page with menus, actions and your own content.",
+        "templateAction": "Sample action",
+        "templateActionFeedback": "Connect this action to your workflow.",
+        "templateContent": "Content area",
+        "templateContentHint": "Add lists, cards or widgets here.",
+        "guestWelcome": "Welcome. Choose where you would like to start.",
+        "signIn": "Log in"
     }
 }

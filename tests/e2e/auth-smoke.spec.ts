@@ -29,12 +29,12 @@ test.beforeEach(async ({ page }) => {
     );
 });
 for (const width of [390, 1440]) {
-    test(`guest showcase opens compact login and signup at ${width}px`, async ({ page }) => {
+    test(`guest home opens compact login and signup at ${width}px`, async ({ page }) => {
         await page.setViewportSize({ width, height: 850 });
         // When: entering the app without authentication.
         await page.goto("/");
-        await expect(page).toHaveURL(/\/show-case$/);
-        await expect(page.locator(".showcase-catalog")).toBeVisible();
+        await expect(page).toHaveURL(/\/home$/);
+        await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
         await page.locator(".profile-menu__trigger").click();
         await expect(page.locator(".profile-menu__guest-cta")).toBeVisible();
         await expect(page.locator(".profile-menu__dropdown")).not.toContainText(
@@ -63,12 +63,12 @@ for (const width of [390, 1440]) {
         const bounds = (await page.locator(".auth-dialog .ui-modal__panel").boundingBox())!;
         expect(bounds.x).toBeGreaterThanOrEqual(0);
         expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
-        // Then: signup remains a dialog and Escape returns to the public showcase.
+        // Then: signup remains a dialog and Escape returns to the public home.
         await dialog.getByRole("link", { name: "Create an account" }).click();
         await expect(page.getByRole("dialog")).toBeVisible();
         await expect(page.getByRole("dialog").getByLabel("Name", { exact: true })).toBeVisible();
         await page.keyboard.press("Escape");
-        await expect(page).toHaveURL(/\/show-case$/);
+        await expect(page).toHaveURL(/\/home$/);
         await expect(page.locator(".auth-dialog")).toHaveCount(0);
         await expect(page.locator(".profile-menu__trigger")).toBeFocused();
     });
@@ -85,7 +85,7 @@ test("dialog keyboard focus stays contained", async ({ page }) => {
     await page.keyboard.press("Tab");
     await expect(dialog.getByRole("button", { name: "Close", exact: true })).toBeFocused();
     await dialog.getByRole("button", { name: "Close", exact: true }).click();
-    await expect(page).toHaveURL(/\/show-case$/);
+    await expect(page).toHaveURL(/\/home$/);
 });
 test("disabled OAuth leaves only the existing email flow", async ({ page }) => {
     await page.route("**/config", (route) =>
@@ -117,7 +117,7 @@ test("password recovery stays in the auth dialog through validation and sent sta
     dialog = page.getByRole("dialog");
     await expect(dialog.locator(".status-card--info")).toBeVisible();
     await page.keyboard.press("Escape");
-    await expect(page).toHaveURL(/\/show-case$/);
+    await expect(page).toHaveURL(/\/home$/);
 });
 
 test("signup rules and recovery errors use the compact shared feedback", async ({ page }) => {
@@ -214,7 +214,7 @@ test("signed-in users add another account and retain the current session until s
     await dialog.getByRole("button", { name: "Continue", exact: true }).click();
     await dialog.getByLabel("Password", { exact: true }).fill("ValidPass123!");
     await dialog.getByRole("button", { name: "Sign in", exact: true }).click();
-    await expect(page).toHaveURL(/\/show-case$/);
+    await expect(page).toHaveURL(/\/home$/);
     await page.locator(".profile-menu__trigger").click();
     await page.getByRole("button", { name: "Switch account" }).click();
     await expect(page.locator(".profile-menu__account-current")).toContainText(user.email);
@@ -332,8 +332,15 @@ for (const width of [320, 1440]) {
             expect(panel.x).toBeGreaterThanOrEqual(0);
             expect(panel.x + panel.width).toBeLessThanOrEqual(width);
             // Then: the primary recovery action returns to the public catalog.
-            await page.getByRole("button", { name: "Back to components" }).click();
-            await expect(page).toHaveURL(/\/show-case$/);
+            await page
+                .getByRole("button", {
+                    name: path.startsWith("/show-case") ? "Back to components" : "Home",
+                    exact: true,
+                })
+                .click();
+            await expect(page).toHaveURL(
+                path.startsWith("/show-case") ? /\/show-case$/ : /\/home$/,
+            );
         }
     });
 }

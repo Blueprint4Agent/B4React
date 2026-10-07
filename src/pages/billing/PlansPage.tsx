@@ -39,11 +39,11 @@ export function PlansPage() {
     const close = () =>
         navigate(
             typeof returnTo === "string" &&
-                /^\/(?:settings|show-case|admin)(?:\?.*)?$/.test(returnTo)
+                /^\/(?:settings|show-case|admin|home)(?:\?.*)?$/.test(returnTo)
                 ? returnTo
                 : user
                   ? "/settings?section=billing"
-                  : "/show-case",
+                  : "/home",
             { replace: true, state: location.state },
         );
     const [params, setParams] = useSearchParams();

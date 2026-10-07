@@ -838,5 +838,32 @@
             "verifyPending": "카드 등록 확인이 완료되지 않았습니다. 잠시 후 다시 확인해 주세요.",
             "retry": "다시 시도"
         }
+    },
+    "home": {
+        "welcome": "반갑습니다, {{name}}님. 필요한 메뉴로 바로 이동하세요.",
+        "shortcuts": "바로가기",
+        "account": {
+            "title": "내 계정",
+            "description": "프로필과 계정 정보를 관리하세요."
+        },
+        "billing": {
+            "title": "결제 관리",
+            "description": "이용 중인 요금제와 결제수단, 거래 내역을 확인하세요."
+        },
+        "preferences": {
+            "title": "환경 설정",
+            "description": "사용할 언어를 원하는 대로 설정하세요."
+        },
+        "directory": {
+            "title": "사용자 관리",
+            "description": "사용자 목록과 역할을 확인하세요."
+        },
+        "templateDescription": "메뉴와 액션, 원하는 콘텐츠를 조합해 메인 화면을 구성하세요.",
+        "templateAction": "액션 예시",
+        "templateActionFeedback": "필요한 동작을 연결할 수 있습니다.",
+        "templateContent": "콘텐츠 영역",
+        "templateContentHint": "목록, 카드, 위젯을 배치할 수 있습니다.",
+        "guestWelcome": "환영합니다. 필요한 메뉴로 바로 이동하세요.",
+        "signIn": "로그인"
     }
 }

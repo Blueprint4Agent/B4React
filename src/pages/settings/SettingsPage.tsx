@@ -45,7 +45,7 @@ export function SettingsPage() {
     const navigate = useNavigate();
     const accountDeletion = useAccountDeletion(() => {
         showToast(t("settings.account.deleted"));
-        navigate("/show-case", { replace: true });
+        navigate("/home", { replace: true });
     });
     const { user, loading: authLoading, updateProfile } = useAuthContext();
     const { data: appConfig } = useAppConfig();

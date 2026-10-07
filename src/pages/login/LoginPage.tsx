@@ -162,7 +162,7 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
                 // ignore storage errors in restricted browser contexts
             }
             showToast(t("toast.loginSuccess"));
-            navigate("/show-case", { replace: true });
+            navigate("/home", { replace: true });
         } catch (nextError) {
             showToast(t("toast.loginError"));
             const detail = extractApiDetail(nextError);
