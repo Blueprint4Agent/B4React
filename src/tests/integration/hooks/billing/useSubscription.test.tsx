@@ -1,6 +1,9 @@
+import { setAccessToken } from "../../../../store/session";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
 import { useSubscription } from "../../../../hooks/api/billing/useSubscription";
+const revalidateSession = vi.hoisted(() => vi.fn());
+vi.mock("../../../../hooks/useAuth", () => ({ useAuthContext: () => ({ revalidateSession }) }));
 const flags = vi.hoisted(() => ({
     data: { billing_enabled: true } as {
         billing_enabled: boolean;
@@ -211,4 +214,26 @@ it("does not request disabled or unresolved features, including recovery events"
     });
     expect(result.current.available).toBe(false);
     for (const mock of Object.values(api)) expect(mock).not.toHaveBeenCalled();
+});
+
+it("recovers a rejected token once and stops repeated focus requests if renewal is rejected", async () => {
+    setAccessToken("expired");
+    api.getBillingSubscription.mockRejectedValue({ detail: { error: "INVALID_TOKEN" } });
+    revalidateSession.mockImplementation(async () => {
+        setAccessToken("renewed");
+    });
+    const { result } = renderHook(() => useSubscription(1));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(revalidateSession).toHaveBeenCalledTimes(1);
+    expect(api.getBillingSubscription).toHaveBeenCalledTimes(2);
+    for (let i = 0; i < 5; i++)
+        await act(async () => {
+            window.dispatchEvent(new Event("focus"));
+        });
+    expect(api.getBillingSubscription).toHaveBeenCalledTimes(2);
+    api.getBillingSubscription.mockResolvedValue(free);
+    await act(async () => {
+        setAccessToken("new-session");
+    });
+    await waitFor(() => expect(result.current.subscription).toEqual(free));
 });

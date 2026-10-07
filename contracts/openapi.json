@@ -887,6 +887,8 @@
                     },
                     "error": {
                         "enum": [
+                            "BILLING_WEBHOOK_INVALID",
+                            "BILLING_WEBHOOK_UNAVAILABLE",
                             "BILLING_DISABLED",
                             "BILLING_UNAVAILABLE",
                             "BILLING_PLAN_UNAVAILABLE",
@@ -917,6 +919,131 @@
                 },
                 "required": ["detail"],
                 "title": "BillingErrorResponse",
+                "type": "object"
+            },
+            "BillingInvoiceDetail": {
+                "properties": {
+                    "amount": {
+                        "title": "Amount",
+                        "type": "integer"
+                    },
+                    "amount_due": {
+                        "title": "Amount Due",
+                        "type": "integer"
+                    },
+                    "amount_paid": {
+                        "title": "Amount Paid",
+                        "type": "integer"
+                    },
+                    "created": {
+                        "title": "Created",
+                        "type": "integer"
+                    },
+                    "currency": {
+                        "title": "Currency",
+                        "type": "string"
+                    },
+                    "id": {
+                        "title": "Id",
+                        "type": "string"
+                    },
+                    "lines": {
+                        "items": {
+                            "$ref": "#/components/schemas/BillingInvoiceLine"
+                        },
+                        "title": "Lines",
+                        "type": "array"
+                    },
+                    "lines_has_more": {
+                        "default": false,
+                        "title": "Lines Has More",
+                        "type": "boolean"
+                    },
+                    "number": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Number"
+                    },
+                    "pdf_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Pdf Url"
+                    },
+                    "status": {
+                        "title": "Status",
+                        "type": "string"
+                    },
+                    "subtotal": {
+                        "title": "Subtotal",
+                        "type": "integer"
+                    },
+                    "total": {
+                        "title": "Total",
+                        "type": "integer"
+                    },
+                    "url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Url"
+                    }
+                },
+                "required": [
+                    "id",
+                    "created",
+                    "status",
+                    "amount",
+                    "currency",
+                    "subtotal",
+                    "total",
+                    "amount_paid",
+                    "amount_due",
+                    "lines"
+                ],
+                "title": "BillingInvoiceDetail",
+                "type": "object"
+            },
+            "BillingInvoiceLine": {
+                "properties": {
+                    "amount": {
+                        "title": "Amount",
+                        "type": "integer"
+                    },
+                    "description": {
+                        "title": "Description",
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Quantity"
+                    }
+                },
+                "required": ["description", "amount"],
+                "title": "BillingInvoiceLine",
                 "type": "object"
             },
             "BillingInvoiceResponse": {
@@ -980,6 +1107,17 @@
                         },
                         "title": "Items",
                         "type": "array"
+                    },
+                    "next_cursor": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Next Cursor"
                     }
                 },
                 "required": ["items", "has_more"],
@@ -4615,6 +4753,22 @@
                         },
                         "description": "Successful Response"
                     },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
                     "401": {
                         "content": {
                             "application/json": {
@@ -4726,8 +4880,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -4776,6 +4930,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -4888,8 +5058,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -4935,6 +5105,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -5047,8 +5233,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -5097,6 +5283,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -5209,8 +5411,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -5246,6 +5448,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -5348,8 +5566,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -5375,6 +5593,38 @@
         "/api/v1/billing/invoices": {
             "get": {
                 "operationId": "billing_invoices_api_v1_billing_invoices_get",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "required": false,
+                        "schema": {
+                            "default": 4,
+                            "maximum": 100,
+                            "minimum": 1,
+                            "title": "Limit",
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "starting_after",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "maxLength": 255,
+                                    "pattern": "^in_[A-Za-z0-9]+$",
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Starting After"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "content": {
@@ -5385,6 +5635,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -5456,6 +5722,16 @@
                         },
                         "description": "Conflict"
                     },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        },
+                        "description": "Validation Error"
+                    },
                     "500": {
                         "content": {
                             "application/json": {
@@ -5487,8 +5763,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -5508,6 +5784,184 @@
                     }
                 ],
                 "summary": "Billing Invoices",
+                "tags": ["Billing"]
+            }
+        },
+        "/api/v1/billing/invoices/{invoice_id}": {
+            "get": {
+                "operationId": "invoice_detail_api_v1_billing_invoices__invoice_id__get",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "invoice_id",
+                        "required": true,
+                        "schema": {
+                            "maxLength": 255,
+                            "pattern": "^in_[A-Za-z0-9]+$",
+                            "title": "Invoice Id",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingInvoiceDetail"
+                                }
+                            }
+                        },
+                        "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 401 Invoice Detail Api V1 Billing Invoices  Invoice Id  Get"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Invoice Detail Api V1 Billing Invoices  Invoice Id  Get"
+                                }
+                            }
+                        },
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/BillingErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 404 Invoice Detail Api V1 Billing Invoices  Invoice Id  Get"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_CHECKOUT_CONFLICT",
+                                        "message": "An existing subscription or another checkout requires attention."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Conflict"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        },
+                        "description": "Validation Error"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InternalErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unexpected server error"
+                    },
+                    "502": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_UNAVAILABLE",
+                                        "message": "Payment provider is temporarily unavailable."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Gateway"
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Service Unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    },
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "summary": "Invoice Detail",
                 "tags": ["Billing"]
             }
         },
@@ -5567,6 +6021,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -5679,8 +6149,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -5739,6 +6209,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -5851,8 +6337,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -5888,6 +6374,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -5990,8 +6492,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -6037,6 +6539,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -6149,8 +6667,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -6186,6 +6704,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -6288,8 +6822,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -6333,6 +6867,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -6445,8 +6995,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -6492,6 +7042,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -6604,8 +7170,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -6654,6 +7220,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -6766,8 +7348,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -6803,6 +7385,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -6905,8 +7503,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -6952,6 +7550,22 @@
                             }
                         },
                         "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
@@ -7064,8 +7678,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "BILLING_DISABLED",
-                                        "message": "Billing is not configured."
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
                                     }
                                 },
                                 "schema": {
@@ -7085,6 +7699,119 @@
                     }
                 ],
                 "summary": "Change Subscription",
+                "tags": ["Billing"]
+            }
+        },
+        "/api/v1/billing/webhook": {
+            "post": {
+                "operationId": "billing_webhook_api_v1_billing_webhook_post",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    },
+                                    "title": "Response Billing Webhook Api V1 Billing Webhook Post",
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "description": "Successful Response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_INVALID",
+                                        "message": "Invalid billing webhook."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_NOT_FOUND",
+                                        "message": "Billing resource not found."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_CHECKOUT_CONFLICT",
+                                        "message": "An existing subscription or another checkout requires attention."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Conflict"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InternalErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unexpected server error"
+                    },
+                    "502": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_UNAVAILABLE",
+                                        "message": "Payment provider is temporarily unavailable."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Gateway"
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "BILLING_WEBHOOK_UNAVAILABLE",
+                                        "message": "Billing webhook is not configured."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Service Unavailable"
+                    }
+                },
+                "summary": "Billing Webhook",
                 "tags": ["Billing"]
             }
         },

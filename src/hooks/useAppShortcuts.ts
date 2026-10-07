@@ -1,6 +1,6 @@
+import { useKeyboardShortcuts } from "./useKeyboardShortcuts";
 import { useEffect } from "react";
 import {
-    APP_SHORTCUTS,
     getShortcutPlatform,
     isShortcutBlocked,
     matchesShortcut,
@@ -9,19 +9,20 @@ import {
 type AppShortcutActions = { toggleSidebar: () => void; openSettings: () => void };
 
 export function useAppShortcuts({ toggleSidebar, openSettings }: AppShortcutActions): void {
+    const { bindings } = useKeyboardShortcuts();
     useEffect(() => {
         const platform = getShortcutPlatform();
         const onKeyDown = (event: KeyboardEvent) => {
             if (isShortcutBlocked(event)) return;
-            if (matchesShortcut(event, APP_SHORTCUTS.toggleSidebar, platform)) {
+            if (matchesShortcut(event, bindings.toggleSidebar, platform)) {
                 event.preventDefault();
                 toggleSidebar();
-            } else if (matchesShortcut(event, APP_SHORTCUTS.openSettings, platform)) {
+            } else if (matchesShortcut(event, bindings.openSettings, platform)) {
                 event.preventDefault();
                 openSettings();
             }
         };
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, [toggleSidebar, openSettings]);
+    }, [toggleSidebar, openSettings, bindings]);
 }

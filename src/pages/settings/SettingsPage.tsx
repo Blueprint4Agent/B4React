@@ -1,3 +1,4 @@
+import { KeyboardSettings } from "./KeyboardSettings";
 import { BillingSettingsPage } from "../billing/BillingSettingsPage";
 import { useToast } from "../../hooks/useToast";
 import { resolveSettingsSection } from "../../utils/settingsSections";
@@ -122,7 +123,7 @@ export function SettingsPage() {
         ? (normalizedLanguageId as SupportedLanguageId)
         : "en";
     const currentLanguageLabel = t(`settings.general.languages.${currentLanguageId}`);
-    const isAdminUser = user?.role === "admin";
+    const profileRole = user?.role === "admin" || user?.role === "manager" ? user.role : null;
 
     const resolveOAuthProviderLabel = (provider: string) => {
         if (provider === "google") {
@@ -316,7 +317,7 @@ export function SettingsPage() {
 
     return (
         <section className="settings-layout">
-            <PrimaryCard className="settings-content-card">
+            <PrimaryCard key={activeMenu} className="settings-content-card">
                 {showProfile ? (
                     <>
                         <header className="settings-content-card__header">
@@ -324,13 +325,6 @@ export function SettingsPage() {
                                 <span>{t("settings.profile.title")}</span>
                             </h1>
                             <p>{t("settings.profile.subtitle")}</p>
-                            {isAdminUser ? (
-                                <div className="settings-profile-role-badge-wrap">
-                                    <StatusBadge tone="active">
-                                        {t("settings.profile.roleBadgeAdmin")}
-                                    </StatusBadge>
-                                </div>
-                            ) : null}
                         </header>
 
                         <section
@@ -396,7 +390,16 @@ export function SettingsPage() {
                             </div>
 
                             <aside className="settings-profile-photo-panel">
-                                <h2>{t("settings.profile.photo")}</h2>
+                                <h2 className="settings-profile-photo-heading">
+                                    <span>{t("settings.profile.photo")}</span>
+                                    {profileRole && (
+                                        <StatusBadge tone="active">
+                                            {t(
+                                                `settings.profile.roleBadge${profileRole === "admin" ? "Admin" : "Manager"}`,
+                                            )}
+                                        </StatusBadge>
+                                    )}
+                                </h2>
                                 <UserAvatar
                                     className="settings-profile-photo-card__preview"
                                     imageUrl={normalizedProfileImageInput}
@@ -512,6 +515,8 @@ export function SettingsPage() {
                             />
                         </section>
                     </>
+                ) : activeMenu === "keyboard" ? (
+                    <KeyboardSettings />
                 ) : activeMenu === "appearance" ? (
                     <>
                         <header className="settings-content-card__header">

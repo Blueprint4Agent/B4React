@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
-import { RefreshCw, Users } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import {
     Button,
     DropdownMenu,
@@ -51,10 +51,7 @@ function AdminUsers({ ownerId }: { ownerId: number }) {
         <section className="settings-layout admin-layout">
             <PrimaryCard className="settings-content-card admin-content">
                 <header className="settings-content-card__header">
-                    <h1>
-                        <Users className="settings-content-card__title-icon" aria-hidden="true" />
-                        {t("admin.users")}
-                    </h1>
+                    <h1>{t("admin.users")}</h1>
                     <p>{t("admin.description")}</p>
                 </header>
                 <dl className="admin-summary">

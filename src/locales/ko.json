@@ -366,7 +366,8 @@
             "profile": "계정",
             "general": "일반",
             "developers": "개발자",
-            "appearance": "모양"
+            "appearance": "모양",
+            "keyboard": "키보드"
         },
         "labels": {
             "name": "이름",
@@ -395,7 +396,8 @@
             },
             "roleBadgeAdmin": "관리자",
             "saveSuccess": "프로필 변경사항이 저장되었습니다.",
-            "saveError": "프로필 변경사항을 저장하지 못했습니다. 다시 시도해주세요."
+            "saveError": "프로필 변경사항을 저장하지 못했습니다. 다시 시도해주세요.",
+            "roleBadgeManager": "매니저"
         },
         "general": {
             "title": "일반",
@@ -507,6 +509,18 @@
             "codeLabel": "6자리 인증 코드",
             "emailRequired": "계정 삭제에는 이메일 인증이 필요합니다. 이메일 기능이 활성화되어야 합니다.",
             "codeHint": "코드는 10분 동안 유효하며, 재발송하면 이전 코드는 만료됩니다."
+        },
+        "keyboard": {
+            "description": "단축키를 변경하면 이 브라우저에 저장됩니다. 입력 중이거나 팝업이 열린 상태에서는 실행되지 않습니다.",
+            "toggleSidebar": "사이드바 펼치기 / 접기",
+            "openSettings": "설정 열기",
+            "press": "키 조합을 누르세요",
+            "reset": "기본값으로 복원",
+            "errors": {
+                "invalid": "인식할 수 있는 키를 눌러주세요.",
+                "conflict": "다른 기능에서 사용 중인 단축키입니다.",
+                "storage": "단축키를 저장하지 못했습니다. 브라우저 저장소 설정을 확인해주세요."
+            }
         }
     },
     "theme": {
@@ -875,6 +889,14 @@
             "cardUnavailable": "현재 카드 등록을 사용할 수 없습니다.",
             "verifyPending": "카드 등록 확인이 완료되지 않았습니다. 잠시 후 다시 확인해 주세요.",
             "retry": "다시 시도"
+        },
+        "historyDialog": {
+            "details": "결제 상세 내역",
+            "back": "내역으로 돌아가기",
+            "total": "합계",
+            "paid": "결제 금액",
+            "more": "더 불러오기",
+            "moreLines": "추가 항목은 영수증에서 확인할 수 있습니다."
         }
     },
     "home": {

@@ -33,7 +33,7 @@ type AuthContextValue = {
     logout: () => Promise<void>;
     deleteAccount: (email: string, code: string) => Promise<void>;
     refreshSession: () => Promise<void>;
-    revalidateSession: () => Promise<void>;
+    revalidateSession: (options?: { force?: boolean }) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -41,7 +41,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 type RoleAwareUser = User & { role?: "admin" | "manager" | "user" };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const { ensureConfig } = useAppConfig();
+    const { ensureConfig, reload: reloadConfig } = useAppConfig();
     const {
         refresh: refreshAuth,
         me,
@@ -83,42 +83,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [me, refreshAuth]);
 
-    const revalidateSession = useCallback(async () => {
-        const epoch = sessionEpoch.current;
-        try {
-            const config = await ensureConfig();
-            if (epoch !== sessionEpoch.current) return;
-            if (config?.login_enabled === false) {
-                if (config.bootstrap_access_token) {
-                    setAccessToken(config.bootstrap_access_token);
-                } else {
-                    clearAccessToken();
-                }
-                setUser(config.bootstrap_user ?? null);
-                return;
-            }
-
-            const token = getAccessToken();
-            if (token) {
-                try {
-                    const nextUser = await me();
-                    if (epoch !== sessionEpoch.current) return;
-                    completeOAuthAccountIntent(nextUser);
-                    setUser(nextUser);
+    const recoveryInFlight = useRef<Promise<void> | null>(null);
+    const revalidate = useCallback(
+        async (force = false) => {
+            const epoch = sessionEpoch.current;
+            try {
+                const config = await (force ? reloadConfig() : ensureConfig());
+                if (epoch !== sessionEpoch.current) return;
+                if (config?.login_enabled === false) {
+                    if (config.bootstrap_access_token) {
+                        setAccessToken(config.bootstrap_access_token);
+                    } else {
+                        clearAccessToken();
+                    }
+                    setUser(config.bootstrap_user ?? null);
                     return;
-                } catch {
-                    if (epoch !== sessionEpoch.current) return;
-                    clearAccessToken();
                 }
-            }
 
-            await refreshSession();
-        } catch {
-            if (epoch !== sessionEpoch.current) return;
-            clearAccessToken();
-            setUser(null);
-        }
-    }, [ensureConfig, me, refreshSession]);
+                if (force) {
+                    await refreshSession();
+                    return;
+                }
+                const token = getAccessToken();
+                if (token) {
+                    try {
+                        const nextUser = await me();
+                        if (epoch !== sessionEpoch.current) return;
+                        completeOAuthAccountIntent(nextUser);
+                        setUser(nextUser);
+                        return;
+                    } catch {
+                        if (epoch !== sessionEpoch.current) return;
+                        clearAccessToken();
+                    }
+                }
+
+                await refreshSession();
+            } catch {
+                if (epoch !== sessionEpoch.current) return;
+                clearAccessToken();
+                setUser(null);
+            }
+        },
+        [ensureConfig, reloadConfig, me, refreshSession],
+    );
+    const revalidateSession = useCallback(
+        (options?: { force?: boolean }) => {
+            if (!options?.force) return revalidate();
+            if (recoveryInFlight.current) return recoveryInFlight.current;
+            const task = revalidate(true).finally(() => {
+                recoveryInFlight.current = null;
+            });
+            recoveryInFlight.current = task;
+            return task;
+        },
+        [revalidate],
+    );
 
     useEffect(() => {
         // Agent customization note:
@@ -139,6 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             user,
             loading,
             login: async (input) => {
+                sessionEpoch.current += 1;
                 const { remember_account, ...credentials } = input;
                 const payload = await loginAuth(credentials);
                 if (remember_account)
@@ -167,6 +188,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setUser(null);
             },
             logout: async () => {
+                sessionEpoch.current += 1;
                 try {
                     await logoutAuth();
                 } finally {

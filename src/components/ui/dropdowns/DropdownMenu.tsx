@@ -72,7 +72,7 @@ export function DropdownMenu({
             const up = naturalHeight > below && above > below;
             menu.style.maxHeight = `${up ? above : below}px`;
             const height = menu.offsetHeight;
-            menu.style.left = `${Math.max(edge, Math.min(compact ? rect.right - width : rect.left, viewportWidth - width - edge))}px`;
+            menu.style.left = `${Math.max(edge, Math.min(rect.left, viewportWidth - width - edge))}px`;
             menu.style.top = `${Math.max(edge, up ? rect.top - height - gap : rect.bottom + gap)}px`;
             menu.dataset.side = up ? "top" : "bottom";
             menu.scrollTop = scrollTop;

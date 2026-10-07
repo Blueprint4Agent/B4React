@@ -76,7 +76,7 @@ export function matchesShortcut(
     const key = names.find((name) => !["Control", "Meta", "Alt", "Shift"].includes(name));
     return (
         key !== undefined &&
-        event.key.toUpperCase() === key.toUpperCase() &&
+        (event.key === " " ? "SPACE" : event.key.toUpperCase()) === key.toUpperCase() &&
         event.ctrlKey === names.includes("Control") &&
         event.metaKey === names.includes("Meta") &&
         event.altKey === names.includes("Alt") &&

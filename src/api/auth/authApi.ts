@@ -154,7 +154,7 @@ export async function listAdminUsers(
 
 export async function deleteMe(input: components["schemas"]["DeleteAccountForm"]): Promise<void> {
     const { error, response } = await apiClient.DELETE("/api/v1/auth/me", {
-        headers: getAuthHeader(),
+        headers: { ...getAuthHeader(), ...getAppLanguageHeader() },
         body: input,
     });
     if (error || !response.ok) throw error;

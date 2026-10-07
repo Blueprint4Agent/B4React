@@ -1,3 +1,4 @@
+import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
 import type { SubscriptionTier } from "../../utils/billingPlans";
 import { createPortal } from "react-dom";
 import { useRecentAccounts } from "../../hooks/useRecentAccounts";
@@ -16,7 +17,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
 import { KeyboardShortcut, UserAvatar } from "../ui";
-import { APP_SHORTCUTS, shortcutAriaKeys } from "../../utils/keyboardShortcuts";
+import { shortcutAriaKeys } from "../../utils/keyboardShortcuts";
 
 type ProfileDropdownProps = {
     expanded?: boolean;
@@ -54,6 +55,7 @@ export function ProfileDropdown({
     showLogout,
 }: ProfileDropdownProps) {
     const { t } = useTranslation();
+    const { bindings } = useKeyboardShortcuts();
     const location = useLocation();
     const [menuOpen, setMenuOpen] = useState(false);
     const [accountsOpen, setAccountsOpen] = useState(false);
@@ -317,13 +319,13 @@ export function ProfileDropdown({
                         to="/settings"
                         className="profile-menu__item"
                         aria-label={t("nav.settings")}
-                        aria-keyshortcuts={shortcutAriaKeys(APP_SHORTCUTS.openSettings)}
+                        aria-keyshortcuts={shortcutAriaKeys(bindings.openSettings)}
                     >
                         <span className="profile-menu__item-icon" aria-hidden="true">
                             <Settings />
                         </span>
                         <span>{t("nav.settings")}</span>
-                        <KeyboardShortcut keys={APP_SHORTCUTS.openSettings} />
+                        <KeyboardShortcut keys={bindings.openSettings} />
                     </Link>
                     {!showLogin && showPlans && (
                         <Link

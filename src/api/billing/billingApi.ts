@@ -108,8 +108,21 @@ export async function getBillingProfile(): Promise<BillingProfile> {
     if (error || !data) throw error;
     return data;
 }
-export async function getBillingInvoices(): Promise<BillingInvoices> {
+export type BillingInvoiceDetail = components["schemas"]["BillingInvoiceDetail"];
+export async function getBillingInvoiceDetail(invoiceId: string): Promise<BillingInvoiceDetail> {
+    const { data, error } = await apiClient.GET("/api/v1/billing/invoices/{invoice_id}", {
+        headers: getAuthHeader(),
+        params: { path: { invoice_id: invoiceId } },
+    });
+    if (error || !data) throw error;
+    return data;
+}
+export async function getBillingInvoices(
+    limit?: number,
+    startingAfter?: string,
+): Promise<BillingInvoices> {
     const { data, error } = await apiClient.GET("/api/v1/billing/invoices", {
+        params: { query: { limit, starting_after: startingAfter } },
         headers: getAuthHeader(),
     });
     if (error || !data) throw error;

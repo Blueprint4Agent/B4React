@@ -17,7 +17,7 @@
     --space-5: 1.25rem;
     --space-6: 1.5rem;
     --space-8: 2rem;
-    --control-height: 2.25rem;
+    --control-height: 2rem;
     --rail-control-size: 2rem;
     --sidebar-row-height: 2rem;
     --sidebar-width: 3rem;
@@ -2277,10 +2277,10 @@ input:focus {
     border: 1px solid var(--button-border);
     border-radius: var(--radius-control);
     width: auto;
-    height: var(--control-height);
+    height: var(--dropdown-height, 2rem);
     max-width: 100%;
     justify-self: center;
-    padding: var(--space-2) var(--space-3);
+    padding: 0 var(--space-3);
     font:
         500 0.8125rem/1.25 var(--font-family),
         system-ui,
@@ -3847,11 +3847,11 @@ input {
 /* Shared authentication controls, also demonstrated in the showcase. */
 .ui-button.ui-button--pill,
 .ui-button.ui-button--pill-secondary {
-    min-height: 40px;
-    height: auto;
+    min-height: var(--dropdown-height, 2rem);
+    height: var(--dropdown-height, 2rem);
     border-radius: 999px;
-    padding: 8px 16px;
-    font-size: 14px;
+    padding: 0 var(--space-3);
+    font-size: 0.8125rem;
     font-weight: 400;
 }
 .ui-button.ui-button--pill-secondary {
@@ -5668,7 +5668,15 @@ input {
     height: 1rem;
 }
 .ui-dropdown__item--danger {
-    color: var(--error-text);
+    color: #d92d20;
+}
+html[data-theme="dark"] .ui-dropdown__item--danger {
+    color: #ff5c4d;
+}
+@media (prefers-color-scheme: dark) {
+    html:not([data-theme="light"]) .ui-dropdown__item--danger {
+        color: #ff5c4d;
+    }
 }
 .ui-dropdown__item--danger:hover {
     background: var(--error-bg);
@@ -5857,15 +5865,19 @@ html[data-theme="dark"] .billing-stripe-badge .payment-brand--dark {
     position: absolute;
     right: -0.2rem;
     bottom: -0.15rem;
-    min-width: 1.15rem;
-    height: 1.15rem;
-    padding: 0 0.15rem;
+    box-sizing: border-box;
+    width: 1rem;
+    height: 1rem;
+    padding: 0;
     border-radius: 999px;
     background: var(--text);
     color: var(--bg);
     border: 2px solid var(--sidebar-bg);
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0;
+    text-indent: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -6212,4 +6224,60 @@ html[data-theme="dark"] .billing-stripe-badge .payment-brand--dark {
 .server-payment-mode {
     color: var(--text-soft);
     font-size: 0.75rem;
+}
+
+@media (pointer: coarse) {
+    .ui-button,
+    .ui-button.ui-button--pill,
+    .ui-button.ui-button--pill-secondary,
+    .ui-dropdown__trigger {
+        min-height: 44px;
+    }
+}
+
+.invoice-detail {
+    display: grid;
+    gap: var(--space-3);
+}
+.invoice-detail__line {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-block: var(--space-2);
+    border-bottom: 1px solid var(--panel-border);
+}
+.invoice-detail__line > span:last-child {
+    white-space: nowrap;
+}
+
+.settings-keyboard-control {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    min-width: 0;
+}
+.settings-keyboard-control .form-field {
+    max-width: 16rem;
+}
+
+.settings-keyboard-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: var(--space-3);
+}
+
+.settings-shortcut-trigger.ui-button {
+    padding: 0;
+}
+.settings-shortcut-trigger .ui-keyboard-shortcut {
+    cursor: pointer;
+}
+
+.settings-profile-photo-heading {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
 }

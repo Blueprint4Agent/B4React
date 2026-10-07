@@ -1,7 +1,9 @@
+import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
 import type { SubscriptionTier } from "../../utils/billingPlans";
 import { useToast } from "../../hooks/useToast";
 import { resolveSettingsSection } from "../../utils/settingsSections";
 import {
+    Keyboard,
     AppWindow,
     Home,
     CreditCard,
@@ -26,7 +28,7 @@ import { useAppConfig } from "../../hooks/useFeatures";
 import { BrandMark, KeyboardShortcut, Tooltip } from "../ui";
 import { ConnectivityStatus } from "./ConnectivityStatus";
 import { ProfileDropdown } from "./ProfileDropdown";
-import { APP_SHORTCUTS, shortcutAriaKeys } from "../../utils/keyboardShortcuts";
+import { shortcutAriaKeys } from "../../utils/keyboardShortcuts";
 import { SidebarResizeHandle, SIDEBAR_DEFAULT_WIDTH } from "./SidebarResizeHandle";
 
 type AppSidebarProps = {
@@ -47,6 +49,7 @@ export function AppSidebar({
     onResizingChange,
 }: AppSidebarProps) {
     const { t } = useTranslation();
+    const { bindings } = useKeyboardShortcuts();
     const toggleRef = useRef<HTMLButtonElement>(null);
     const previousExpanded = useRef(expanded);
     useEffect(() => {
@@ -139,6 +142,12 @@ export function AppSidebar({
                     section: "account",
                 },
                 {
+                    path: "/settings?section=keyboard",
+                    label: t("settings.menu.keyboard"),
+                    icon: Keyboard,
+                    section: "keyboard",
+                },
+                {
                     path: "/settings?section=billing",
                     label: t("billing.title"),
                     icon: CreditCard,
@@ -186,7 +195,7 @@ export function AppSidebar({
                             content={
                                 <span className="ui-shortcut-hint">
                                     {t("nav.sidebar.toggleClose")}
-                                    <KeyboardShortcut keys={APP_SHORTCUTS.toggleSidebar} />
+                                    <KeyboardShortcut keys={bindings.toggleSidebar} />
                                 </span>
                             }
                             side="right"
@@ -198,7 +207,7 @@ export function AppSidebar({
                                 aria-label={t("nav.sidebar.toggleClose")}
                                 aria-expanded={true}
                                 aria-controls="app-sidebar-navigation"
-                                aria-keyshortcuts={shortcutAriaKeys(APP_SHORTCUTS.toggleSidebar)}
+                                aria-keyshortcuts={shortcutAriaKeys(bindings.toggleSidebar)}
                                 onClick={onToggleExpanded}
                             >
                                 <PanelLeftClose aria-hidden="true" />
@@ -210,7 +219,7 @@ export function AppSidebar({
                         content={
                             <span className="ui-shortcut-hint">
                                 {t("nav.sidebar.toggleOpen")}
-                                <KeyboardShortcut keys={APP_SHORTCUTS.toggleSidebar} />
+                                <KeyboardShortcut keys={bindings.toggleSidebar} />
                             </span>
                         }
                         side="right"
@@ -222,7 +231,7 @@ export function AppSidebar({
                             aria-label={t("nav.sidebar.toggleOpen")}
                             aria-expanded={false}
                             aria-controls="app-sidebar-navigation"
-                            aria-keyshortcuts={shortcutAriaKeys(APP_SHORTCUTS.toggleSidebar)}
+                            aria-keyshortcuts={shortcutAriaKeys(bindings.toggleSidebar)}
                             onClick={onToggleExpanded}
                         >
                             <BrandMark />
