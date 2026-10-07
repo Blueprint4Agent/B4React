@@ -19,7 +19,7 @@ function payload(): AdminUserList {
         page: 1,
         page_size: 10,
         total: 10,
-        summary: { total_users: 10, active_users: 10, admin_users: 1 },
+        summary: { total_users: 10, active_users: 10, admin_users: 1, manager_users: 0 },
         items: Array.from({ length: 10 }, (_, id) => ({
             id,
             name: `Person ${id}`,

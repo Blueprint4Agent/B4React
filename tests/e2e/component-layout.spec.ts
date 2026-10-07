@@ -3,6 +3,7 @@ import { expect, test, type Locator } from "@playwright/test";
 
 const config = {
     api_base_path: "/api/v1",
+    app_mode: "development",
     login_enabled: false,
     frontend_base_path: "",
     email_enabled: false,

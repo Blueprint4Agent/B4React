@@ -4,6 +4,7 @@ export const handlers = [
     http.get(/.*\/config$/, () =>
         HttpResponse.json({
             api_base_path: "/api/v1",
+            app_mode: "development",
             login_enabled: true,
             frontend_base_path: "",
             email_enabled: false,

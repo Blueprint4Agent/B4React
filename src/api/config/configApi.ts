@@ -8,5 +8,11 @@ export async function getConfig(): Promise<AppConfig> {
     if (error || !data) {
         throw error ?? new Error("Failed to load config.");
     }
+    if (data.app_mode !== "development" && data.app_mode !== "production") {
+        throw new Error("Invalid application mode.");
+    }
+    if (data.app_mode === "production" && !data.login_enabled) {
+        throw new Error("Production mode requires login.");
+    }
     return data;
 }

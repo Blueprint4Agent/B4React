@@ -61,6 +61,8 @@ export function AppSidebar({
     const { data: appConfig } = useAppConfig();
     const { checkNow, isDesktop, status } = useServerConnectivity();
     const [busy, setBusy] = useState(false);
+    const development = appConfig?.app_mode === "development";
+    const homePath = development ? "/show-case" : "/";
     const loginEnabled = appConfig?.login_enabled === true;
     const logoutBlocked = isDesktop && status !== "online";
     const displayName =
@@ -74,19 +76,20 @@ export function AppSidebar({
         try {
             await logout();
             showToast(t("toast.logoutSuccess"));
-            navigate("/show-case", { replace: true });
+            navigate(homePath, { replace: true });
         } catch {
             showToast(t("toast.logoutError"));
-            navigate("/show-case", { replace: true });
+            navigate(homePath, { replace: true });
         } finally {
             setBusy(false);
         }
     };
-    const isAdminPanel = location.pathname === "/admin" && user?.role === "admin";
+    const isAdminPanel =
+        location.pathname === "/admin" && (user?.role === "admin" || user?.role === "manager");
     const items = isAdminPanel
         ? [
               {
-                  path: "/show-case",
+                  path: homePath,
                   label: t("settings.backToApp"),
                   icon: ArrowLeft,
                   section: "back",
@@ -96,7 +99,7 @@ export function AppSidebar({
         : isSettings
           ? [
                 {
-                    path: "/show-case",
+                    path: homePath,
                     label: t("settings.backToApp"),
                     icon: ArrowLeft,
                     section: "back",
@@ -134,8 +137,8 @@ export function AppSidebar({
             ]
           : [
                 {
-                    path: "/show-case",
-                    label: t("nav.sidebar.showCase"),
+                    path: homePath,
+                    label: t(development ? "nav.sidebar.showCase" : "nav.home"),
                     icon: AppWindow,
                     section: "",
                 },
@@ -147,9 +150,9 @@ export function AppSidebar({
                 {expanded ? (
                     <>
                         <Link
-                            to="/show-case"
+                            to={homePath}
                             className="app-sidebar__brand"
-                            aria-label={t("nav.aria.goShowCase")}
+                            aria-label={t(development ? "nav.aria.goShowCase" : "nav.home")}
                         >
                             <span className="app-sidebar__brand-name">{t("nav.brand")}</span>
                         </Link>
@@ -256,18 +259,21 @@ export function AppSidebar({
             <div className="app-sidebar__footer">
                 <ConnectivityStatus placement="sidebar" />
                 <div className="app-sidebar__nav">
-                    {[
-                        {
-                            href: "https://github.com/Blueprint4Agent/B4FastAPI",
-                            label: t("nav.sidebar.github"),
-                            icon: null,
-                        },
-                        {
-                            href: "https://blueprint4agent.github.io/docs",
-                            label: t("nav.sidebar.documentation"),
-                            icon: BookOpen,
-                        },
-                    ].map(({ href, label, icon: Icon }) => (
+                    {(development
+                        ? [
+                              {
+                                  href: "https://github.com/Blueprint4Agent/B4FastAPI",
+                                  label: t("nav.sidebar.github"),
+                                  icon: null,
+                              },
+                              {
+                                  href: "https://blueprint4agent.github.io/docs",
+                                  label: t("nav.sidebar.documentation"),
+                                  icon: BookOpen,
+                              },
+                          ]
+                        : []
+                    ).map(({ href, label, icon: Icon }) => (
                         <Tooltip
                             key={href}
                             content={label}
@@ -296,7 +302,7 @@ export function AppSidebar({
                 </div>
                 <ProfileDropdown
                     expanded={expanded}
-                    showAdmin={user?.role === "admin"}
+                    showAdmin={user?.role === "admin" || user?.role === "manager"}
                     avatarLabel={user ? displayName.slice(0, 1).toUpperCase() : undefined}
                     avatarImageUrl={user?.profile_image_url}
                     busy={busy}

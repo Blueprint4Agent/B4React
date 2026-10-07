@@ -99,18 +99,20 @@ function AuthDialogRoute({
 }) {
     const { user, loading } = useAuthContext();
     const [params] = useSearchParams();
+    const { data: config } = useAppConfig();
+    const development = config?.app_mode === "development";
     if (guestOnly && !loading && user && params.get("switch") !== "1")
-        return <Navigate to="/show-case" replace />;
+        return <Navigate to={development ? "/show-case" : "/"} replace />;
     return (
         <>
-            <ShowCasePage />
+            {development ? <ShowCasePage /> : null}
             <RouteBoundary fallback={<LoadingPage />}>{children}</RouteBoundary>
         </>
     );
 }
 
 export function App() {
-    const { revalidateSession } = useAuthContext();
+    const { revalidateSession, user } = useAuthContext();
     useTheme();
     const { t } = useTranslation();
     const {
@@ -147,15 +149,21 @@ export function App() {
     }
 
     const loginEnabled = appConfig.login_enabled;
+    const development = appConfig.app_mode === "development";
+    const homePath = development ? "/show-case" : user ? "/settings?section=account" : "/login";
 
     return (
         <Routes>
-            <Route path="/" element={<Navigate to="/show-case" replace />} />
+            <Route path="/" element={<Navigate to={homePath} replace />} />
             <Route
                 path="/welcome"
                 element={
                     <RouteBoundary fallback={<LoadingPage />}>
-                        <LandingPage loginEnabled={loginEnabled} />
+                        {development ? (
+                            <LandingPage loginEnabled={loginEnabled} />
+                        ) : (
+                            <Navigate to={homePath} replace />
+                        )}
                     </RouteBoundary>
                 }
             />
@@ -179,10 +187,23 @@ export function App() {
                     </AppLayout>
                 }
             >
-                <Route path="/dashboard" element={<Navigate to="/show-case" replace />} />
-                <Route path="/show-case" element={<ShowCasePage />} />
-                <Route path="/show-case/loading" element={<LoadingPage preview />} />
-                <Route path="/show-case/404" element={<ShowCaseNotFoundPage />} />
+                <Route path="/dashboard" element={<Navigate to={homePath} replace />} />
+                <Route
+                    path="/show-case"
+                    element={development ? <ShowCasePage /> : <Navigate to={homePath} replace />}
+                />
+                <Route
+                    path="/show-case/loading"
+                    element={
+                        development ? <LoadingPage preview /> : <Navigate to={homePath} replace />
+                    }
+                />
+                <Route
+                    path="/show-case/404"
+                    element={
+                        development ? <ShowCaseNotFoundPage /> : <Navigate to={homePath} replace />
+                    }
+                />
                 <Route
                     path="/login"
                     element={
@@ -191,7 +212,7 @@ export function App() {
                                 <LoginPage embedded />
                             </AuthDialogRoute>
                         ) : (
-                            <Navigate to="/show-case" replace />
+                            <Navigate to={homePath} replace />
                         )
                     }
                 />
@@ -203,7 +224,7 @@ export function App() {
                                 <SignupPage embedded />
                             </AuthDialogRoute>
                         ) : (
-                            <Navigate to="/show-case" replace />
+                            <Navigate to={homePath} replace />
                         )
                     }
                 />
@@ -215,7 +236,7 @@ export function App() {
                                 <SignupEmailSentPage embedded />
                             </AuthDialogRoute>
                         ) : (
-                            <Navigate to="/show-case" replace />
+                            <Navigate to={homePath} replace />
                         )
                     }
                 />
@@ -227,7 +248,7 @@ export function App() {
                                 <ForgotPasswordPage embedded />
                             </AuthDialogRoute>
                         ) : (
-                            <Navigate to="/show-case" replace />
+                            <Navigate to={homePath} replace />
                         )
                     }
                 />
@@ -239,7 +260,7 @@ export function App() {
                                 <ForgotPasswordEmailSentPage embedded />
                             </AuthDialogRoute>
                         ) : (
-                            <Navigate to="/show-case" replace />
+                            <Navigate to={homePath} replace />
                         )
                     }
                 />
@@ -251,7 +272,7 @@ export function App() {
                                 <ResetPasswordPage embedded />
                             </AuthDialogRoute>
                         ) : (
-                            <Navigate to="/show-case" replace />
+                            <Navigate to={homePath} replace />
                         )
                     }
                 />
@@ -263,7 +284,7 @@ export function App() {
                                 <ResetPasswordSuccessPage embedded />
                             </AuthDialogRoute>
                         ) : (
-                            <Navigate to="/show-case" replace />
+                            <Navigate to={homePath} replace />
                         )
                     }
                 />
@@ -275,7 +296,7 @@ export function App() {
                                 <VerifyEmailPage embedded />
                             </AuthDialogRoute>
                         ) : (
-                            <Navigate to="/show-case" replace />
+                            <Navigate to={homePath} replace />
                         )
                     }
                 />

@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 const config = {
     api_base_path: "/api/v1",
     frontend_base_path: "",
+    app_mode: "development",
     login_enabled: false,
     email_enabled: false,
     oauth_enabled: false,
@@ -32,7 +33,7 @@ for (const route of ["/show-case", "/settings", "/admin"]) {
                     total: 0,
                     page: 1,
                     page_size: 10,
-                    summary: { total_users: 0, active_users: 0, admin_users: 0 },
+                    summary: { total_users: 0, active_users: 0, admin_users: 0, manager_users: 0 },
                 },
             }),
         );

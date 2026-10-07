@@ -15,6 +15,7 @@ for (const locale of ["en", "ko"]) {
                 return route.fulfill({
                     json: {
                         api_base_path: "/api/v1",
+                        app_mode: "development",
                         login_enabled: false,
                         email_enabled: false,
                         oauth_enabled: false,
@@ -55,6 +56,7 @@ test("production excludes the local editor and filesystem protocol", async ({ pa
         route.fulfill({
             json: {
                 api_base_path: "/api/v1",
+                app_mode: "development",
                 login_enabled: false,
                 email_enabled: false,
                 oauth_enabled: false,

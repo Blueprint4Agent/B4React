@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 const config = {
     api_base_path: "/api/v1",
     frontend_base_path: "",
+    app_mode: "development",
     login_enabled: false,
     email_enabled: false,
     oauth_enabled: false,
@@ -92,4 +93,20 @@ test("plan selection loads its own production chunk and preserves currency prefe
         page.getByRole("button", { name: "Sign in to continue", exact: true }).first(),
     ).toBeVisible();
     expect(scripts.some((url) => /\/PlansPage-/.test(url))).toBe(true);
+});
+
+test("production runtime blocks showcase and renders only guest authentication", async ({
+    page,
+}) => {
+    await page.route("**/config", (route) =>
+        route.fulfill({ json: { ...config, app_mode: "production", login_enabled: true } }),
+    );
+    await page.route("**/api/v1/auth/refresh", (route) =>
+        route.fulfill({ status: 401, json: { detail: { error: "INVALID_TOKEN" } } }),
+    );
+    await page.goto("/show-case");
+    await expect(page).toHaveURL(/\/login$/);
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(page.locator(".showcase-catalog")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "GitHub", exact: true })).toHaveCount(0);
 });

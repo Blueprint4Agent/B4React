@@ -722,3 +722,5 @@ Standalone plans use visible $/₩ pill buttons with localized accessible names 
 Use the shared SegmentedControl for the compact currency symbols and its interactive/disabled showcase example. Desktop controls are 28px high; coarse-pointer targets retain 44px.
 
 The plan selection page omits the pending-plan status card; Billing settings remains the place to review scheduled changes.
+
+Runtime mode is owned by the server /config app_mode field (development or production). Reject missing/invalid modes and production without login. Production hides GitHub/User guide/showcase, redirects direct showcase URLs to account/login, and omits showcase auth backdrops. User API-key settings remain available. Admin and manager may read the existing directory; only explicit admin guards allow admin-only work. Keep role state in AuthProvider and refresh account data after operator changes. Preserve the memoized AdminUserTable. The summary shows four role/account counts, two columns on mobile.

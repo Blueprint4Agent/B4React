@@ -313,6 +313,11 @@
                         "title": "Api Base Path",
                         "type": "string"
                     },
+                    "app_mode": {
+                        "enum": ["development", "production"],
+                        "title": "App Mode",
+                        "type": "string"
+                    },
                     "bootstrap_access_token": {
                         "anyOf": [
                             {
@@ -360,6 +365,7 @@
                 },
                 "required": [
                     "api_base_path",
+                    "app_mode",
                     "login_enabled",
                     "frontend_base_path",
                     "email_enabled",
@@ -1706,7 +1712,7 @@
                 "type": "object"
             },
             "UserRole": {
-                "enum": ["user", "admin"],
+                "enum": ["user", "admin", "manager"],
                 "title": "UserRole",
                 "type": "string"
             },
@@ -1718,6 +1724,11 @@
                     },
                     "admin_users": {
                         "title": "Admin Users",
+                        "type": "integer"
+                    },
+                    "manager_users": {
+                        "default": 0,
+                        "title": "Manager Users",
                         "type": "integer"
                     },
                     "total_users": {
@@ -1851,14 +1862,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 List Api Keys Api V1 Api Keys Get"
                                 }
                             }
                         },
@@ -1946,14 +1959,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Create Api Key Api V1 Api Keys Post"
                                 }
                             }
                         },
@@ -2083,14 +2098,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Delete Api Key Api V1 Api Keys  Api Key Id  Delete"
                                 }
                             }
                         },
@@ -2203,14 +2220,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Update Api Key Status Api V1 Api Keys  Api Key Id  Status Patch"
                                 }
                             }
                         },
@@ -2318,10 +2337,10 @@
                                 "schema": {
                                     "anyOf": [
                                         {
-                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
                                         },
                                         {
-                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
                                         }
                                     ],
                                     "title": "Response 403 Admin User Role Stats Api V1 Auth Admin User Role Stats Get"
@@ -2475,10 +2494,10 @@
                                 "schema": {
                                     "anyOf": [
                                         {
-                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
                                         },
                                         {
-                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
                                         }
                                     ],
                                     "title": "Response 403 Admin Users Api V1 Auth Admin Users Get"
@@ -2770,14 +2789,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Logout Api V1 Auth Logout Post"
                                 }
                             }
                         },
@@ -2877,8 +2898,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "LOGIN_DISABLED",
-                                        "message": "Login is currently disabled."
+                                        "error": "INSUFFICIENT_ROLE",
+                                        "message": "User does not have enough permissions."
                                     }
                                 },
                                 "schema": {
@@ -2996,14 +3017,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Me Api V1 Auth Me Get"
                                 }
                             }
                         },
@@ -3091,14 +3114,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Update Me Api V1 Auth Me Patch"
                                 }
                             }
                         },
@@ -3201,8 +3226,8 @@
                             "application/json": {
                                 "example": {
                                     "detail": {
-                                        "error": "LOGIN_DISABLED",
-                                        "message": "Login is currently disabled."
+                                        "error": "INSUFFICIENT_ROLE",
+                                        "message": "User does not have enough permissions."
                                     }
                                 },
                                 "schema": {
@@ -4110,14 +4135,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Create Card Setup Api V1 Billing Card Setups Post"
                                 }
                             }
                         },
@@ -4270,14 +4297,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Card Setup Status Api V1 Billing Card Setups  Intent Id  Get"
                                 }
                             }
                         },
@@ -4427,14 +4456,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Create Checkout Api V1 Billing Checkout Sessions Post"
                                 }
                             }
                         },
@@ -4587,14 +4618,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Checkout Status Api V1 Billing Checkout Sessions  Session Id  Get"
                                 }
                             }
                         },
@@ -4734,14 +4767,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Billing Config Api V1 Billing Config Get"
                                 }
                             }
                         },
@@ -4871,14 +4906,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Billing Invoices Api V1 Billing Invoices Get"
                                 }
                             }
                         },
@@ -5051,14 +5088,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 List Payment Methods Api V1 Billing Payment Methods Get"
                                 }
                             }
                         },
@@ -5221,14 +5260,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Manage Billing Method Api V1 Billing Payment Methods  Method Id  Post"
                                 }
                             }
                         },
@@ -5368,14 +5409,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Plans Api V1 Billing Plans Get"
                                 }
                             }
                         },
@@ -5515,14 +5558,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Billing Portal Api V1 Billing Portal Sessions Post"
                                 }
                             }
                         },
@@ -5662,14 +5707,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Billing Profile Api V1 Billing Profile Get"
                                 }
                             }
                         },
@@ -5807,14 +5854,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Update Billing Profile Api V1 Billing Profile Put"
                                 }
                             }
                         },
@@ -5964,14 +6013,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Create Setup Api V1 Billing Setup Sessions Post"
                                 }
                             }
                         },
@@ -6124,14 +6175,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Setup Status Api V1 Billing Setup Sessions  Session Id  Get"
                                 }
                             }
                         },
@@ -6271,14 +6324,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Subscription Api V1 Billing Subscription Get"
                                 }
                             }
                         },
@@ -6418,14 +6473,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Change Subscription Api V1 Billing Subscription Change Post"
                                 }
                             }
                         },
@@ -6588,14 +6645,16 @@
                     "403": {
                         "content": {
                             "application/json": {
-                                "example": {
-                                    "detail": {
-                                        "error": "API_KEY_USER_MISMATCH",
-                                        "message": "API key does not belong to the authenticated user."
-                                    }
-                                },
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/AuthErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/APIKeyErrorResponse"
+                                        }
+                                    ],
+                                    "title": "Response 403 Stream Events Api V1 Events Stream Get"
                                 }
                             }
                         },
