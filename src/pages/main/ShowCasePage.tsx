@@ -49,6 +49,7 @@ import {
     StatusBadge,
     ThemePreviewSelector,
     KeyboardShortcut,
+    CodeBadge,
     ThemeToggleButton,
     Tooltip,
     ToggleSwitch,
@@ -201,6 +202,14 @@ export function ShowCasePage() {
             content: (
                 <>
                     <div className="showcase-catalog__row">
+                        <ShowcaseItem component="CodeBadge">
+                            <div className="showcase-code-badges">
+                                <CodeBadge>APP_MODE</CodeBadge>
+                                <CodeBadge>development</CodeBadge>
+                                <CodeBadge>true</CodeBadge>
+                                <CodeBadge>localhost:5432</CodeBadge>
+                            </div>
+                        </ShowcaseItem>
                         <ShowcaseItem component="KeyboardShortcut">
                             <div className="showcase-shortcut-examples">
                                 <span>

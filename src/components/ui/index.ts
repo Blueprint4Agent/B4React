@@ -37,3 +37,5 @@ export { ColorPicker } from "./inputs/ColorPicker";
 export { NumberField } from "./inputs/NumberField";
 
 export { SegmentedControl } from "./toggles/SegmentedControl";
+
+export { CodeBadge } from "./status/CodeBadge";

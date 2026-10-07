@@ -52,3 +52,15 @@ cover registered cases, not arbitrary new pages. New families require review and
 passing shared-control checks alone is never evidence of consistent page composition.
 
 Server-unavailable recovery uses the main `AppLayout` sidebar (the showcase route is its peer), shared PanelCard typography and Button. Center one panel capped at 30rem inside the existing content area; omit the public navbar and nested warning card. Keep config retry and delayed loading behavior in the existing owners.
+
+Administrator users and server status reuse the settings/home 50rem shell,
+shared header spacing and token-based surfaces. The wide user table scrolls
+inside its region instead of widening the page. Server health uses StatusBadge
+with a colored dot and text; stale snapshots stay explicitly marked. OAuth
+provider marks reuse OAuthProviderIcon and locally bundled stack marks record
+provenance in public/stack-brands/README.md.
+
+CodeBadge renders technical labels and allowlisted configuration values as semantic
+code with the compact KeyboardShortcut surface treatment. It wraps long content,
+has no interaction and is registered in the searchable showcase. Admin environment
+values pair localized meaning with the actual safe boolean or runtime-mode value.

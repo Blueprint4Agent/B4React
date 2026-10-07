@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
-import { RefreshCw, Shield } from "lucide-react";
+import { RefreshCw, Users } from "lucide-react";
 import {
     Button,
     DropdownMenu,
@@ -9,6 +9,7 @@ import {
     InputField,
     Pagination,
     PrimaryCard,
+    Spinner,
 } from "../../components/ui";
 import { useAuthContext } from "../../hooks/useAuth";
 import { useAdminUsers, type AdminUserQuery } from "../../hooks/api/auth/useAdminUsers";
@@ -51,8 +52,8 @@ function AdminUsers({ ownerId }: { ownerId: number }) {
             <PrimaryCard className="settings-content-card admin-content">
                 <header className="settings-content-card__header">
                     <h1>
-                        <Shield className="settings-content-card__title-icon" aria-hidden="true" />
-                        {t("admin.title")}
+                        <Users className="settings-content-card__title-icon" aria-hidden="true" />
+                        {t("admin.users")}
                     </h1>
                     <p>{t("admin.description")}</p>
                 </header>
@@ -111,8 +112,12 @@ function AdminUsers({ ownerId }: { ownerId: number }) {
                         }}
                     />
                     <Button type="button" disabled={!available || loading} onClick={reload}>
-                        <RefreshCw aria-hidden="true" />
                         {t("admin.refresh")}
+                        {loading ? (
+                            <Spinner size="sm" label={t("admin.loading")} hideLabel />
+                        ) : (
+                            <RefreshCw aria-hidden="true" />
+                        )}
                     </Button>
                 </form>
                 {error ? <InlineMessage>{error}</InlineMessage> : null}
