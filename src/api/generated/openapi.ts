@@ -857,8 +857,6 @@ export interface components {
             oauth_providers: string[];
             /** Redis In Memory */
             redis_in_memory: boolean;
-            /** Subscriptions Enabled */
-            subscriptions_enabled: boolean;
         };
         /** AdminEnvironmentValues */
         AdminEnvironmentValues: {
@@ -877,8 +875,6 @@ export interface components {
             REDIS_IN_MEMORY: boolean;
             /** Stripe Enabled */
             STRIPE_ENABLED: boolean;
-            /** Stripe Subscriptions Enabled */
-            STRIPE_SUBSCRIPTIONS_ENABLED: boolean;
         };
         /** AdminErrorDetail */
         AdminErrorDetail: {
@@ -983,8 +979,6 @@ export interface components {
             oauth_enabled: boolean;
             /** Oauth Providers */
             oauth_providers: string[];
-            /** Subscriptions Enabled */
-            subscriptions_enabled: boolean;
         };
         /** AuthErrorDetail */
         AuthErrorDetail: {

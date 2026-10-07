@@ -25,7 +25,7 @@ async function setup(page: Page, role = "admin") {
         route.fulfill({
             json: {
                 billing_enabled: true,
-                subscriptions_enabled: true,
+
                 api_base_path: "/api/v1",
                 app_mode: "development",
                 login_enabled: false,

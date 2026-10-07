@@ -330,10 +330,7 @@ export function AppSidebar({
                     ))}
                 </div>
                 <ProfileDropdown
-                    showPlans={
-                        appConfig?.billing_enabled === true &&
-                        appConfig.subscriptions_enabled === true
-                    }
+                    showPlans={appConfig?.billing_enabled === true}
                     expanded={expanded}
                     showAdmin={user?.role === "admin" || user?.role === "manager"}
                     avatarLabel={user ? displayName.slice(0, 1).toUpperCase() : undefined}

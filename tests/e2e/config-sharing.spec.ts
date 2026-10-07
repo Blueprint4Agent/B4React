@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 const config = {
     billing_enabled: true,
-    subscriptions_enabled: true,
+
     api_base_path: "/api/v1",
     frontend_base_path: "",
     app_mode: "development",

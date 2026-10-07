@@ -52,11 +52,7 @@ export function HomePage() {
             }
             menuLabel={t("home.shortcuts")}
             menuItems={destinations
-                .filter(
-                    ({ key }) =>
-                        key !== "billing" ||
-                        (config?.billing_enabled && (user || config.subscriptions_enabled)),
-                )
+                .filter(({ key }) => key !== "billing" || config?.billing_enabled)
                 .map(({ key, to, icon: Icon }) => ({
                     id: key,
                     to,

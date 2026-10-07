@@ -22,7 +22,6 @@ export function useSubscription(
     const { isDesktop, status } = useServerConnectivity();
     const available =
         appConfig?.billing_enabled === true &&
-        appConfig.subscriptions_enabled === true &&
         enabled &&
         !!ownerId &&
         (!isDesktop || status === "online");
