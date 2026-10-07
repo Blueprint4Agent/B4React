@@ -927,7 +927,25 @@ for (const colorScheme of ["light", "dark"] as const) {
 test("keyboard cards customize, dismiss on blur and persist unrestricted shortcuts", async ({
     page,
 }) => {
-    await page.route("**/config", (route) => route.fulfill({ json: config }));
+    let account = {
+        id: 41,
+        email: "keys@example.com",
+        name: "Keys",
+        role: "user",
+        is_verified: true,
+        created_at: "2026-01-01T00:00:00Z",
+        keyboard_shortcuts: null as null | { toggleSidebar: string[]; openSettings: string[] },
+    };
+    await page.route("**/config", (route) =>
+        route.fulfill({
+            json: { ...config, bootstrap_user: account, bootstrap_access_token: "bootstrap" },
+        }),
+    );
+    await page.route("**/api/v1/auth/me", async (route) => {
+        if (route.request().method() === "PATCH")
+            account = { ...account, ...route.request().postDataJSON() };
+        await route.fulfill({ json: account });
+    });
     await page.goto("/settings?section=keyboard");
     await expect(page.getByRole("heading", { name: "Keyboard", exact: true })).toBeVisible();
     const modifier = await page.evaluate(() =>
@@ -943,6 +961,10 @@ test("keyboard cards customize, dismiss on blur and persist unrestricted shortcu
     await rows.first().getByRole("button", { name: "Toggle sidebar", exact: true }).click();
     await page.getByRole("textbox", { name: "Toggle sidebar", exact: true }).press("b");
     await expect(page.getByRole("textbox", { name: "Toggle sidebar", exact: true })).toHaveCount(0);
+    expect(account.keyboard_shortcuts?.toggleSidebar).toEqual(["b"]);
+    expect(
+        await page.evaluate(() => localStorage.getItem("b4react.keyboard-shortcuts.v1")),
+    ).toBeNull();
     await page.reload();
     await expect(rows.first().locator("kbd")).toContainText("B");
     const sidebar = page.locator(".app-sidebar");
@@ -950,6 +972,7 @@ test("keyboard cards customize, dismiss on blur and persist unrestricted shortcu
     await page.keyboard.press("b");
     await expect(sidebar).not.toHaveAttribute("class", before!);
     await page.getByRole("button", { name: "Restore defaults" }).click();
+    await expect.poll(() => account.keyboard_shortcuts).toBeNull();
     await page.reload();
     await expect(page.locator("[aria-keyshortcuts]").first()).toHaveAttribute(
         "aria-keyshortcuts",

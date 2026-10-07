@@ -4,7 +4,7 @@ import i18n from "../../i18n";
 
 type SignupInput = components["schemas"]["SignupForm"];
 type LoginInput = components["schemas"]["LoginForm"];
-type UpdateProfileInput = components["schemas"]["UpdateProfileForm"];
+export type UpdateProfileInput = components["schemas"]["UpdateProfileForm"];
 
 export type User = components["schemas"]["UserResponse"];
 export type LoginPayload = components["schemas"]["LoginResponse"];

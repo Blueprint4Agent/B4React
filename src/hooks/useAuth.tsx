@@ -15,7 +15,7 @@ import {
     useState,
 } from "react";
 
-import type { User } from "../api/auth/authApi";
+import type { User, UpdateProfileInput } from "../api/auth/authApi";
 import { useAuthApi } from "./api/auth/useAuthApi";
 import { useAppConfig } from "./useFeatures";
 import { clearAccessToken, getAccessToken, setAccessToken } from "../store/session";
@@ -30,7 +30,7 @@ type AuthContextValue = {
         remember_account?: boolean;
     }) => Promise<void>;
     signup: (input: { email: string; name: string; password: string }) => Promise<void>;
-    updateProfile: (input: { name?: string; profile_image_url?: string | null }) => Promise<void>;
+    updateProfile: (input: UpdateProfileInput) => Promise<void>;
     logout: () => Promise<void>;
     deleteAccount: (email: string, code: string) => Promise<void>;
     refreshSession: () => Promise<void>;

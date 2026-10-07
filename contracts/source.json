@@ -2,6 +2,6 @@
     "repository": "https://github.com/Blueprint4Agent/B4FastAPI",
     "path": "contracts/openapi.json",
     "apiVersion": "0.1.0",
-    "branch": "feat/runtime-modes-manager",
-    "note": "Coordinated runtime-mode and manager-role contract adoption; provider and consumer snapshots must match."
+    "branch": "feat/account-keyboard-shortcuts",
+    "note": "Explicit coordinated adoption of account keyboard shortcuts via GET/PATCH /auth/me."
 }

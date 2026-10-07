@@ -10,7 +10,7 @@ import {
 
 export function KeyboardSettings() {
     const { t } = useTranslation();
-    const { bindings, update, reset } = useKeyboardShortcuts();
+    const { bindings, update, reset, disabled } = useKeyboardShortcuts();
     const [editing, setEditing] = useState<ShortcutAction | null>(null);
     const showToast = useToast();
     return (
@@ -29,6 +29,7 @@ export function KeyboardSettings() {
                                     <InputField
                                         autoFocus
                                         readOnly
+                                        disabled={disabled}
                                         label=""
                                         aria-label={t(`settings.keyboard.${action}`)}
                                         onBlur={() => {
@@ -37,7 +38,7 @@ export function KeyboardSettings() {
                                         value=""
                                         onValueChange={() => {}}
                                         placeholder={t("settings.keyboard.press")}
-                                        onKeyDown={(event) => {
+                                        onKeyDown={async (event) => {
                                             event.stopPropagation();
                                             event.preventDefault();
                                             if (
@@ -48,7 +49,10 @@ export function KeyboardSettings() {
                                                 )
                                             )
                                                 return;
-                                            const problem = update(action, captureShortcut(event));
+                                            const problem = await update(
+                                                action,
+                                                captureShortcut(event),
+                                            );
                                             if (problem)
                                                 showToast(t(`settings.keyboard.errors.${problem}`));
                                             else setEditing(null);
@@ -58,6 +62,7 @@ export function KeyboardSettings() {
                             ) : (
                                 <>
                                     <Button
+                                        disabled={disabled}
                                         appearance="text"
                                         className="settings-shortcut-trigger"
                                         aria-label={t(`settings.keyboard.${action}`)}
@@ -74,9 +79,11 @@ export function KeyboardSettings() {
                 ))}
                 <div className="settings-keyboard-footer">
                     <Button
-                        onClick={() => {
-                            reset();
-                            setEditing(null);
+                        disabled={disabled}
+                        onClick={async () => {
+                            const problem = await reset();
+                            if (problem) showToast(t(`settings.keyboard.errors.${problem}`));
+                            else setEditing(null);
                         }}
                     >
                         {t("settings.keyboard.reset")}

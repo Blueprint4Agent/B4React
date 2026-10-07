@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useState, useRef, type ReactNode } from "react";
 import {
     APP_SHORTCUTS,
     getShortcutPlatform,
@@ -6,9 +6,11 @@ import {
     type ShortcutKeys,
 } from "../utils/keyboardShortcuts";
 
+import { useAuthContext } from "./useAuth";
+import { useServerConnectivity } from "./connectivity/useServerConnectivity";
+
 export type ShortcutAction = keyof typeof APP_SHORTCUTS;
 type Bindings = Record<ShortcutAction, ShortcutKeys>;
-const STORAGE_KEY = "b4react.keyboard-shortcuts.v1";
 export function validateShortcut(
     keys: ShortcutKeys,
     action: ShortcutAction,
@@ -23,74 +25,69 @@ export function validateShortcut(
         new Set(keys).size !== keys.length
     )
         return "invalid";
-    const names = keys.map((key) =>
-        key === "mod" ? (getShortcutPlatform() === "macos" ? "meta" : "ctrl") : key,
-    );
-    if (new Set(names).size !== names.length) return "invalid";
-    const signature = shortcutAriaKeys(keys);
-    if (
-        Object.entries(bindings).some(
-            ([other, value]) => other !== action && shortcutAriaKeys(value) === signature,
-        )
-    )
-        return "conflict";
-    return null;
-}
-function readBindings(): Bindings {
-    try {
-        const saved: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
-        if (!saved || typeof saved !== "object") return APP_SHORTCUTS;
-        const values = saved as Partial<Bindings>;
-        const candidate: Bindings = {
-            toggleSidebar: values.toggleSidebar ?? APP_SHORTCUTS.toggleSidebar,
-            openSettings: values.openSettings ?? APP_SHORTCUTS.openSettings,
-        };
-        for (const action of Object.keys(APP_SHORTCUTS) as ShortcutAction[]) {
-            if (
-                !Array.isArray(candidate[action]) ||
-                !candidate[action].every((key) => typeof key === "string") ||
-                validateShortcut(candidate[action], action, candidate)
+    for (const platform of ["macos", "windows"] as const) {
+        const names = keys.map((key) =>
+            key === "mod" ? (platform === "macos" ? "meta" : "ctrl") : key,
+        );
+        if (new Set(names).size !== names.length) return "invalid";
+        const signature = shortcutAriaKeys(keys, platform);
+        if (
+            Object.entries(bindings).some(
+                ([other, value]) =>
+                    other !== action && shortcutAriaKeys(value, platform) === signature,
             )
-                return APP_SHORTCUTS;
-        }
-        return candidate;
-    } catch {
-        return APP_SHORTCUTS;
+        )
+            return "conflict";
     }
+    return null;
 }
 const Context = createContext({
     bindings: APP_SHORTCUTS as Bindings,
-    update: (_action: ShortcutAction, _keys: ShortcutKeys): string | null => "unavailable",
-    reset: () => {},
+    disabled: true,
+    update: async (_action: ShortcutAction, _keys: ShortcutKeys): Promise<string | null> =>
+        "storage",
+    reset: async (): Promise<string | null> => "storage",
 });
 export function KeyboardShortcutsProvider({ children }: { children: ReactNode }) {
-    const [bindings, setBindings] = useState<Bindings>(readBindings);
-    const value = useMemo(
-        () => ({
+    const { user, loading, updateProfile } = useAuthContext();
+    const { isDesktop, status } = useServerConnectivity();
+    const [saving, setSaving] = useState(false);
+    const inFlight = useRef(false);
+    const bindings: Bindings = user?.keyboard_shortcuts ?? APP_SHORTCUTS;
+    const disabled = !user || loading || saving || (isDesktop && status !== "online");
+    const value = useMemo(() => {
+        const save = async (next: Bindings | null): Promise<string | null> => {
+            if (disabled || inFlight.current) return "storage";
+            inFlight.current = true;
+            setSaving(true);
+            try {
+                await updateProfile({
+                    keyboard_shortcuts: next
+                        ? {
+                              toggleSidebar: [...next.toggleSidebar],
+                              openSettings: [...next.openSettings],
+                          }
+                        : null,
+                });
+                return null;
+            } catch {
+                return "storage";
+            } finally {
+                inFlight.current = false;
+                setSaving(false);
+            }
+        };
+        return {
             bindings,
-            update(action: ShortcutAction, keys: ShortcutKeys) {
+            disabled,
+            async update(action: ShortcutAction, keys: ShortcutKeys): Promise<string | null> {
                 const error = validateShortcut(keys, action, bindings);
                 if (error) return error;
-                const next = { ...bindings, [action]: [...keys] };
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-                } catch {
-                    return "storage";
-                }
-                setBindings(next);
-                return null;
+                return save({ ...bindings, [action]: [...keys] });
             },
-            reset() {
-                try {
-                    localStorage.removeItem(STORAGE_KEY);
-                } catch {
-                    /* Defaults still apply for this session. */
-                }
-                setBindings(APP_SHORTCUTS);
-            },
-        }),
-        [bindings],
-    );
+            reset: () => save(null),
+        };
+    }, [bindings, disabled, updateProfile]);
     return <Context.Provider value={value}>{children}</Context.Provider>;
 }
 export const useKeyboardShortcuts = () => useContext(Context);
