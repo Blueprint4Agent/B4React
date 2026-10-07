@@ -1561,6 +1561,13 @@ export interface components {
             /** Message */
             message: string;
         };
+        /** KeyboardShortcuts */
+        KeyboardShortcuts: {
+            /** Opensettings */
+            openSettings: string[];
+            /** Togglesidebar */
+            toggleSidebar: string[];
+        };
         /** LoginForm */
         LoginForm: {
             /** Email */
@@ -1722,6 +1729,7 @@ export interface components {
         };
         /** UpdateProfileForm */
         UpdateProfileForm: {
+            keyboard_shortcuts?: components["schemas"]["KeyboardShortcuts"] | null;
             /** Name */
             name?: string | null;
             /** Profile Image Url */
@@ -1740,6 +1748,7 @@ export interface components {
             id: number;
             /** Is Verified */
             is_verified: boolean;
+            keyboard_shortcuts?: components["schemas"]["KeyboardShortcuts"] | null;
             /** Name */
             name: string;
             /** Oauth Providers */
