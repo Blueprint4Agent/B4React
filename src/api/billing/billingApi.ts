@@ -1,3 +1,4 @@
+import { getAccessToken } from "../../store/session";
 import type { components } from "../generated/openapi";
 import { apiClient, getAuthHeader } from "../http";
 
@@ -62,12 +63,24 @@ export async function getBillingPlans(): Promise<BillingPlans> {
     if (error || !data) throw error;
     return data;
 }
-export async function getBillingSubscription(): Promise<BillingSubscription> {
-    const { data, error } = await apiClient.GET("/api/v1/billing/subscription", {
-        headers: getAuthHeader(),
+const subscriptionReads = new Map<string | null, Promise<BillingSubscription>>();
+
+/** Share overlapping sidebar/page reads only; never persist an entitlement cache. */
+export function getBillingSubscription(): Promise<BillingSubscription> {
+    const token = getAccessToken();
+    const existing = subscriptionReads.get(token);
+    if (existing) return existing;
+    const task = (async () => {
+        const { data, error } = await apiClient.GET("/api/v1/billing/subscription", {
+            headers: getAuthHeader(),
+        });
+        if (error || !data) throw error;
+        return data;
+    })().finally(() => {
+        if (subscriptionReads.get(token) === task) subscriptionReads.delete(token);
     });
-    if (error || !data) throw error;
-    return data;
+    subscriptionReads.set(token, task);
+    return task;
 }
 export async function createBillingCheckout(body: BillingCheckoutForm): Promise<BillingSetup> {
     const { data, error } = await apiClient.POST("/api/v1/billing/checkout-sessions", {

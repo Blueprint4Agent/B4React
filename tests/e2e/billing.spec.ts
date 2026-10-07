@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "../fixtures/browser";
 const account = {
     id: 1,
     name: "Billing User",
@@ -332,7 +332,7 @@ test("a subscription checkout uses the selected server-priced plan and verifies 
             },
         }),
     );
-    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await page.reload();
     await expect(page.locator(".ui-toast-card")).toHaveText("Payment confirmed.");
     await expect(page.locator(".billing-settings")).not.toContainText("Payment confirmed.");
     await expect(page).toHaveURL(/section=billing$/);
@@ -976,7 +976,7 @@ for (const pending of [false, true]) {
                 payment_required: false,
                 payment_url: null,
             };
-            await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+            await page.reload();
             await expect(
                 page.getByLabel("Current subscription: Pro", { exact: true }),
             ).toBeVisible();

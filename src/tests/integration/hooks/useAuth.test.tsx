@@ -1,9 +1,11 @@
+import { StrictMode } from "react";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppConfigProvider } from "../../../hooks/AppConfigProvider";
 import { AuthProvider, useAuthContext } from "../../../hooks/useAuth";
+import { clearAccessToken } from "../../../store/session";
 import { FULL_SYSTEM_SCENARIO } from "../../fixtures/fullSystemScenarioData";
 
 const getConfigMock = vi.fn();
@@ -34,10 +36,22 @@ vi.mock("../../../hooks/api/auth/useAuthApi", () => ({
 }));
 
 function AuthProbe() {
-    const { loading, user, logout, deleteAccount, updateProfile } = useAuthContext();
+    const { loading, user, logout, deleteAccount, updateProfile, revalidateSession } =
+        useAuthContext();
 
     return (
         <section>
+            <button
+                onClick={() => {
+                    void Promise.all([
+                        revalidateSession({ force: true }),
+                        revalidateSession({ force: true }),
+                        revalidateSession({ force: true }),
+                    ]);
+                }}
+            >
+                recover
+            </button>
             <button
                 onClick={() => {
                     void deleteAccount(FULL_SYSTEM_SCENARIO.principal.email, "123456").catch(
@@ -70,6 +84,7 @@ function AuthProbe() {
 
 describe("useAuth bootstrap and exception flows", () => {
     beforeEach(() => {
+        clearAccessToken();
         sessionStorage.clear();
         getConfigMock.mockReset();
         refreshMock.mockReset();
@@ -89,11 +104,13 @@ describe("useAuth bootstrap and exception flows", () => {
 
         // When: auth provider initializes.
         render(
-            <AppConfigProvider>
-                <AuthProvider>
-                    <AuthProbe />
-                </AuthProvider>
-            </AppConfigProvider>,
+            <StrictMode>
+                <AppConfigProvider>
+                    <AuthProvider>
+                        <AuthProbe />
+                    </AuthProvider>
+                </AppConfigProvider>
+            </StrictMode>,
         );
 
         // Then: refresh-based bootstrap restores the user and a new tab-scoped access token.
@@ -129,6 +146,27 @@ describe("useAuth bootstrap and exception flows", () => {
         expect(refreshMock).not.toHaveBeenCalled();
         expect(meMock).toHaveBeenCalledTimes(1);
         expect(sessionStorage.getItem("template_access_token")).toBe("existing-token");
+    });
+
+    it("shares concurrent login recovery without reloading public config", async () => {
+        getConfigMock.mockResolvedValue({ login_enabled: true });
+        refreshMock.mockResolvedValue({ access_token: "initial" });
+        meMock.mockResolvedValue(FULL_SYSTEM_SCENARIO.principal);
+        render(
+            <AppConfigProvider>
+                <AuthProvider>
+                    <AuthProbe />
+                </AuthProvider>
+            </AppConfigProvider>,
+        );
+        await waitFor(() => expect(screen.getByTestId("loading").textContent).toBe("false"));
+        refreshMock.mockResolvedValue({ access_token: "renewed" });
+        await userEvent.setup().click(screen.getByRole("button", { name: "recover" }));
+        await waitFor(() =>
+            expect(sessionStorage.getItem("template_access_token")).toBe("renewed"),
+        );
+        expect(refreshMock).toHaveBeenCalledTimes(2);
+        expect(getConfigMock).toHaveBeenCalledTimes(1);
     });
 
     it("clears session when /me fails and refresh also fails", async () => {

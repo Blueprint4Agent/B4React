@@ -1,5 +1,5 @@
 import { readProjectConfig } from "../../scripts/project-config.mjs";
-import { expect, test, type Locator } from "@playwright/test";
+import { expect, test, type Locator } from "../fixtures/browser";
 
 const config = {
     billing_enabled: true,

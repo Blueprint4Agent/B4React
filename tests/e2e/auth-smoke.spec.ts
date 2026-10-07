@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../fixtures/browser";
 
 const guestConfig = {
     billing_enabled: true,
