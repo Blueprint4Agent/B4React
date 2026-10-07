@@ -4505,7 +4505,7 @@ input {
 }
 .admin-summary {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
     margin: 0;
 }
@@ -4596,6 +4596,7 @@ input {
 }
 @media (max-width: 600px) {
     .admin-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
     }
     .admin-summary > div {

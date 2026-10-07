@@ -38,7 +38,7 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-type RoleAwareUser = User & { role?: "admin" | "user" };
+type RoleAwareUser = User & { role?: "admin" | "manager" | "user" };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { ensureConfig } = useAppConfig();

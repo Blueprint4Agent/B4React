@@ -1,3 +1,4 @@
+import { useAppConfig } from "../../hooks/useFeatures";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { SearchX } from "lucide-react";
@@ -6,6 +7,7 @@ import { Button } from "../../components/ui";
 
 export function ShowCaseNotFoundPage() {
     const navigate = useNavigate();
+    const { data: config } = useAppConfig();
     const { t } = useTranslation();
     return (
         <PageStateFrame
@@ -21,7 +23,7 @@ export function ShowCaseNotFoundPage() {
             }
             actions={
                 <Button appearance="pill" onClick={() => navigate("/show-case", { replace: true })}>
-                    {t("pageState.back")}
+                    {t(config?.app_mode === "development" ? "pageState.back" : "nav.home")}
                 </Button>
             }
         />

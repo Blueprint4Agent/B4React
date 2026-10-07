@@ -13,7 +13,7 @@ const payload = (total: number): authApi.AdminUserList => ({
     total,
     page: 1,
     page_size: 10,
-    summary: { total_users: total, active_users: total, admin_users: 1 },
+    summary: { total_users: total, active_users: total, admin_users: 1, manager_users: 0 },
 });
 
 describe("admin user directory state", () => {

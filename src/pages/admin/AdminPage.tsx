@@ -20,7 +20,8 @@ import { LoadingPage } from "../main/LoadingPage";
 export function AdminPage() {
     const { user, loading } = useAuthContext();
     if (loading) return <LoadingPage />;
-    if (user?.role !== "admin") return <Navigate to="/show-case" replace />;
+    if (user?.role !== "admin" && user?.role !== "manager")
+        return <Navigate to="/show-case" replace />;
     return <AdminUsers ownerId={user.id} />;
 }
 
@@ -34,7 +35,7 @@ function AdminUsers({ ownerId }: { ownerId: number }) {
             page,
             page_size: pageSize,
             search,
-            role: role === "admin" || role === "user" ? role : undefined,
+            role: role === "admin" || role === "manager" || role === "user" ? role : undefined,
             is_active: status === "all" ? undefined : status === "active",
         }),
         [page, pageSize, search, role, status],
@@ -62,6 +63,7 @@ function AdminUsers({ ownerId }: { ownerId: number }) {
                             ["total", data?.summary.total_users],
                             ["activeTotal", data?.summary.active_users],
                             ["adminTotal", data?.summary.admin_users],
+                            ["managerTotal", data?.summary.manager_users],
                         ] as const
                     ).map(([label, value]) => (
                         <div key={label}>
@@ -90,7 +92,7 @@ function AdminUsers({ ownerId }: { ownerId: number }) {
                     <DropdownMenu
                         label={t("admin.filterRole")}
                         triggerLabel={t(role === "all" ? "admin.allRoles" : `admin.${role}`)}
-                        items={["all", "admin", "user"].map((id) => ({
+                        items={["all", "admin", "manager", "user"].map((id) => ({
                             id,
                             label: t(id === "all" ? "admin.allRoles" : `admin.${id}`),
                         }))}

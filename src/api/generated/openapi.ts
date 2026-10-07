@@ -813,6 +813,11 @@ export interface components {
         AppConfigResponse: {
             /** Api Base Path */
             api_base_path: string;
+            /**
+             * App Mode
+             * @enum {string}
+             */
+            app_mode: "development" | "production";
             /** Bootstrap Access Token */
             bootstrap_access_token?: string | null;
             bootstrap_user?: components["schemas"]["UserResponse"] | null;
@@ -1488,13 +1493,18 @@ export interface components {
          * UserRole
          * @enum {string}
          */
-        UserRole: "user" | "admin";
+        UserRole: "user" | "admin" | "manager";
         /** UserRoleStatsResponse */
         UserRoleStatsResponse: {
             /** Active Users */
             active_users: number;
             /** Admin Users */
             admin_users: number;
+            /**
+             * Manager Users
+             * @default 0
+             */
+            manager_users: number;
             /** Total Users */
             total_users: number;
         };
@@ -1566,15 +1576,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -1644,15 +1648,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -1756,15 +1754,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -1839,15 +1831,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -1927,8 +1913,8 @@ export interface operations {
                 };
                 content: {
                     "application/json":
-                        | components["schemas"]["APIKeyErrorResponse"]
-                        | components["schemas"]["AuthErrorResponse"];
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -2001,8 +1987,8 @@ export interface operations {
                 };
                 content: {
                     "application/json":
-                        | components["schemas"]["APIKeyErrorResponse"]
-                        | components["schemas"]["AuthErrorResponse"];
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -2248,15 +2234,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -2322,15 +2302,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -2424,8 +2398,8 @@ export interface operations {
                     /**
                      * @example {
                      *       "detail": {
-                     *         "error": "LOGIN_DISABLED",
-                     *         "message": "Login is currently disabled."
+                     *         "error": "INSUFFICIENT_ROLE",
+                     *         "message": "User does not have enough permissions."
                      *       }
                      *     }
                      */
@@ -2535,15 +2509,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -2637,8 +2605,8 @@ export interface operations {
                     /**
                      * @example {
                      *       "detail": {
-                     *         "error": "LOGIN_DISABLED",
-                     *         "message": "Login is currently disabled."
+                     *         "error": "INSUFFICIENT_ROLE",
+                     *         "message": "User does not have enough permissions."
                      *       }
                      *     }
                      */
@@ -3406,15 +3374,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -3536,15 +3498,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -3668,15 +3624,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -3798,15 +3748,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -3926,15 +3870,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -4045,15 +3983,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -4168,15 +4100,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -4302,15 +4228,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -4430,15 +4350,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -4553,15 +4467,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -4681,15 +4589,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -4804,15 +4706,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -4936,15 +4832,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -5066,15 +4956,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -5194,15 +5078,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -5317,15 +5195,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */
@@ -5448,15 +5320,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /**
-                     * @example {
-                     *       "detail": {
-                     *         "error": "API_KEY_USER_MISMATCH",
-                     *         "message": "API key does not belong to the authenticated user."
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["APIKeyErrorResponse"];
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
                 };
             };
             /** @description Not Found */

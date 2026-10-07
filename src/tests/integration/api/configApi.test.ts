@@ -13,6 +13,7 @@ describe("configApi.getConfig", () => {
         vi.spyOn(apiClient, "GET").mockResolvedValue({
             data: {
                 api_base_path: "/api/v1",
+                app_mode: "development",
                 login_enabled: true,
                 frontend_base_path: "",
                 email_enabled: false,
@@ -31,6 +32,15 @@ describe("configApi.getConfig", () => {
         // Then: strongly typed config payload is returned.
         expect(payload.login_enabled).toBe(true);
         expect(payload.api_base_path).toBe("/api/v1");
+    });
+
+    it.each([
+        { app_mode: undefined, login_enabled: true },
+        { app_mode: "unknown", login_enabled: true },
+        { app_mode: "production", login_enabled: false },
+    ])("rejects unsafe or unknown runtime config %j", async (data) => {
+        vi.spyOn(apiClient, "GET").mockResolvedValue({ data, response: new Response() } as never);
+        await expect(getConfig()).rejects.toThrow();
     });
 
     it("throws when config endpoint fails", async () => {

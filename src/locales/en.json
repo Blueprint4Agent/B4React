@@ -355,7 +355,8 @@
             "openMenu": "Open profile menu"
         },
         "guest": "Guest",
-        "brand": "B4A"
+        "brand": "B4A",
+        "home": "Home"
     },
     "settings": {
         "title": "Settings",
@@ -605,7 +606,9 @@
         "denied": "Administrator access required.",
         "bootstrap": "Bootstrap",
         "filterRole": "Filter by role",
-        "filterStatus": "Filter by account status"
+        "filterStatus": "Filter by account status",
+        "manager": "Manager",
+        "managerTotal": "Managers"
     },
     "routeLoad": {
         "title": "Unable to load this page",

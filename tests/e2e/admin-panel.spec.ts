@@ -25,6 +25,7 @@ async function setup(page: Page, role = "admin") {
         route.fulfill({
             json: {
                 api_base_path: "/api/v1",
+                app_mode: "development",
                 login_enabled: false,
                 frontend_base_path: "",
                 email_enabled: false,
@@ -54,7 +55,7 @@ async function setup(page: Page, role = "admin") {
                 total: filtered.length,
                 page: pageNumber,
                 page_size: 10,
-                summary: { total_users: 12, active_users: 11, admin_users: 1 },
+                summary: { total_users: 12, active_users: 11, admin_users: 1, manager_users: 0 },
             },
         });
     });

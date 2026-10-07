@@ -91,6 +91,7 @@ vi.mock("../../../../hooks/useAuth", () => ({
 vi.mock("../../../../hooks/useFeatures", () => ({
     useAppConfig: () => ({
         data: {
+            app_mode: "development",
             login_enabled: true,
             email_enabled: true,
             oauth_enabled: false,

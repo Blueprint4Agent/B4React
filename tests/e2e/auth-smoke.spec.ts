@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const guestConfig = {
     api_base_path: "/api/v1",
+    app_mode: "development",
     login_enabled: true,
     frontend_base_path: "",
     email_enabled: true,
@@ -347,6 +348,7 @@ for (const width of [390, 1440]) {
             route.fulfill({
                 json: {
                     ...guestConfig,
+                    app_mode: "development",
                     login_enabled: false,
                     bootstrap_access_token: "bootstrap-token",
                     bootstrap_user: {

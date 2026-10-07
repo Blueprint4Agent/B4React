@@ -14,7 +14,7 @@ it("loads the administrator directory with authentication, filters and cancellat
         total: 0,
         page: 1,
         page_size: 10,
-        summary: { total_users: 0, active_users: 0, admin_users: 0 },
+        summary: { total_users: 0, active_users: 0, admin_users: 0, manager_users: 0 },
     };
     const request = vi
         .spyOn(apiClient, "GET")
