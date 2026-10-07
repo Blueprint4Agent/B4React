@@ -308,3 +308,5 @@ Action feedback regressions cover signup/reset-email pending and rejected reques
 ## Scoped verification policy
 
 [Change-scoped verification](notes/verification.md) supersedes unconditional check/test/build lists for documentation and structurally unchanged locale copy. Use make verify-plan / make verify; runtime and UI checks follow the selected plan.
+
+Mocked Playwright suites use tests/fixtures/browser.ts to block unmocked cross-origin traffic. Development test servers override VITE_API_BASE_URL; local .env must never send fixture credentials to a developer backend. Page routes override fixture responses.

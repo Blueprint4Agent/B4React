@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../fixtures/browser";
 import { readProjectConfig } from "../../scripts/project-config.mjs";
 
 const project = readProjectConfig();

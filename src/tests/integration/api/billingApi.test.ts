@@ -78,3 +78,22 @@ describe("billing foundation", () => {
         expect(extractBillingErrorCode(null)).toBeNull();
     });
 });
+
+it("shares overlapping subscription reads without caching completed snapshots", async () => {
+    let finish!: (value: never) => void;
+    const get = vi.spyOn(apiClient, "GET").mockImplementationOnce(
+        () =>
+            new Promise((resolve) => {
+                finish = resolve;
+            }),
+    );
+    const { result } = renderHook(useBillingApi);
+    const first = result.current.getBillingSubscription();
+    const second = result.current.getBillingSubscription();
+    expect(get).toHaveBeenCalledTimes(1);
+    finish({ data: { plan: "free" }, response: new Response() } as never);
+    expect(await first).toEqual(await second);
+    get.mockResolvedValueOnce({ data: { plan: "monthly" }, response: new Response() } as never);
+    expect(await result.current.getBillingSubscription()).toEqual({ plan: "monthly" });
+    expect(get).toHaveBeenCalledTimes(2);
+});

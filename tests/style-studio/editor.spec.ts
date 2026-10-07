@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../fixtures/browser";
 import { readStyles } from "../../scripts/style-studio.mjs";
 for (const width of [390, 1440]) {
     test(`draft, theme, reset, conflict and explicit apply at ${width}px`, async ({ page }) => {

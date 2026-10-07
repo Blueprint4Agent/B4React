@@ -1,3 +1,4 @@
+import { AccountSubscriptionProvider } from "./hooks/api/billing/useSubscriptionSnapshot";
 import { KeyboardShortcutsProvider } from "./hooks/useKeyboardShortcuts";
 import { ToastProvider } from "./hooks/useToast";
 import React from "react";
@@ -24,10 +25,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 <ToastProvider>
                     <AppConfigProvider>
                         <AuthProvider>
-                            <ConnectivityRecovery />
-                            <KeyboardShortcutsProvider>
-                                <App />
-                            </KeyboardShortcutsProvider>
+                            <AccountSubscriptionProvider>
+                                <ConnectivityRecovery />
+                                <KeyboardShortcutsProvider>
+                                    <App />
+                                </KeyboardShortcutsProvider>
+                            </AccountSubscriptionProvider>
                         </AuthProvider>
                     </AppConfigProvider>
                 </ToastProvider>

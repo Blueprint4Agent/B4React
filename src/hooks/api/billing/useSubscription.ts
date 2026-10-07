@@ -1,6 +1,6 @@
+import { useSubscriptionSnapshot } from "./useSubscriptionSnapshot";
 import { getAccessToken, subscribeToken } from "../../../store/session";
 import { extractApiDetail } from "../../../api/auth/authError";
-import { useAuthContext } from "../../useAuth";
 import { useAppConfig } from "../../useFeatures";
 import { SUBSCRIPTION_CHANGED } from "../../../utils/billingPlans";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -21,7 +21,6 @@ export function useSubscription(
     withPlans = false,
 ) {
     const api = useBillingApi();
-    const { revalidateSession } = useAuthContext();
     const rejectedToken = useRef<string | null | undefined>(undefined);
     const reading = useRef<number | null>(null);
     const { data: appConfig } = useAppConfig();
@@ -31,7 +30,8 @@ export function useSubscription(
         enabled &&
         !!ownerId &&
         (!isDesktop || status === "online");
-    const [subscription, setSubscription] = useState<BillingSubscription | null>(null);
+    const { value: subscription, store: subscriptionStore } = useSubscriptionSnapshot(ownerId);
+    const setSubscription = subscriptionStore.replace;
     const [catalog, setCatalog] = useState<BillingPlans | null>(null);
     const [loading, setLoading] = useState(true);
     const [busy, setBusy] = useState(false);
@@ -49,7 +49,6 @@ export function useSubscription(
     useEffect(() => {
         ++generation.current;
         active.current = available;
-        setSubscription(null);
         setCatalog(null);
         setError(null);
         setNotice(null);
@@ -65,94 +64,89 @@ export function useSubscription(
             ++sequence.current;
         };
     }, [ownerId, available]);
-    const reload = useCallback(async () => {
-        if (
-            !available ||
-            !active.current ||
-            reading.current === generation.current ||
-            rejectedToken.current === getAccessToken()
-        )
-            return;
-        reading.current = generation.current;
-        const epoch = generation.current;
-        const request = ++sequence.current;
-        const sentToken = getAccessToken();
-        const current = () =>
-            active.current && generation.current === epoch && sequence.current === request;
-        setLoading(true);
-        setError(null);
-        setNotice(null);
-        const loadSnapshot = async () => {
-            if (withPlans) {
-                const plans = await api.getBillingPlans();
-                if (!current()) return;
-                setCatalog(plans);
-                if (!plans.enabled) return;
-            }
-            let nextNotice: string | null = null;
-            if (returnSession === "cancelled") nextNotice = "cancelled";
-            else if (returnSession) {
-                if (!/^cs_[A-Za-z0-9_]{1,252}$/.test(returnSession))
-                    throw new Error("Invalid checkout reference");
-                const result = await api.getBillingCheckoutStatus(returnSession);
-                if (!current()) return;
-                nextNotice = result.paid
-                    ? "paid"
-                    : result.status === "expired"
-                      ? "expired"
-                      : "pending";
-            }
-            const next = await api.getBillingSubscription();
-            if (current()) {
-                setSubscription(next);
-                setNotice(nextNotice);
-            }
-        };
-        try {
-            await loadSnapshot();
-        } catch (cause) {
-            if (!current()) return;
-            if (extractApiDetail(cause)?.error === "INVALID_TOKEN") {
-                rejectedToken.current = sentToken;
-                await revalidateSession({ force: true });
-                if (!current()) return;
-                const renewedToken = getAccessToken();
-                if (renewedToken && renewedToken !== sentToken) {
-                    try {
-                        await loadSnapshot();
-                        if (current()) rejectedToken.current = undefined;
-                        return;
-                    } catch (retryError) {
-                        if (!current()) return;
-                        if (extractApiDetail(retryError)?.error === "INVALID_TOKEN")
-                            rejectedToken.current = renewedToken;
-                        setError(errorKey(retryError));
-                        return;
-                    }
+    const reload = useCallback(
+        async (force = true) => {
+            if (
+                !available ||
+                !active.current ||
+                reading.current === generation.current ||
+                rejectedToken.current === getAccessToken()
+            )
+                return;
+            reading.current = generation.current;
+            const epoch = generation.current;
+            const request = ++sequence.current;
+            const current = () =>
+                active.current && generation.current === epoch && sequence.current === request;
+            setLoading(true);
+            setError(null);
+            setNotice(null);
+            const loadSnapshot = async () => {
+                if (withPlans) {
+                    const plans = await api.getBillingPlans();
+                    if (!current()) return;
+                    setCatalog(plans);
+                    if (!plans.enabled) return;
                 }
+                let nextNotice: string | null = null;
+                if (returnSession === "cancelled") nextNotice = "cancelled";
+                else if (returnSession) {
+                    if (!/^cs_[A-Za-z0-9_]{1,252}$/.test(returnSession))
+                        throw new Error("Invalid checkout reference");
+                    const result = await api.getBillingCheckoutStatus(returnSession);
+                    if (!current()) return;
+                    nextNotice = result.paid
+                        ? "paid"
+                        : result.status === "expired"
+                          ? "expired"
+                          : "pending";
+                }
+                await subscriptionStore.read(api.getBillingSubscription, force || !!returnSession);
+                if (current()) {
+                    rejectedToken.current = undefined;
+                    setNotice(nextNotice);
+                }
+            };
+            try {
+                await loadSnapshot();
+            } catch (cause) {
+                if (!current()) return;
+                if (extractApiDetail(cause)?.error === "INVALID_TOKEN") {
+                    rejectedToken.current = getAccessToken();
+                }
+                if (current()) setError(errorKey(cause));
+            } finally {
+                if (reading.current === epoch) reading.current = null;
+                if (current()) setLoading(false);
             }
-            if (current()) setError(errorKey(cause));
-        } finally {
-            if (reading.current === epoch) reading.current = null;
-            if (current()) setLoading(false);
-        }
-    }, [available, ownerId, api, errorKey, returnSession, withPlans, revalidateSession]);
+        },
+        [available, ownerId, api, errorKey, returnSession, withPlans, subscriptionStore],
+    );
     useEffect(() => {
-        void reload();
+        void reload(false);
         const recover = () => {
             if (!action.current) void reload();
         };
-        const unsubscribe = subscribeToken(recover);
-        window.addEventListener(SUBSCRIPTION_CHANGED, recover);
-        window.addEventListener("focus", recover);
-        window.addEventListener("online", recover);
+        const unsubscribe = subscribeToken(() => {
+            // Routine access-token renewal does not invalidate a healthy subscription snapshot.
+            if (
+                rejectedToken.current !== undefined &&
+                getAccessToken() &&
+                rejectedToken.current !== getAccessToken()
+            )
+                recover();
+        });
+        const changed = (event: Event) => {
+            const snapshot = (event as CustomEvent<BillingSubscription>).detail;
+            if (snapshot) setSubscription(snapshot);
+            else recover();
+        };
+        window.addEventListener(SUBSCRIPTION_CHANGED, changed);
         return () => {
             unsubscribe();
-            window.removeEventListener(SUBSCRIPTION_CHANGED, recover);
-            window.removeEventListener("focus", recover);
-            window.removeEventListener("online", recover);
+            window.removeEventListener(SUBSCRIPTION_CHANGED, changed);
         };
-    }, [reload]);
+    }, [reload, setSubscription]);
     const checkout = useCallback(
         async (plan: BillingCheckoutForm["plan"], currency: BillingCheckoutForm["currency"]) => {
             if (
@@ -219,7 +213,7 @@ export function useSubscription(
                 });
                 if (!active.current || generation.current !== epoch) return false;
                 setSubscription(next);
-                window.dispatchEvent(new Event(SUBSCRIPTION_CHANGED));
+                window.dispatchEvent(new CustomEvent(SUBSCRIPTION_CHANGED, { detail: next }));
                 retry.current = null;
                 return !next.payment_required;
             } catch (cause) {
@@ -235,7 +229,7 @@ export function useSubscription(
                 }
             }
         },
-        [available, subscription, api, errorKey],
+        [available, subscription, api, errorKey, setSubscription],
     );
     return {
         subscription,

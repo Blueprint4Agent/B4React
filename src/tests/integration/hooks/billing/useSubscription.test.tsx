@@ -1,9 +1,8 @@
+import { SubscriptionSnapshotProvider } from "../../../../hooks/api/billing/useSubscriptionSnapshot";
 import { setAccessToken } from "../../../../store/session";
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
 import { useSubscription } from "../../../../hooks/api/billing/useSubscription";
-const revalidateSession = vi.hoisted(() => vi.fn());
-vi.mock("../../../../hooks/useAuth", () => ({ useAuthContext: () => ({ revalidateSession }) }));
 const flags = vi.hoisted(() => ({
     data: { billing_enabled: true } as {
         billing_enabled: boolean;
@@ -114,7 +113,7 @@ it("does not infer payment from complete status and refetches on recovery", asyn
     await waitFor(() => expect(result.current.notice).toBe("pending"));
     api.getBillingCheckoutStatus.mockResolvedValue({ status: "complete", paid: true });
     await act(async () => {
-        window.dispatchEvent(new Event("online"));
+        await result.current.reload();
     });
     await waitFor(() => expect(result.current.notice).toBe("paid"));
 });
@@ -195,7 +194,7 @@ it("refreshes the profile consumer once after a successful plan mutation", async
         expect(await actor.result.current.change("pro_monthly", plus.change_version)).toBe(true);
     });
     await waitFor(() => expect(profile.result.current.subscription).toEqual(pro));
-    expect(api.getBillingSubscription).toHaveBeenCalledTimes(3);
+    expect(api.getBillingSubscription).toHaveBeenCalledTimes(2);
     expect(actor.result.current.subscription).toEqual(pro);
 });
 
@@ -216,24 +215,70 @@ it("does not request disabled or unresolved features, including recovery events"
     for (const mock of Object.values(api)) expect(mock).not.toHaveBeenCalled();
 });
 
-it("recovers a rejected token once and stops repeated focus requests if renewal is rejected", async () => {
+it("stops rejected-token reads until a new credential is provided", async () => {
     setAccessToken("expired");
     api.getBillingSubscription.mockRejectedValue({ detail: { error: "INVALID_TOKEN" } });
-    revalidateSession.mockImplementation(async () => {
-        setAccessToken("renewed");
-    });
     const { result } = renderHook(() => useSubscription(1));
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(revalidateSession).toHaveBeenCalledTimes(1);
-    expect(api.getBillingSubscription).toHaveBeenCalledTimes(2);
+    expect(api.getBillingSubscription).toHaveBeenCalledTimes(1);
     for (let i = 0; i < 5; i++)
         await act(async () => {
             window.dispatchEvent(new Event("focus"));
         });
-    expect(api.getBillingSubscription).toHaveBeenCalledTimes(2);
+    expect(api.getBillingSubscription).toHaveBeenCalledTimes(1);
     api.getBillingSubscription.mockResolvedValue(free);
     await act(async () => {
         setAccessToken("new-session");
     });
     await waitFor(() => expect(result.current.subscription).toEqual(free));
+    const reads = api.getBillingSubscription.mock.calls.length;
+    await act(async () => {
+        setAccessToken("routine-renewal");
+    });
+    expect(api.getBillingSubscription).toHaveBeenCalledTimes(reads);
+});
+
+it("does not refetch healthy snapshots on focus or routine token renewal", async () => {
+    setAccessToken("initial");
+    const { result } = renderHook(() => useSubscription(1));
+    await waitFor(() => expect(result.current.subscription).toEqual(free));
+    await act(async () => {
+        for (let i = 0; i < 10; i++) window.dispatchEvent(new Event("focus"));
+        setAccessToken("renewed");
+    });
+    expect(api.getBillingSubscription).toHaveBeenCalledTimes(1);
+    await act(async () => {
+        await result.current.reload();
+    });
+    expect(api.getBillingSubscription).toHaveBeenCalledTimes(2);
+});
+
+function SnapshotConsumer({ name, owner = 1 }: { name: string; owner?: number }) {
+    const { subscription } = useSubscription(owner);
+    return <span data-testid={name}>{subscription?.plan ?? "loading"}</span>;
+}
+it("shares one snapshot across sidebar and later page mounts and resets for another account", async () => {
+    const { rerender } = render(
+        <SubscriptionSnapshotProvider ownerId={1}>
+            <SnapshotConsumer name="sidebar" />
+        </SubscriptionSnapshotProvider>,
+    );
+    await waitFor(() => expect(screen.getByTestId("sidebar")).toHaveTextContent("free"));
+    rerender(
+        <SubscriptionSnapshotProvider ownerId={1}>
+            <SnapshotConsumer name="sidebar" />
+            <SnapshotConsumer name="page" />
+        </SubscriptionSnapshotProvider>,
+    );
+    await waitFor(() => expect(screen.getByTestId("page")).toHaveTextContent("free"));
+    expect(api.getBillingSubscription).toHaveBeenCalledTimes(1);
+    api.getBillingSubscription.mockResolvedValue({ ...free, plan: "pro_monthly" });
+    rerender(
+        <SubscriptionSnapshotProvider ownerId={2}>
+            <SnapshotConsumer name="sidebar" owner={2} />
+            <SnapshotConsumer name="page" owner={2} />
+        </SubscriptionSnapshotProvider>,
+    );
+    await waitFor(() => expect(screen.getByTestId("page")).toHaveTextContent("pro_monthly"));
+    expect(api.getBillingSubscription).toHaveBeenCalledTimes(2);
 });

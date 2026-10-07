@@ -1,3 +1,4 @@
+import { registerSessionRecovery, resetSessionRecovery } from "../api/http";
 import {
     rememberAccount,
     updateRememberedProfile,
@@ -88,7 +89,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         async (force = false) => {
             const epoch = sessionEpoch.current;
             try {
-                const config = await (force ? reloadConfig() : ensureConfig());
+                let config = await ensureConfig();
+                if (force && config?.login_enabled === false) config = await reloadConfig();
                 if (epoch !== sessionEpoch.current) return;
                 if (config?.login_enabled === false) {
                     if (config.bootstrap_access_token) {
@@ -129,15 +131,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
     const revalidateSession = useCallback(
         (options?: { force?: boolean }) => {
-            if (!options?.force) return revalidate();
             if (recoveryInFlight.current) return recoveryInFlight.current;
-            const task = revalidate(true).finally(() => {
+            const task = revalidate(options?.force === true).finally(() => {
                 recoveryInFlight.current = null;
             });
             recoveryInFlight.current = task;
             return task;
         },
         [revalidate],
+    );
+
+    useEffect(
+        () => registerSessionRecovery(() => revalidateSession({ force: true })),
+        [revalidateSession],
     );
 
     useEffect(() => {
@@ -160,6 +166,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             loading,
             login: async (input) => {
                 sessionEpoch.current += 1;
+                resetSessionRecovery();
                 const { remember_account, ...credentials } = input;
                 const payload = await loginAuth(credentials);
                 if (remember_account)
@@ -169,6 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         provider: "email",
                     });
                 else removeRecentAccount({ email: payload.user.email, provider: "email" });
+                resetSessionRecovery();
                 setAccessToken(payload.access_token);
                 setUser(payload.user);
             },
@@ -183,15 +191,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             deleteAccount: async (email, code) => {
                 await deleteMe({ email, code });
                 sessionEpoch.current += 1;
+                resetSessionRecovery();
                 removeRecentAccount({ email, provider: "email" });
                 clearAccessToken();
                 setUser(null);
             },
             logout: async () => {
                 sessionEpoch.current += 1;
+                resetSessionRecovery();
                 try {
                     await logoutAuth();
                 } finally {
+                    resetSessionRecovery();
                     clearAccessToken();
                     setUser(null);
                 }

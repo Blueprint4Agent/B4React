@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../fixtures/browser";
 const config = {
     billing_enabled: true,
 
@@ -70,4 +70,11 @@ test("failed initial config retries once and restores bootstrap authentication",
     // Then: the same successful snapshot restores auth without another config request.
     await expect(page.getByRole("link", { name: "Admin panel", exact: true })).toBeVisible();
     expect(calls).toBe(2);
+});
+
+test("mocked subscription traffic targets the isolated test server", async ({ page, baseURL }) => {
+    await page.route("**/config", (route) => route.fulfill({ json: config }));
+    const request = page.waitForRequest("**/api/v1/billing/subscription");
+    await page.goto("/home");
+    expect(new URL((await request).url()).origin).toBe(new URL(baseURL!).origin);
 });
