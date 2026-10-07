@@ -91,3 +91,20 @@ hooks-install: ## Install commit-msg and pre-push hooks in this clone
 hooks-test: ## Test Git hooks and verification receipt invalidation
 	python3 -m unittest discover -s scripts -p 'test_git_hooks.py'
 	python3 -m unittest discover -s scripts -p 'test_verification_cache.py'
+
+.PHONY: test-selected test-ui-selected
+test-selected: ## Run classifier-selected unit/component/integration suites
+	@test -n "$(TEST_FILES)" || (echo 'TEST_FILES is required' >&2; exit 1)
+	$(NPM) test -- $(TEST_FILES)
+test-ui-selected: ## Run classifier-selected browser suites/cases
+	@test -n "$(TEST_FILES)" || (echo 'TEST_FILES is required' >&2; exit 1)
+	$(NPM) run test:e2e -- --fully-parallel $(TEST_FILES)
+
+.PHONY: check-affected
+check-affected: ## Static policy/type checks plus formatting for mapped changed files
+	@test -n "$(CHECK_FILES)" || (echo 'CHECK_FILES is required' >&2; exit 1)
+	node scripts/check-architecture.mjs
+	node scripts/check-ui-composition.mjs
+	node scripts/check-react-performance.mjs
+	$(NPM) exec prettier -- --check $(CHECK_FILES)
+	$(NPM) run typecheck
