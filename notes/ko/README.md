@@ -112,3 +112,5 @@ name/short_name/identifier를 수정한 뒤 `make project-config-check`와 빌�
 결제 설정·플랜 선택: [한국어](billing.md) · [English](../billing.md).
 
 - [페이지 유형별 일관성](page-families.md) / [English](../page-families.md)
+
+메인 페이지 템플릿: [한국어](main-page-template.md) · [English](../main-page-template.md).

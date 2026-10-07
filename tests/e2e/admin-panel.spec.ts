@@ -103,7 +103,7 @@ test("non-admin users cannot see the menu or request the admin directory", async
     });
     // When: opening the protected route and profile.
     await page.goto("/admin");
-    await expect(page).toHaveURL(/\/show-case$/);
+    await expect(page).toHaveURL(/\/home$/);
     await page.locator(".profile-menu__trigger").click();
     // Then: no panel entry or admin request is available.
     await expect(page.getByRole("link", { name: "Admin panel" })).toHaveCount(0);

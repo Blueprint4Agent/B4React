@@ -723,4 +723,8 @@ Use the shared SegmentedControl for the compact currency symbols and its interac
 
 The plan selection page omits the pending-plan status card; Billing settings remains the place to review scheduled changes.
 
-Runtime mode is owned by the server /config app_mode field (development or production). Reject missing/invalid modes and production without login. Production hides GitHub/User guide/showcase, redirects direct showcase URLs to account/login, and omits showcase auth backdrops. User API-key settings remain available. Admin and manager may read the existing directory; only explicit admin guards allow admin-only work. Keep role state in AuthProvider and refresh account data after operator changes. Preserve the memoized AdminUserTable. The summary shows four role/account counts, two columns on mobile.
+Runtime mode is owned by the server /config app_mode field (development or production). Reject missing/invalid modes and production without login. Production hides GitHub/User guide/showcase, redirects direct showcase URLs to home/login, and both modes use home auth backdrops. User API-key settings remain available. Admin and manager may read the existing directory; only explicit admin guards allow admin-only work. Keep role state in AuthProvider and refresh account data after operator changes. Preserve the memoized AdminUserTable. The summary shows four role/account counts, two columns on mobile.
+
+Both runtime modes use `/home` as the default page with the shared settings shell and real account shortcuts. Root/dashboard, login completion, auth close and recovery lead home. Guests see a generic home with login entry points; private account actions still require authentication. Development keeps a separate showcase menu and production redirects showcase URLs home. Home consumes existing auth state and makes no new API requests.
+
+See [main page template](notes/main-page-template.md) for menu, header action and content extension slots.

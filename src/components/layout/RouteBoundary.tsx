@@ -1,4 +1,3 @@
-import { useAppConfig } from "../../hooks/useFeatures";
 import { Component, Suspense, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -20,7 +19,6 @@ class RouteErrorBoundary extends Component<RouteErrorBoundaryProps, { failed: bo
 function RouteLoadError() {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const { data: config } = useAppConfig();
     return (
         <PageStateFrame
             title={t("routeLoad.title")}
@@ -35,8 +33,8 @@ function RouteLoadError() {
                     <Button onClick={() => window.location.reload()}>
                         {t("routeLoad.reload")}
                     </Button>
-                    <Button onClick={() => navigate("/show-case", { replace: true })}>
-                        {t(config?.app_mode === "development" ? "pageState.back" : "nav.home")}
+                    <Button onClick={() => navigate("/home", { replace: true })}>
+                        {t("nav.home")}
                     </Button>
                 </>
             }

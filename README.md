@@ -124,3 +124,5 @@ Change-scoped verification: [English](notes/verification.md) · [한국어](note
 Billing settings and plan selection: [English](notes/billing.md) · [한국어](notes/ko/billing.md).
 
 - [Page-family consistency](notes/page-families.md) / [페이지 유형별 일관성](notes/ko/page-families.md)
+
+Main page template: [English](notes/main-page-template.md) · [한국어](notes/ko/main-page-template.md).

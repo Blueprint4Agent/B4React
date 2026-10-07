@@ -2,6 +2,7 @@ import { useToast } from "../../hooks/useToast";
 import { resolveSettingsSection } from "../../utils/settingsSections";
 import {
     AppWindow,
+    Home,
     CreditCard,
     BookOpen,
     Users,
@@ -62,7 +63,7 @@ export function AppSidebar({
     const { checkNow, isDesktop, status } = useServerConnectivity();
     const [busy, setBusy] = useState(false);
     const development = appConfig?.app_mode === "development";
-    const homePath = development ? "/show-case" : "/";
+    const homePath = "/home";
     const loginEnabled = appConfig?.login_enabled === true;
     const logoutBlocked = isDesktop && status !== "online";
     const displayName =
@@ -138,10 +139,20 @@ export function AppSidebar({
           : [
                 {
                     path: homePath,
-                    label: t(development ? "nav.sidebar.showCase" : "nav.home"),
-                    icon: AppWindow,
+                    label: t("nav.home"),
+                    icon: Home,
                     section: "",
                 },
+                ...(development
+                    ? [
+                          {
+                              path: "/show-case",
+                              label: t("nav.sidebar.showCase"),
+                              icon: AppWindow,
+                              section: "showcase",
+                          },
+                      ]
+                    : []),
             ];
 
     return (
@@ -152,7 +163,7 @@ export function AppSidebar({
                         <Link
                             to={homePath}
                             className="app-sidebar__brand"
-                            aria-label={t(development ? "nav.aria.goShowCase" : "nav.home")}
+                            aria-label={t("nav.home")}
                         >
                             <span className="app-sidebar__brand-name">{t("nav.brand")}</span>
                         </Link>

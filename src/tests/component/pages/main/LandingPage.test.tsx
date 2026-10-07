@@ -16,7 +16,7 @@ function renderLanding(loginEnabled: boolean) {
         <Routes>
             <Route path="/" element={<LandingPage loginEnabled={loginEnabled} />} />
             <Route path="/login" element={<LocationProbe />} />
-            <Route path="/show-case" element={<LocationProbe />} />
+            <Route path="/home" element={<LocationProbe />} />
         </Routes>,
     );
 }
@@ -32,26 +32,26 @@ describe("LandingPage", () => {
         expect(within(nav).queryByRole("group", { name: "Theme mode" })).not.toBeInTheDocument();
     });
 
-    it("marks landing as started and routes to showcase when login is enabled", async () => {
+    it("marks landing as started and routes to home when login is enabled", async () => {
         renderLanding(true);
 
         const user = userEvent.setup();
         await user.click(screen.getByRole("button", { name: "Get started" }));
 
         await waitFor(() => {
-            expect(screen.getByTestId("location")).toHaveTextContent("/show-case");
+            expect(screen.getByTestId("location")).toHaveTextContent("/home");
         });
         expect(window.localStorage.getItem("b4fastapi:landing:v1:started")).toBe("true");
     });
 
-    it("marks landing as started and routes to showcase when login is disabled", async () => {
+    it("marks landing as started and routes to home when login is disabled", async () => {
         renderLanding(false);
 
         const user = userEvent.setup();
         await user.click(screen.getByRole("button", { name: "Get started" }));
 
         await waitFor(() => {
-            expect(screen.getByTestId("location")).toHaveTextContent("/show-case");
+            expect(screen.getByTestId("location")).toHaveTextContent("/home");
         });
         expect(window.localStorage.getItem("b4fastapi:landing:v1:started")).toBe("true");
     });

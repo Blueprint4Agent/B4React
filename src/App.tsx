@@ -58,6 +58,10 @@ const SettingsPage = lazy(() =>
     import("./pages/settings/SettingsPage").then((module) => ({ default: module.SettingsPage })),
 );
 
+const HomePage = lazy(() =>
+    import("./pages/main/HomePage").then((module) => ({ default: module.HomePage })),
+);
+
 const PlansPage = lazy(() =>
     import("./pages/billing/PlansPage").then((module) => ({ default: module.PlansPage })),
 );
@@ -99,20 +103,18 @@ function AuthDialogRoute({
 }) {
     const { user, loading } = useAuthContext();
     const [params] = useSearchParams();
-    const { data: config } = useAppConfig();
-    const development = config?.app_mode === "development";
     if (guestOnly && !loading && user && params.get("switch") !== "1")
-        return <Navigate to={development ? "/show-case" : "/"} replace />;
+        return <Navigate to="/home" replace />;
     return (
         <>
-            {development ? <ShowCasePage /> : null}
+            <HomePage />
             <RouteBoundary fallback={<LoadingPage />}>{children}</RouteBoundary>
         </>
     );
 }
 
 export function App() {
-    const { revalidateSession, user } = useAuthContext();
+    const { revalidateSession } = useAuthContext();
     useTheme();
     const { t } = useTranslation();
     const {
@@ -150,7 +152,7 @@ export function App() {
 
     const loginEnabled = appConfig.login_enabled;
     const development = appConfig.app_mode === "development";
-    const homePath = development ? "/show-case" : user ? "/settings?section=account" : "/login";
+    const homePath = "/home";
 
     return (
         <Routes>
@@ -187,6 +189,7 @@ export function App() {
                     </AppLayout>
                 }
             >
+                <Route path="/home" element={<HomePage />} />
                 <Route path="/dashboard" element={<Navigate to={homePath} replace />} />
                 <Route
                     path="/show-case"
@@ -201,7 +204,11 @@ export function App() {
                 <Route
                     path="/show-case/404"
                     element={
-                        development ? <ShowCaseNotFoundPage /> : <Navigate to={homePath} replace />
+                        development ? (
+                            <ShowCaseNotFoundPage preview />
+                        ) : (
+                            <Navigate to={homePath} replace />
+                        )
                     }
                 />
                 <Route
