@@ -6281,3 +6281,49 @@ html[data-theme="dark"] .billing-stripe-badge .payment-brand--dark {
     flex-wrap: wrap;
     gap: var(--space-3);
 }
+
+/* Keep independent billing states inside their settings surfaces. */
+.billing-plan-summary {
+    min-height: 7rem;
+    flex-wrap: wrap;
+}
+.billing-plan-summary > .billing-feedback {
+    flex-basis: 100%;
+}
+.billing-records,
+.billing-method-surface {
+    min-height: 8rem;
+}
+.billing-method-surface {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: var(--space-3);
+}
+.billing-records > .status-card,
+.billing-method-surface > .status-card {
+    width: 100%;
+}
+.billing-records > .status-card + *,
+.billing-records > .ui-spinner {
+    margin-top: var(--space-3);
+}
+.admin-table-loading {
+    min-height: 240px;
+    display: grid;
+    place-items: center;
+}
+
+[aria-labelledby="billing-info-title"] > .billing-records {
+    min-height: 15rem;
+}
+.billing-records:has(> .ui-spinner:only-child) {
+    display: grid;
+    place-items: center;
+}
+.billing-method-surface > .billing-empty {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}

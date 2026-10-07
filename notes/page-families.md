@@ -68,3 +68,5 @@ values pair localized meaning with the actual safe boolean or runtime-mode value
 Keyboard settings reuse General row/header composition. Both app shortcuts can be customized/reset per browser by clicking a key card; duplicate bindings are rejected and clicking away cancels capture. Each settings section replays the existing entry animation. Default/pill actions share the 32px dropdown height; coarse pointers retain 44px targets. Profile subscription markers use a fixed 16px circle with a centered glyph. Home/admin headers omit icons like Settings.
 
 Profile role badges belong inside the photo card. Compact option menus open toward the right from the trigger left edge and clamp to the viewport. Destructive options use red in both themes. Keyboard follows Account in the sidebar and uses toast notices for duplicate shortcuts.
+
+Billing errors and section retries belong inside the corresponding settings-row surface. Billing surfaces retain minimum heights in loading/error states; administrator collection loading uses Spinner inside the table region.

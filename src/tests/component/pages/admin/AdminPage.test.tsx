@@ -81,7 +81,14 @@ describe("admin table render isolation", () => {
         expect(screen.getByText(i18n.t("recentAccounts.providers.email"))).toBeVisible();
         response.value = { data: { ...payload(), items: [] }, loading: true, error: null };
         rerender(<AdminPage />);
-        expect(screen.getByRole("table")).toHaveTextContent(i18n.t("admin.loading"));
+        expect(screen.getByRole("region", { name: i18n.t("admin.users") })).toHaveAttribute(
+            "aria-busy",
+            "true",
+        );
+        expect(screen.queryByRole("table")).not.toBeInTheDocument();
+        expect(
+            screen.getAllByRole("status", { name: i18n.t("admin.loading") }).length,
+        ).toBeGreaterThan(0);
         response.value = { ...response.value, loading: false, error: "request failed" };
         rerender(<AdminPage />);
         expect(screen.getByRole("table")).toHaveTextContent(i18n.t("admin.loadError"));
