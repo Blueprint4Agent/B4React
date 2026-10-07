@@ -1,3 +1,4 @@
+import { openSubscriptionPayment } from "../../utils/billingPlans";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Check, ChevronRight, CreditCard, Plus, ReceiptText, Trash2, Wallet } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -169,7 +170,9 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
         if (url) window.location.assign(url);
     };
     const selectedPlan = params.get("plan");
-    const paidSelected = selectedPlan === "monthly" || selectedPlan === "annual";
+    const paidSelected = ["monthly", "annual", "pro_monthly", "pro_annual"].includes(
+        selectedPlan ?? "",
+    );
     const addMethod = async () => {
         const setup = await billing.startCard();
         if (setup) setCardSetup(setup);
@@ -191,6 +194,23 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                 <p>{t("billing.subtitle")}</p>
             </header>
             <div className="settings-general-content billing-settings">
+                {subscription.subscription?.payment_required && (
+                    <div className="billing-feedback">
+                        <InlineMessage tone="info">
+                            {t("billing.manage.paymentRequired")}
+                        </InlineMessage>
+                        {subscription.subscription.payment_url && (
+                            <Button
+                                appearance="text"
+                                onClick={() =>
+                                    openSubscriptionPayment(subscription.subscription?.payment_url)
+                                }
+                            >
+                                {t("billing.manage.completePayment")}
+                            </Button>
+                        )}
+                    </div>
+                )}
                 {pageErrors.length > 0 && (
                     <div className="billing-feedback">
                         <StatusCard

@@ -1,10 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { Modal, ModalButton, InlineMessage } from "../../ui";
 export type PlanChangeSelection = {
-    plan: "free" | "monthly" | "annual" | "keep";
+    plan: "free" | "monthly" | "annual" | "pro_monthly" | "pro_annual" | "keep";
     version: string;
     effectiveAt: number;
     price?: string;
+    immediate?: boolean;
 };
 type Props = {
     selection: PlanChangeSelection | null;
@@ -27,10 +28,17 @@ export function PlanChangeDialog({ selection, busy, error, onClose, onConfirm }:
             description={
                 selection?.plan === "keep"
                     ? t("billing.manage.undoDescription")
-                    : t("billing.manage.description", {
-                          date: new Date((selection?.effectiveAt ?? 0) * 1000).toLocaleDateString(),
-                          plan: t(`billing.plans.${selection?.plan ?? "free"}.name`),
-                      })
+                    : t(
+                          selection?.immediate
+                              ? "billing.manage.immediateDescription"
+                              : "billing.manage.description",
+                          {
+                              date: new Date(
+                                  (selection?.effectiveAt ?? 0) * 1000,
+                              ).toLocaleDateString(),
+                              plan: t(`billing.plans.${selection?.plan ?? "free"}.name`),
+                          },
+                      )
             }
             footer={
                 <>
@@ -47,7 +55,7 @@ export function PlanChangeDialog({ selection, busy, error, onClose, onConfirm }:
                 </>
             }
         >
-            {selection?.price && <p>{selection.price}</p>}
+            {selection?.price && <p>{t("billing.manage.newPrice", { price: selection.price })}</p>}
             {error && <InlineMessage>{t(error)}</InlineMessage>}
         </Modal>
     );

@@ -928,7 +928,7 @@ export interface components {
              * Plan
              * @enum {string}
              */
-            plan: "free" | "monthly" | "annual" | "keep";
+            plan: "free" | "monthly" | "annual" | "pro_monthly" | "pro_annual" | "keep";
             /**
              * Request Id
              * Format: uuid
@@ -947,7 +947,7 @@ export interface components {
              * Plan
              * @enum {string}
              */
-            plan: "monthly" | "annual";
+            plan: "monthly" | "annual" | "pro_monthly" | "pro_annual";
             /**
              * Request Id
              * Format: uuid
@@ -1108,7 +1108,7 @@ export interface components {
              * Plan
              * @enum {string}
              */
-            plan: "monthly" | "annual";
+            plan: "monthly" | "annual" | "pro_monthly" | "pro_annual";
         };
         /** BillingProfileForm */
         BillingProfileForm: {
@@ -1192,15 +1192,22 @@ export interface components {
              * @default false
              */
             has_subscription: boolean;
+            /**
+             * Payment Required
+             * @default false
+             */
+            payment_required: boolean;
+            /** Payment Url */
+            payment_url?: string | null;
             /** Pending Effective At */
             pending_effective_at?: number | null;
             /** Pending Plan */
-            pending_plan?: ("free" | "monthly" | "annual") | null;
+            pending_plan?: ("free" | "monthly" | "annual" | "pro_monthly" | "pro_annual") | null;
             /**
              * Plan
              * @enum {string}
              */
-            plan: "free" | "monthly" | "annual" | "unknown";
+            plan: "free" | "monthly" | "annual" | "pro_monthly" | "pro_annual" | "unknown";
             /** Status */
             status: string;
         };

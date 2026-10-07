@@ -1,3 +1,4 @@
+import type { SubscriptionTier } from "../../utils/billingPlans";
 import { createPortal } from "react-dom";
 import { useRecentAccounts } from "../../hooks/useRecentAccounts";
 import {
@@ -19,6 +20,7 @@ import { APP_SHORTCUTS, shortcutAriaKeys } from "../../utils/keyboardShortcuts";
 
 type ProfileDropdownProps = {
     expanded?: boolean;
+    subscriptionTier?: SubscriptionTier | null;
     showLogin?: boolean;
     showAdmin?: boolean;
     allowAccountSwitching?: boolean;
@@ -35,6 +37,7 @@ type ProfileDropdownProps = {
 
 export function ProfileDropdown({
     expanded = false,
+    subscriptionTier,
     showLogin = false,
     showAdmin = false,
     allowAccountSwitching = false,
@@ -147,6 +150,13 @@ export function ProfileDropdown({
             )}
             <div className="profile-menu__identity-text">
                 <p className="profile-menu__name">{displayName}</p>
+                {subscriptionTier && (
+                    <p
+                        className={`profile-menu__tier-label profile-menu__tier-label--${subscriptionTier}`}
+                    >
+                        {t(`billing.plans.${subscriptionTier}.name`)}
+                    </p>
+                )}
                 {email ? <p className="profile-menu__email">{email}</p> : null}
             </div>
         </>
@@ -176,11 +186,27 @@ export function ProfileDropdown({
                 title={displayName}
             >
                 {avatarLabel ? (
-                    <UserAvatar
-                        className="profile-menu__avatar"
-                        imageUrl={avatarImageUrl}
-                        label={avatarLabel}
-                    />
+                    <span className="profile-menu__avatar-wrap">
+                        <UserAvatar
+                            className="profile-menu__avatar"
+                            imageUrl={avatarImageUrl}
+                            label={avatarLabel}
+                        />
+                        {subscriptionTier && (
+                            <span
+                                className={`profile-menu__tier profile-menu__tier--${subscriptionTier}`}
+                                aria-label={t("billing.plans.profileTier", {
+                                    plan: t(`billing.plans.${subscriptionTier}.name`),
+                                })}
+                            >
+                                {subscriptionTier === "free"
+                                    ? "F"
+                                    : subscriptionTier === "plus"
+                                      ? "+"
+                                      : "P"}
+                            </span>
+                        )}
+                    </span>
                 ) : (
                     <UserRound aria-hidden="true" />
                 )}

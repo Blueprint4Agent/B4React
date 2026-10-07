@@ -729,7 +729,7 @@
                 "three": "No recurring charges"
             },
             "monthly": {
-                "name": "Monthly",
+                "name": "Plus",
                 "headline": "Flexibility, every month",
                 "description": "A monthly option for those who prefer a shorter commitment.",
                 "period": "/ month",
@@ -738,7 +738,7 @@
                 "three": "Full benefits announced at launch"
             },
             "annual": {
-                "name": "Annual",
+                "name": "Plus",
                 "headline": "Built for the long run",
                 "description": "An annual option for those planning to stay a little longer.",
                 "period": "/ year",
@@ -750,7 +750,40 @@
                 "name": "Needs review"
             },
             "usd": "Dollar",
-            "krw": "Won"
+            "krw": "Won",
+            "plus": {
+                "name": "Plus",
+                "headline": "Flexibility, every month",
+                "description": "A plan for everyday use",
+                "period": "/ month",
+                "one": "Monthly or annual billing",
+                "two": "Manage payment methods in the app",
+                "three": "Change or cancel at period end"
+            },
+            "pro": {
+                "name": "Pro",
+                "headline": "Built for the long run",
+                "description": "A higher-tier subscription",
+                "period": "/ year",
+                "one": "Monthly or annual billing",
+                "two": "Manage payment methods in the app",
+                "three": "Change or cancel at period end"
+            },
+            "pro_monthly": {
+                "name": "Pro",
+                "period": "/ month"
+            },
+            "pro_annual": {
+                "name": "Pro",
+                "period": "/ year"
+            },
+            "interval": "Billing interval",
+            "monthlyLabel": "Monthly",
+            "annualLabel": "Annual",
+            "perMonth": "/ month",
+            "annualTotal": "{{amount}} billed annually · Save {{discount}}%",
+            "monthlyBilling": "Billed monthly",
+            "profileTier": "Current subscription: {{plan}}"
         },
         "closePlans": "Close plan selection",
         "subscribe": "Subscribe {{plan}}",
@@ -788,7 +821,12 @@
             "cancel": "Go back",
             "saved": "Plan change scheduled.",
             "restored": "Your current plan will continue.",
-            "unavailable": "This subscription requires billing support to make changes."
+            "unavailable": "This subscription requires billing support to make changes.",
+            "immediateDescription": "Upgrade to {{plan}} immediately after payment. Stripe prorates unused time and attempts to collect the difference. Your current tier remains until payment succeeds. Changing the billing interval starts a new billing cycle.",
+            "upgraded": "Your plan has been upgraded.",
+            "paymentRequired": "Complete the upgrade payment or authentication. Your current subscription remains until payment succeeds.",
+            "completePayment": "Complete payment",
+            "newPrice": "New recurring price: {{price}}"
         },
         "details": {
             "viewAll": "View all",

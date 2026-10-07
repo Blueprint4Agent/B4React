@@ -1,3 +1,4 @@
+import { SUBSCRIPTION_CHANGED } from "../../../utils/billingPlans";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerConnectivity } from "../../connectivity/useServerConnectivity";
 import {
@@ -95,9 +96,11 @@ export function useSubscription(
         const recover = () => {
             if (!action.current) void reload();
         };
+        window.addEventListener(SUBSCRIPTION_CHANGED, recover);
         window.addEventListener("focus", recover);
         window.addEventListener("online", recover);
         return () => {
+            window.removeEventListener(SUBSCRIPTION_CHANGED, recover);
             window.removeEventListener("focus", recover);
             window.removeEventListener("online", recover);
         };
@@ -168,8 +171,9 @@ export function useSubscription(
                 });
                 if (!active.current || generation.current !== epoch) return false;
                 setSubscription(next);
+                window.dispatchEvent(new Event(SUBSCRIPTION_CHANGED));
                 retry.current = null;
-                return true;
+                return !next.payment_required;
             } catch (cause) {
                 if (active.current && generation.current === epoch) {
                     setError(errorKey(cause));

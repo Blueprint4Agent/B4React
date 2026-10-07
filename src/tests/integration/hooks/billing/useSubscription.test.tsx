@@ -164,3 +164,27 @@ it("serializes plan changes, reuses retry identity and ignores a response after 
     });
     expect(result.current.subscription).toEqual(free);
 });
+
+it("refreshes the profile consumer once after a successful plan mutation", async () => {
+    const plus = {
+        plan: "monthly",
+        status: "active",
+        has_subscription: true,
+        can_manage: true,
+        change_version: "a".repeat(64),
+    };
+    const pro = { ...plus, plan: "pro_monthly" };
+    api.getBillingSubscription.mockResolvedValue(plus);
+    const actor = renderHook(() => useSubscription(1));
+    const profile = renderHook(() => useSubscription(1));
+    await waitFor(() => expect(actor.result.current.subscription).toEqual(plus));
+    await waitFor(() => expect(profile.result.current.subscription).toEqual(plus));
+    api.getBillingSubscription.mockResolvedValue(pro);
+    api.changeBillingSubscription.mockResolvedValue(pro);
+    await act(async () => {
+        expect(await actor.result.current.change("pro_monthly", plus.change_version)).toBe(true);
+    });
+    await waitFor(() => expect(profile.result.current.subscription).toEqual(pro));
+    expect(api.getBillingSubscription).toHaveBeenCalledTimes(3);
+    expect(actor.result.current.subscription).toEqual(pro);
+});
