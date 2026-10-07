@@ -13,6 +13,7 @@ import {
 } from "./useBillingApi";
 import { useServerConnectivity } from "../../connectivity/useServerConnectivity";
 
+export type BillingSection = "card" | "link" | "profile" | "invoices";
 type Methods = Record<BillingMethodType, BillingPaymentMethods>;
 const emptyMethods = (): Methods => ({
     card: { items: [], has_more: false },
@@ -30,6 +31,11 @@ export function useBilling(
     const { data: appConfig } = useAppConfig();
     const { isDesktop, status } = useServerConnectivity();
     const available = appConfig?.billing_enabled === true && (!isDesktop || status === "online");
+    const [sectionErrors, setSectionErrors] = useState<Partial<Record<BillingSection, string>>>({});
+    const [sectionLoading, setSectionLoading] = useState<Partial<Record<BillingSection, boolean>>>(
+        {},
+    );
+    const sectionLocks = useRef(new Set<BillingSection>());
     const [profile, setProfile] = useState<BillingProfile | null>(null);
     const [invoices, setInvoices] = useState<BillingInvoices | null>(null);
     const [config, setConfig] = useState<BillingConfig | null>(null);
@@ -64,6 +70,9 @@ export function useBilling(
         nativeRequest.current = null;
         actionLock.current = false;
         pageLock.current = false;
+        setSectionErrors({});
+        setSectionLoading({});
+        sectionLocks.current.clear();
         setConfig(null);
         setProfile(null);
         setInvoices(null);
@@ -78,6 +87,38 @@ export function useBilling(
             ++loadId.current;
         };
     }, [ownerId, available]);
+
+    const reloadSection = useCallback(
+        async (section: BillingSection) => {
+            if (!mounted.current || !online.current || sectionLocks.current.has(section)) return;
+            const generation = epoch.current;
+            sectionLocks.current.add(section);
+            setSectionLoading((previous) => ({ ...previous, [section]: true }));
+            setSectionErrors((previous) => ({ ...previous, [section]: undefined }));
+            try {
+                if (section === "profile") {
+                    const value = await api.getBillingProfile();
+                    if (current(generation)) setProfile(value);
+                } else if (section === "invoices") {
+                    const value = await api.getBillingInvoices();
+                    if (current(generation)) setInvoices(value);
+                } else {
+                    const value = await api.listBillingPaymentMethods(section);
+                    if (current(generation))
+                        setMethods((previous) => ({ ...previous, [section]: value }));
+                }
+            } catch (cause) {
+                if (current(generation))
+                    setSectionErrors((previous) => ({ ...previous, [section]: errorKey(cause) }));
+            } finally {
+                if (current(generation)) {
+                    sectionLocks.current.delete(section);
+                    setSectionLoading((previous) => ({ ...previous, [section]: false }));
+                }
+            }
+        },
+        [api, current, errorKey],
+    );
 
     const reload = useCallback(async () => {
         if (!mounted.current || !online.current) return;
@@ -94,43 +135,41 @@ export function useBilling(
                 setMethods(emptyMethods());
                 return;
             }
-            if (returnIntent) {
-                if (!/^seti_[A-Za-z0-9]{1,252}$/.test(returnIntent))
-                    throw new Error("Invalid setup reference");
-                const result = await api.getBillingCardSetupStatus(returnIntent);
-                if (!current(generation) || request !== loadId.current) return;
-                setNotice(result.registered ? "registered" : "pending");
-            } else if (returnSession === "cancelled") setNotice("cancelled");
-            else if (returnSession) {
-                if (!/^cs_[A-Za-z0-9_]{1,252}$/.test(returnSession))
-                    throw new Error("Invalid setup reference");
-                const result = await api.getBillingSetupStatus(returnSession);
-                if (!current(generation) || request !== loadId.current) return;
-                setNotice(
-                    result.registered
-                        ? "registered"
-                        : result.status === "expired"
-                          ? "expired"
-                          : "pending",
-                );
+            try {
+                if (returnIntent) {
+                    if (!/^seti_[A-Za-z0-9]{1,252}$/.test(returnIntent))
+                        throw new Error("Invalid setup reference");
+                    const result = await api.getBillingCardSetupStatus(returnIntent);
+                    if (!current(generation) || request !== loadId.current) return;
+                    setNotice(result.registered ? "registered" : "pending");
+                } else if (returnSession === "cancelled") setNotice("cancelled");
+                else if (returnSession) {
+                    if (!/^cs_[A-Za-z0-9_]{1,252}$/.test(returnSession))
+                        throw new Error("Invalid setup reference");
+                    const result = await api.getBillingSetupStatus(returnSession);
+                    if (!current(generation) || request !== loadId.current) return;
+                    setNotice(
+                        result.registered
+                            ? "registered"
+                            : result.status === "expired"
+                              ? "expired"
+                              : "pending",
+                    );
+                }
+            } catch (cause) {
+                if (current(generation)) setError(errorKey(cause));
             }
-            const [card, link, nextProfile, nextInvoices] = await Promise.all([
-                api.listBillingPaymentMethods("card"),
-                api.listBillingPaymentMethods("link"),
-                api.getBillingProfile(),
-                api.getBillingInvoices(),
-            ]);
-            if (current(generation) && request === loadId.current) {
-                setMethods({ card, link });
-                setProfile(nextProfile);
-                setInvoices(nextInvoices);
-            }
+            await Promise.all(
+                ["card", "link", "profile", "invoices"].map((section) =>
+                    reloadSection(section as BillingSection),
+                ),
+            );
         } catch (cause) {
             if (current(generation) && request === loadId.current) setError(errorKey(cause));
         } finally {
             if (current(generation) && request === loadId.current) setLoading(false);
         }
-    }, [api, current, errorKey, returnSession, returnIntent]);
+    }, [api, current, errorKey, returnSession, returnIntent, reloadSection]);
 
     useEffect(() => {
         if (available) void reload();
@@ -308,6 +347,9 @@ export function useBilling(
         nativeAction(`card-status:${intentId}`, () => api.getBillingCardSetupStatus(intentId));
     const clearError = () => setError(null);
     return {
+        sectionErrors,
+        sectionLoading,
+        reloadSection,
         saveProfile,
         manageMethod,
         startCard,

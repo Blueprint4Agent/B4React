@@ -823,6 +823,14 @@ for (const width of [390, 1440]) {
             await expect(remove).toHaveClass(/ui-dropdown__item--danger/);
             await expect(remove.locator("svg")).toBeVisible();
             const bounds = (await menu.boundingBox())!;
+            const anchor = (await trigger.boundingBox())!;
+            expect(
+                Math.abs(bounds.x - Math.max(8, Math.min(anchor.x, width - bounds.width - 8))),
+            ).toBeLessThan(1);
+            await expect(remove).toHaveCSS(
+                "color",
+                theme === "dark" ? "rgb(255, 92, 77)" : "rgb(217, 45, 32)",
+            );
             expect(bounds.width).toBeGreaterThanOrEqual(160);
             expect(bounds.x).toBeGreaterThanOrEqual(8);
             expect(bounds.x + bounds.width).toBeLessThanOrEqual(width - 8);
@@ -909,3 +917,36 @@ for (const colorScheme of ["light", "dark"] as const) {
         await page.screenshot({ path: info.outputPath("segmented-control.png") });
     });
 }
+
+test("keyboard cards customize, dismiss on blur and persist unrestricted shortcuts", async ({
+    page,
+}) => {
+    await page.route("**/config", (route) => route.fulfill({ json: config }));
+    await page.goto("/settings?section=keyboard");
+    await expect(page.getByRole("heading", { name: "Keyboard", exact: true })).toBeVisible();
+    const modifier = await page.evaluate(() =>
+        /Mac/.test(navigator.userAgent) ? "Meta" : "Control",
+    );
+    const rows = page.locator(".settings-row");
+    await rows.first().getByRole("button", { name: "Toggle sidebar", exact: true }).click();
+    await page.getByRole("textbox", { name: "Toggle sidebar", exact: true }).press(`${modifier}+,`);
+    await expect(page.locator(".ui-toast-card")).toContainText("already uses");
+    await expect(rows.locator("[role=alert]")).toHaveCount(0);
+    await page.getByRole("heading", { name: "Keyboard", exact: true }).click();
+    await expect(page.getByRole("textbox", { name: "Toggle sidebar", exact: true })).toHaveCount(0);
+    await rows.first().getByRole("button", { name: "Toggle sidebar", exact: true }).click();
+    await page.getByRole("textbox", { name: "Toggle sidebar", exact: true }).press("b");
+    await expect(page.getByRole("textbox", { name: "Toggle sidebar", exact: true })).toHaveCount(0);
+    await page.reload();
+    await expect(rows.first().locator("kbd")).toContainText("B");
+    const sidebar = page.locator(".app-sidebar");
+    const before = await sidebar.getAttribute("class");
+    await page.keyboard.press("b");
+    await expect(sidebar).not.toHaveAttribute("class", before!);
+    await page.getByRole("button", { name: "Restore defaults" }).click();
+    await page.reload();
+    await expect(page.locator("[aria-keyshortcuts]").first()).toHaveAttribute(
+        "aria-keyshortcuts",
+        `${modifier}+B`,
+    );
+});

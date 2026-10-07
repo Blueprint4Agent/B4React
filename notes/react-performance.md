@@ -52,3 +52,5 @@ The first protected boundary is `AdminUserTable`: its parent owns draft input/qu
 - Keep secondary screens lazy. Baseline after splitting: entry JS 390.76 kB (gzip 121.26), down from 426.68 (gzip 130.36). Shared CSS is unchanged. These are observations, not universal budgets or elapsed-time guarantees.
 
 Split independently reviewable optimizations into separate branches/worklogs/PRs. Reassess these rules and measurements when adding a store, changing protected boundaries, upgrading React, or enabling React Compiler. Avoid memo wrappers solely to satisfy a count.
+
+Subscription INVALID_TOKEN recovery delegates to AuthProvider for one fresh config/session recovery and one retry. Concurrent recovery is deduplicated; focus/online reads pause for a rejected token until credentials change. Owner-generation read locks prevent overlapping reloads and obsolete results.

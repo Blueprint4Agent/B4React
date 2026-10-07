@@ -1,3 +1,6 @@
+import { getAccessToken, subscribeToken } from "../../../store/session";
+import { extractApiDetail } from "../../../api/auth/authError";
+import { useAuthContext } from "../../useAuth";
 import { useAppConfig } from "../../useFeatures";
 import { SUBSCRIPTION_CHANGED } from "../../../utils/billingPlans";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -18,6 +21,9 @@ export function useSubscription(
     withPlans = false,
 ) {
     const api = useBillingApi();
+    const { revalidateSession } = useAuthContext();
+    const rejectedToken = useRef<string | null | undefined>(undefined);
+    const reading = useRef<number | null>(null);
     const { data: appConfig } = useAppConfig();
     const { isDesktop, status } = useServerConnectivity();
     const available =
@@ -51,6 +57,8 @@ export function useSubscription(
         setBusy(false);
         action.current = false;
         retry.current = null;
+        rejectedToken.current = undefined;
+        reading.current = null;
         return () => {
             active.current = false;
             ++generation.current;
@@ -58,15 +66,23 @@ export function useSubscription(
         };
     }, [ownerId, available]);
     const reload = useCallback(async () => {
-        if (!available || !active.current) return;
+        if (
+            !available ||
+            !active.current ||
+            reading.current === generation.current ||
+            rejectedToken.current === getAccessToken()
+        )
+            return;
+        reading.current = generation.current;
         const epoch = generation.current;
         const request = ++sequence.current;
+        const sentToken = getAccessToken();
         const current = () =>
             active.current && generation.current === epoch && sequence.current === request;
         setLoading(true);
         setError(null);
         setNotice(null);
-        try {
+        const loadSnapshot = async () => {
             if (withPlans) {
                 const plans = await api.getBillingPlans();
                 if (!current()) return;
@@ -91,21 +107,47 @@ export function useSubscription(
                 setSubscription(next);
                 setNotice(nextNotice);
             }
+        };
+        try {
+            await loadSnapshot();
         } catch (cause) {
+            if (!current()) return;
+            if (extractApiDetail(cause)?.error === "INVALID_TOKEN") {
+                rejectedToken.current = sentToken;
+                await revalidateSession({ force: true });
+                if (!current()) return;
+                const renewedToken = getAccessToken();
+                if (renewedToken && renewedToken !== sentToken) {
+                    try {
+                        await loadSnapshot();
+                        if (current()) rejectedToken.current = undefined;
+                        return;
+                    } catch (retryError) {
+                        if (!current()) return;
+                        if (extractApiDetail(retryError)?.error === "INVALID_TOKEN")
+                            rejectedToken.current = renewedToken;
+                        setError(errorKey(retryError));
+                        return;
+                    }
+                }
+            }
             if (current()) setError(errorKey(cause));
         } finally {
+            if (reading.current === epoch) reading.current = null;
             if (current()) setLoading(false);
         }
-    }, [available, ownerId, api, errorKey, returnSession, withPlans]);
+    }, [available, ownerId, api, errorKey, returnSession, withPlans, revalidateSession]);
     useEffect(() => {
         void reload();
         const recover = () => {
             if (!action.current) void reload();
         };
+        const unsubscribe = subscribeToken(recover);
         window.addEventListener(SUBSCRIPTION_CHANGED, recover);
         window.addEventListener("focus", recover);
         window.addEventListener("online", recover);
         return () => {
+            unsubscribe();
             window.removeEventListener(SUBSCRIPTION_CHANGED, recover);
             window.removeEventListener("focus", recover);
             window.removeEventListener("online", recover);

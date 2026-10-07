@@ -265,7 +265,15 @@ export function ShowCasePage() {
                 <>
                     <div className="showcase-catalog__row">
                         <ShowcaseItem component="Button">
-                            <Button>{t("showCase.demo.text0")}</Button>
+                            <div className="showcase-catalog__stack">
+                                <Button>{t("showCase.demo.text0")}</Button>
+                                <DropdownMenu
+                                    label="DropdownMenu"
+                                    triggerLabel={t("showCase.demo.text0")}
+                                    items={[{ id: "example", label: t("showCase.demo.text0") }]}
+                                    onSelect={() => {}}
+                                />
+                            </div>
                         </ShowcaseItem>
                         <ShowcaseItem component="Button (pill variants)">
                             <div className="showcase-catalog__stack">

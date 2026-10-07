@@ -1,3 +1,4 @@
+import { KeyboardShortcutsProvider } from "./hooks/useKeyboardShortcuts";
 import { ToastProvider } from "./hooks/useToast";
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -24,7 +25,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                     <AppConfigProvider>
                         <AuthProvider>
                             <ConnectivityRecovery />
-                            <App />
+                            <KeyboardShortcutsProvider>
+                                <App />
+                            </KeyboardShortcutsProvider>
                         </AuthProvider>
                     </AppConfigProvider>
                 </ToastProvider>

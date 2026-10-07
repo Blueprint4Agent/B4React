@@ -1,4 +1,4 @@
-import { CreditCard, Home, Settings2, UserRound, Users } from "lucide-react";
+import { CreditCard, Settings2, UserRound, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { MainPageTemplate } from "../../components/layout/MainPageTemplate";
@@ -42,7 +42,6 @@ export function HomePage() {
                     ? t("home.welcome", { name: user.name.trim() || user.email })
                     : t("home.guestWelcome")
             }
-            icon={<Home />}
             actions={
                 !user && loginEnabled ? (
                     <Button appearance="text" onClick={() => navigate("/login")}>

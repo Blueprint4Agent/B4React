@@ -135,3 +135,33 @@ test("directory failures expose retry and clear user rows", async ({ page }) => 
     // Then: users load without leaving the administrator workspace.
     await expect(page.getByText("member1@example.com", { exact: true })).toBeVisible();
 });
+
+for (const role of ["admin", "manager"]) {
+    test(`${role} role stays inside profile and shared buttons align`, async ({ page }, info) => {
+        await setup(page, role);
+        await page.setViewportSize({ width: 1440, height: 900 });
+        await page.goto("/settings?section=account");
+        const profile = page.locator(".settings-profile-photo-panel");
+        await expect(
+            profile.getByText(role === "admin" ? "Admin" : "Manager", { exact: true }),
+        ).toBeVisible();
+        await expect(page.locator(".settings-content-card__header .ui-status-badge")).toHaveCount(
+            0,
+        );
+        await expect(page.locator(".settings-profile-save-button")).toHaveCSS("height", "32px");
+        await page.screenshot({ path: info.outputPath("profile-role.png"), fullPage: true });
+        if (role === "admin") {
+            await page.goto("/admin");
+            const search = page.getByRole("button", { name: "Search", exact: true });
+            const dropdown = page.getByRole("button", { name: "All roles", exact: true });
+            const buttonBox = (await search.boundingBox())!;
+            const dropdownBox = (await dropdown.boundingBox())!;
+            expect(buttonBox.height).toBeCloseTo(32, 2);
+            expect(buttonBox.height).toBeCloseTo(dropdownBox.height, 2);
+            await page.screenshot({
+                path: info.outputPath("compact-admin-actions.png"),
+                fullPage: true,
+            });
+        }
+    });
+}

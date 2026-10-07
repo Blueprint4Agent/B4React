@@ -1,3 +1,8 @@
+import { useInvoiceHistory } from "../../hooks/api/billing/useInvoiceHistory";
+import {
+    InvoiceHistoryDialog,
+    InvoiceRows,
+} from "../../components/features/billing/InvoiceHistoryDialog";
 import { useAppConfig } from "../../hooks/useFeatures";
 import { openSubscriptionPayment } from "../../utils/billingPlans";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
@@ -72,6 +77,7 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
     }, [checkoutCancelled, setupCancelled, setParams, showToast, t]);
     const { data: appConfig } = useAppConfig();
     const billingEnabled = appConfig?.billing_enabled === true;
+    const history = useInvoiceHistory(ownerId);
     const billing = useBilling(
         ownerId,
         setupCancelled ? null : params.get("billing_setup"),
@@ -192,6 +198,7 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
     ];
     return (
         <>
+            <InvoiceHistoryDialog history={history} />
             <header className="settings-content-card__header">
                 <h1>{t("billing.title")}</h1>
                 <p>{t("billing.subtitle")}</p>
@@ -347,73 +354,39 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                         <h2 id="billing-history-title">{t("billing.history")}</h2>
                         <Button
                             appearance="text"
-                            disabled={
-                                !billing.profile?.portal_enabled ||
-                                billing.busy ||
-                                !billing.available
-                            }
-                            onClick={() => void openPortal("overview")}
+                            disabled={!billing.available}
+                            onClick={() => history.open()}
                         >
                             {t("billing.details.viewAll")}
                             <ChevronRight aria-hidden="true" />
                         </Button>
                     </header>
+                    {billing.sectionErrors.invoices && (
+                        <StatusCard
+                            tone="error"
+                            message={t(billing.sectionErrors.invoices)}
+                            action={
+                                <Button
+                                    appearance="text"
+                                    loading={billing.sectionLoading.invoices}
+                                    onClick={() => void billing.reloadSection("invoices")}
+                                >
+                                    {t("billing.native.retry")}
+                                </Button>
+                            }
+                        />
+                    )}
                     <div className="settings-row billing-records">
                         {billing.loading ? (
                             <Spinner label={t("billing.loading")} hideLabel />
                         ) : billing.invoices?.items.length ? (
-                            billing.invoices.items.map((invoice) => (
-                                <div className="billing-invoice" key={invoice.id}>
-                                    <span>{invoice.number ?? t("billing.details.invoice")}</span>
-                                    <time>
-                                        {new Date(invoice.created * 1000).toLocaleDateString()}
-                                    </time>
-                                    <StatusBadge tone="info">
-                                        {t(`billing.details.status.${invoice.status}`, {
-                                            defaultValue: invoice.status,
-                                        })}
-                                    </StatusBadge>
-                                    <span>
-                                        {new Intl.NumberFormat(undefined, {
-                                            style: "currency",
-                                            currency: invoice.currency,
-                                        }).format(
-                                            invoice.currency === "krw"
-                                                ? invoice.amount
-                                                : invoice.amount / 100,
-                                        )}
-                                    </span>
-                                    {invoice.url && (
-                                        <Button
-                                            appearance="text"
-                                            aria-label={t("billing.details.receipt")}
-                                            onClick={() => {
-                                                const url = new URL(invoice.url!);
-                                                if (
-                                                    url.protocol === "https:" &&
-                                                    [
-                                                        "invoice.stripe.com",
-                                                        "pay.stripe.com",
-                                                    ].includes(url.hostname)
-                                                )
-                                                    window.open(
-                                                        url.href,
-                                                        "_blank",
-                                                        "noopener,noreferrer",
-                                                    );
-                                            }}
-                                        >
-                                            <ChevronRight aria-hidden="true" />
-                                        </Button>
-                                    )}
-                                </div>
-                            ))
-                        ) : (
+                            <InvoiceRows items={billing.invoices.items} onSelect={history.open} />
+                        ) : !billing.sectionErrors.invoices ? (
                             <div className="billing-empty">
                                 <ReceiptText aria-hidden="true" />
                                 <p>{t("billing.details.noInvoices")}</p>
                             </div>
-                        )}
+                        ) : null}
                     </div>
                 </section>
                 <section className="billing-section" aria-labelledby="billing-info-title">
@@ -425,7 +398,9 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                                 !billing.config?.enabled ||
                                 billing.loading ||
                                 billing.busy ||
-                                !billing.available
+                                !billing.available ||
+                                !!billing.sectionErrors.profile ||
+                                billing.sectionLoading.profile
                             }
                             onClick={() => {
                                 billing.clearError();
@@ -435,6 +410,22 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                             {t("billing.details.edit")}
                         </Button>
                     </header>
+                    {billing.sectionErrors.profile && (
+                        <StatusCard
+                            tone="error"
+                            message={t(billing.sectionErrors.profile)}
+                            action={
+                                <Button
+                                    appearance="text"
+                                    loading={billing.sectionLoading.profile}
+                                    onClick={() => void billing.reloadSection("profile")}
+                                >
+                                    {t("billing.native.retry")}
+                                </Button>
+                            }
+                        />
+                    )}
+
                     <div className="settings-row billing-records">
                         {billing.loading ? (
                             <Spinner label={t("billing.loading")} hideLabel />
@@ -491,6 +482,25 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                             {t("billing.native.cardUnavailable")}
                         </InlineMessage>
                     )}
+                    {(["card", "link"] as const).map(
+                        (type) =>
+                            billing.sectionErrors[type] && (
+                                <StatusCard
+                                    key={type}
+                                    tone="error"
+                                    message={`${type === "card" ? t("billing.card") : "Link"}: ${t(billing.sectionErrors[type]!)}`}
+                                    action={
+                                        <Button
+                                            appearance="text"
+                                            loading={billing.sectionLoading[type]}
+                                            onClick={() => void billing.reloadSection(type)}
+                                        >
+                                            {t("billing.native.retry")}
+                                        </Button>
+                                    }
+                                />
+                            ),
+                    )}
                     {billing.loading ? (
                         <div className="settings-row billing-loading">
                             <Spinner label={t("billing.loading")} hideLabel />
@@ -498,6 +508,8 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                     ) : null}
                     {!billing.loading &&
                         !billing.error &&
+                        !billing.sectionErrors.card &&
+                        !billing.sectionErrors.link &&
                         billing.config?.enabled &&
                         billing.methods.card.items.length === 0 &&
                         billing.methods.link.items.length === 0 && (

@@ -1,4 +1,4 @@
-import { Database, MemoryStick, RefreshCw, Server } from "lucide-react";
+import { Database, MemoryStick, RefreshCw } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -48,13 +48,7 @@ function ServerStatus({ owner }: { owner: number }) {
                 <header className="settings-content-card__header main-page-template__header">
                     <div className="main-page-template__intro">
                         <div className="server-status-title">
-                            <h1>
-                                <Server
-                                    className="settings-content-card__title-icon"
-                                    aria-hidden="true"
-                                />
-                                {t("serverStatus.title")}
-                            </h1>
+                            <h1>{t("serverStatus.title")}</h1>
                             <span className="server-status-checked">
                                 {data
                                     ? t("serverStatus.checked", {

@@ -645,7 +645,7 @@ for (const width of [390, 1440]) {
 
 for (const width of [390, 1440]) {
     for (const theme of ["light", "dark"] as const) {
-        test(`billing deduplicates concurrent errors and recovers ${theme} at ${width}px`, async ({
+        test(`billing isolates concurrent section errors and recovers ${theme} at ${width}px`, async ({
             page,
         }, info) => {
             await setup(page, "ko");
@@ -660,11 +660,13 @@ for (const width of [390, 1440]) {
                 );
             }
             await page.goto("/settings?section=billing");
-            await expect(page.getByRole("button", { name: "다시 시도" })).toBeEnabled();
+            await expect(page.getByRole("button", { name: "다시 시도" }).first()).toBeEnabled();
             await expect(page.locator(".billing-feedback [role=alert]")).toHaveCount(1);
-            await expect(page.getByRole("alert")).toHaveCount(1);
-            await expect(page.getByRole("alert")).toContainText("결제 정보를 처리하지 못했습니다");
-            const alert = page.getByRole("alert");
+            await expect(page.getByRole("alert")).toHaveCount(2);
+            await expect(page.getByRole("alert").first()).toContainText(
+                "결제 정보를 처리하지 못했습니다",
+            );
+            const alert = page.locator(".billing-feedback [role=alert]");
             const retry = alert.getByRole("button", { name: "다시 시도" });
             await expect(retry).toBeVisible();
             const alertBox = (await alert.boundingBox())!;
@@ -676,7 +678,7 @@ for (const width of [390, 1440]) {
             expect(retryBox.y + retryBox.height).toBeLessThanOrEqual(alertBox.y + alertBox.height);
             await page.screenshot({ path: info.outputPath("billing-error.png"), fullPage: true });
             failing = false;
-            await page.getByRole("button", { name: "다시 시도" }).click();
+            await page.getByRole("button", { name: "다시 시도" }).first().click();
             await expect(page.getByRole("alert")).toHaveCount(0);
             await expect(page.getByRole("heading", { name: "Visa", exact: true })).toBeVisible();
         });
@@ -900,6 +902,12 @@ for (const [plan, tier] of [
         await expect(
             page.getByLabel(`Current subscription: ${tier}`, { exact: true }),
         ).toBeVisible();
+        const badge = page.locator(".profile-menu__tier");
+        await expect(badge).toHaveCSS("width", "16px");
+        await expect(badge).toHaveCSS("height", "16px");
+        await expect(badge).toHaveCSS("padding", "0px");
+        await expect(badge).toHaveCSS("align-items", "center");
+        await expect(badge).toHaveCSS("justify-content", "center");
         await page.locator(".profile-menu__trigger").click();
         await expect(page.locator(".profile-menu__tier-label")).toHaveText(tier);
     });
@@ -1034,5 +1042,160 @@ for (const width of [390, 1440]) {
             window.dispatchEvent(new Event("online"));
         });
         expect(requests).toEqual([]);
+    });
+}
+
+for (const width of [390, 1440]) {
+    test(`invoice history stays in a paginated dialog at ${width}px`, async ({ page }, info) => {
+        await setup(page);
+        await page.setViewportSize({ width, height: 900 });
+        const invoice = {
+            id: "in_one",
+            number: "INV-1",
+            created: 1790000000,
+            status: "paid",
+            amount: 3990,
+            currency: "krw",
+            url: "https://invoice.stripe.com/i/fixture",
+        };
+        await page.route("**/api/v1/billing/invoices?*", (route) =>
+            route.fulfill({ json: { items: [invoice], has_more: false, next_cursor: null } }),
+        );
+        await page.route("**/api/v1/billing/invoices/in_one", (route) =>
+            route.fulfill({
+                json: {
+                    ...invoice,
+                    subtotal: 3990,
+                    total: 3990,
+                    amount_paid: 3990,
+                    amount_due: 0,
+                    pdf_url: null,
+                    lines: [{ description: "Plus subscription", amount: 3990, quantity: 1 }],
+                    lines_has_more: false,
+                },
+            }),
+        );
+        await page.goto("/settings?section=billing");
+        await page.getByRole("button", { name: "View all" }).click();
+        const dialog = page.getByRole("dialog");
+        await expect(dialog).toContainText("INV-1");
+        await dialog.getByRole("button", { name: "Invoice details" }).hover();
+        await expect(page.getByRole("tooltip")).toContainText("Invoice details");
+        await dialog.getByRole("button", { name: "Invoice details" }).click();
+        await expect(dialog).toContainText("Plus subscription");
+        await expect(page).toHaveURL(/settings\?section=billing/);
+        const box = (await dialog.boundingBox())!;
+        expect(box.width).toBeLessThanOrEqual(width);
+        await page.screenshot({ path: info.outputPath("invoice-details.png"), fullPage: true });
+        await page.keyboard.press("Escape");
+        await expect(dialog).toHaveCount(0);
+    });
+}
+
+test("expired bootstrap subscription token reloads config instead of repeating unauthorized requests", async ({
+    page,
+}) => {
+    await setup(page);
+    let configCalls = 0;
+    let denied = 0;
+    await page.route("**/config", (route) => {
+        configCalls += 1;
+        return route.fulfill({
+            json: {
+                billing_enabled: true,
+                api_base_path: "/api/v1",
+                app_mode: "development",
+                login_enabled: false,
+                frontend_base_path: "",
+                email_enabled: false,
+                oauth_enabled: false,
+                oauth_providers: [],
+                bootstrap_user: account,
+                bootstrap_access_token:
+                    configCalls === 1 ? "expired-test-token" : "renewed-test-token",
+            },
+        });
+    });
+    await page.route("**/api/v1/billing/subscription", (route) => {
+        if (route.request().headers().authorization !== "Bearer renewed-test-token") {
+            denied += 1;
+            return route.fulfill({
+                status: 401,
+                json: { detail: { error: "INVALID_TOKEN", message: "Expired" } },
+            });
+        }
+        return route.fulfill({
+            json: { plan: "monthly", status: "active", has_subscription: true },
+        });
+    });
+    await page.goto("/home");
+    await expect(page.getByLabel("Current subscription: Plus", { exact: true })).toBeVisible();
+    expect(configCalls).toBe(2);
+    const initialDenied = denied;
+    expect(initialDenied).toBeGreaterThan(0);
+    for (let i = 0; i < 5; i++) await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await expect(page.getByLabel("Current subscription: Plus", { exact: true })).toBeVisible();
+    expect(denied).toBe(initialDenied);
+    expect(configCalls).toBe(2);
+});
+
+for (const canRefresh of [true, false]) {
+    test(`expired login subscription ${canRefresh ? "renews" : "stops after refresh failure"}`, async ({
+        page,
+    }) => {
+        await setup(page);
+        let refreshes = 0;
+        let denied = 0;
+        await page.route("**/config", (route) =>
+            route.fulfill({
+                json: {
+                    billing_enabled: true,
+                    api_base_path: "/api/v1",
+                    app_mode: "development",
+                    login_enabled: true,
+                    frontend_base_path: "",
+                    email_enabled: false,
+                    oauth_enabled: false,
+                    oauth_providers: [],
+                },
+            }),
+        );
+        await page.route("**/api/v1/auth/refresh", (route) => {
+            refreshes += 1;
+            if (refreshes > 1 && !canRefresh)
+                return route.fulfill({ status: 401, json: { detail: { error: "INVALID_TOKEN" } } });
+            return route.fulfill({
+                json: {
+                    access_token: refreshes === 1 ? "login-expired" : "login-renewed",
+                    token_type: "bearer",
+                },
+            });
+        });
+        await page.route("**/api/v1/auth/me", (route) => route.fulfill({ json: account }));
+        await page.route("**/api/v1/billing/subscription", (route) => {
+            if (route.request().headers().authorization !== "Bearer login-renewed") {
+                denied += 1;
+                return route.fulfill({ status: 401, json: { detail: { error: "INVALID_TOKEN" } } });
+            }
+            return route.fulfill({
+                json: { plan: "monthly", status: "active", has_subscription: true },
+            });
+        });
+        await page.goto("/home");
+        await expect.poll(() => refreshes).toBe(2);
+        if (canRefresh)
+            await expect(
+                page.getByLabel("Current subscription: Plus", { exact: true }),
+            ).toBeVisible();
+        else
+            await expect(page.locator(".profile-menu__trigger")).toHaveAttribute(
+                "title",
+                "Log in / Sign up",
+            );
+        const initialDenied = denied;
+        for (let i = 0; i < 5; i++)
+            await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+        expect(denied).toBe(initialDenied);
+        expect(refreshes).toBe(2);
     });
 }
