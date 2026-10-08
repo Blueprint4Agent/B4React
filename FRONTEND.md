@@ -730,3 +730,10 @@ Both runtime modes use `/home` as the default page with the shared settings shel
 See [main page template](notes/main-page-template.md) for menu, header action and content extension slots.
 
 Keyboard shortcuts are stored in the account profile via GET/PATCH /auth/me, using the existing auth snapshot and mutation path. Guests use defaults with editing disabled. Only successful writes replace active keys; failures keep the last confirmed bindings. Null resets both actions, omission preserves them. Legacy browser preferences are ignored and never automatically imported into an account. Reload/login and desktop auth recovery refresh settings; changes are not pushed to already-open clients. No new store, poller or background task is introduced.
+
+Profile photo edits use auth binary PUT/DELETE /auth/me/photo. AuthProvider owns the
+canonical user and useProfilePhoto owns one private Blob URL per account/version;
+settings/sidebar share it. Abort stale reads, revoke replaced URLs, and retain confirmed
+photos on failed uploads. Read failures show the existing initials avatar without
+logging out. Existing legacy data/external photos display unchanged. No Base64 upload,
+new store or automatic storage-error upload retry. Auth recovery refreshes private reads.

@@ -72,7 +72,12 @@
             "accountDeleteCodeInvalid": "The code is invalid or expired. After five failed attempts, wait 10 minutes and request a new code.",
             "accountDeleteCodeThrottled": "You can request another code in {{seconds}} seconds.",
             "accountDeleteCodeSendFailed": "Unable to send a verification code. Please try again shortly.",
-            "billingReviewRequired": "Contact the operator to reconcile subscriptions before deleting this account."
+            "billingReviewRequired": "Contact the operator to reconcile subscriptions before deleting this account.",
+            "profilePhotoInvalid": "Choose a valid PNG, JPG, WEBP or GIF image (up to 16 million pixels).",
+            "profilePhotoTooLarge": "Profile photo must be 8MB or smaller.",
+            "profilePhotoUnavailable": "Photo storage is temporarily unavailable. Your previous photo is unchanged.",
+            "profilePhotoNotFound": "The photo is no longer available.",
+            "profilePhotoConflict": "Your photo changed elsewhere. Refresh and try again."
         }
     },
     "cards": {
@@ -378,7 +383,7 @@
             "title": "Account",
             "subtitle": "Manage your account details and connected sign-in methods.",
             "photo": "Profile Photo",
-            "photoHelp": "Supported: PNG, JPG, WEBP, GIF (max 8MB)",
+            "photoHelp": "PNG, JPG, WEBP, GIF · max 8MB · saved as a still image",
             "photoSelect": "Choose photo",
             "photoClear": "Remove photo",
             "photoTypeError": "Only PNG, JPG, WEBP, and GIF files are supported.",

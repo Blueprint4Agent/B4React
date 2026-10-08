@@ -148,3 +148,40 @@ describe("recent account history", () => {
         spy.mockRestore();
     });
 });
+
+it("converts consented private blob photos to thumbnails without persisting blob URLs", async () => {
+    localStorage.clear();
+    rememberAccount({ email: "blob@example.com", name: "Photo", provider: "email" });
+    class MockImage {
+        onload: (() => void) | null = null;
+        naturalWidth = 512;
+        naturalHeight = 512;
+        set src(_value: string) {
+            queueMicrotask(() => this.onload?.());
+        }
+    }
+    vi.stubGlobal("Image", MockImage);
+    const context = vi
+        .spyOn(HTMLCanvasElement.prototype, "getContext")
+        .mockReturnValue({ drawImage: vi.fn() } as unknown as CanvasRenderingContext2D);
+    const encoded = vi
+        .spyOn(HTMLCanvasElement.prototype, "toDataURL")
+        .mockReturnValue("data:image/webp;base64,YQ==");
+    try {
+        await updateRememberedProfile({
+            email: "blob@example.com",
+            profile_image_url: "blob:private-photo",
+        });
+        expect(readRecentAccounts()[0].imageUrl).toBe("data:image/webp;base64,YQ==");
+        expect(localStorage.getItem(RECENT_ACCOUNTS_KEY)).not.toContain("blob:");
+        await updateRememberedProfile({
+            email: "blob@example.com",
+            profile_image_url: "/api/v1/auth/me/photo?version=private",
+        });
+        expect(readRecentAccounts()[0].imageUrl).toBeUndefined();
+    } finally {
+        context.mockRestore();
+        encoded.mockRestore();
+        vi.unstubAllGlobals();
+    }
+});

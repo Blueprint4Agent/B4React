@@ -156,6 +156,7 @@ export function completeOAuthAccountIntent(user: {
 
 function safeAvatar(value: unknown): string | undefined {
     if (typeof value !== "string") return undefined;
+    if (value.startsWith("/api/v1/auth/me/photo")) return undefined;
     if (
         /^data:image\/(png|jpeg|webp|gif);base64,[a-zA-Z0-9+/=]+$/.test(value) &&
         value.length <= 100000
@@ -168,7 +169,7 @@ function safeAvatar(value: unknown): string | undefined {
 const profileRevisions = new Map<string, number>();
 async function accountThumbnail(value: string | null | undefined): Promise<string | undefined> {
     const safe = safeAvatar(value);
-    if (safe || !value?.startsWith("data:image/")) return safe;
+    if (safe || (!value?.startsWith("data:image/") && !value?.startsWith("blob:"))) return safe;
     return new Promise((resolve) => {
         const image = new Image();
         const timer = window.setTimeout(() => resolve(undefined), 3000);

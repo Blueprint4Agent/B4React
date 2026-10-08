@@ -72,7 +72,12 @@
             "accountDeleteCodeInvalid": "코드가 올바르지 않거나 만료되었습니다. 5회 실패 시 10분 후 새 코드를 요청해 주세요.",
             "accountDeleteCodeThrottled": "인증 코드는 {{seconds}}초 후에 다시 받을 수 있습니다.",
             "accountDeleteCodeSendFailed": "인증 코드를 발송하지 못했습니다. 잠시 후 다시 시도해 주세요.",
-            "billingReviewRequired": "계정을 삭제하기 전에 운영자에게 구독 확인 및 정리를 요청해 주세요."
+            "billingReviewRequired": "계정을 삭제하기 전에 운영자에게 구독 확인 및 정리를 요청해 주세요.",
+            "profilePhotoInvalid": "정상적인 PNG, JPG, WEBP, GIF 이미지를 선택해 주세요. 최대 1,600만 화소까지 지원합니다.",
+            "profilePhotoTooLarge": "프로필 사진은 8MB 이하여야 합니다.",
+            "profilePhotoUnavailable": "사진 저장소를 사용할 수 없습니다. 기존 사진은 유지됩니다.",
+            "profilePhotoNotFound": "사진을 찾을 수 없습니다.",
+            "profilePhotoConflict": "다른 곳에서 사진이 변경되었습니다. 새로고침 후 다시 시도해 주세요."
         }
     },
     "cards": {
@@ -378,7 +383,7 @@
             "title": "계정",
             "subtitle": "계정 정보와 연결된 로그인 방식을 관리합니다.",
             "photo": "프로필 사진",
-            "photoHelp": "지원 형식: PNG, JPG, WEBP, GIF (최대 8MB)",
+            "photoHelp": "PNG, JPG, WEBP, GIF · 최대 8MB · 정지 이미지로 저장",
             "photoSelect": "사진 선택",
             "photoClear": "사진 제거",
             "photoTypeError": "PNG, JPG, WEBP, GIF 파일만 지원합니다.",

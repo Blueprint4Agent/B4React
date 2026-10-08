@@ -39,3 +39,9 @@ The billing settings page creates one request UUID per action, reuses it on retr
 changes. See [billing UI](../notes/billing.md) for template plans and current limitations.
 No Stripe.js dependency is added. The provider remains
 the source of truth; no webhook/realtime notification or charge is implied.
+
+Profile photo edits use binary PUT/DELETE `/api/v1/auth/me/photo` and authenticated
+GET reads (private no-store WebP). Display managed URLs through the auth-owned blob
+hook; never put them directly in an unauthenticated img request. Failed uploads retain
+confirmed state. PATCH photo writes are retired; existing legacy image URLs remain
+supported. No automatic storage-error retry or public bucket URL is assumed.

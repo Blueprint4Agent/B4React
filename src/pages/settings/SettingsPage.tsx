@@ -24,6 +24,7 @@ import type { APIKeyRecord } from "../../hooks/api/apiKey/useApiKeyApi";
 import { useApiKeys } from "../../hooks/api/apiKey/useApiKeys";
 import { useAccountDeletion } from "../../hooks/api/auth/useAccountDeletion";
 import { AccountDeletionDialog } from "../../components/features/auth/AccountDeletionDialog";
+import { useAuthApi } from "../../hooks/api/auth/useAuthApi";
 import { useAuthContext } from "../../hooks/useAuth";
 import { useAppConfig } from "../../hooks/useFeatures";
 import { useTheme } from "../../hooks/useTheme";
@@ -42,13 +43,21 @@ type SupportedLanguageId = (typeof SUPPORTED_LANGUAGE_IDS)[number];
 
 export function SettingsPage() {
     const { t, i18n } = useTranslation();
+    const { resolveAuthErrorMessage, extractApiDetail } = useAuthApi();
     const showToast = useToast();
     const navigate = useNavigate();
     const accountDeletion = useAccountDeletion(() => {
         showToast(t("settings.account.deleted"));
         navigate("/home", { replace: true });
     });
-    const { user, loading: authLoading, updateProfile } = useAuthContext();
+    const {
+        user,
+        loading: authLoading,
+        updateProfile,
+        profileImageUrl,
+        uploadPhoto,
+        deletePhoto,
+    } = useAuthContext();
     const { data: appConfig } = useAppConfig();
     const { themeMode, setThemeMode } = useTheme();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -75,7 +84,6 @@ export function SettingsPage() {
         }
     }, [authLoading, user, section, activeMenu, setSearchParams]);
     const [nameInput, setNameInput] = useState("");
-    const [profileImageInput, setProfileImageInput] = useState<string | null>(null);
     const [saveBusy, setSaveBusy] = useState(false);
     const [saveFeedback, setSaveFeedback] = useState<SaveFeedback>(null);
     const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -111,8 +119,7 @@ export function SettingsPage() {
     });
     const normalizedNameInput = nameInput.trim();
     const normalizedCurrentName = (user?.name ?? "").trim();
-    const normalizedProfileImageInput = profileImageInput?.trim() || null;
-    const normalizedCurrentProfileImage = user?.profile_image_url ?? null;
+    const normalizedProfileImageInput = profileImageUrl ?? null;
     const isNameChanged = normalizedNameInput !== normalizedCurrentName;
     const connectedOAuthProviders = user?.oauth_providers ?? [];
     const normalizedLanguageId =
@@ -208,28 +215,12 @@ export function SettingsPage() {
 
     useEffect(() => {
         setNameInput(user?.name ?? "");
-        setProfileImageInput(user?.profile_image_url ?? null);
-    }, [user?.name, user?.profile_image_url]);
+    }, [user?.name]);
 
     useEffect(() => {
         setSaveFeedback(null);
         setNameInput(user?.name ?? "");
-        setProfileImageInput(user?.profile_image_url ?? null);
     }, [activeMenu]);
-
-    const toDataUrl = (file: File): Promise<string> =>
-        new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                if (typeof reader.result === "string") {
-                    resolve(reader.result);
-                    return;
-                }
-                reject(new Error("Failed to read image file."));
-            };
-            reader.onerror = () => reject(new Error("Failed to read image file."));
-            reader.readAsDataURL(file);
-        });
 
     const handleProfileImageSelect = async (file: File | null) => {
         if (!file) {
@@ -263,32 +254,20 @@ export function SettingsPage() {
             return;
         }
 
+        setSaveBusy(true);
         try {
-            const dataUrl = await toDataUrl(file);
-            setProfileImageInput(dataUrl);
-            setSaveBusy(true);
-            try {
-                await updateProfile({ profile_image_url: dataUrl });
-                showToast(t("toast.profileSuccess"));
-                setSaveFeedback(null);
-            } catch {
-                setProfileImageInput(normalizedCurrentProfileImage);
-                showToast(t("toast.profileError"));
-                setSaveFeedback({
-                    tone: "error",
-                    source: "photo",
-                    message: t("toast.profileError"),
-                });
-            } finally {
-                setSaveBusy(false);
-            }
-        } catch {
+            await uploadPhoto(file);
+            showToast(t("toast.profileSuccess"));
+            setSaveFeedback(null);
+        } catch (error) {
+            showToast(t("toast.profileError"));
             setSaveFeedback({
                 tone: "error",
                 source: "photo",
-                message: t("settings.profile.photoReadError"),
+                message: resolveAuthErrorMessage(t, extractApiDetail(error), "toast.profileError"),
             });
-            showToast(t("toast.photoError"));
+        } finally {
+            setSaveBusy(false);
         }
     };
 
@@ -407,7 +386,7 @@ export function SettingsPage() {
                                 />
                                 <AvatarUploadField
                                     busy={saveBusy}
-                                    canClear={Boolean(normalizedProfileImageInput)}
+                                    canClear={Boolean(user?.profile_image_url)}
                                     helperText={t("settings.profile.photoHelp")}
                                     selectButtonText={t("settings.profile.photoSelect")}
                                     clearButtonText={t("settings.profile.photoClear")}
@@ -415,18 +394,16 @@ export function SettingsPage() {
                                         void handleProfileImageSelect(file);
                                     }}
                                     onClear={() => {
-                                        setProfileImageInput(null);
                                         if (saveFeedback) {
                                             setSaveFeedback(null);
                                         }
                                         setSaveBusy(true);
-                                        void updateProfile({ profile_image_url: null })
+                                        void deletePhoto()
                                             .then(() => {
                                                 showToast(t("toast.profileSuccess"));
                                                 setSaveFeedback(null);
                                             })
                                             .catch(() => {
-                                                setProfileImageInput(normalizedCurrentProfileImage);
                                                 showToast(t("toast.profileError"));
                                                 setSaveFeedback({
                                                     tone: "error",

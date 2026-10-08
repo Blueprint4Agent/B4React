@@ -2,6 +2,6 @@
     "repository": "https://github.com/Blueprint4Agent/B4FastAPI",
     "path": "contracts/openapi.json",
     "apiVersion": "0.1.0",
-    "branch": "feat/account-keyboard-shortcuts",
-    "note": "Explicit coordinated adoption of account keyboard shortcuts via GET/PATCH /auth/me."
+    "branch": "feat/profile-photo-storage",
+    "note": "Coordinated adoption of authenticated binary profile photo upload/read/delete."
 }
