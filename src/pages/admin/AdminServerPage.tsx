@@ -1,4 +1,4 @@
-import { Database, MemoryStick, RefreshCw } from "lucide-react";
+import { Database, HardDrive, MemoryStick, RefreshCw } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -107,7 +107,9 @@ function ServerStatus({ owner }: { owner: number }) {
                                 key={connection.id}
                             >
                                 <span className="server-stack-icon" aria-hidden="true">
-                                    {connection.technology === "memory" ? (
+                                    {connection.technology === "local" ? (
+                                        <HardDrive />
+                                    ) : connection.technology === "memory" ? (
                                         <MemoryStick />
                                     ) : connection.technology === "database" ? (
                                         <Database />
@@ -132,6 +134,14 @@ function ServerStatus({ owner }: { owner: number }) {
                                                               ? "serverStatus.localFile"
                                                               : "serverStatus.localSocket",
                                                       )}
+                                            </CodeBadge>
+                                        ) : null}
+                                        {connection.id === "object_storage" &&
+                                        connection.transport ? (
+                                            <CodeBadge className="server-connection-address">
+                                                {connection.transport === "filesystem"
+                                                    ? t("serverStatus.localFile")
+                                                    : `${connection.transport.toUpperCase()} · ${t("serverStatus.port", { port: connection.port })}`}
                                             </CodeBadge>
                                         ) : null}
                                     </div>

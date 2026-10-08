@@ -940,7 +940,11 @@
             "mariadb": "MariaDB",
             "redis": "Redis",
             "memory": "In-memory",
-            "database": "Database"
+            "database": "Database",
+            "local": "Local",
+            "s3": "Amazon S3",
+            "r2": "Cloudflare R2",
+            "supabase": "Supabase"
         },
         "title": "서버 상태",
         "description": "서버 연결과 현재 적용된 환경 설정을 확인합니다.",
@@ -960,7 +964,8 @@
         "connection": {
             "server": "애플리케이션 서버",
             "database": "데이터베이스 연결",
-            "cache": "캐시 연결"
+            "cache": "캐시 연결",
+            "object_storage": "오브젝트 스토리지"
         },
         "feature": {
             "app": "실행 모드",
@@ -988,6 +993,7 @@
         "overall": "전체 상태",
         "latency": "응답 시간",
         "localFile": "로컬 파일",
-        "localSocket": "로컬 연결"
+        "localSocket": "로컬 연결",
+        "port": "포트 {{port}}"
     }
 }

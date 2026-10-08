@@ -737,3 +737,5 @@ settings/sidebar share it. Abort stale reads, revoke replaced URLs, and retain c
 photos on failed uploads. Read failures show the existing initials avatar without
 logging out. Existing legacy data/external photos display unchanged. No Base64 upload,
 new store or automatic storage-error upload retry. Auth recovery refreshes private reads.
+
+Admin server status includes the configured storage provider with bundled Local/S3/R2/Supabase icons and safe transport/port badges. Reuse the existing status snapshot and row layout; do not show endpoint identifiers, paths, buckets or per-row check explanations/timestamps. Storage health is connectivity evidence, not upload-permission or bucket-privacy verification.

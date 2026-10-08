@@ -846,17 +846,21 @@ export interface components {
         };
         /** AdminConnection */
         AdminConnection: {
+            /** Checked At */
+            checked_at?: string | null;
             /** Host */
             host?: string | null;
             /**
              * Id
              * @enum {string}
              */
-            id: "server" | "database" | "cache";
+            id: "server" | "database" | "cache" | "object_storage";
             /** Latency Ms */
             latency_ms?: number | null;
             /** Port */
             port?: number | null;
+            /** Probe */
+            probe?: ("local_io" | "bucket_access") | null;
             /**
              * Status
              * @enum {string}
@@ -874,7 +878,13 @@ export interface components {
                 | "mariadb"
                 | "database"
                 | "redis"
-                | "memory";
+                | "memory"
+                | "local"
+                | "s3"
+                | "r2"
+                | "supabase";
+            /** Transport */
+            transport?: ("filesystem" | "https" | "http") | null;
         };
         /** AdminEnvironment */
         AdminEnvironment: {
@@ -1569,6 +1579,8 @@ export interface components {
              * Format: date-time
              */
             checked_at: string;
+            /** Latency Ms */
+            latency_ms?: number | null;
             /**
              * Status
              * @enum {string}
