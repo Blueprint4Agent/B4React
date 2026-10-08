@@ -169,3 +169,34 @@ export async function requestDeletionCode(): Promise<
     if (error || !data) throw error;
     return data;
 }
+
+export async function uploadProfilePhoto(file: File): Promise<User> {
+    const { data, error } = await apiClient.PUT("/api/v1/auth/me/photo", {
+        headers: { ...getAuthHeader(), "Content-Type": "application/octet-stream" },
+        // OpenAPI represents binary bodies as string; the serializer sends actual bytes.
+        body: "",
+        bodySerializer: () => file,
+    });
+    if (error || !data) throw error;
+    return data;
+}
+
+export async function deleteProfilePhoto(): Promise<User> {
+    const { data, error } = await apiClient.DELETE("/api/v1/auth/me/photo", {
+        headers: getAuthHeader(),
+    });
+    if (error || !data) throw error;
+    return data;
+}
+
+export async function readProfilePhoto(version: string, signal?: AbortSignal): Promise<Blob> {
+    const { data, error } = await apiClient.GET("/api/v1/auth/me/photo", {
+        headers: getAuthHeader(),
+        params: { query: { version } },
+        parseAs: "blob",
+        signal,
+        cache: "no-store",
+    });
+    if (error || !data) throw error;
+    return data;
+}

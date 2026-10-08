@@ -17,12 +17,16 @@ import {
 
 import type { User, UpdateProfileInput } from "../api/auth/authApi";
 import { useAuthApi } from "./api/auth/useAuthApi";
+import { useProfilePhoto } from "./api/auth/useProfilePhoto";
 import { useAppConfig } from "./useFeatures";
 import { clearAccessToken, getAccessToken, setAccessToken } from "../store/session";
 
 type AuthContextValue = {
     user: RoleAwareUser | null;
     loading: boolean;
+    profileImageUrl: string | null;
+    uploadPhoto: (file: File) => Promise<void>;
+    deletePhoto: () => Promise<void>;
     login: (input: {
         email: string;
         password: string;
@@ -49,14 +53,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login: loginAuth,
         signup: signupAuth,
         updateMe,
+        uploadProfilePhoto,
+        deleteProfilePhoto,
         deleteMe,
         logout: logoutAuth,
     } = useAuthApi();
     const [user, setUser] = useState<RoleAwareUser | null>(null);
     const [loading, setLoading] = useState(true);
+    const [photoRefreshEpoch, setPhotoRefreshEpoch] = useState(0);
+    const profileImageUrl = useProfilePhoto(
+        user?.id,
+        user?.profile_image_url ?? null,
+        photoRefreshEpoch,
+    );
     useEffect(() => {
-        if (user) void updateRememberedProfile(user);
-    }, [user]);
+        if (
+            user &&
+            (!user.profile_image_url?.startsWith("/api/v1/auth/me/photo?") || profileImageUrl)
+        ) {
+            void updateRememberedProfile({ ...user, profile_image_url: profileImageUrl });
+        }
+    }, [user, profileImageUrl]);
     const sessionEpoch = useRef(0);
     const refreshInFlightRef = useRef<Promise<void> | null>(null);
 
@@ -74,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (epoch !== sessionEpoch.current) return;
             completeOAuthAccountIntent(nextUser);
             setUser(nextUser);
+            setPhotoRefreshEpoch((value) => value + 1);
         })();
 
         refreshInFlightRef.current = refreshTask;
@@ -99,6 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         clearAccessToken();
                     }
                     setUser(config.bootstrap_user ?? null);
+                    if (force) setPhotoRefreshEpoch((value) => value + 1);
                     return;
                 }
 
@@ -164,6 +183,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         () => ({
             user,
             loading,
+            profileImageUrl,
+            uploadPhoto: async (file) => {
+                const epoch = sessionEpoch.current;
+                const nextUser = await uploadProfilePhoto(file);
+                if (epoch === sessionEpoch.current) setUser(nextUser);
+            },
+            deletePhoto: async () => {
+                const epoch = sessionEpoch.current;
+                const nextUser = await deleteProfilePhoto();
+                if (epoch === sessionEpoch.current) setUser(nextUser);
+            },
             login: async (input) => {
                 sessionEpoch.current += 1;
                 resetSessionRecovery();
@@ -218,6 +248,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             revalidateSession,
             signupAuth,
             updateMe,
+            uploadProfilePhoto,
+            deleteProfilePhoto,
+            profileImageUrl,
             deleteMe,
             user,
         ],

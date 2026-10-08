@@ -63,7 +63,7 @@ export function AppSidebar({
     const isSettings = location.pathname === "/settings";
     const [searchParams] = useSearchParams();
     const section = searchParams.has("billing_setup") ? "billing" : searchParams.get("section");
-    const { user, logout } = useAuthContext();
+    const { profileImageUrl, user, logout } = useAuthContext();
     const showToast = useToast();
     const activeSection = resolveSettingsSection(section, Boolean(user));
     const { data: appConfig } = useAppConfig();
@@ -343,7 +343,7 @@ export function AppSidebar({
                     expanded={expanded}
                     showAdmin={user?.role === "admin" || user?.role === "manager"}
                     avatarLabel={user ? displayName.slice(0, 1).toUpperCase() : undefined}
-                    avatarImageUrl={user?.profile_image_url}
+                    avatarImageUrl={profileImageUrl}
                     subscriptionTier={subscriptionTier}
                     busy={busy}
                     displayName={displayName}
