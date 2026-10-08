@@ -6,9 +6,17 @@ import {
     matchesShortcut,
 } from "../utils/keyboardShortcuts";
 
-type AppShortcutActions = { toggleSidebar: () => void; openSettings: () => void };
+type AppShortcutActions = {
+    toggleSidebar: () => void;
+    openSettings: () => void;
+    openProfile?: () => void;
+};
 
-export function useAppShortcuts({ toggleSidebar, openSettings }: AppShortcutActions): void {
+export function useAppShortcuts({
+    toggleSidebar,
+    openSettings,
+    openProfile,
+}: AppShortcutActions): void {
     const { bindings } = useKeyboardShortcuts();
     useEffect(() => {
         const platform = getShortcutPlatform();
@@ -20,9 +28,12 @@ export function useAppShortcuts({ toggleSidebar, openSettings }: AppShortcutActi
             } else if (matchesShortcut(event, bindings.openSettings, platform)) {
                 event.preventDefault();
                 openSettings();
+            } else if (openProfile && matchesShortcut(event, bindings.openProfile, platform)) {
+                event.preventDefault();
+                openProfile();
             }
         };
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, [toggleSidebar, openSettings, bindings]);
+    }, [toggleSidebar, openSettings, openProfile, bindings]);
 }

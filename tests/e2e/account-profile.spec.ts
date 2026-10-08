@@ -177,8 +177,11 @@ test("password modal requires emailed code, validates confirmation and clears on
         saves = 0;
     await page.route("**/api/v1/auth/me/password/code", (route) => {
         sends++;
-        return route.fulfill({ json: { expires_in: 600, retry_after: 60 } });
+        return route.fulfill({ json: { expires_in: 600, retry_after: 30 } });
     });
+    await page.route("**/api/v1/auth/me/password/code/verify", (route) =>
+        route.fulfill({ json: { message: "Code verified." } }),
+    );
     await page.route("**/api/v1/auth/me/password", (route) => {
         saves++;
         expect(route.request().postDataJSON()).toEqual({
@@ -193,12 +196,17 @@ test("password modal requires emailed code, validates confirmation and clears on
     const dialog = page.getByRole("dialog", { name: "Change password" });
     await expect(dialog.getByRole("button", { name: "Change password" })).toBeDisabled();
     await dialog.getByRole("button", { name: "Send code" }).click();
-    await expect(dialog.getByRole("button", { name: /In \d+s/ })).toBeDisabled();
+    await expect(dialog.getByRole("button", { name: /Resend code \(\d+s\)/ })).toBeDisabled();
     await dialog.getByLabel("6-digit verification code").fill("123456");
+    await dialog.getByRole("button", { name: "Verify code", exact: true }).click();
+    await expect(dialog.getByRole("button", { name: "Verified", exact: true })).toBeDisabled();
     await dialog.getByLabel("New password", { exact: true }).fill("NewPassword123!");
+    await expect(dialog.locator(".validation-card").first()).toHaveClass(/validation-card--ok/);
     await dialog.getByLabel("Confirm new password", { exact: true }).fill("Wrong123!");
+    await expect(dialog.locator(".validation-card").last()).toHaveClass(/validation-card--no/);
     await expect(dialog.getByRole("button", { name: "Change password" })).toBeDisabled();
     await dialog.getByLabel("Confirm new password", { exact: true }).fill("NewPassword123!");
+    await expect(dialog.locator(".validation-card").last()).toHaveClass(/validation-card--ok/);
     await page.screenshot({ path: info.outputPath("password-modal.png"), fullPage: true });
     await dialog.getByRole("button", { name: "Change password" }).click();
     await expect(dialog).toHaveCount(0);
@@ -300,6 +308,9 @@ test("compact inline edits preserve metadata geometry and account names share th
 }, info) => {
     await setup(page);
     await page.goto("/profile");
+    await page.locator(".personal-profile").evaluate(async (node) => {
+        await Promise.all(node.getAnimations().map((animation) => animation.finished));
+    });
     const strip = page.locator(".personal-profile__details");
     const before = (await strip.boundingBox())!.y;
     await page.getByRole("button", { name: "Profile User", exact: true }).click();
@@ -369,3 +380,143 @@ for (const width of [390, 1440])
         await expect.poll(() => menu.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
         expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(height);
     });
+
+for (const via of ["account", "dropdown"])
+    test(`profile preserves Settings navigation via ${via} and reload`, async ({ page }) => {
+        await setup(page);
+        await page.goto("/settings?section=account");
+        await expect(page.getByRole("button", { name: "Go to profile" })).toBeVisible();
+        const nav = page.locator("#app-sidebar-navigation");
+        const links = await nav
+            .locator("a")
+            .evaluateAll((nodes) => nodes.map((node) => node.getAttribute("href")));
+        if (via === "account") await page.getByRole("button", { name: "Go to profile" }).click();
+        else {
+            await page.locator(".profile-menu__trigger").click();
+            await page.getByRole("link", { name: "Profile", exact: true }).click();
+        }
+        await expect(page).toHaveURL(/\/profile$/);
+        expect(
+            await nav
+                .locator("a")
+                .evaluateAll((nodes) => nodes.map((node) => node.getAttribute("href"))),
+        ).toEqual(links);
+        await page.reload();
+        await expect(page.getByRole("heading", { name: "Profile User" })).toBeVisible();
+        expect(
+            await nav
+                .locator("a")
+                .evaluateAll((nodes) => nodes.map((node) => node.getAttribute("href"))),
+        ).toEqual(links);
+    });
+
+test("code request errors stay beside the verification input above password fields", async ({
+    page,
+}) => {
+    await setup(page);
+    await page.route("**/api/v1/auth/me/password/code", (route) =>
+        route.fulfill({
+            status: 429,
+            json: {
+                detail: {
+                    error: "PASSWORD_CHANGE_CODE_THROTTLED",
+                    details: { remaining_seconds: 30 },
+                },
+            },
+        }),
+    );
+    await page.goto("/settings?section=account");
+    await page.getByRole("button", { name: "Change password", exact: true }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByRole("button", { name: "Send code", exact: true }).click();
+    const feedback = dialog.locator(".account-verification-feedback");
+    await expect(feedback).toBeVisible();
+    expect((await feedback.boundingBox())!.y).toBeGreaterThan(
+        (await dialog.locator(".account-deletion-code-row").boundingBox())!.y,
+    );
+    expect((await feedback.boundingBox())!.y).toBeLessThan(
+        (await dialog.getByLabel("New password", { exact: true }).boundingBox())!.y,
+    );
+});
+
+test("deletion verifies codes separately and resending resets confirmation after 30 seconds", async ({
+    page,
+}) => {
+    await setup(page);
+    await page.clock.install();
+    let deletes = 0;
+    await page.route("**/api/v1/auth/me/deletion-code", (route) =>
+        route.fulfill({ json: { expires_in: 600, retry_after: 30 } }),
+    );
+    await page.route("**/api/v1/auth/me/deletion-code/verify", (route) =>
+        route.fulfill({ json: { message: "Code verified." } }),
+    );
+    await page.goto("/settings?section=account");
+    await page.getByRole("button", { name: "Delete account", exact: true }).click();
+    const dialog = page.getByRole("dialog");
+    const action = dialog.getByRole("button", { name: "Delete account", exact: true });
+    await dialog.getByRole("button", { name: "Send code", exact: true }).click();
+    await dialog.getByLabel("6-digit verification code").fill("123456");
+    await expect(action).toBeDisabled();
+    await dialog.getByRole("button", { name: "Verify code", exact: true }).click();
+    await expect(action).toBeEnabled();
+    await expect(dialog.getByRole("button", { name: /Resend code/ })).toBeDisabled();
+    await page.clock.setFixedTime((await page.evaluate(() => Date.now())) + 31000);
+    await page.clock.runFor(1000);
+    await dialog.getByRole("button", { name: "Resend code", exact: true }).click();
+    await expect(action).toBeDisabled();
+    await expect(dialog.getByLabel("6-digit verification code")).toHaveValue("");
+    await dialog.getByLabel("6-digit verification code").fill("654321");
+    await dialog.getByRole("button", { name: "Verify code", exact: true }).click();
+    await expect(action).toBeEnabled();
+    await page.route("**/api/v1/auth/me", (route) => {
+        if (route.request().method() === "DELETE") {
+            deletes++;
+            return route.fulfill({ status: 204 });
+        }
+        return route.fallback();
+    });
+    await action.click();
+    await expect.poll(() => deletes).toBe(1);
+});
+
+test("profile shortcut preserves navigation and does not fire while typing", async ({ page }) => {
+    await setup(page);
+    await page.goto("/settings?section=account");
+    await expect(page.getByRole("button", { name: "Go to profile" })).toBeVisible();
+    const mac = await page.evaluate(() => /Mac/i.test(navigator.userAgent));
+    const key = mac ? "Meta+Shift+p" : "Control+Shift+p";
+    await page.keyboard.press(key);
+    await expect(page).toHaveURL(/\/profile$/);
+    await expect(page.locator("#app-sidebar-navigation")).toHaveAttribute(
+        "aria-label",
+        "Settings menu",
+    );
+    await page.getByRole("button", { name: "Profile User", exact: true }).click();
+    await page.keyboard.press(key);
+    await expect(page.locator(".profile-inline-form--name")).toBeVisible();
+});
+
+test("profile uses the peer entrance animation and respects reduced motion", async ({ page }) => {
+    await setup(page);
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.goto("/profile");
+    const profile = page.locator(".personal-profile");
+    await expect(profile).toHaveCSS("animation-name", "rise");
+    await expect(profile).toHaveCSS("animation-duration", "0.26s");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect(profile).toHaveCSS("animation-duration", "1e-05s");
+});
+
+test("showcase exposes transparent edit save and cancel icons", async ({ page }) => {
+    await setup(page);
+    await page.goto("/show-case");
+    const sample = page.locator('[data-component="Button (transparent icons)"]');
+    await sample.scrollIntoViewIfNeeded();
+    await expect(sample.getByRole("button")).toHaveCount(3);
+    for (const button of await sample.getByRole("button").all()) {
+        await expect(button).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+        await button.hover();
+        await expect(button).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    }
+});

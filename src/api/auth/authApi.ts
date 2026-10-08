@@ -220,3 +220,18 @@ export async function requestPasswordChangeCode(): Promise<
     if (error || !data) throw error;
     return data;
 }
+
+export async function verifyPasswordChangeCode(code: string): Promise<void> {
+    const { error, response } = await apiClient.POST("/api/v1/auth/me/password/code/verify", {
+        headers: getAuthHeader(),
+        body: { code },
+    });
+    if (error || !response.ok) throw error;
+}
+export async function verifyDeletionCode(code: string): Promise<void> {
+    const { error, response } = await apiClient.POST("/api/v1/auth/me/deletion-code/verify", {
+        headers: getAuthHeader(),
+        body: { code },
+    });
+    if (error || !response.ok) throw error;
+}

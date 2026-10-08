@@ -1,3 +1,4 @@
+import { profileSidebarPath } from "../../utils/profileNavigation";
 import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
 import type { SubscriptionTier } from "../../utils/billingPlans";
 import { createPortal } from "react-dom";
@@ -316,11 +317,18 @@ export function ProfileDropdown({
                           )
                         : null}
                     {!showLogin && (
-                        <Link to="/profile" className="profile-menu__item">
+                        <Link
+                            to="/profile"
+                            aria-label={t("settings.menu.profile")}
+                            aria-keyshortcuts={shortcutAriaKeys(bindings.openProfile)}
+                            state={{ profileSidebarPath: profileSidebarPath(location) }}
+                            className="profile-menu__item"
+                        >
                             <span className="profile-menu__item-icon" aria-hidden="true">
                                 <UserRound />
                             </span>
                             <span>{t("settings.menu.profile")}</span>
+                            <KeyboardShortcut keys={bindings.openProfile} />
                         </Link>
                     )}
                     <Link

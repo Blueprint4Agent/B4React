@@ -7,7 +7,16 @@ import type { RecentAccount } from "../../utils/recentAccounts";
 import { MainPageTemplate } from "../../components/layout/MainPageTemplate";
 import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { useTranslation } from "react-i18next";
-import { Check, ChevronRight, KeyRound, SlidersHorizontal, Trash2, UserRound } from "lucide-react";
+import {
+    Pencil,
+    X,
+    Check,
+    ChevronRight,
+    KeyRound,
+    SlidersHorizontal,
+    Trash2,
+    UserRound,
+} from "lucide-react";
 import { useToast } from "../../hooks/useToast";
 import { lazy, Suspense, useRef, useState } from "react";
 import {
@@ -468,6 +477,29 @@ export function ShowCasePage() {
                         <ShowcaseItem component="Button">
                             <Button iconOnly aria-label={t("settings.profile.save")}>
                                 <Check aria-hidden="true" />
+                            </Button>
+                        </ShowcaseItem>
+                        <ShowcaseItem component="Button (transparent icons)">
+                            <Button
+                                iconOnly
+                                appearance="text"
+                                aria-label={t("settings.profile.editName")}
+                            >
+                                <Pencil aria-hidden="true" />
+                            </Button>
+                            <Button
+                                iconOnly
+                                appearance="text"
+                                aria-label={t("settings.profile.save")}
+                            >
+                                <Check aria-hidden="true" />
+                            </Button>
+                            <Button
+                                iconOnly
+                                appearance="text"
+                                aria-label={t("settings.account.cancel")}
+                            >
+                                <X aria-hidden="true" />
                             </Button>
                         </ShowcaseItem>
                         <ShowcaseItem component="TextareaField">

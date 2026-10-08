@@ -530,12 +530,12 @@
             "deleted": "계정을 삭제했습니다.",
             "codeDestination": "등록된 이메일 {{email}}로 인증 코드를 보냅니다.",
             "sendCode": "코드 받기",
-            "resendCode": "다시 받기",
+            "resendCode": "인증번호 재전송",
             "resendWait": "{{seconds}}초 후",
             "codeSent": "인증 코드를 이메일로 보냈습니다.",
             "codeLabel": "6자리 인증 코드",
             "emailRequired": "계정 삭제에는 이메일 인증이 필요합니다. 이메일 기능이 활성화되어야 합니다.",
-            "codeHint": "코드는 10분 동안 유효하며, 재발송하면 이전 코드는 만료됩니다.",
+            "codeHint": "마지막으로 발송한 인증번호는 10분간 유효합니다. 재전송은 30초 후 가능하며 이전 번호는 무효화됩니다.",
             "title": "계정",
             "subtitle": "로그인 정보와 계정 보안을 관리합니다.",
             "editProfile": "프로필로 이동",
@@ -546,7 +546,10 @@
             "passwordEmailRequired": "이메일 기능이 비활성화되어 비밀번호를 변경할 수 없습니다.",
             "currentPlan": "현재 구독 플랜",
             "managePlan": "구독 관리",
-            "passwordLabel": "비밀번호"
+            "passwordLabel": "비밀번호",
+            "verifyCode": "인증번호 확인",
+            "codeVerified": "인증 완료",
+            "resendCodeWait": "인증번호 재전송 ({{seconds}}초)"
         },
         "keyboard": {
             "description": "자주 쓰는 기능의 단축키를 변경할 수 있습니다.",
@@ -558,7 +561,8 @@
                 "invalid": "인식할 수 있는 키를 눌러주세요.",
                 "conflict": "다른 기능에서 사용 중인 단축키입니다.",
                 "storage": "단축키를 저장하지 못했습니다. 연결 상태를 확인하고 다시 시도해주세요."
-            }
+            },
+            "openProfile": "프로필 열기"
         }
     },
     "theme": {

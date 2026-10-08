@@ -19,7 +19,11 @@ const account = {
     created_at: "2026-01-01T00:00:00Z",
     keyboard_shortcuts: null,
 };
-const keys = { toggleSidebar: ["b"], openSettings: ["mod", ","] };
+const keys = {
+    toggleSidebar: ["b"],
+    openSettings: ["mod", ","],
+    openProfile: ["mod", "shift", "p"],
+};
 function Probe() {
     const { bindings, update, reset, disabled } = useKeyboardShortcuts();
     const { logout, login, user } = useAuthContext();

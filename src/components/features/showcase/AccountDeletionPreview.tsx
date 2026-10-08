@@ -9,6 +9,7 @@ export function AccountDeletionPreview() {
     const showToast = useToast();
     const [open, setOpen] = useState(false);
     const [code, setCode] = useState("");
+    const [verified, setVerified] = useState(false);
     const [codeSent, setCodeSent] = useState(false);
     const [retryAt, setRetryAt] = useState(0);
     const [error, setError] = useState("");
@@ -23,6 +24,7 @@ export function AccountDeletionPreview() {
                     setError("");
                     setCode("");
                     setCodeSent(false);
+                    setVerified(false);
                     setRetryAt(0);
                 }}
             >
@@ -36,14 +38,26 @@ export function AccountDeletionPreview() {
                 email="preview@example.com"
                 code={code}
                 codeSent={codeSent}
+                verified={verified}
+                verifying={false}
+                onVerifyCode={() => {
+                    setVerified(code === "123456");
+                    setError(code === "123456" ? "" : t("auth.errors.accountDeleteCodeInvalid"));
+                }}
                 busy={false}
                 sending={false}
                 retryAt={retryAt}
-                error={error}
-                onCodeChange={setCode}
+                error=""
+                codeError={error}
+                onCodeChange={(value) => {
+                    setCode(value);
+                    setVerified(false);
+                    setError("");
+                }}
                 onClose={() => setOpen(false)}
                 onSendCode={() => {
                     setCodeSent(true);
+                    setVerified(false);
                     showToast(t("settings.account.codeSent"));
                     setRetryAt(Date.now() + 5000);
                     setCode("");

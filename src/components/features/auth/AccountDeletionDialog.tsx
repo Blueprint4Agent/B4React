@@ -8,10 +8,14 @@ type AccountDeletionDialogProps = {
     email: string;
     code: string;
     codeSent: boolean;
+    verified: boolean;
+    verifying: boolean;
+    onVerifyCode: () => void;
     busy: boolean;
     sending: boolean;
     retryAt: number;
     error: string;
+    codeError: string;
     onCodeChange: (value: string) => void;
     onSendCode: () => void;
     onConfirm: () => void;
@@ -23,10 +27,14 @@ export function AccountDeletionDialog({
     email,
     code,
     codeSent,
+    verified,
+    verifying,
+    onVerifyCode,
     busy,
     sending,
     retryAt,
     error,
+    codeError,
     onCodeChange,
     onSendCode,
     onConfirm,
@@ -44,7 +52,7 @@ export function AccountDeletionDialog({
         return () => window.clearInterval(timer);
     }, [open, retryAt]);
     const remaining = Math.max(0, Math.ceil((retryAt - now) / 1000));
-    const pending = busy || sending;
+    const pending = busy || sending || verifying;
     return (
         <Modal
             className="account-deletion-dialog"
@@ -64,7 +72,7 @@ export function AccountDeletionDialog({
                     <ModalButton
                         variant="danger"
                         loading={busy}
-                        disabled={sending || !/^[0-9]{6}$/.test(code)}
+                        disabled={sending || verifying || !verified || !/^[0-9]{6}$/.test(code)}
                         onClick={onConfirm}
                     >
                         {t("settings.account.deleteAction")}
@@ -73,9 +81,13 @@ export function AccountDeletionDialog({
             }
         >
             <AccountEmailVerification
+                error={codeError}
                 email={email}
                 code={code}
                 codeSent={codeSent}
+                verified={verified}
+                verifying={verifying}
+                onVerifyCode={onVerifyCode}
                 busy={busy}
                 sending={sending}
                 remaining={remaining}

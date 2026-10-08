@@ -221,7 +221,14 @@ export function SettingsPage() {
                             </article>
                             <article className="settings-row">
                                 <h2>{t("settings.menu.profile")}</h2>
-                                <Button appearance="pill" onClick={() => navigate("/profile")}>
+                                <Button
+                                    appearance="pill"
+                                    onClick={() =>
+                                        navigate("/profile", {
+                                            state: { profileSidebarPath: "/settings" },
+                                        })
+                                    }
+                                >
                                     {t("settings.account.editProfile")}
                                 </Button>
                             </article>

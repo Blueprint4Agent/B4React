@@ -1,3 +1,4 @@
+import { profileSidebarPath } from "../../utils/profileNavigation";
 import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
 import type { SubscriptionTier } from "../../utils/billingPlans";
 import { useToast } from "../../hooks/useToast";
@@ -60,7 +61,8 @@ export function AppSidebar({
     }, [expanded]);
     const navigate = useNavigate();
     const location = useLocation();
-    const isSettings = location.pathname === "/settings";
+    const sidebarPath = profileSidebarPath(location);
+    const isSettings = sidebarPath === "/settings";
     const [searchParams] = useSearchParams();
     const section = searchParams.has("billing_setup") ? "billing" : searchParams.get("section");
     const { profileImageUrl, user, logout } = useAuthContext();
@@ -93,8 +95,7 @@ export function AppSidebar({
         }
     };
     const isAdminPanel =
-        location.pathname.startsWith("/admin") &&
-        (user?.role === "admin" || user?.role === "manager");
+        sidebarPath.startsWith("/admin") && (user?.role === "admin" || user?.role === "manager");
     const items = isAdminPanel
         ? [
               {
@@ -274,13 +275,19 @@ export function AppSidebar({
                                 end={isAdminPanel}
                                 aria-current={
                                     isSettings
-                                        ? itemSection === activeSection
+                                        ? location.pathname !== "/profile" &&
+                                          itemSection === activeSection
                                             ? "page"
                                             : false
                                         : undefined
                                 }
                                 className={({ isActive }) =>
-                                    (isSettings ? itemSection === activeSection : isActive)
+                                    (
+                                        isSettings
+                                            ? location.pathname !== "/profile" &&
+                                              itemSection === activeSection
+                                            : isActive
+                                    )
                                         ? "app-sidebar__item app-sidebar__item--active"
                                         : "app-sidebar__item"
                                 }

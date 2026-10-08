@@ -1,3 +1,7 @@
+import {
+    PasswordRequirements,
+    PasswordConfirmationRequirements,
+} from "../../components/features/auth/PasswordRequirements";
 import { AccountEmailVerification } from "../../components/features/auth/AccountEmailVerification";
 import { useState, useRef, useEffect, useId, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
@@ -17,19 +21,27 @@ function PasswordChangeDialog({
 }) {
     const { t } = useTranslation();
     const formId = useId();
-    const { changePassword, requestPasswordChangeCode, extractApiDetail, resolveAuthErrorMessage } =
-        useAuthApi();
+    const {
+        changePassword,
+        requestPasswordChangeCode,
+        verifyPasswordChangeCode,
+        extractApiDetail,
+        resolveAuthErrorMessage,
+    } = useAuthApi();
     const showToast = useToast();
     const [code, setCode] = useState("");
     const [password, setPassword] = useState("");
     const [confirm, setConfirm] = useState("");
+    const [verified, setVerified] = useState(false);
+    const [verifying, setVerifying] = useState(false);
     const [codeSent, setCodeSent] = useState(false);
     const [retryAt, setRetryAt] = useState(0);
     const [now, setNow] = useState(Date.now);
     const [busy, setBusy] = useState(false);
     const [sending, setSending] = useState(false);
-    const locked = busy || sending;
+    const locked = busy || sending || verifying;
     const [error, setError] = useState("");
+    const [codeError, setCodeError] = useState("");
     const active = useRef(true);
     const pending = useRef(false);
     useEffect(() => {
@@ -52,11 +64,12 @@ function PasswordChangeDialog({
         pending.current = true;
         setSending(true);
         setError("");
-        setCode("");
-        setCodeSent(false);
+        setCodeError("");
+        setVerified(false);
         try {
             const result = await requestPasswordChangeCode();
             if (!active.current) return;
+            setCode("");
             setCodeSent(true);
             setRetryAt(Date.now() + result.retry_after * 1000);
             setNow(Date.now());
@@ -64,7 +77,7 @@ function PasswordChangeDialog({
         } catch (failure) {
             if (!active.current) return;
             const detail = extractApiDetail(failure);
-            setError(resolveAuthErrorMessage(t, detail, "toast.passwordError"));
+            setCodeError(resolveAuthErrorMessage(t, detail, "toast.passwordError"));
             if (typeof detail?.details?.remaining_seconds === "number")
                 setRetryAt(Date.now() + detail.details.remaining_seconds * 1000);
         } finally {
@@ -74,12 +87,34 @@ function PasswordChangeDialog({
             }
         }
     };
+    const verifyCode = async () => {
+        if (pending.current || !emailEnabled || !/^[0-9]{6}$/.test(code)) return;
+        pending.current = true;
+        setVerifying(true);
+        setCodeError("");
+        try {
+            await verifyPasswordChangeCode(code);
+            if (active.current) setVerified(true);
+        } catch (failure) {
+            if (active.current) {
+                setVerified(false);
+                setCodeError(
+                    resolveAuthErrorMessage(t, extractApiDetail(failure), "toast.passwordError"),
+                );
+            }
+        } finally {
+            if (active.current) {
+                pending.current = false;
+                setVerifying(false);
+            }
+        }
+    };
     const submit = async (event: FormEvent) => {
         event.preventDefault();
         if (
             pending.current ||
             !emailEnabled ||
-            !codeSent ||
+            !verified ||
             !/^[0-9]{6}$/.test(code) ||
             !isValidPassword(password) ||
             confirm !== password
@@ -88,6 +123,7 @@ function PasswordChangeDialog({
         pending.current = true;
         setBusy(true);
         setError("");
+        setCodeError("");
         try {
             await changePassword({ code, password });
             if (!active.current) return;
@@ -99,7 +135,11 @@ function PasswordChangeDialog({
             onClose();
         } catch (failure) {
             if (!active.current) return;
-            setError(resolveAuthErrorMessage(t, extractApiDetail(failure), "toast.passwordError"));
+            const detail = extractApiDetail(failure);
+            setVerified(false);
+            const message = resolveAuthErrorMessage(t, detail, "toast.passwordError");
+            if (detail?.error?.startsWith("PASSWORD_CHANGE_CODE_")) setCodeError(message);
+            else setError(message);
         } finally {
             if (active.current) {
                 setBusy(false);
@@ -130,7 +170,7 @@ function PasswordChangeDialog({
                         disabled={
                             locked ||
                             !emailEnabled ||
-                            !codeSent ||
+                            !verified ||
                             !/^[0-9]{6}$/.test(code) ||
                             !isValidPassword(password) ||
                             confirm !== password
@@ -154,7 +194,15 @@ function PasswordChangeDialog({
                     sending={sending}
                     remaining={remaining}
                     disabled={!emailEnabled}
-                    onCodeChange={setCode}
+                    verified={verified}
+                    verifying={verifying}
+                    onVerifyCode={() => void verifyCode()}
+                    error={codeError}
+                    onCodeChange={(value) => {
+                        setCode(value);
+                        setVerified(false);
+                        setCodeError("");
+                    }}
                     onSendCode={() => void sendCode()}
                 />
                 {!emailEnabled ? (
@@ -172,9 +220,7 @@ function PasswordChangeDialog({
                     maxLength={24}
                     required
                 />
-                {password && !isValidPassword(password) ? (
-                    <InlineMessage>{t("auth.errors.invalidPasswordPattern")}</InlineMessage>
-                ) : null}
+                <PasswordRequirements password={password} />
                 <InputField
                     label={t("resetPassword.confirmPasswordLabel")}
                     type="password"
@@ -185,9 +231,7 @@ function PasswordChangeDialog({
                     maxLength={24}
                     required
                 />
-                {confirm && confirm !== password ? (
-                    <InlineMessage>{t("auth.errors.passwordMismatch")}</InlineMessage>
-                ) : null}
+                <PasswordConfirmationRequirements password={password} confirmation={confirm} />
                 {error ? <InlineMessage tone="error">{error}</InlineMessage> : null}
             </form>
         </Modal>
