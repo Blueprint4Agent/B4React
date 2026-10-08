@@ -15,7 +15,7 @@ export function ConnectedOAuthProvidersCard({
     getProviderLabel,
 }: ConnectedOAuthProvidersCardProps) {
     return (
-        <article className="settings-profile-field-card">
+        <article className="settings-row">
             <h2>{title}</h2>
             {providers.length > 0 ? (
                 <div className="settings-oauth-provider-list">

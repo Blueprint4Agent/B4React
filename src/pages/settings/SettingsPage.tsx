@@ -1,3 +1,7 @@
+import { AccountNameSettings } from "./AccountNameSettings";
+import { useCurrentPlan } from "../../hooks/api/billing/useCurrentPlan";
+import { CurrentPlanRow } from "../../components/features/billing/CurrentPlanRow";
+import { PasswordSettings } from "./PasswordSettings";
 import { KeyboardSettings } from "./KeyboardSettings";
 import { BillingSettingsPage } from "../billing/BillingSettingsPage";
 import { useToast } from "../../hooks/useToast";
@@ -9,56 +13,37 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { ConnectedOAuthProvidersCard } from "../../components/features/auth/ConnectedOAuthProvidersCard";
 import { DeveloperApiKeysSection } from "../../components/features/apiKey/DeveloperApiKeysSection";
 import {
-    AvatarUploadField,
     Button,
     DropdownMenu,
     InlineMessage,
-    InputField,
     PrimaryCard,
     ModalButton,
-    StatusBadge,
     ThemePreviewSelector,
-    UserAvatar,
 } from "../../components/ui";
 import type { APIKeyRecord } from "../../hooks/api/apiKey/useApiKeyApi";
 import { useApiKeys } from "../../hooks/api/apiKey/useApiKeys";
 import { useAccountDeletion } from "../../hooks/api/auth/useAccountDeletion";
 import { AccountDeletionDialog } from "../../components/features/auth/AccountDeletionDialog";
-import { useAuthApi } from "../../hooks/api/auth/useAuthApi";
 import { useAuthContext } from "../../hooks/useAuth";
 import { useAppConfig } from "../../hooks/useFeatures";
 import { useTheme } from "../../hooks/useTheme";
 import { resolveAPIKeyExpiresAt, type APIKeyExpiryOption } from "../../utils/date";
 
-type SaveFeedback = {
-    message: string;
-    tone: "error";
-    source: "name" | "photo";
-} | null;
-const MAX_PROFILE_PHOTO_SIZE_MB = 8;
-const MAX_PROFILE_PHOTO_SIZE_BYTES = MAX_PROFILE_PHOTO_SIZE_MB * 1024 * 1024;
 const DEFAULT_API_KEY_EXPIRY_OPTION: APIKeyExpiryOption = "30d";
 const SUPPORTED_LANGUAGE_IDS = ["en", "ko"] as const;
 type SupportedLanguageId = (typeof SUPPORTED_LANGUAGE_IDS)[number];
 
 export function SettingsPage() {
     const { t, i18n } = useTranslation();
-    const { resolveAuthErrorMessage, extractApiDetail } = useAuthApi();
     const showToast = useToast();
     const navigate = useNavigate();
     const accountDeletion = useAccountDeletion(() => {
         showToast(t("settings.account.deleted"));
         navigate("/home", { replace: true });
     });
-    const {
-        user,
-        loading: authLoading,
-        updateProfile,
-        profileImageUrl,
-        uploadPhoto,
-        deletePhoto,
-    } = useAuthContext();
+    const { user, loading: authLoading } = useAuthContext();
     const { data: appConfig } = useAppConfig();
+    const plan = useCurrentPlan(user?.id);
     const { themeMode, setThemeMode } = useTheme();
     const [searchParams, setSearchParams] = useSearchParams();
     const section =
@@ -83,9 +68,6 @@ export function SettingsPage() {
             );
         }
     }, [authLoading, user, section, activeMenu, setSearchParams]);
-    const [nameInput, setNameInput] = useState("");
-    const [saveBusy, setSaveBusy] = useState(false);
-    const [saveFeedback, setSaveFeedback] = useState<SaveFeedback>(null);
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [newApiKeyName, setNewApiKeyName] = useState("");
     const [newApiKeyExpiryOption, setNewApiKeyExpiryOption] = useState<APIKeyExpiryOption>(
@@ -96,7 +78,6 @@ export function SettingsPage() {
     const [deactivateTarget, setDeactivateTarget] = useState<APIKeyRecord | null>(null);
     const loginEnabled = appConfig?.login_enabled === true;
 
-    const showProfile = activeMenu === "account";
     const showDevelopers = activeMenu === "developers";
     const {
         items: apiKeyItems,
@@ -117,10 +98,6 @@ export function SettingsPage() {
         onMutationResult: (action, success) =>
             showToast(t(`toast.key${action}${success ? "Success" : "Error"}`)),
     });
-    const normalizedNameInput = nameInput.trim();
-    const normalizedCurrentName = (user?.name ?? "").trim();
-    const normalizedProfileImageInput = profileImageUrl ?? null;
-    const isNameChanged = normalizedNameInput !== normalizedCurrentName;
     const connectedOAuthProviders = user?.oauth_providers ?? [];
     const normalizedLanguageId =
         (i18n.resolvedLanguage ?? i18n.language ?? "en").split("-")[0] || "en";
@@ -130,8 +107,6 @@ export function SettingsPage() {
         ? (normalizedLanguageId as SupportedLanguageId)
         : "en";
     const currentLanguageLabel = t(`settings.general.languages.${currentLanguageId}`);
-    const profileRole = user?.role === "admin" || user?.role === "manager" ? user.role : null;
-
     const resolveOAuthProviderLabel = (provider: string) => {
         if (provider === "google") {
             return t("settings.profile.oauthProviders.google");
@@ -213,240 +188,90 @@ export function SettingsPage() {
         setDeactivateTarget(null);
     }, [user?.id]);
 
-    useEffect(() => {
-        setNameInput(user?.name ?? "");
-    }, [user?.name]);
-
-    useEffect(() => {
-        setSaveFeedback(null);
-        setNameInput(user?.name ?? "");
-    }, [activeMenu]);
-
-    const handleProfileImageSelect = async (file: File | null) => {
-        if (!file) {
-            return;
-        }
-
-        setSaveFeedback(null);
-        const isSupportedType = [
-            "image/png",
-            "image/jpeg",
-            "image/jpg",
-            "image/webp",
-            "image/gif",
-        ].includes(file.type);
-        if (!isSupportedType) {
-            setSaveFeedback({
-                tone: "error",
-                source: "photo",
-                message: t("settings.profile.photoTypeError"),
-            });
-            showToast(t("toast.photoError"));
-            return;
-        }
-        if (file.size > MAX_PROFILE_PHOTO_SIZE_BYTES) {
-            setSaveFeedback({
-                tone: "error",
-                source: "photo",
-                message: t("settings.profile.photoSizeError"),
-            });
-            showToast(t("toast.photoError"));
-            return;
-        }
-
-        setSaveBusy(true);
-        try {
-            await uploadPhoto(file);
-            showToast(t("toast.profileSuccess"));
-            setSaveFeedback(null);
-        } catch (error) {
-            showToast(t("toast.profileError"));
-            setSaveFeedback({
-                tone: "error",
-                source: "photo",
-                message: resolveAuthErrorMessage(t, extractApiDetail(error), "toast.profileError"),
-            });
-        } finally {
-            setSaveBusy(false);
-        }
-    };
-
-    const handleSaveProfile = async () => {
-        const nextName = normalizedNameInput;
-        if (!isNameChanged || !nextName) {
-            return;
-        }
-
-        setSaveBusy(true);
-        setSaveFeedback(null);
-        try {
-            await updateProfile({ name: nextName });
-            showToast(t("toast.profileSuccess"));
-        } catch (error) {
-            showToast(t("toast.profileError"));
-            setSaveFeedback({
-                tone: "error",
-                source: "name",
-                message: t("settings.profile.nameSaveError"),
-            });
-        } finally {
-            setSaveBusy(false);
-        }
-    };
-
     return (
         <section className="settings-layout">
             <PrimaryCard key={activeMenu} className="settings-content-card">
-                {showProfile ? (
+                {activeMenu === "account" ? (
                     <>
                         <header className="settings-content-card__header">
                             <h1>
-                                <span>{t("settings.profile.title")}</span>
+                                <span>{t("settings.account.title")}</span>
                             </h1>
-                            <p>{t("settings.profile.subtitle")}</p>
+                            <p>{t("settings.account.subtitle")}</p>
                         </header>
-
                         <section
-                            className="settings-profile-content"
-                            aria-label={t("settings.profile.title")}
+                            className="settings-general-content"
+                            aria-label={t("settings.account.title")}
                         >
-                            <div className="settings-profile-info">
-                                <article className="settings-profile-field-card">
-                                    <h2>{t("settings.labels.name")}</h2>
-                                    <form
-                                        className="settings-profile-name-edit"
-                                        onSubmit={(event) => {
-                                            event.preventDefault();
-                                            void handleSaveProfile();
-                                        }}
-                                    >
-                                        <InputField
-                                            className="settings-profile-name-input"
-                                            label=""
-                                            value={nameInput}
-                                            onValueChange={(value) => {
-                                                setNameInput(value);
-                                                if (saveFeedback) {
-                                                    setSaveFeedback(null);
-                                                }
-                                            }}
-                                            placeholder={t("settings.profile.namePlaceholder")}
-                                            aria-label={t("settings.labels.name")}
-                                        />
-                                        <Button
-                                            className="settings-profile-save-button"
-                                            type="submit"
-                                            loading={saveBusy}
-                                            disabled={!isNameChanged}
-                                        >
-                                            {t("settings.profile.save")}
-                                        </Button>
-                                    </form>
-                                    {saveFeedback?.source === "name" ? (
-                                        <div className="settings-feedback-slot settings-feedback-slot--name">
-                                            <div className="settings-feedback settings-feedback--name">
-                                                <InlineMessage>
-                                                    {saveFeedback.message}
-                                                </InlineMessage>
-                                            </div>
-                                        </div>
-                                    ) : null}
-                                </article>
-
-                                <article className="settings-profile-field-card">
-                                    <h2>{t("settings.labels.email")}</h2>
-                                    <p>{user?.email ?? "-"}</p>
-                                </article>
-
-                                {loginEnabled && appConfig?.oauth_enabled ? (
-                                    <ConnectedOAuthProvidersCard
-                                        title={t("settings.profile.oauthConnectedTitle")}
-                                        providers={connectedOAuthProviders}
-                                        emptyText={t("settings.profile.oauthConnectedEmpty")}
-                                        getProviderLabel={resolveOAuthProviderLabel}
-                                    />
-                                ) : null}
-                            </div>
-
-                            <aside className="settings-profile-photo-panel">
-                                <h2 className="settings-profile-photo-heading">
-                                    <span>{t("settings.profile.photo")}</span>
-                                    {profileRole && (
-                                        <StatusBadge tone="active">
-                                            {t(
-                                                `settings.profile.roleBadge${profileRole === "admin" ? "Admin" : "Manager"}`,
-                                            )}
-                                        </StatusBadge>
-                                    )}
-                                </h2>
-                                <UserAvatar
-                                    className="settings-profile-photo-card__preview"
-                                    imageUrl={normalizedProfileImageInput}
-                                    label={user?.name ?? "U"}
+                            {user ? <AccountNameSettings key={user.id} name={user.name} /> : null}
+                            <article className="settings-row">
+                                <h2>{t("settings.labels.email")}</h2>
+                                <p>{user?.email ?? "—"}</p>
+                            </article>
+                            <article className="settings-row">
+                                <h2>{t("settings.profile.joined")}</h2>
+                                <p>
+                                    {user?.created_at
+                                        ? new Date(user.created_at).toLocaleDateString(
+                                              i18n.resolvedLanguage,
+                                              { year: "numeric", month: "long", day: "numeric" },
+                                          )
+                                        : "—"}
+                                </p>
+                            </article>
+                            <article className="settings-row">
+                                <h2>{t("settings.menu.profile")}</h2>
+                                <Button appearance="pill" onClick={() => navigate("/profile")}>
+                                    {t("settings.account.editProfile")}
+                                </Button>
+                            </article>
+                            <CurrentPlanRow
+                                plan={plan}
+                                onOpen={() => navigate("/settings?section=billing")}
+                            />
+                            {loginEnabled && appConfig?.oauth_enabled ? (
+                                <ConnectedOAuthProvidersCard
+                                    title={t("settings.profile.oauthConnectedTitle")}
+                                    providers={connectedOAuthProviders}
+                                    emptyText={t("settings.profile.oauthConnectedEmpty")}
+                                    getProviderLabel={resolveOAuthProviderLabel}
                                 />
-                                <AvatarUploadField
-                                    busy={saveBusy}
-                                    canClear={Boolean(user?.profile_image_url)}
-                                    helperText={t("settings.profile.photoHelp")}
-                                    selectButtonText={t("settings.profile.photoSelect")}
-                                    clearButtonText={t("settings.profile.photoClear")}
-                                    onSelectFile={(file) => {
-                                        void handleProfileImageSelect(file);
-                                    }}
-                                    onClear={() => {
-                                        if (saveFeedback) {
-                                            setSaveFeedback(null);
-                                        }
-                                        setSaveBusy(true);
-                                        void deletePhoto()
-                                            .then(() => {
-                                                showToast(t("toast.profileSuccess"));
-                                                setSaveFeedback(null);
-                                            })
-                                            .catch(() => {
-                                                showToast(t("toast.profileError"));
-                                                setSaveFeedback({
-                                                    tone: "error",
-                                                    source: "photo",
-                                                    message: t("toast.profileError"),
-                                                });
-                                            })
-                                            .finally(() => {
-                                                setSaveBusy(false);
-                                            });
-                                    }}
+                            ) : null}
+                            {loginEnabled && user ? (
+                                <PasswordSettings
+                                    key={user.id}
+                                    hasPassword={user.has_password === true}
+                                    emailEnabled={appConfig?.email_enabled === true}
+                                    email={user.email}
                                 />
-                                {saveFeedback?.source === "photo" ? (
-                                    <InlineMessage tone={saveFeedback.tone}>
-                                        {saveFeedback.message}
-                                    </InlineMessage>
-                                ) : null}
-                            </aside>
-                        </section>
-                        {loginEnabled ? (
-                            <section
-                                className="settings-account-delete"
-                                aria-label={t("settings.account.deleteTitle")}
-                            >
-                                <div>
-                                    <h2>{t("settings.account.deleteTitle")}</h2>
-                                    <p>{t("settings.account.deleteDescription")}</p>
-                                </div>
-                                <ModalButton
-                                    variant="danger"
-                                    disabled={!appConfig?.email_enabled}
-                                    onClick={accountDeletion.show}
+                            ) : null}
+                            {loginEnabled ? (
+                                <section
+                                    className="settings-row settings-row--account-delete"
+                                    aria-label={t("settings.account.deleteTitle")}
                                 >
-                                    {t("settings.account.deleteAction")}
-                                </ModalButton>
-                                {!appConfig?.email_enabled ? (
-                                    <InlineMessage tone="info">
-                                        {t("settings.account.emailRequired")}
-                                    </InlineMessage>
-                                ) : null}
-                                <AccountDeletionDialog {...accountDeletion.dialog} />
-                            </section>
-                        ) : null}
+                                    <div>
+                                        <h2>{t("settings.account.deleteTitle")}</h2>
+                                        <p className="muted">
+                                            {t("settings.account.deleteDescription")}
+                                        </p>
+                                    </div>
+                                    <ModalButton
+                                        variant="danger"
+                                        disabled={!appConfig?.email_enabled}
+                                        onClick={accountDeletion.show}
+                                    >
+                                        {t("settings.account.deleteAction")}
+                                    </ModalButton>
+                                    {!appConfig?.email_enabled ? (
+                                        <InlineMessage tone="info">
+                                            {t("settings.account.emailRequired")}
+                                        </InlineMessage>
+                                    ) : null}
+                                    <AccountDeletionDialog {...accountDeletion.dialog} />
+                                </section>
+                            ) : null}
+                        </section>
                     </>
                 ) : activeMenu === "billing" && user ? (
                     <BillingSettingsPage key={user.id} ownerId={user.id} email={user.email} />

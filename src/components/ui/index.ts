@@ -39,3 +39,7 @@ export { NumberField } from "./inputs/NumberField";
 export { SegmentedControl } from "./toggles/SegmentedControl";
 
 export { CodeBadge } from "./status/CodeBadge";
+
+export { TextareaField } from "./inputs/TextareaField";
+
+export { EditableAvatar } from "./inputs/EditableAvatar";

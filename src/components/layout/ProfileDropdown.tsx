@@ -315,6 +315,14 @@ export function ProfileDropdown({
                               document.body,
                           )
                         : null}
+                    {!showLogin && (
+                        <Link to="/profile" className="profile-menu__item">
+                            <span className="profile-menu__item-icon" aria-hidden="true">
+                                <UserRound />
+                            </span>
+                            <span>{t("settings.menu.profile")}</span>
+                        </Link>
+                    )}
                     <Link
                         to="/settings"
                         className="profile-menu__item"

@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Button } from "../buttons/Button";
 type AvatarUploadFieldProps = {
     accept?: string;
@@ -20,27 +21,25 @@ export function AvatarUploadField({
     selectButtonText,
     clearButtonText,
 }: AvatarUploadFieldProps) {
+    const input = useRef<HTMLInputElement>(null);
     return (
         <div className="avatar-upload-field">
             <div className="avatar-upload-field__actions">
-                <label className="avatar-upload-field__button">
-                    <span>{selectButtonText}</span>
-                    <input
-                        type="file"
-                        accept={accept}
-                        disabled={busy}
-                        onChange={(event) => {
-                            onSelectFile(event.target.files?.[0] ?? null);
-                            event.currentTarget.value = "";
-                        }}
-                    />
-                </label>
-                <Button
-                    type="button"
-                    className="avatar-upload-field__button avatar-upload-field__button--ghost"
-                    onClick={onClear}
-                    disabled={busy || !canClear}
-                >
+                <Button type="button" disabled={busy} onClick={() => input.current?.click()}>
+                    {selectButtonText}
+                </Button>
+                <input
+                    ref={input}
+                    type="file"
+                    hidden
+                    accept={accept}
+                    disabled={busy}
+                    onChange={(event) => {
+                        onSelectFile(event.target.files?.[0] ?? null);
+                        event.currentTarget.value = "";
+                    }}
+                />
+                <Button type="button" onClick={onClear} disabled={busy || !canClear}>
                     {clearButtonText}
                 </Button>
             </div>

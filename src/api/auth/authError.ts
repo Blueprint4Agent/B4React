@@ -7,6 +7,11 @@ type AuthErrorDetailSchema = components["schemas"]["AuthErrorDetail"];
 export type AuthErrorCode = AuthErrorDetailSchema["error"];
 
 const AUTH_ERROR_CODES = [
+    "PASSWORD_CHANGE_CODE_INVALID",
+    "PASSWORD_CHANGE_CODE_THROTTLED",
+    "PASSWORD_CHANGE_CODE_SEND_FAILED",
+    "PASSWORD_CHANGE_FAILED",
+
     "ADMIN_USERS_FAILED",
     "ACCOUNT_DELETE_FAILED",
     "ACCOUNT_DELETE_CODE_INVALID",
@@ -53,6 +58,10 @@ type ApiError = {
 };
 
 const AUTH_ERROR_CODE_TO_KEY: Record<AuthErrorCode, string> = {
+    PASSWORD_CHANGE_CODE_INVALID: "auth.errors.passwordChangeCodeInvalid",
+    PASSWORD_CHANGE_CODE_THROTTLED: "auth.errors.passwordChangeCodeThrottled",
+    PASSWORD_CHANGE_CODE_SEND_FAILED: "auth.errors.passwordChangeCodeSendFailed",
+    PASSWORD_CHANGE_FAILED: "auth.errors.passwordChangeFailed",
     ACCOUNT_DELETE_CODE_INVALID: "auth.errors.accountDeleteCodeInvalid",
     ACCOUNT_DELETE_CODE_THROTTLED: "auth.errors.accountDeleteCodeThrottled",
     ACCOUNT_DELETE_CODE_SEND_FAILED: "auth.errors.accountDeleteCodeSendFailed",

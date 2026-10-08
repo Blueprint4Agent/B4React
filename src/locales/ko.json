@@ -77,7 +77,11 @@
             "profilePhotoTooLarge": "프로필 사진은 8MB 이하여야 합니다.",
             "profilePhotoUnavailable": "사진 저장소를 사용할 수 없습니다. 기존 사진은 유지됩니다.",
             "profilePhotoNotFound": "사진을 찾을 수 없습니다.",
-            "profilePhotoConflict": "다른 곳에서 사진이 변경되었습니다. 새로고침 후 다시 시도해 주세요."
+            "profilePhotoConflict": "다른 곳에서 사진이 변경되었습니다. 새로고침 후 다시 시도해 주세요.",
+            "passwordChangeCodeInvalid": "인증번호가 올바르지 않거나 만료되었습니다. 잠시 후 새 인증번호를 요청해 주세요.",
+            "passwordChangeCodeThrottled": "잠시 후 인증번호를 다시 요청해 주세요.",
+            "passwordChangeCodeSendFailed": "인증번호를 발송하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+            "passwordChangeFailed": "비밀번호를 변경하지 못했습니다. 새 인증번호를 요청한 후 다시 시도해 주세요."
         }
     },
     "cards": {
@@ -368,11 +372,12 @@
         "subtitle": "계정과 환경설정을 관리하세요.",
         "menu": {
             "title": "설정 메뉴",
-            "profile": "계정",
+            "profile": "프로필",
             "general": "일반",
             "developers": "개발자",
             "appearance": "모양",
-            "keyboard": "키보드"
+            "keyboard": "키보드",
+            "account": "계정"
         },
         "labels": {
             "name": "이름",
@@ -380,8 +385,8 @@
             "userId": "사용자 ID"
         },
         "profile": {
-            "title": "계정",
-            "subtitle": "계정 정보와 연결된 로그인 방식을 관리합니다.",
+            "title": "프로필",
+            "subtitle": "나를 소개하는 정보를 관리합니다. 이 프로필은 본인에게만 표시됩니다.",
             "photo": "프로필 사진",
             "photoHelp": "PNG, JPG, WEBP, GIF · 최대 8MB · 정지 이미지로 저장",
             "photoSelect": "사진 선택",
@@ -402,7 +407,24 @@
             "roleBadgeAdmin": "관리자",
             "saveSuccess": "프로필 변경사항이 저장되었습니다.",
             "saveError": "프로필 변경사항을 저장하지 못했습니다. 다시 시도해주세요.",
-            "roleBadgeManager": "매니저"
+            "roleBadgeManager": "매니저",
+            "bio": "소개",
+            "bioPlaceholder": "나에 대해 간단히 소개해 주세요.",
+            "location": "위치",
+            "locationPlaceholder": "예: 서울, 대한민국",
+            "joined": "가입일",
+            "edit": "프로필 편집",
+            "emptyBio": "나를 소개하는 글을 남겨보세요.",
+            "notSet": "미설정",
+            "private": "본인에게만 표시되는 프로필입니다.",
+            "retry": "다시 시도",
+            "country": "국가",
+            "region": "도시·지역",
+            "selectRegion": "도시·지역 선택",
+            "photoAdd": "사진 추가",
+            "editName": "이름 수정",
+            "editBio": "소개 수정",
+            "editLocation": "위치 수정"
         },
         "general": {
             "title": "일반",
@@ -513,7 +535,18 @@
             "codeSent": "인증 코드를 이메일로 보냈습니다.",
             "codeLabel": "6자리 인증 코드",
             "emailRequired": "계정 삭제에는 이메일 인증이 필요합니다. 이메일 기능이 활성화되어야 합니다.",
-            "codeHint": "코드는 10분 동안 유효하며, 재발송하면 이전 코드는 만료됩니다."
+            "codeHint": "코드는 10분 동안 유효하며, 재발송하면 이전 코드는 만료됩니다.",
+            "title": "계정",
+            "subtitle": "로그인 정보와 계정 보안을 관리합니다.",
+            "editProfile": "프로필로 이동",
+            "passwordTitle": "비밀번호 변경하기",
+            "currentPassword": "현재 비밀번호",
+            "passwordHelp": "등록된 이메일로 인증번호를 받은 후 새 비밀번호를 저장합니다. 인증번호는 10분 동안 유효합니다.",
+            "oauthPassword": "소셜 로그인 전용 계정입니다. 비밀번호는 연결된 로그인 제공자에서 관리해 주세요.",
+            "passwordEmailRequired": "이메일 기능이 비활성화되어 비밀번호를 변경할 수 없습니다.",
+            "currentPlan": "현재 구독 플랜",
+            "managePlan": "구독 관리",
+            "passwordLabel": "비밀번호"
         },
         "keyboard": {
             "description": "자주 쓰는 기능의 단축키를 변경할 수 있습니다.",

@@ -63,6 +63,10 @@ const SettingsPage = lazy(() =>
     import("./pages/settings/SettingsPage").then((module) => ({ default: module.SettingsPage })),
 );
 
+const ProfilePage = lazy(() =>
+    import("./pages/profile/ProfilePage").then((module) => ({ default: module.ProfilePage })),
+);
+
 const HomePage = lazy(() =>
     import("./pages/main/HomePage").then((module) => ({ default: module.HomePage })),
 );
@@ -206,6 +210,7 @@ export function App() {
                 }
             >
                 <Route path="/home" element={<HomePage />} />
+                <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/dashboard" element={<Navigate to={homePath} replace />} />
                 <Route
                     path="/show-case"

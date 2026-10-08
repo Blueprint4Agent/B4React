@@ -77,7 +77,11 @@
             "profilePhotoTooLarge": "Profile photo must be 8MB or smaller.",
             "profilePhotoUnavailable": "Photo storage is temporarily unavailable. Your previous photo is unchanged.",
             "profilePhotoNotFound": "The photo is no longer available.",
-            "profilePhotoConflict": "Your photo changed elsewhere. Refresh and try again."
+            "profilePhotoConflict": "Your photo changed elsewhere. Refresh and try again.",
+            "passwordChangeCodeInvalid": "The code is invalid, expired or locked. Request a new code after the cooldown.",
+            "passwordChangeCodeThrottled": "Please wait before requesting another code.",
+            "passwordChangeCodeSendFailed": "Unable to send the verification code. Please try again later.",
+            "passwordChangeFailed": "Unable to change the password. Request a new code and try again."
         }
     },
     "cards": {
@@ -368,11 +372,12 @@
         "subtitle": "Manage your account and preferences.",
         "menu": {
             "title": "Settings menu",
-            "profile": "Account",
+            "profile": "Profile",
             "general": "General",
             "developers": "Developers",
             "appearance": "Appearance",
-            "keyboard": "Keyboard"
+            "keyboard": "Keyboard",
+            "account": "Account"
         },
         "labels": {
             "name": "Name",
@@ -380,8 +385,8 @@
             "userId": "User ID"
         },
         "profile": {
-            "title": "Account",
-            "subtitle": "Manage your account details and connected sign-in methods.",
+            "title": "Profile",
+            "subtitle": "Manage your personal details. This profile is visible only to you.",
             "photo": "Profile Photo",
             "photoHelp": "PNG, JPG, WEBP, GIF · max 8MB · saved as a still image",
             "photoSelect": "Choose photo",
@@ -402,7 +407,24 @@
             "roleBadgeAdmin": "Admin",
             "saveSuccess": "Profile changes were saved successfully.",
             "saveError": "Could not save your profile changes. Please try again.",
-            "roleBadgeManager": "Manager"
+            "roleBadgeManager": "Manager",
+            "bio": "Bio",
+            "bioPlaceholder": "A little about yourself.",
+            "location": "Location",
+            "locationPlaceholder": "e.g. Seoul, South Korea",
+            "joined": "Joined",
+            "edit": "Edit profile",
+            "emptyBio": "Tell a little about yourself.",
+            "notSet": "Not set",
+            "private": "This profile is visible only to you.",
+            "retry": "Try again",
+            "country": "Country",
+            "region": "City / region",
+            "selectRegion": "Select city / region",
+            "photoAdd": "Add photo",
+            "editName": "Edit name",
+            "editBio": "Edit bio",
+            "editLocation": "Edit location"
         },
         "general": {
             "title": "General",
@@ -513,7 +535,18 @@
             "codeSent": "Verification code sent to your email.",
             "codeLabel": "6-digit verification code",
             "emailRequired": "Account deletion requires email verification. Email delivery must be enabled.",
-            "codeHint": "Codes expire after 10 minutes. Resending replaces the previous code."
+            "codeHint": "Codes expire after 10 minutes. Resending replaces the previous code.",
+            "title": "Account",
+            "subtitle": "Manage your sign-in details and account security.",
+            "editProfile": "Go to profile",
+            "passwordTitle": "Change password",
+            "currentPassword": "Current password",
+            "passwordHelp": "Receive a verification code at your registered email, then save your new password. The code expires in 10 minutes.",
+            "oauthPassword": "This account uses social sign-in. Manage your password with your sign-in provider.",
+            "passwordEmailRequired": "Password changes require email delivery to be enabled.",
+            "currentPlan": "Current plan",
+            "managePlan": "Manage plan",
+            "passwordLabel": "Password"
         },
         "keyboard": {
             "description": "Customize shortcuts for frequently used actions.",

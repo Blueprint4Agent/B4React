@@ -12,6 +12,7 @@ type DropdownItem = {
 type DropdownMenuProps = {
     className?: string;
     compact?: boolean;
+    floating?: boolean;
     disabled?: boolean;
     fieldLabel?: string;
     items: DropdownItem[];
@@ -23,6 +24,7 @@ type DropdownMenuProps = {
 export function DropdownMenu({
     className,
     compact = false,
+    floating = false,
     disabled = false,
     fieldLabel,
     items,
@@ -37,7 +39,7 @@ export function DropdownMenu({
     const menuId = useId();
     const visible = open && !disabled;
     const modalRoot = visible ? rootRef.current?.closest<HTMLElement>(".ui-modal") : null;
-    const portalRoot = modalRoot || (visible && compact ? document.body : null);
+    const portalRoot = modalRoot || (visible && (compact || floating) ? document.body : null);
     const nextClassName = [
         "ui-dropdown",
         compact && "ui-dropdown--compact",
@@ -70,7 +72,9 @@ export function DropdownMenu({
             // Measure all content without removing the cap: expansion would reset scrollTop.
             const naturalHeight = menu.scrollHeight + menu.offsetHeight - menu.clientHeight;
             const up = naturalHeight > below && above > below;
-            menu.style.maxHeight = `${up ? above : below}px`;
+            menu.style.maxHeight = floating
+                ? `min(var(--dropdown-list-height), ${up ? above : below}px)`
+                : `${up ? above : below}px`;
             const height = menu.offsetHeight;
             menu.style.left = `${Math.max(edge, Math.min(rect.left, viewportWidth - width - edge))}px`;
             menu.style.top = `${Math.max(edge, up ? rect.top - height - gap : rect.bottom + gap)}px`;
@@ -96,7 +100,7 @@ export function DropdownMenu({
             window.removeEventListener("resize", update);
             window.removeEventListener("scroll", onScroll, true);
         };
-    }, [visible, portalRoot, compact, items]);
+    }, [visible, portalRoot, compact, floating, items]);
 
     useEffect(() => {
         if (!visible) return;

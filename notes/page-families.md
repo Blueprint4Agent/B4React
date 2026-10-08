@@ -70,3 +70,13 @@ Keyboard settings reuse General row/header composition. Both app shortcuts can b
 Profile role badges belong inside the photo card. Compact option menus open toward the right from the trigger left edge and clamp to the viewport. Destructive options use red in both themes. Keyboard follows Account in the sidebar and uses toast notices for duplicate shortcuts.
 
 Billing errors and section retries belong inside the corresponding settings-row surface. Billing surfaces retain minimum heights in loading/error states; administrator collection loading uses Spinner inside the table region.
+
+## Personal profile
+
+`src/pages/profile/ProfilePage.tsx` is the canonical personal-profile family inside
+the persistent AppShell. Use the existing 50rem content width and design tokens,
+a centered identity hero, rounded editable avatar and three-part metadata strip.
+At mobile widths the strip stacks into compact rows. This is intentionally distinct
+from settings forms, matching the user-supplied profile reference without importing
+its colors, fabricated statistics or showcase data. Edit/profile/password dialogs use
+the existing Modal family. Account remains General-style settings rows.
