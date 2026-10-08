@@ -1,3 +1,5 @@
+import { useAuthContext } from "../../hooks/useAuth";
+import { profileSidebarPath } from "../../utils/profileNavigation";
 import type { SubscriptionTier } from "../../utils/billingPlans";
 import type { CSSProperties, ReactNode } from "react";
 import { useCallback, useState } from "react";
@@ -40,8 +42,14 @@ export function AppLayout({ children, subscriptionTier }: AppLayoutProps) {
         setExpanded((value) => !value);
     }, []);
     const openSettings = useCallback(() => navigate("/settings"), [navigate]);
-    useAppShortcuts({ toggleSidebar, openSettings });
-    const pathname = useLocation().pathname;
+    const location = useLocation();
+    const { user } = useAuthContext();
+    const openProfile = useCallback(
+        () => navigate("/profile", { state: { profileSidebarPath: profileSidebarPath(location) } }),
+        [navigate, location],
+    );
+    useAppShortcuts({ toggleSidebar, openSettings, openProfile: user ? openProfile : undefined });
+    const pathname = location.pathname;
     const isSettings =
         pathname === "/settings" ||
         pathname === "/home" ||

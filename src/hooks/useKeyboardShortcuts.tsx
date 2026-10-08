@@ -53,7 +53,14 @@ export function KeyboardShortcutsProvider({ children }: { children: ReactNode })
     const { isDesktop, status } = useServerConnectivity();
     const [saving, setSaving] = useState(false);
     const inFlight = useRef(false);
-    const bindings: Bindings = user?.keyboard_shortcuts ?? APP_SHORTCUTS;
+    const bindings: Bindings = useMemo(
+        () => ({
+            ...APP_SHORTCUTS,
+            ...user?.keyboard_shortcuts,
+            openProfile: user?.keyboard_shortcuts?.openProfile ?? APP_SHORTCUTS.openProfile,
+        }),
+        [user?.keyboard_shortcuts],
+    );
     const disabled = !user || loading || saving || (isDesktop && status !== "online");
     const value = useMemo(() => {
         const save = async (next: Bindings | null): Promise<string | null> => {
@@ -66,6 +73,7 @@ export function KeyboardShortcutsProvider({ children }: { children: ReactNode })
                         ? {
                               toggleSidebar: [...next.toggleSidebar],
                               openSettings: [...next.openSettings],
+                              openProfile: [...next.openProfile],
                           }
                         : null,
                 });

@@ -4,6 +4,7 @@ export type ShortcutKeys = readonly string[];
 export const APP_SHORTCUTS = {
     toggleSidebar: ["mod", "b"],
     openSettings: ["mod", ","],
+    openProfile: ["mod", "shift", "p"],
 } as const;
 
 export function getShortcutPlatform(): DesktopPlatform {

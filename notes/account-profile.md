@@ -15,7 +15,7 @@ existing reload. Existing desktop auth recovery remains the owner.
 
 Password changes request a six-digit code at the registered email before submitting
 code and new password. No current-password input is required. Codes last ten minutes,
-are single-use and have a one-minute resend cooldown. Surface server issuance/attempt
+are single-use and have a 30-second resend cooldown. Surface server issuance/attempt
 limits and errors. Deletion codes cannot authorize a password change. Disabled email
 blocks change/reset/deletion with an explanation. OAuth-only accounts manage passwords
 with their provider. Refresh sessions are revoked on change; access tokens keep their
@@ -48,3 +48,9 @@ same AuthProvider mutation path. Password and deletion share AccountEmailVerific
 for recipient, code/send row and lifetime hint, plus the same compact Modal frame.
 
 Country and region menus float above the page with a bounded height and internal scrolling.
+
+Code flow is request → verify → change/delete. Resend is available after 30 seconds; only the latest code is valid for 10 minutes. Checking never extends expiry; final actions revalidate and consume. Code feedback appears beneath its input. Password and confirmation share signup validation UI. Profile navigation preserves the source Settings/Admin/main sidebar family in route history state, including reload.
+
+Profile shortcut defaults to Cmd+Shift+P on macOS and Ctrl+Shift+P elsewhere, is customizable in Keyboard settings, and ignores text editing and open dialogs. Existing two-action shortcut records remain accepted. The showcase includes shared backgroundless pencil/check/close icon buttons.
+
+Profile enters with the existing 260ms rise animation and honors the global reduced-motion preference.

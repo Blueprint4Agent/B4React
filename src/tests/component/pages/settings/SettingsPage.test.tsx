@@ -132,8 +132,11 @@ describe("SettingsPage developers scenario", () => {
         // Given: an authenticated account and a failed deletion request.
         deleteAccountMock.mockRejectedValue({ detail: { error: "LAST_ADMIN_REQUIRED" } });
         server.use(
+            http.post("*/api/v1/auth/me/deletion-code/verify", () =>
+                HttpResponse.json({ message: "Code verified." }),
+            ),
             http.post("*/api/v1/auth/me/deletion-code", () =>
-                HttpResponse.json({ expires_in: 600, retry_after: 60 }),
+                HttpResponse.json({ expires_in: 600, retry_after: 30 }),
             ),
         );
         renderWithRouter(<SettingsPage />, "/settings?section=account");
@@ -148,6 +151,7 @@ describe("SettingsPage developers scenario", () => {
             expect(within(dialog).getByLabelText("6-digit verification code")).toBeEnabled(),
         );
         await user.type(within(dialog).getByLabelText("6-digit verification code"), "123456");
+        await user.click(within(dialog).getByRole("button", { name: "Verify code" }));
         await waitFor(() => expect(submit).toBeEnabled());
         await user.click(submit);
         // Then: one mutation runs; the modal keeps the reason and retry controls.

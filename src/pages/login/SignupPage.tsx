@@ -1,3 +1,4 @@
+import { PasswordRequirements } from "../../components/features/auth/PasswordRequirements";
 import { useToast } from "../../hooks/useToast";
 import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { FormEvent, useMemo, useState } from "react";
@@ -44,31 +45,6 @@ export function SignupPage({ embedded = false }: { embedded?: boolean }) {
             },
         ],
         [email, t],
-    );
-    const passwordRules = useMemo<ValidationRule[]>(
-        () => [
-            {
-                label: t("signup.rules.password.length"),
-                isValid: password.length >= 8 && password.length <= 24,
-            },
-            {
-                label: t("signup.rules.password.upper"),
-                isValid: /[A-Z]/.test(password),
-            },
-            {
-                label: t("signup.rules.password.number"),
-                isValid: /\d/.test(password),
-            },
-            {
-                label: t("signup.rules.password.symbol"),
-                isValid: /[^A-Za-z0-9]/.test(password),
-            },
-            {
-                label: t("signup.rules.password.noSpace"),
-                isValid: !/\s/.test(password) && password.length > 0,
-            },
-        ],
-        [password, t],
     );
     const confirmRules = useMemo<ValidationRule[]>(
         () => [
@@ -221,7 +197,7 @@ export function SignupPage({ embedded = false }: { embedded?: boolean }) {
                 {passwordErrorMessage ? (
                     <InlineMessage>{passwordErrorMessage}</InlineMessage>
                 ) : null}
-                <ValidationCard title={t("signup.validation.password")} rules={passwordRules} />
+                <PasswordRequirements password={password} />
                 <InputField
                     label={t("signup.fields.confirmPassword")}
                     type="password"

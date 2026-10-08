@@ -489,9 +489,10 @@ test("showcase previews email code validation without account requests", async (
     const code = dialog.getByLabel("6-digit verification code");
     await expect(code).toHaveAttribute("autocomplete", "one-time-code");
     await code.fill("000000");
-    await confirm.click();
+    await dialog.getByRole("button", { name: "Verify code", exact: true }).click();
     await expect(dialog.getByRole("alert")).toContainText("invalid");
     await code.fill("123456");
+    await dialog.getByRole("button", { name: "Verify code", exact: true }).click();
     await confirm.click();
     // Then: only the local preview completes; no auth mutation or SMTP request was issued.
     await expect(

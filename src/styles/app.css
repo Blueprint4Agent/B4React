@@ -6321,6 +6321,7 @@ html[data-theme="dark"] .billing-stripe-badge .payment-brand--dark {
 
 /* Personal profile: a centered identity surface within the existing app shell. */
 .personal-profile {
+    animation: rise 260ms ease-out;
     width: min(100%, 50rem);
     margin: 0 auto;
     padding: var(--space-6) 0;
@@ -6758,4 +6759,12 @@ html[data-theme="dark"] .billing-stripe-badge .payment-brand--dark {
     padding: var(--space-2) var(--space-3);
     background: var(--input-bg);
     border: 1px solid var(--input-border);
+}
+
+.account-verification-resend {
+    display: flex;
+    justify-content: flex-end;
+}
+.account-verification-feedback {
+    margin: 0;
 }

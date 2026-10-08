@@ -530,12 +530,12 @@
             "deleted": "Your account has been deleted.",
             "codeDestination": "A verification code will be sent to your registered email: {{email}}.",
             "sendCode": "Send code",
-            "resendCode": "Resend",
+            "resendCode": "Resend code",
             "resendWait": "In {{seconds}}s",
             "codeSent": "Verification code sent to your email.",
             "codeLabel": "6-digit verification code",
             "emailRequired": "Account deletion requires email verification. Email delivery must be enabled.",
-            "codeHint": "Codes expire after 10 minutes. Resending replaces the previous code.",
+            "codeHint": "The latest code is valid for 10 minutes. Resend after 30 seconds; the previous code becomes invalid.",
             "title": "Account",
             "subtitle": "Manage your sign-in details and account security.",
             "editProfile": "Go to profile",
@@ -546,7 +546,10 @@
             "passwordEmailRequired": "Password changes require email delivery to be enabled.",
             "currentPlan": "Current plan",
             "managePlan": "Manage plan",
-            "passwordLabel": "Password"
+            "passwordLabel": "Password",
+            "verifyCode": "Verify code",
+            "codeVerified": "Verified",
+            "resendCodeWait": "Resend code ({{seconds}}s)"
         },
         "keyboard": {
             "description": "Customize shortcuts for frequently used actions.",
@@ -558,7 +561,8 @@
                 "invalid": "Press a recognized key.",
                 "conflict": "Another action already uses this shortcut.",
                 "storage": "Could not save shortcuts. Check your connection and try again."
-            }
+            },
+            "openProfile": "Open profile"
         }
     },
     "theme": {
