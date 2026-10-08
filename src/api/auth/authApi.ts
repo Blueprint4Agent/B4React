@@ -200,3 +200,23 @@ export async function readProfilePhoto(version: string, signal?: AbortSignal): P
     if (error || !data) throw error;
     return data;
 }
+
+export async function changePassword(
+    input: components["schemas"]["ChangePasswordForm"],
+): Promise<void> {
+    const { error, response } = await apiClient.POST("/api/v1/auth/me/password", {
+        headers: getAuthHeader(),
+        body: input,
+    });
+    if (error || !response.ok) throw error;
+}
+
+export async function requestPasswordChangeCode(): Promise<
+    components["schemas"]["DeleteAccountCodeResponse"]
+> {
+    const { data, error } = await apiClient.POST("/api/v1/auth/me/password/code", {
+        headers: { ...getAuthHeader(), ...getAppLanguageHeader() },
+    });
+    if (error || !data) throw error;
+    return data;
+}

@@ -46,3 +46,13 @@ UI 수정 전에 같은 유형의 기존 화면을 찾고 셸·본문 폭·제�
 프로필 역할 배지는 사진 카드 안에 배치합니다. 옵션 드롭다운은 트리거 왼쪽 끝에서 오른쪽으로 펼치고 화면 경계에서 위치를 제한합니다. 삭제 옵션은 라이트·다크 모두 빨간색입니다. 키보드는 계정 아래에 배치하고 중복 키 안내는 토스트로 표시합니다.
 
 결제 오류와 재시도는 해당 settings-row 카드 내부에 배치합니다. 로딩·오류 상태에서도 결제 카드의 최소 높이를 유지하고 관리자 목록 로딩은 테이블 영역 내부 Spinner로 표시합니다.
+
+## Personal profile
+
+`src/pages/profile/ProfilePage.tsx` is the canonical personal-profile family inside
+the persistent AppShell. Use the existing 50rem content width and design tokens,
+a centered identity hero, rounded editable avatar and three-part metadata strip.
+At mobile widths the strip stacks into compact rows. This is intentionally distinct
+from settings forms, matching the user-supplied profile reference without importing
+its colors, fabricated statistics or showcase data. Edit/profile/password dialogs use
+the existing Modal family. Account remains General-style settings rows.

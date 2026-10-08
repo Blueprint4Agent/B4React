@@ -64,8 +64,8 @@ test("account photo uploads binary, survives reload, preserves old photo on fail
         reads += 1;
         return route.fulfill({ contentType: "image/webp", body: output });
     });
-    await page.goto("/settings?section=account");
-    const panel = page.locator(".settings-profile-photo-panel");
+    await page.goto("/profile");
+    const panel = page.locator(".personal-profile");
     const upload = panel.locator('input[type="file"]');
     await upload.setInputFiles({ name: "photo.png", mimeType: "image/png", buffer: input });
     await expect(panel.locator("img")).toHaveAttribute("src", /^blob:/);
@@ -76,7 +76,8 @@ test("account photo uploads binary, survives reload, preserves old photo on fail
     await upload.setInputFiles({ name: "again.png", mimeType: "image/png", buffer: input });
     await expect(panel).toContainText("Your previous photo is unchanged");
     await expect(panel.locator("img")).toHaveAttribute("src", old!);
-    await panel.getByRole("button", { name: "Remove photo" }).click();
+    await page.getByRole("button", { name: "Edit profile" }).click();
+    await page.getByRole("button", { name: "Remove photo" }).click();
     await expect(panel.locator("img")).toHaveCount(0);
     expect(reads).toBe(2);
 });

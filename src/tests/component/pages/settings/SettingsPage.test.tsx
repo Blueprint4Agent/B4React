@@ -5,6 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppLayout } from "../../../../components/layout/AppLayout";
+import { ProfilePage } from "../../../../pages/profile/ProfilePage";
 import { SettingsPage } from "../../../../pages/settings/SettingsPage";
 import { FULL_SYSTEM_SCENARIO } from "../../../fixtures/fullSystemScenarioData";
 import { renderWithRouter } from "../../../utils/renderWithRouter";
@@ -167,9 +168,9 @@ describe("SettingsPage developers scenario", () => {
         // When: settings profile page is rendered.
         renderWithRouter(
             <AppLayout>
-                <SettingsPage />
+                <ProfilePage />
             </AppLayout>,
-            "/settings",
+            "/profile",
         );
 
         // Then: admin role badge is visible.
@@ -186,9 +187,9 @@ describe("SettingsPage developers scenario", () => {
         // When: settings profile page is rendered.
         renderWithRouter(
             <AppLayout>
-                <SettingsPage />
+                <ProfilePage />
             </AppLayout>,
-            "/settings",
+            "/profile",
         );
 
         // Then: admin badge is not rendered for regular user.

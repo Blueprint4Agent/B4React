@@ -137,7 +137,7 @@ export function AppSidebar({
                 },
                 {
                     path: "/settings?section=account",
-                    label: t("settings.menu.profile"),
+                    label: t("settings.menu.account"),
                     icon: UserRound,
                     section: "account",
                 },

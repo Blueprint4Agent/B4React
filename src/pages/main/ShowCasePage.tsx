@@ -39,6 +39,8 @@ import {
     FormCheckbox,
     InlineMessage,
     InputField,
+    TextareaField,
+    EditableAvatar,
     KeyValueCard,
     MenuList,
     Modal,
@@ -456,6 +458,27 @@ export function ShowCasePage() {
                             />
                         </ShowcaseItem>
 
+                        <ShowcaseItem component="EditableAvatar">
+                            <EditableAvatar
+                                name="B4A"
+                                label={t("settings.profile.photoSelect")}
+                                onSelect={() => undefined}
+                            />
+                        </ShowcaseItem>
+                        <ShowcaseItem component="Button">
+                            <Button iconOnly aria-label={t("settings.profile.save")}>
+                                <Check aria-hidden="true" />
+                            </Button>
+                        </ShowcaseItem>
+                        <ShowcaseItem component="TextareaField">
+                            <TextareaField
+                                autoGrow
+                                label={t("settings.profile.bio")}
+                                value={sampleInput}
+                                onValueChange={setSampleInput}
+                                rows={3}
+                            />
+                        </ShowcaseItem>
                         <ShowcaseItem component="InputField">
                             <InputField
                                 label={t("showCase.demo.text10")}

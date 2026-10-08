@@ -739,3 +739,9 @@ logging out. Existing legacy data/external photos display unchanged. No Base64 u
 new store or automatic storage-error upload retry. Auth recovery refreshes private reads.
 
 Admin server status includes the configured storage provider with bundled Local/S3/R2/Supabase icons and safe transport/port badges. Reuse the existing status snapshot and row layout; do not show endpoint identifiers, paths, buckets or per-row check explanations/timestamps. Storage health is connectivity evidence, not upload-permission or bucket-privacy verification.
+
+Account/profile settings and email verification follow [account/profile](notes/account-profile.md). Profile is a standalone route in the persistent AppShell with a single edit modal; settings links to it.
+
+Button supports showcased `iconOnly` rectangular actions (32px, 44px for coarse pointers). TextareaField supports a CSS mirror for auto-growing inline text without script-driven geometry. Profile inline name/Bio edits retain the display footprint; the location editor uses an anchored popover.
+
+DropdownMenu `floating` reuses the viewport-positioning loop outside modals for large field lists. Profile country/region lists use the shared 18rem cap, internal scrolling and anchor clamping, preserving page height and list scroll offsets.

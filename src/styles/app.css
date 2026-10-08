@@ -952,45 +952,6 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
     width: 100%;
 }
 
-.avatar-upload-field__button {
-    height: var(--control-height);
-    border: 1px solid var(--button-border);
-    border-radius: var(--radius-pill);
-    min-height: 2.2rem;
-    padding: 0.45rem 0.8rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font:
-        500 0.78rem/1 var(--font-family),
-        system-ui,
-        sans-serif;
-    color: var(--button-fg);
-    background: var(--button-bg);
-    cursor: pointer;
-    transition: transform 150ms ease;
-}
-
-.avatar-upload-field__button input {
-    display: none;
-}
-
-.avatar-upload-field__button--ghost {
-    color: var(--text);
-    border-color: color-mix(in oklab, var(--panel-border) 84%, transparent 16%);
-    background: color-mix(in oklab, var(--panel) 94%, transparent 6%);
-}
-
-.avatar-upload-field__button:hover {
-    transform: translateY(-2px);
-}
-
-.avatar-upload-field__button:disabled {
-    opacity: 0.56;
-    cursor: not-allowed;
-    transform: none;
-}
-
 .avatar-upload-field__helper {
     margin: 0;
     font-size: 0.75rem;
@@ -1416,6 +1377,7 @@ html[data-tauri-runtime="true"] .desktop-titlebar--app {
 }
 
 .ui-dropdown__menu {
+    --dropdown-list-height: 18rem;
     position: absolute;
     top: calc(100% + 4px);
     left: 0;
@@ -2155,7 +2117,8 @@ html[data-theme="dark"] .brand-mark__asset--dark {
     line-height: 1.5;
 }
 
-input {
+input,
+.form-field textarea {
     width: 100%;
     border: 1px solid var(--input-border);
     border-radius: var(--radius-input);
@@ -2167,7 +2130,8 @@ input {
     line-height: 1.5;
 }
 
-input:focus {
+input:focus,
+.form-field textarea:focus {
     outline: 2px solid var(--text-soft);
     outline-offset: -2px;
     border-color: var(--text-soft);
@@ -3445,7 +3409,8 @@ h3 {
 .form-field {
     font-size: 0.8125rem;
 }
-input {
+input,
+.form-field textarea {
     padding-block: 6px;
     font-weight: 400;
 }
@@ -6326,4 +6291,471 @@ html[data-theme="dark"] .billing-stripe-badge .payment-brand--dark {
     display: flex;
     align-items: center;
     gap: var(--space-3);
+}
+
+.form-field textarea {
+    resize: vertical;
+    min-height: 7rem;
+}
+.settings-profile-edit,
+.settings-password-form {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+}
+.settings-profile-edit .settings-profile-name-edit {
+    margin-top: 0;
+}
+.settings-profile-edit > .ui-button,
+.settings-password-form > .ui-button {
+    justify-self: start;
+}
+.settings-profile-field-card,
+.settings-row {
+    overflow-wrap: anywhere;
+}
+.settings-row--stacked {
+    display: grid;
+    gap: var(--space-3);
+}
+
+/* Personal profile: a centered identity surface within the existing app shell. */
+.personal-profile {
+    width: min(100%, 50rem);
+    margin: 0 auto;
+    padding: var(--space-6) 0;
+    display: grid;
+    gap: var(--space-6);
+    min-width: 0;
+}
+.personal-profile__actions {
+    display: flex;
+    justify-content: flex-end;
+}
+.personal-profile__hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    text-align: center;
+    min-width: 0;
+}
+.personal-profile__hero h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+}
+.personal-profile__bio {
+    margin: 0;
+    max-width: 36rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.personal-profile__details {
+    margin: var(--space-4) 0 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border: 0.5px solid var(--panel-border);
+    border-radius: var(--radius-panel);
+    padding: var(--space-5) 0;
+    background: var(--panel);
+}
+.personal-profile__details > div {
+    padding: 0 var(--space-4);
+    text-align: center;
+    min-width: 0;
+}
+.personal-profile__details > div + div {
+    border-left: 0.5px solid var(--panel-border);
+}
+.personal-profile__details dt {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    color: var(--muted);
+    font-size: 0.8125rem;
+}
+.personal-profile__details dt svg {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+}
+.personal-profile__details dd {
+    margin: var(--space-2) 0 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+.personal-profile__privacy {
+    text-align: center;
+    font-size: 0.75rem;
+}
+.personal-profile__notice {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-3);
+}
+.editable-avatar {
+    width: 9rem;
+    height: 9rem;
+    position: relative;
+}
+.editable-avatar__trigger.ui-button {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    border-radius: 30%;
+    position: relative;
+}
+.editable-avatar__trigger .user-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 30%;
+    font-size: 2.5rem;
+}
+.editable-avatar__edit {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--text);
+    color: var(--bg);
+    box-shadow: 0 0 0 3px var(--bg);
+    opacity: 0;
+    transition: opacity 120ms ease;
+}
+.editable-avatar__edit svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+.editable-avatar__trigger:hover .editable-avatar__edit,
+.editable-avatar__trigger:focus-visible .editable-avatar__edit {
+    opacity: 1;
+}
+@media (hover: none), (pointer: coarse) {
+    .editable-avatar__edit {
+        opacity: 1;
+    }
+}
+@media (max-width: 520px) {
+    .personal-profile {
+        gap: var(--space-5);
+    }
+    .personal-profile__details {
+        grid-template-columns: 1fr;
+        padding: 0 var(--space-4);
+    }
+    .personal-profile__details > div {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-4);
+        padding: var(--space-4) 0;
+        text-align: right;
+    }
+    .personal-profile__details > div + div {
+        border-left: 0;
+        border-top: 0.5px solid var(--panel-border);
+    }
+    .personal-profile__details dt {
+        flex-shrink: 0;
+    }
+    .personal-profile__details dd {
+        margin: 0;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .editable-avatar__edit {
+        transition: none;
+    }
+}
+
+.profile-editor-photo {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 0.5px solid var(--panel-border);
+}
+.profile-editor-photo > .user-avatar {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 30%;
+    font-size: 1.75rem;
+}
+.profile-editor-photo .avatar-upload-field__actions {
+    justify-content: center;
+}
+
+.profile-bio-field {
+    display: grid;
+    gap: var(--space-1);
+}
+.profile-bio-field__count {
+    text-align: right;
+    color: var(--text-soft);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.settings-row--account-delete {
+    flex-wrap: wrap;
+}
+.settings-row--account-delete > .inline-message {
+    flex-basis: 100%;
+}
+
+.textarea-autogrow {
+    display: grid;
+    min-width: 0;
+}
+.textarea-autogrow > textarea,
+.textarea-autogrow__mirror {
+    grid-area: 1 / 1;
+    min-width: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.textarea-autogrow > textarea {
+    resize: none;
+    overflow: hidden;
+    min-height: 0;
+}
+.textarea-autogrow__mirror {
+    visibility: hidden;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid transparent;
+    line-height: 1.5;
+}
+.profile-edit-trigger.ui-button {
+    display: inline;
+    padding: 0;
+    min-height: 0;
+    height: auto;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+    text-align: inherit;
+    white-space: pre-wrap;
+    max-width: 100%;
+}
+.profile-edit-trigger .ui-button__content,
+.profile-edit-trigger .ui-button__label {
+    display: inline;
+    white-space: inherit;
+    overflow-wrap: anywhere;
+}
+.profile-edit-trigger.ui-button:where(:not(:disabled)):hover {
+    transform: none;
+    background: color-mix(in oklab, var(--text) 5%, transparent);
+}
+.profile-inline-form {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+    text-align: left;
+}
+.profile-inline-form--name,
+.profile-inline-form--bio {
+    width: min(100%, 36rem);
+}
+.profile-inline-form--name input {
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+}
+.profile-inline-form--bio .form-field {
+    font-size: inherit;
+}
+.profile-inline-form--bio textarea,
+.profile-inline-form--bio .textarea-autogrow__mirror {
+    line-height: 1.7;
+    text-align: center;
+}
+.profile-inline-form__actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-2);
+}
+.personal-profile__details .profile-inline-form__actions {
+    flex-wrap: wrap;
+}
+
+.editable-avatar__trigger .ui-button__content,
+.editable-avatar__trigger .ui-button__label {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+.editable-avatar__trigger .user-avatar {
+    color: var(--text);
+}
+
+/* Shared rectangular icon-only button, also demonstrated in the showcase. */
+.ui-button.ui-button--icon {
+    width: 2rem;
+    height: 2rem;
+    min-height: 2rem;
+    padding: 0;
+    flex-shrink: 0;
+    border-radius: var(--radius-control);
+}
+.ui-button--icon .ui-button__label {
+    display: grid;
+    place-items: center;
+}
+.ui-button--icon svg {
+    width: 1rem;
+    height: 1rem;
+}
+.profile-inline-form--name,
+.profile-inline-form--bio {
+    position: relative;
+    gap: 0;
+}
+.profile-inline-form--name input,
+.profile-inline-form--bio textarea {
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    min-height: 0;
+}
+.profile-inline-form--name input {
+    height: 2.275rem;
+}
+.profile-inline-form--bio .textarea-autogrow__mirror {
+    padding: 0;
+    border: 0;
+}
+.profile-inline-form--name > .profile-inline-form__actions,
+.profile-inline-form--bio > .profile-inline-form__actions {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + var(--space-1));
+    gap: var(--space-1);
+}
+.profile-inline-form--bio > .profile-bio-field__count {
+    position: absolute;
+    right: 0;
+    top: 100%;
+}
+.profile-location-anchor {
+    position: relative;
+}
+.profile-location-popover {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + var(--space-2));
+    right: 0;
+    width: min(18rem, calc(100vw - 6rem));
+    padding: var(--space-3);
+    border: 0.5px solid var(--panel-border);
+    border-radius: var(--radius-panel);
+    background: var(--popover-bg);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    text-align: left;
+}
+.profile-location-popover .profile-inline-form__actions {
+    justify-content: flex-end;
+}
+.account-name-value {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+.account-name-form {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+.account-name-form .form-field {
+    min-width: 0;
+    max-width: 15rem;
+}
+.account-name-form .profile-inline-form__actions {
+    gap: var(--space-1);
+}
+@media (pointer: coarse) {
+    .ui-button.ui-button--icon {
+        width: 2.75rem;
+        height: 2.75rem;
+        min-height: 2.75rem;
+    }
+}
+
+.account-name-edit-trigger.ui-button,
+.account-name-edit-trigger.ui-button:where(:not(:disabled)):hover {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    color: var(--text-soft);
+    transform: none;
+}
+.account-name-edit-trigger.ui-button:where(:not(:disabled)):hover {
+    color: var(--text);
+}
+
+.profile-inline-form--name {
+    width: fit-content;
+    max-width: calc(100% - 5rem);
+}
+.profile-inline-form--name input {
+    width: auto;
+    max-width: 100%;
+    min-width: 4ch;
+}
+.profile-inline-form--name > .profile-inline-form__actions {
+    left: calc(100% + var(--space-1));
+    right: auto;
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+}
+.profile-inline-form__actions .ui-button,
+.profile-inline-form__actions .ui-button:where(:not(:disabled)):hover {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    color: var(--text-soft);
+}
+.profile-inline-form__actions .ui-button:where(:not(:disabled)):hover {
+    color: var(--text);
+}
+
+.profile-inline-form--name {
+    width: 14ch;
+    min-width: min(10rem, calc(100% - 5rem));
+    max-width: calc(100% - 5rem);
+    font-size: 1.75rem;
+}
+.profile-inline-form--name input {
+    width: 100%;
+}
+.profile-inline-form--bio textarea {
+    height: 6rem;
+    min-height: 6rem;
+    resize: none;
+    overflow-y: auto;
+    padding: var(--space-2) var(--space-3);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
 }

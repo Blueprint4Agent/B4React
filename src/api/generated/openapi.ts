@@ -195,6 +195,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/me/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Change Password */
+        post: operations["change_password_api_v1_auth_me_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/me/password/code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request Password Change Code */
+        post: operations["request_password_change_code_api_v1_auth_me_password_code_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me/photo": {
         parameters: {
             query?: never;
@@ -1055,6 +1089,10 @@ export interface components {
              * @enum {string}
              */
             error:
+                | "PASSWORD_CHANGE_CODE_INVALID"
+                | "PASSWORD_CHANGE_CODE_THROTTLED"
+                | "PASSWORD_CHANGE_CODE_SEND_FAILED"
+                | "PASSWORD_CHANGE_FAILED"
                 | "ACCOUNT_BILLING_REVIEW_REQUIRED"
                 | "ACCOUNT_DELETE_CODE_INVALID"
                 | "ACCOUNT_DELETE_CODE_THROTTLED"
@@ -1507,6 +1545,13 @@ export interface components {
             /** User Id */
             user_id?: number | null;
         };
+        /** ChangePasswordForm */
+        ChangePasswordForm: {
+            /** Code */
+            code: string;
+            /** Password */
+            password: string;
+        };
         /** ConnectedEvent */
         ConnectedEvent: {
             /** Id */
@@ -1765,7 +1810,14 @@ export interface components {
         };
         /** UpdateProfileForm */
         UpdateProfileForm: {
+            /** Bio */
+            bio?: string | null;
             keyboard_shortcuts?: components["schemas"]["KeyboardShortcuts"] | null;
+            /**
+             * Location
+             * @description Pinned country:region ID selected from the location catalog, or null.
+             */
+            location?: string | null;
             /** Name */
             name?: string | null;
             /**
@@ -1777,6 +1829,8 @@ export interface components {
         };
         /** UserResponse */
         UserResponse: {
+            /** Bio */
+            bio?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -1784,11 +1838,18 @@ export interface components {
             created_at: string;
             /** Email */
             email: string;
+            /**
+             * Has Password
+             * @default false
+             */
+            has_password: boolean;
             /** Id */
             id: number;
             /** Is Verified */
             is_verified: boolean;
             keyboard_shortcuts?: components["schemas"]["KeyboardShortcuts"] | null;
+            /** Location */
+            location?: string | null;
             /** Name */
             name: string;
             /** Oauth Providers */
@@ -3060,6 +3121,257 @@ export interface operations {
                      *       "detail": {
                      *         "error": "ACCOUNT_DELETE_CODE_SEND_FAILED",
                      *         "message": "Unable to queue the deletion code. Try again later."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+        };
+    };
+    change_password_api_v1_auth_me_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordForm"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResetPasswordResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "PASSWORD_CHANGE_CODE_INVALID",
+                     *         "message": "The password change code is invalid, expired or locked."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "USER_NOT_FOUND",
+                     *         "message": "User not found."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "PASSWORD_CHANGE_CODE_THROTTLED",
+                     *         "message": "Wait before requesting another password change code."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "PASSWORD_CHANGE_CODE_SEND_FAILED",
+                     *         "message": "Unable to queue the password change code."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+        };
+    };
+    request_password_change_code_api_v1_auth_me_password_code_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeleteAccountCodeResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "PASSWORD_CHANGE_CODE_INVALID",
+                     *         "message": "The password change code is invalid, expired or locked."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json":
+                        | components["schemas"]["AuthErrorResponse"]
+                        | components["schemas"]["APIKeyErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "USER_NOT_FOUND",
+                     *         "message": "User not found."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "PASSWORD_CHANGE_CODE_THROTTLED",
+                     *         "message": "Wait before requesting another password change code."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "PASSWORD_CHANGE_CODE_SEND_FAILED",
+                     *         "message": "Unable to queue the password change code."
                      *       }
                      *     }
                      */

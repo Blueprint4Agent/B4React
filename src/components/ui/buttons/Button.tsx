@@ -3,6 +3,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
     children: ReactNode;
     loading?: boolean;
+    iconOnly?: boolean;
     appearance?: "default" | "pill" | "pill-secondary" | "text";
 };
 
@@ -12,10 +13,11 @@ export function Button({
     type = "button",
     loading = false,
     appearance = "default",
+    iconOnly = false,
     disabled,
     ...props
 }: ButtonProps) {
-    const nextClassName = `ui-button${appearance !== "default" ? ` ui-button--${appearance}` : ""}${className ? ` ${className}` : ""}`;
+    const nextClassName = `ui-button${iconOnly ? " ui-button--icon" : ""}${appearance !== "default" ? ` ui-button--${appearance}` : ""}${className ? ` ${className}` : ""}`;
     const isDisabled = Boolean(disabled || loading);
 
     return (
