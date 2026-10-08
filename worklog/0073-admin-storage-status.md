@@ -62,4 +62,4 @@ None; metadata wraps within the existing row.
 
 ## Evidence
 
-Existing AdminServer/Home/Settings geometry comparisons passed at 390/1440px in light/dark. Inspected server-status.png artifacts for 390px dark and 1440px light under test-results/admin-server-*. Storage matches existing row spacing, wraps metadata without horizontal overflow and has no extra explanatory line.
+Existing AdminServer/Home/Settings geometry comparisons passed at 390/1440px in light/dark. Inspected server-status.png artifacts for 390px dark and 1440px light under test-results/admin-server-\*. Storage matches existing row spacing, wraps metadata without horizontal overflow and has no extra explanatory line.
