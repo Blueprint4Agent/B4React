@@ -940,7 +940,11 @@
             "mariadb": "MariaDB",
             "redis": "Redis",
             "memory": "In-memory",
-            "database": "Database"
+            "database": "Database",
+            "local": "Local",
+            "s3": "Amazon S3",
+            "r2": "Cloudflare R2",
+            "supabase": "Supabase"
         },
         "title": "Server status",
         "description": "Connections and effective runtime settings at a glance.",
@@ -960,7 +964,8 @@
         "connection": {
             "server": "Application server",
             "database": "Database connection",
-            "cache": "Cache connection"
+            "cache": "Cache connection",
+            "object_storage": "Object storage"
         },
         "feature": {
             "app": "Runtime mode",
@@ -988,6 +993,7 @@
         "overall": "Overall status",
         "latency": "Response time",
         "localFile": "Local file",
-        "localSocket": "Local connection"
+        "localSocket": "Local connection",
+        "port": "Port {{port}}"
     }
 }

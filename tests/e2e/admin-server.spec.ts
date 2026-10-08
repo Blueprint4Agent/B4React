@@ -23,6 +23,16 @@ const snapshot = {
     checked_at: "2026-10-07T09:00:00Z",
     connections: [
         { id: "server", technology: "fastapi", status: "ok", latency_ms: null },
+        {
+            id: "object_storage",
+            technology: "local",
+            status: "ok",
+            latency_ms: 1,
+            transport: "filesystem",
+            port: null,
+            probe: "local_io",
+            checked_at: "2026-10-07T09:00:00Z",
+        },
         { id: "database", technology: "sqlite", status: "ok", latency_ms: 2 },
         {
             id: "cache",
@@ -107,7 +117,7 @@ for (const width of [390, 1440])
             expect(await geometry()).toEqual(settings);
             await expect(
                 page.locator(".server-status-connections .server-status-dot--ok"),
-            ).toHaveCount(2);
+            ).toHaveCount(3);
             await expect(
                 page.locator(".server-status-connections .server-status-dot--failed"),
             ).toHaveCount(1);
@@ -173,7 +183,7 @@ for (const width of [390, 1440])
             await page.getByRole("button", { name: "Refresh", exact: true }).click();
             await expect(
                 page.locator(".server-status-connections .server-status-dot--stale"),
-            ).toHaveCount(3);
+            ).toHaveCount(4);
             await expect(page.locator(".server-status-meta")).toContainText("Stale");
             await page.unroute("**/api/v1/admin/status");
             await page.route("**/api/v1/admin/status", (route) =>
@@ -182,7 +192,7 @@ for (const width of [390, 1440])
             await page.getByRole("button", { name: "Refresh", exact: true }).click();
             await expect(
                 page.locator(".server-status-connections .server-status-dot--ok"),
-            ).toHaveCount(2);
+            ).toHaveCount(3);
         });
     }
 for (const role of ["user", "manager"])
@@ -223,3 +233,50 @@ test("CodeBadge is searchable in the showcase", async ({ page }) => {
     await expect(example.getByText("APP_MODE", { exact: true })).toBeVisible();
     await expect(example.getByText("localhost:5432", { exact: true })).toBeVisible();
 });
+
+for (const [technology, name] of [
+    ["local", "Local"],
+    ["s3", "Amazon S3"],
+    ["r2", "Cloudflare R2"],
+    ["supabase", "Supabase"],
+]) {
+    test(`storage provider ${technology} uses existing row and safe metadata`, async ({ page }) => {
+        await setup(page);
+        await page.route("**/api/v1/admin/status", (route) =>
+            route.fulfill({
+                json: {
+                    ...snapshot,
+                    connections: [
+                        {
+                            id: "object_storage",
+                            technology,
+                            status: "ok",
+                            latency_ms: 2,
+                            transport: technology === "local" ? "filesystem" : "https",
+                            port: technology === "local" ? null : 443,
+                            probe: technology === "local" ? "local_io" : "bucket_access",
+                            checked_at: snapshot.checked_at,
+                        },
+                    ],
+                },
+            }),
+        );
+        await page.goto("/admin/server");
+        const row = page.locator(".server-status-connection");
+        await expect(row.getByRole("heading", { name, exact: true })).toBeVisible();
+        await expect(row.locator(".ui-code-badge")).toHaveText(
+            technology === "local" ? "Local file" : "HTTPS · Port 443",
+        );
+        await expect(row).not.toContainText("Last checked");
+        await expect(row).not.toContainText("Temporary file");
+        if (technology === "local")
+            await expect(row.locator(".server-stack-icon svg")).toBeVisible();
+        else {
+            const logo = row.locator(".server-stack-icon img");
+            await expect(logo).toHaveAttribute("src", `/stack-brands/${technology}.svg`);
+            await expect
+                .poll(() => logo.evaluate((img: HTMLImageElement) => img.naturalWidth))
+                .toBeGreaterThan(0);
+        }
+    });
+}
