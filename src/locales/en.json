@@ -966,7 +966,32 @@
         "templateContent": "Content area",
         "templateContentHint": "Add lists, cards or widgets here.",
         "guestWelcome": "Welcome. Choose where you would like to start.",
-        "signIn": "Log in"
+        "signIn": "Log in",
+        "project": {
+            "title": "FastAPI and React.",
+            "titleAccent": "Ready for your service.",
+            "description": "Sign-in, account management, shared UI and Docker deployment in one project. Extend the parts your service needs.",
+            "explore": "View the screens",
+            "included": "Included features",
+            "stack": "Built with",
+            "previewTitle": "Inside the project",
+            "previewSelect": "Choose a product preview",
+            "components": "Components",
+            "settings": "Settings",
+            "componentsAlt": "Light-theme component catalogue with the real Blueprint4Agent sidebar and reusable controls.",
+            "settingsAlt": "Light-theme General settings with language and appearance preferences.",
+            "componentsCaption": "The shared UI components used throughout the project",
+            "settingsCaption": "Preferences for language and appearance",
+            "previewNote": "Illustrative screen · Light theme",
+            "capabilitiesTitle": "Included in the project",
+            "interfaceTitle": "Interface and components",
+            "interfaceDescription": "Shared UI components, light and dark themes, and Korean and English support.",
+            "identityTitle": "Accounts and access",
+            "identityDescription": "Email and OAuth sign-in, profiles, role-based access and API key management.",
+            "deliveryTitle": "Runtime and deployment",
+            "deliveryDescription": "Docker images, database migrations, health checks and background tasks.",
+            "footer": "FastAPI backend · React frontend"
+        }
     },
     "serverStatus": {
         "technology": {

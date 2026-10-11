@@ -145,6 +145,26 @@ for (const width of [390, 1440])
                         background: style.backgroundColor,
                     };
                 });
+            const preview = page.locator(".home-preview__figure img");
+            await expect(preview).toBeVisible();
+            await expect
+                .poll(() =>
+                    preview.evaluate(
+                        (image: HTMLImageElement) => image.complete && image.naturalWidth > 0,
+                    ),
+                )
+                .toBe(true);
+            await page.getByRole("button", { name: "Settings", exact: true }).click();
+            await expect(preview).toHaveAttribute("src", /settings-en.webp$/);
+            await expect
+                .poll(() =>
+                    preview.evaluate(
+                        (image: HTMLImageElement) => image.complete && image.naturalWidth > 0,
+                    ),
+                )
+                .toBe(true);
+            await page.getByRole("button", { name: "Components", exact: true }).click();
+            await expect(preview).toHaveAttribute("src", /components-en.webp$/);
             const home = await geometry();
             expect(
                 await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),

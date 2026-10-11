@@ -5,6 +5,7 @@ import { MainPageTemplate } from "../../components/layout/MainPageTemplate";
 import { Button } from "../../components/ui";
 import { useAuthContext } from "../../hooks/useAuth";
 import { useAppConfig } from "../../hooks/useFeatures";
+import { ProjectOverview } from "./ProjectOverview";
 import { LoadingPage } from "./LoadingPage";
 
 export function HomePage() {
@@ -49,6 +50,7 @@ export function HomePage() {
                     </Button>
                 ) : undefined
             }
+            contentPosition="before-menu"
             menuLabel={t("home.shortcuts")}
             menuItems={destinations
                 .filter(({ key }) => key !== "billing" || config?.billing_enabled)
@@ -59,6 +61,8 @@ export function HomePage() {
                     title: t(`home.${key}.title`),
                     description: t(`home.${key}.description`),
                 }))}
-        />
+        >
+            <ProjectOverview />
+        </MainPageTemplate>
     );
 }
