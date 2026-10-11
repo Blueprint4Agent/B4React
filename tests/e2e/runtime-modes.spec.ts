@@ -154,8 +154,8 @@ for (const width of [390, 1440])
                     ),
                 )
                 .toBe(true);
-            await page.getByRole("button", { name: "Settings", exact: true }).click();
-            await expect(preview).toHaveAttribute("src", /settings-en.webp$/);
+            await page.getByRole("button", { name: "Users", exact: true }).click();
+            await expect(preview).toHaveAttribute("src", /users-en.webp$/);
             await expect
                 .poll(() =>
                     preview.evaluate(
@@ -163,8 +163,68 @@ for (const width of [390, 1440])
                     ),
                 )
                 .toBe(true);
-            await page.getByRole("button", { name: "Components", exact: true }).click();
+            await page.getByRole("button", { name: "Showcase", exact: true }).click();
             await expect(preview).toHaveAttribute("src", /components-en.webp$/);
+            await expect(page.locator(".home-eyebrow")).toHaveText("B4A");
+            await expect(
+                page.getByRole("button", { name: "Open screen", exact: true }),
+            ).toHaveCount(0);
+            const heroActions = await page
+                .locator(".home-hero__actions > button")
+                .evaluateAll((buttons) =>
+                    buttons.map((button) => ({
+                        height: button.getBoundingClientRect().height,
+                        background: getComputedStyle(button).backgroundColor,
+                        radius: getComputedStyle(button).borderRadius,
+                    })),
+                );
+            expect(heroActions).toHaveLength(2);
+            expect(heroActions[0]).toEqual(heroActions[1]);
+            await page.getByRole("button", { name: "Billing", exact: true }).click();
+            await expect(preview).toHaveAttribute("src", /billing-en.webp$/);
+            await expect
+                .poll(() =>
+                    preview.evaluate(
+                        (image: HTMLImageElement) => image.complete && image.naturalWidth > 0,
+                    ),
+                )
+                .toBe(true);
+            const enlarge = page.getByRole("button", { name: "Enlarge", exact: true });
+            await enlarge.click();
+            const viewer = page.getByRole("dialog", { name: "B4A · Billing" });
+            await expect(viewer).toBeVisible();
+            await expect
+                .poll(() =>
+                    viewer
+                        .locator("img")
+                        .evaluate(
+                            (image: HTMLImageElement) => image.complete && image.naturalWidth > 0,
+                        ),
+                )
+                .toBe(true);
+            expect(
+                await viewer.evaluate((element) => element.scrollWidth <= element.clientWidth),
+            ).toBe(true);
+            await page.keyboard.press("Escape");
+            await expect(viewer).toHaveCount(0);
+            await expect(enlarge).toBeFocused();
+            await page.getByRole("button", { name: "Open screen", exact: true }).click();
+            await expect(page).toHaveURL(/section=billing$/);
+            await page.goto("/home");
+            await expect(page.locator(".main-page-template__link")).toHaveCount(4);
+            await page.getByRole("button", { name: "View the screens", exact: true }).click();
+            await expect
+                .poll(() =>
+                    page
+                        .locator("#home-product-preview")
+                        .evaluate((element) => element.getBoundingClientRect().top),
+                )
+                .toBeLessThan(80);
+            await page.getByRole("button", { name: "Server status", exact: true }).click();
+            await expect(preview).toHaveAttribute("src", /server-en.webp$/);
+            await expect(
+                page.getByRole("button", { name: "Open screen", exact: true }),
+            ).toHaveCount(0);
             const home = await geometry();
             expect(
                 await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
@@ -285,5 +345,40 @@ for (const mode of ["development", "production"]) {
             await page.locator('.app-sidebar__item[href="/home"]').click();
             await expect(page).toHaveURL(/\/home$/);
         } else await expect(showcase).toHaveCount(0);
+    });
+}
+
+test("public previews do not request administrator data or expose restricted destinations", async ({
+    page,
+}) => {
+    await setup(page, null, "production");
+    let adminRequests = 0;
+    page.on("request", (request) => {
+        if (/\/api\/v1\/(admin|auth\/admin)/.test(request.url())) adminRequests++;
+    });
+    await page.goto("/home");
+    for (const name of ["Users", "Server status", "Showcase"]) {
+        await page.getByRole("button", { name, exact: true }).click();
+        await expect(page.getByRole("button", { name: "Open screen", exact: true })).toHaveCount(0);
+    }
+    expect(adminRequests).toBe(0);
+    await page.getByRole("button", { name: "Billing", exact: true }).click();
+    await page.getByRole("button", { name: "Open screen", exact: true }).click();
+    await expect(page).toHaveURL(/\/plans$/);
+});
+
+for (const mode of ["development", "production"]) {
+    test(`optional support link respects ${mode} mode`, async ({ page }) => {
+        await setup(page, null, mode);
+        await page.goto("/home");
+        await expect(page.locator(".home-overview")).toBeVisible();
+        const link = page.getByRole("link", { name: "Buy Me a Coffee" });
+        if (mode === "development") {
+            await expect(link).toHaveAttribute("href", "https://buymeacoffee.com/b4a-test-fixture");
+            await expect(link).toHaveAttribute("target", "_blank");
+            await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+        } else {
+            await expect(link).toHaveCount(0);
+        }
     });
 }
