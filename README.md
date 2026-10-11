@@ -129,6 +129,8 @@ Main page template: [English](notes/main-page-template.md) · [한국어](notes/
 
 - Account/profile: [English](notes/account-profile.md) · [한국어](notes/ko/account-profile.md)
 
+Public sharing metadata: [English](notes/sharing.md) · [한국어](notes/ko/sharing.md).
+
 ## License
 
 Original project material is available under the [MIT License](LICENSE). Retain its

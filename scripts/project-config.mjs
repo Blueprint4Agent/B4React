@@ -100,3 +100,54 @@ export function withProjectTauriArgs(args, base, config) {
         ...suffix,
     ];
 }
+
+export function sharingHtml(config, env = {}) {
+    const title = config?.name ?? "Blueprint4FastAPI";
+    const description =
+        env.VITE_SITE_DESCRIPTION?.trim() ||
+        (config
+            ? `Explore ${title}.`
+            : "A FastAPI and React blueprint with authentication, account settings and agent development workflows.");
+    const tags = [
+        ["name", "description", description],
+        ["property", "og:type", "website"],
+        ["property", "og:title", title],
+        ["property", "og:description", description],
+        ["name", "twitter:title", title],
+        ["name", "twitter:description", description],
+    ];
+    const publicUrl = env.VITE_PUBLIC_SITE_URL?.trim();
+    let image;
+    if (publicUrl) {
+        const url = new URL(publicUrl);
+        if (
+            !["http:", "https:"].includes(url.protocol) ||
+            url.username ||
+            url.password ||
+            url.pathname !== "/" ||
+            url.search ||
+            url.hash
+        )
+            throw new Error(
+                "VITE_PUBLIC_SITE_URL must be an HTTP(S) origin without credentials, path, query or fragment",
+            );
+        tags.push(["property", "og:url", url.origin + "/"]);
+        const asset = config ? config.logo_url : "/icons/b4a-banner.png";
+        if (asset && /\.(png|webp|jpg|jpeg)$/.test(asset)) {
+            image = new URL(asset, url.origin).href;
+            tags.push(
+                ["property", "og:image", image],
+                ["property", "og:image:alt", title],
+                ["name", "twitter:image", image],
+                ["name", "twitter:image:alt", title],
+            );
+        }
+    }
+    tags.push(["name", "twitter:card", image ? "summary_large_image" : "summary"]);
+    return tags
+        .map(
+            ([attribute, key, value]) =>
+                `<meta ${attribute}="${key}" content="${escapeHtml(value)}" />`,
+        )
+        .join("\n");
+}

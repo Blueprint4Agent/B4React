@@ -7,6 +7,7 @@ import {
     validateProjectConfig,
     readProjectConfig,
     brandHtml,
+    sharingHtml,
     withProjectTauriArgs,
 } from "./project-config.mjs";
 const config = {
@@ -70,4 +71,33 @@ test("desktop override retains window geometry and explicit CLI overrides", () =
     }
     assert.deepEqual(withProjectTauriArgs(["info"], base, config), ["info"]);
     assert.deepEqual(withProjectTauriArgs(["build"], base, null), ["build"]);
+});
+
+test("sharing metadata is static, escaped and origin-free by default", () => {
+    const tags = sharingHtml(null);
+    assert.match(tags, /name="description"/);
+    assert.match(tags, /content="Blueprint4FastAPI"/);
+    assert.doesNotMatch(tags, /og:url|og:image|twitter:image/);
+    const custom = sharingHtml(config, { VITE_SITE_DESCRIPTION: '<hello "world"> & welcome' });
+    assert.match(custom, /Acme &amp; Co/);
+    assert.match(custom, /&lt;hello &quot;world&quot;&gt; &amp; welcome/);
+    assert.doesNotMatch(custom, /Blueprint4FastAPI|b4a-banner/);
+});
+test("sharing URLs use the configured origin and project image only", () => {
+    const env = { VITE_PUBLIC_SITE_URL: "https://preview.example.test/" };
+    assert.match(sharingHtml(null, env), /https:\/\/preview.example.test\/icons\/b4a-banner.png/);
+    assert.doesNotMatch(sharingHtml(config, env), /og:image|b4a-banner/);
+    assert.match(
+        sharingHtml({ ...config, logo_url: "/project-brand/logo.png" }, env),
+        /https:\/\/preview.example.test\/project-brand\/logo.png/,
+    );
+    for (const VITE_PUBLIC_SITE_URL of [
+        "ftp://example.test",
+        "https://user:pass@example.test",
+        "https://example.test/path",
+        "https://example.test/?query=1",
+        "https://example.test/#fragment",
+        "bad",
+    ])
+        assert.throws(() => sharingHtml(null, { VITE_PUBLIC_SITE_URL }));
 });
