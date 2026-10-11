@@ -80,3 +80,15 @@ test("production excludes the local editor and filesystem protocol", async ({ pa
     for (const url of scripts)
         expect(await (await request.get(url)).text()).not.toContain("/__b4f/style-studio/");
 });
+
+test("sharing metadata is present before application JavaScript runs", async ({ request }) => {
+    // Given/When: a crawler fetches the production HTML without running the app.
+    const response = await request.get("/");
+    expect(response.ok()).toBe(true);
+    const html = await response.text();
+    // Then: descriptive and social metadata are available in the static head.
+    expect(html).toMatch(/<meta name="description" content="[^"]+"/);
+    expect(html).toMatch(/<meta property="og:title" content="[^"]+"/);
+    expect(html).toContain('property="og:type" content="website"');
+    expect(html).toMatch(/<meta name="twitter:card" content="summary(?:_large_image)?"/);
+});

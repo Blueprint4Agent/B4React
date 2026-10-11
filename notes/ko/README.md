@@ -115,6 +115,8 @@ name/short_name/identifier를 수정한 뒤 `make project-config-check`와 빌�
 
 메인 페이지 템플릿: [한국어](main-page-template.md) · [English](../main-page-template.md).
 
+공개 링크 공유 메타데이터: [한국어](sharing.md) · [English](../sharing.md).
+
 ## 라이선스
 
 프로젝트 원본 코드·문서는 [MIT 라이선스](../../LICENSE)로 제공합니다. 복사본이나
