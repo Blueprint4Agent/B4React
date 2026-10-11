@@ -128,3 +128,10 @@ Billing settings and plan selection: [English](notes/billing.md) · [한국어](
 Main page template: [English](notes/main-page-template.md) · [한국어](notes/ko/main-page-template.md).
 
 - Account/profile: [English](notes/account-profile.md) · [한국어](notes/ko/account-profile.md)
+
+## License
+
+Original project material is available under the [MIT License](LICENSE). Retain its
+copyright and permission notice when redistributing copies or substantial portions.
+Third-party dependencies, [brand assets](public/stack-brands/LICENSE.md) and
+[country/region data](src/data/countryRegions.LICENSE.txt) retain their own notices.
