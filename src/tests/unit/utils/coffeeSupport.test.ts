@@ -10,6 +10,11 @@ describe("optional coffee support link", () => {
             getCoffeeSupportUrl("development", "true", "https://www.buymeacoffee.com/example/"),
         ).toBe("https://www.buymeacoffee.com/example/");
     });
+    it("accepts dots in creator usernames", () => {
+        expect(
+            getCoffeeSupportUrl("development", "true", "https://buymeacoffee.com/choi.hyk"),
+        ).toBe("https://buymeacoffee.com/choi.hyk");
+    });
     it.each(["production", "unknown", undefined])(
         "hides support for mode %s even when enabled",
         (mode) => {

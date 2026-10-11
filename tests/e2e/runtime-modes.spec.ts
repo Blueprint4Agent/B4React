@@ -374,9 +374,29 @@ for (const mode of ["development", "production"]) {
         await expect(page.locator(".home-overview")).toBeVisible();
         const link = page.getByRole("link", { name: "Buy Me a Coffee" });
         if (mode === "development") {
-            await expect(link).toHaveAttribute("href", "https://buymeacoffee.com/b4a-test-fixture");
-            await expect(link).toHaveAttribute("target", "_blank");
-            await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+            await expect(link).toHaveCount(2);
+            await expect(page.locator(".home-hero__topline .home-support-link")).toBeInViewport();
+            await expect(page.locator(".home-support")).toHaveCount(0);
+            for (const element of await link.all()) {
+                await expect(element).toHaveAttribute(
+                    "href",
+                    "https://buymeacoffee.com/b4a-test-fixture",
+                );
+                await expect(element).toHaveAttribute("target", "_blank");
+                await expect(element).toHaveAttribute("rel", "noopener noreferrer");
+            }
+            const sidebarLink = page
+                .locator(".app-sidebar__footer")
+                .getByRole("link", { name: "Buy Me a Coffee" });
+            await expect(sidebarLink).toBeVisible();
+            await sidebarLink.hover();
+            await expect(page.getByRole("tooltip", { name: "Buy Me a Coffee" })).toBeVisible();
+            await page.getByRole("button", { name: "Expand sidebar", exact: true }).click();
+            await expect(sidebarLink.locator(".app-sidebar__item-label")).toHaveText(
+                "Buy Me a Coffee",
+            );
+            await page.goto("/settings?section=general");
+            await expect(sidebarLink).toBeVisible();
         } else {
             await expect(link).toHaveCount(0);
         }

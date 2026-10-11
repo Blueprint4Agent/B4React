@@ -62,7 +62,20 @@ export function ProjectOverview() {
     return (
         <div className="home-overview">
             <section className="home-hero" aria-labelledby="home-project-title">
-                <p className="home-eyebrow">{t("nav.brand")}</p>
+                <div className="home-hero__topline">
+                    <p className="home-eyebrow">{t("nav.brand")}</p>
+                    {coffeeUrl ? (
+                        <a
+                            className="home-support-link"
+                            href={coffeeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Coffee size={14} aria-hidden="true" />
+                            Buy Me a Coffee
+                        </a>
+                    ) : null}
+                </div>
                 <h2 id="home-project-title">
                     {t("home.project.title")}
                     <br />
@@ -202,18 +215,6 @@ export function ProjectOverview() {
                     ))}
                 </div>
             </section>
-            {coffeeUrl ? (
-                <aside className="home-support" aria-label={t("home.project.supportLabel")}>
-                    <div>
-                        <h3>{t("home.project.supportTitle")}</h3>
-                        <p>{t("home.project.supportDescription")}</p>
-                    </div>
-                    <a href={coffeeUrl} target="_blank" rel="noopener noreferrer">
-                        <Coffee size={18} aria-hidden="true" /> Buy Me a Coffee{" "}
-                        <ArrowRight size={14} aria-hidden="true" />
-                    </a>
-                </aside>
-            ) : null}
             <div className="home-overview__footer">
                 <span>{t("nav.brand")}</span>
                 <p>{t("home.project.footer")}</p>

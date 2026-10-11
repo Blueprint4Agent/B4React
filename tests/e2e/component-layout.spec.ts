@@ -782,7 +782,7 @@ for (const width of [375, 1440]) {
         const links = footer.locator("a[target='_blank']");
         for (const expanded of [false, true]) {
             if (expanded) await page.locator(".app-sidebar__toggle").click();
-            await expect(links).toHaveCount(2);
+            await expect(links).toHaveCount(3);
             await expect(links.nth(0)).toHaveAttribute(
                 "href",
                 "https://github.com/Blueprint4Agent/B4FastAPI",
@@ -790,6 +790,10 @@ for (const width of [375, 1440]) {
             await expect(links.nth(1)).toHaveAttribute(
                 "href",
                 "https://blueprint4agent.github.io/docs",
+            );
+            await expect(links.nth(2)).toHaveAttribute(
+                "href",
+                "https://buymeacoffee.com/b4a-test-fixture",
             );
             const profile = (await footer.locator(".profile-menu__trigger").boundingBox())!;
             for (const link of await links.all()) {

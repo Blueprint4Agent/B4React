@@ -15,7 +15,7 @@ export function getCoffeeSupportUrl(
             url.port ||
             url.search ||
             url.hash ||
-            !/^\/[A-Za-z0-9_-]+\/?$/.test(url.pathname)
+            !/^\/[A-Za-z0-9_.-]+\/?$/.test(url.pathname)
         )
             return null;
         return url.href;
