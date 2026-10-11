@@ -1,9 +1,11 @@
+import { getCoffeeSupportUrl } from "../../utils/coffeeSupport";
 import { profileSidebarPath } from "../../utils/profileNavigation";
 import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
 import type { SubscriptionTier } from "../../utils/billingPlans";
 import { useToast } from "../../hooks/useToast";
 import { resolveSettingsSection } from "../../utils/settingsSections";
 import {
+    Coffee,
     Keyboard,
     AppWindow,
     Home,
@@ -72,6 +74,11 @@ export function AppSidebar({
     const { checkNow, isDesktop, status } = useServerConnectivity();
     const [busy, setBusy] = useState(false);
     const development = appConfig?.app_mode === "development";
+    const coffeeUrl = getCoffeeSupportUrl(
+        appConfig?.app_mode,
+        import.meta.env.VITE_BUY_ME_A_COFFEE_ENABLED,
+        import.meta.env.VITE_BUY_ME_A_COFFEE_URL,
+    );
     const homePath = "/home";
     const loginEnabled = appConfig?.login_enabled === true;
     const logoutBlocked = isDesktop && status !== "online";
@@ -316,6 +323,9 @@ export function AppSidebar({
                                   label: t("nav.sidebar.documentation"),
                                   icon: BookOpen,
                               },
+                              ...(coffeeUrl
+                                  ? [{ href: coffeeUrl, label: "Buy Me a Coffee", icon: Coffee }]
+                                  : []),
                           ]
                         : []
                     ).map(({ href, label, icon: Icon }) => (

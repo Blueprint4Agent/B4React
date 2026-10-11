@@ -1,12 +1,19 @@
 # Home previews
 
-These WebP images were captured from the actual B4React component catalogue and
-General settings in Chromium at 1360 × 900, light theme, in English and Korean.
-They are illustrative screenshots, not live service status. Capture uses an
-isolated browser with a mocked development `/config`, no signed-in user, and
-blocked external requests. No real account, token or private service data appears.
+Real B4A UI captured in Chromium at 1360 × 900, light theme, English and Korean.
+These are illustrative screenshots, not live account or service status.
 
-Source routes: `/show-case` and `/settings?section=general`. Wait for the catalogue
-or settings card and fonts before capturing. Use the `b4a_language` locale setting
-and `blueprint4fastapi_theme=light`. Encode the PNG captures as WebP at quality 86.
-Refresh both locales together after material changes to the source screens.
+- components: `/show-case`, the existing shared UI catalogue.
+- users: `/admin`, seven fictional example.com accounts and example roles.
+- server: `/admin/server`, example connectivity and integration snapshots.
+- billing: `/settings?section=billing`, a fictional subscription and test card ending 4242.
+
+Capture uses an isolated browser, mocked `/config` and API routes based on the
+admin-panel, admin-server and billing browser test fixtures. External requests are
+blocked; no real account, payment, endpoint or token is used. The dummy admin
+session exists only in the capture browser. Do not capture a real administrator session.
+
+Set `b4a_language` and `blueprint4fastapi_theme=light`; wait for the actual table,
+connection rows or payment card and loaded fonts. Encode PNG captures to WebP
+quality 86. Refresh both locales together when source screens materially change.
+The service name comes from shared `nav.brand` (B4A).
