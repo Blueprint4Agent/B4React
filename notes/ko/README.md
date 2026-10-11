@@ -114,3 +114,10 @@ name/short_name/identifier를 수정한 뒤 `make project-config-check`와 빌�
 - [페이지 유형별 일관성](page-families.md) / [English](../page-families.md)
 
 메인 페이지 템플릿: [한국어](main-page-template.md) · [English](../main-page-template.md).
+
+## 라이선스
+
+프로젝트 원본 코드·문서는 [MIT 라이선스](../../LICENSE)로 제공합니다. 복사본이나
+상당 부분을 재배포할 때 저작권·허가 고지를 유지하세요. 제3자 의존성·
+[브랜드 자산](../../public/stack-brands/LICENSE.md)·[국가/지역 데이터](../../src/data/countryRegions.LICENSE.txt)는
+각각의 고지를 유지합니다.
