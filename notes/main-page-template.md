@@ -35,3 +35,5 @@ existing server authorization checks. Do not put fake metrics in the production 
 The development showcase's `MainPageTemplate` example demonstrates grid menus, a header
 action and extra content. The home in both modes uses the list variant and real settings destinations.
 Preserve the settings shell/header/row tokens and use `src/styles/app.css` for scoped layout.
+
+Home now places a project introduction before account navigation using `contentPosition="before-menu"` (default remains `after-menu`). The region contains a static overview, local EN/KO light-theme screenshots and capability descriptions. Preview selection is local component state; it does not query APIs or override theme preference. Screenshots are illustrative; see `public/home-previews/README.md`. Header, width, rows and auth/role filtering remain shared with Settings.

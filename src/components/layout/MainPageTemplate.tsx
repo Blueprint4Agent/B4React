@@ -20,6 +20,7 @@ type MainPageTemplateProps = {
     menuItems: readonly MainPageMenuItem[];
     menuLayout?: "list" | "grid";
     children?: ReactNode;
+    contentPosition?: "before-menu" | "after-menu";
 };
 
 export function MainPageTemplate({
@@ -31,6 +32,7 @@ export function MainPageTemplate({
     menuItems,
     menuLayout = "list",
     children,
+    contentPosition = "after-menu",
 }: MainPageTemplateProps) {
     return (
         <section className="settings-layout main-page-template">
@@ -52,6 +54,11 @@ export function MainPageTemplate({
                     </div>
                     {actions ? <div className="main-page-template__actions">{actions}</div> : null}
                 </header>
+                {children && contentPosition === "before-menu" ? (
+                    <div className="main-page-template__content main-page-template__content--before">
+                        {children}
+                    </div>
+                ) : null}
                 {menuItems.length > 0 ? (
                     <nav
                         className={`settings-general-content main-page-template__menu main-page-template__menu--${menuLayout}`}
@@ -85,7 +92,9 @@ export function MainPageTemplate({
                         )}
                     </nav>
                 ) : null}
-                {children ? <div className="main-page-template__content">{children}</div> : null}
+                {children && contentPosition === "after-menu" ? (
+                    <div className="main-page-template__content">{children}</div>
+                ) : null}
             </PrimaryCard>
         </section>
     );

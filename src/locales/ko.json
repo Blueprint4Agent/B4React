@@ -966,7 +966,32 @@
         "templateContent": "콘텐츠 영역",
         "templateContentHint": "목록, 카드, 위젯을 배치할 수 있습니다.",
         "guestWelcome": "환영합니다. 필요한 메뉴로 바로 이동하세요.",
-        "signIn": "로그인"
+        "signIn": "로그인",
+        "project": {
+            "title": "FastAPI와 React로",
+            "titleAccent": "시작하는 서비스.",
+            "description": "로그인, 계정 관리, 공통 UI와 Docker 배포 구성을 담았습니다. 필요한 기능을 골라 확장하는 풀스택 프로젝트입니다.",
+            "explore": "화면 살펴보기",
+            "included": "포함된 기능",
+            "stack": "프로젝트 기술 구성",
+            "previewTitle": "프로젝트 둘러보기",
+            "previewSelect": "제품 미리보기 선택",
+            "components": "컴포넌트",
+            "settings": "설정",
+            "componentsAlt": "실제 Blueprint4Agent 사이드바와 재사용 컨트롤을 보여주는 라이트 테마 컴포넌트 카탈로그.",
+            "settingsAlt": "언어와 화면 테마를 선택하는 라이트 테마 일반 설정 화면.",
+            "componentsCaption": "프로젝트에서 사용하는 공통 UI 컴포넌트",
+            "settingsCaption": "언어와 테마를 관리하는 설정 화면",
+            "previewNote": "예시 화면 · 라이트 테마",
+            "capabilitiesTitle": "기본으로 제공하는 기능",
+            "interfaceTitle": "화면과 컴포넌트",
+            "interfaceDescription": "공통 UI 컴포넌트, 라이트·다크 테마, 한국어·영어 지원.",
+            "identityTitle": "계정과 권한",
+            "identityDescription": "이메일·OAuth 로그인, 프로필, 역할별 접근 제어, API 키 관리.",
+            "deliveryTitle": "실행과 배포",
+            "deliveryDescription": "Docker 이미지, DB 마이그레이션, 상태 확인과 백그라운드 작업.",
+            "footer": "FastAPI backend · React frontend"
+        }
     },
     "serverStatus": {
         "technology": {
