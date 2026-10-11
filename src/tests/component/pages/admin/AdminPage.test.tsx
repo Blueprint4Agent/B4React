@@ -49,7 +49,13 @@ describe("admin table render isolation", () => {
             "format",
             "get",
         );
-        const constructors = vi.spyOn(Intl, "DateTimeFormat");
+        // Vitest 4 constructs spies with new; explicitly retain the native Intl instance.
+        const NativeDateTimeFormat = Intl.DateTimeFormat;
+        const constructors = vi.spyOn(Intl, "DateTimeFormat").mockImplementation(function (
+            ...args: ConstructorParameters<typeof Intl.DateTimeFormat>
+        ) {
+            return new NativeDateTimeFormat(...args);
+        });
         render(<AdminPage />);
         const initial = formats.mock.calls.length;
         expect(initial).toBe(20);
