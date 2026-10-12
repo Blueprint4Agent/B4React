@@ -1,3 +1,4 @@
+import { normalizeBasePath } from "./base-path.mjs";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
@@ -131,10 +132,11 @@ export function sharingHtml(config, env = {}) {
             throw new Error(
                 "VITE_PUBLIC_SITE_URL must be an HTTP(S) origin without credentials, path, query or fragment",
             );
-        tags.push(["property", "og:url", url.origin + "/"]);
+        const base = normalizeBasePath(env.VITE_BASE_PATH);
+        tags.push(["property", "og:url", url.origin + base + "/"]);
         const asset = config ? config.logo_url : "/icons/b4a-banner.png";
         if (asset && /\.(png|webp|jpg|jpeg)$/.test(asset)) {
-            image = new URL(asset, url.origin).href;
+            image = new URL(base + asset, url.origin).href;
             tags.push(
                 ["property", "og:image", image],
                 ["property", "og:image:alt", title],

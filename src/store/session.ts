@@ -1,4 +1,5 @@
-const ACCESS_TOKEN_KEY = "template_access_token";
+import { storageKey } from "../utils/basePath";
+const ACCESS_TOKEN_KEY = storageKey("template_access_token");
 
 type Listener = () => void;
 const listeners = new Set<Listener>();

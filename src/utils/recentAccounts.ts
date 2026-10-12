@@ -1,3 +1,4 @@
+import { storageKey, publicPath } from "./basePath";
 import { clearAccessToken } from "../store/session";
 export type AccountProvider = "email" | "google" | "github";
 export type RecentAccount = {
@@ -7,8 +8,8 @@ export type RecentAccount = {
     lastUsed: number;
     imageUrl?: string;
 };
-export const RECENT_ACCOUNTS_KEY = "blueprint_recent_accounts_v1";
-const INTENT_KEY = "blueprint_oauth_account_intent";
+export const RECENT_ACCOUNTS_KEY = storageKey("blueprint_recent_accounts_v1");
+const INTENT_KEY = storageKey("blueprint_oauth_account_intent");
 const MAX_AGE = 90 * 24 * 60 * 60 * 1000;
 export const RECENT_ACCOUNTS_EVENT = "blueprint-recent-accounts";
 const isProvider = (value: unknown): value is AccountProvider =>
@@ -90,10 +91,10 @@ export function removeRecentAccount(account: Pick<RecentAccount, "email" | "prov
     writeAccounts(readRecentAccounts().filter((item) => accountId(item) !== accountId(account)));
     try {
         if (
-            localStorage.getItem("template_remember_email")?.toLowerCase() ===
+            localStorage.getItem(storageKey("template_remember_email"))?.toLowerCase() ===
             account.email.toLowerCase()
         )
-            localStorage.removeItem("template_remember_email");
+            localStorage.removeItem(storageKey("template_remember_email"));
     } catch {
         /* Storage is optional. */
     }
@@ -101,7 +102,7 @@ export function removeRecentAccount(account: Pick<RecentAccount, "email" | "prov
 export function clearRecentAccounts(): void {
     writeAccounts([]);
     try {
-        localStorage.removeItem("template_remember_email");
+        localStorage.removeItem(storageKey("template_remember_email"));
     } catch {
         /* Storage is optional. */
     }
@@ -127,7 +128,7 @@ export function completeOAuthAccountIntent(user: {
         sessionStorage.removeItem(INTENT_KEY);
         if (
             new URLSearchParams(window.location.search).has("error") ||
-            ["/login", "/signup"].includes(window.location.pathname)
+            [publicPath("/login"), publicPath("/signup")].includes(window.location.pathname)
         )
             return;
         if (
@@ -142,12 +143,12 @@ export function completeOAuthAccountIntent(user: {
             return;
         if (value.remember) {
             rememberAccount({ email: user.email, name: user.name ?? "", provider: value.provider });
-            localStorage.setItem("template_remember_email_enabled", "true");
-            localStorage.setItem("template_remember_email", user.email);
+            localStorage.setItem(storageKey("template_remember_email_enabled"), "true");
+            localStorage.setItem(storageKey("template_remember_email"), user.email);
         } else {
             removeRecentAccount({ email: user.email, provider: value.provider });
-            localStorage.setItem("template_remember_email_enabled", "false");
-            localStorage.removeItem("template_remember_email");
+            localStorage.setItem(storageKey("template_remember_email_enabled"), "false");
+            localStorage.removeItem(storageKey("template_remember_email"));
         }
     } catch {
         /* Invalid or unavailable storage never blocks a restored session. */

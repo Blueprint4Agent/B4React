@@ -55,3 +55,46 @@ test("static pages contain localized content, reciprocal language URLs and only 
         assets["discovery-manifest.json"],
     );
 });
+
+test("prefixed public documents retain canonical URLs, assets and app navigation", () => {
+    const options = discoveryOptions(null, { ...env, VITE_BASE_PATH: "/demos/alpha" });
+    const assets = discoveryAssets(options, ["assets/app.css"]);
+    const html = assets["about/index.html"];
+    assert.match(html, /href="\/demos\/alpha\/home"/);
+    assert.match(html, /href="\/demos\/alpha\/assets\/app.css"/);
+    assert.match(html, /https:\/\/example.test\/demos\/alpha\/about\//);
+    assert.doesNotMatch(html, /(?:href|src)="\/(?:icons|home|about|assets)/);
+    assert.match(assets["sitemap.xml"], /https:\/\/example.test\/demos\/alpha\/about\//);
+});
+
+test("development discovery recognizes and preserves the configured prefix", async () => {
+    const { publicDiscoveryPlugin } = await import("./public-discovery.mjs");
+    let middleware;
+    publicDiscoveryPlugin(null, { VITE_BASE_PATH: "/qa/nested" }).configureServer({
+        middlewares: {
+            use(callback) {
+                middleware = callback;
+            },
+        },
+    });
+    let status, headers, body;
+    const response = {
+        writeHead(code, values) {
+            status = code;
+            headers = values;
+        },
+        end(value) {
+            body = value;
+        },
+    };
+    middleware({ url: "/qa/nested/about", method: "GET" }, response, () =>
+        assert.fail("unexpected fallback"),
+    );
+    assert.equal(status, 307);
+    assert.equal(headers.Location, "/qa/nested/about/");
+    middleware({ url: "/qa/nested/about/", method: "GET" }, response, () =>
+        assert.fail("unexpected fallback"),
+    );
+    assert.equal(status, 200);
+    assert.match(body, /href="\/qa\/nested\/home"/);
+});

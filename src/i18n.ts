@@ -1,3 +1,4 @@
+import { storageKey } from "./utils/basePath";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
@@ -14,7 +15,7 @@ if (project) {
 
 const SUPPORTED_LANGUAGE_IDS = ["en", "ko"] as const;
 type SupportedLanguageId = (typeof SUPPORTED_LANGUAGE_IDS)[number];
-const LANGUAGE_STORAGE_KEY = "b4a_language";
+const LANGUAGE_STORAGE_KEY = storageKey("b4a_language");
 
 function normalizeLanguageId(value: string | null | undefined): SupportedLanguageId | null {
     if (!value) {

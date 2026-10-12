@@ -1,3 +1,4 @@
+import { storageKey } from "../../utils/basePath";
 import { useAuthContext } from "../../hooks/useAuth";
 import { profileSidebarPath } from "../../utils/profileNavigation";
 import type { SubscriptionTier } from "../../utils/billingPlans";
@@ -9,7 +10,7 @@ import { AppSidebar } from "./AppSidebar";
 import { useAppShortcuts } from "../../hooks/useAppShortcuts";
 import { clampSidebarWidth, SIDEBAR_DEFAULT_WIDTH } from "./SidebarResizeHandle";
 
-const SIDEBAR_WIDTH_KEY = "blueprint_sidebar_width";
+const SIDEBAR_WIDTH_KEY = storageKey("blueprint_sidebar_width");
 function readSidebarWidth(): number {
     try {
         const stored = window.localStorage.getItem(SIDEBAR_WIDTH_KEY);

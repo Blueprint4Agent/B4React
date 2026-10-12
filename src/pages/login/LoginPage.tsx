@@ -1,3 +1,4 @@
+import { storageKey } from "../../utils/basePath";
 import { useToast } from "../../hooks/useToast";
 import { RecentAccountList } from "../../components/features/auth/RecentAccountList";
 import { useRecentAccounts } from "../../hooks/useRecentAccounts";
@@ -7,7 +8,7 @@ import {
     removeRecentAccount,
     type RecentAccount,
 } from "../../utils/recentAccounts";
-import { getApiBase } from "../../utils/apiBase";
+import { getApiUrl } from "../../utils/apiBase";
 import { AuthPageFrame } from "../../components/layout/AuthPageFrame";
 import { FormEvent, useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -20,9 +21,9 @@ import { useAuthApi, type OAuthProvider } from "../../hooks/api/auth/useAuthApi"
 import { useAppConfig } from "../../hooks/useFeatures";
 import { isValidEmail, isValidPassword } from "../../utils/validation";
 
-const REMEMBER_EMAIL_STORAGE_KEY = "template_remember_email";
-const REMEMBER_EMAIL_ENABLED_STORAGE_KEY = "template_remember_email_enabled";
-const REMEMBER_ME_ENABLED_STORAGE_KEY = "template_remember_me_enabled";
+const REMEMBER_EMAIL_STORAGE_KEY = storageKey("template_remember_email");
+const REMEMBER_EMAIL_ENABLED_STORAGE_KEY = storageKey("template_remember_email_enabled");
+const REMEMBER_ME_ENABLED_STORAGE_KEY = storageKey("template_remember_me_enabled");
 
 export function LoginPage({ embedded = false }: { embedded?: boolean }) {
     const [passwordStep, setPasswordStep] = useState(!embedded);
@@ -229,7 +230,7 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
             const provider = oauthProviders.find((item) => item.provider === account.provider);
             if (provider) {
                 beginOAuthAccountIntent(provider.provider, rememberEmail);
-                window.location.assign(new URL(provider.start_path, `${getApiBase()}/`).toString());
+                window.location.assign(getApiUrl(provider.start_path));
             }
         }
     };
@@ -245,7 +246,7 @@ export function LoginPage({ embedded = false }: { embedded?: boolean }) {
             if (!provider) return;
             handledSelection.current = location.key;
             beginOAuthAccountIntent(provider.provider, rememberEmail);
-            window.location.assign(new URL(provider.start_path, `${getApiBase()}/`).toString());
+            window.location.assign(getApiUrl(provider.start_path));
         } else {
             handledSelection.current = location.key;
             setEmail(state.accountEmail);

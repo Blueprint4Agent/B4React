@@ -1,6 +1,6 @@
 import { OAuthProviderIcon } from "./OAuthProviderIcon";
 import { Button } from "../../ui";
-import { getApiBase } from "../../../utils/apiBase";
+import { getApiUrl } from "../../../utils/apiBase";
 
 type OAuthProviderButtonProps = {
     provider: "google" | "github";
@@ -25,7 +25,7 @@ export function OAuthProviderButton({
             return;
         }
         onStart?.();
-        const oauthStartUrl = new URL(startPath, `${getApiBase()}/`).toString();
+        const oauthStartUrl = getApiUrl(startPath);
         window.location.assign(oauthStartUrl);
     };
 

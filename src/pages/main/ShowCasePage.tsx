@@ -1,3 +1,4 @@
+import { publicPath } from "../../utils/basePath";
 import { AccountDeletionPreview } from "../../components/features/showcase/AccountDeletionPreview";
 import { ToastPreview } from "../../components/features/showcase/ToastPreview";
 import { ApiKeyPreview } from "../../components/features/showcase/ApiKeyPreview";
@@ -141,7 +142,7 @@ export function ShowCasePage() {
                     <ShowcaseItem component="UserAvatar">
                         <div className="showcase-avatar-row">
                             <UserAvatar label="Designer" imageUrl={avatar} />
-                            <UserAvatar label="B4A" imageUrl="/icons/b4a-mark.svg" />
+                            <UserAvatar label="B4A" imageUrl={publicPath("/icons/b4a-mark.svg")} />
                             <UserAvatar label="Designer" />
                         </div>
                     </ShowcaseItem>

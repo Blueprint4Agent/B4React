@@ -127,3 +127,7 @@ name/short_name/identifier를 수정한 뒤 `make project-config-check`와 빌�
 관리자 데모: [한국어](admin-demo.md) · [English](../admin-demo.md).
 
 공개 검색 페이지: [한국어](discovery.md) · [English](../discovery.md).
+
+## 공개 basePath
+
+빌드 또는 Vite 실행 전에 `VITE_BASE_PATH=/my-app`을 설정합니다. 빈 값이나 `/`는 루트 배포를 유지합니다. 라우터·기본 API 주소·정적 파일·브라우저 저장소가 정규화된 경로를 사용하며 변경 시 재빌드와 재로그인이 필요합니다. 개발/데스크톱 백엔드를 별도로 사용하면 `VITE_API_BASE_URL`에 접두사를 포함한 공개 URL을 설정합니다. 데스크톱 정적 파일은 보통 `/`를 유지합니다. 빌드의 `deployment-path.json`을 모놀리식 백엔드가 런타임 경로와 비교할 수 있습니다. 프런트엔드 빌드는 부모 파일을 읽지 않습니다. `VITE_PUBLIC_SITE_URL`은 origin을 유지하고 공유/소개 URL에 접두사를 추가합니다. 루트 robots.txt 정책은 호스트 운영자가 관리합니다.
