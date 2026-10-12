@@ -1206,5 +1206,34 @@
                 "reply": "프로필 화면에서 사진을 선택하면 변경할 수 있습니다. 해결되어 문의를 종료했습니다."
             }
         ]
+    },
+    "discovery": {
+        "title": "Blueprint4Agent — FastAPI + React 스타터",
+        "description": "인증, 타입 기반 API 계약, 에이전트와 개발자를 위한 반복 가능한 개발 흐름을 제공하는 오픈소스 FastAPI + React 스타터 Blueprint4FastAPI를 소개합니다.",
+        "heading": "다음 서비스를 위한 공통 기반.",
+        "identity": "Blueprint4Agent(B4A)는 프로젝트의 상위 이름입니다. Blueprint4FastAPI(B4FastAPI)는 FastAPI 백엔드와 독립적으로 버전을 관리하는 B4React 프런트엔드를 결합합니다.",
+        "about": "B4A 소개",
+        "nav": "프로젝트 탐색",
+        "app": "앱 열기",
+        "repository": "GitHub 소스",
+        "docs": "개발자 가이드",
+        "features": "포함된 기반 기능",
+        "start": "로컬에서 실행하기",
+        "prerequisites": "Git, Make, Python 3.11 이상, uv, Node.js 24와 npm을 준비합니다. 초기화 후 백엔드와 프런트엔드를 각각 다른 터미널에서 실행합니다.",
+        "backend": "터미널 1 · 백엔드",
+        "frontend": "터미널 2 · 프런트엔드",
+        "open": "http://localhost:5173에 접속합니다. 로컬 기본 설정은 SQLite와 메모리 Redis를 사용합니다. 컨테이너 배포에는 Docker가 필요합니다.",
+        "workflow": "에이전트와 개발자가 함께 쓰는 개발 흐름",
+        "workflowBody": "저장소 가이드를 읽고 작업 기록을 작성한 뒤, 타입 기반 API 계약에 맞춰 구현하고 변경 범위에 맞는 Make 검증을 실행합니다. 프런트엔드 변경은 B4React에서 검토한 후 백엔드 저장소가 고정 버전을 갱신합니다.",
+        "boundaries": "서비스에 맞게 설정할 부분",
+        "boundariesBody": "이메일, OAuth, Stripe는 제공업체 계정과 인증 정보가 필요합니다. 실제 운영 전에는 대상 환경에서 비밀값, 도메인 TLS, 활성화한 콜백, 데이터베이스 백업과 복구를 검증해야 합니다. GitHub 워크플로는 수동 실행 방식입니다. 템플릿 제공이 운영 환경 인증이나 보안 감사를 의미하지 않습니다.",
+        "preview": "실제 인터페이스 미리보기",
+        "previewNote": "로컬 개발 환경에서 캡처한 화면입니다. 선택 기능은 별도 설정이 필요하며, 이 이미지가 공개 라이브 데모를 보증하지는 않습니다.",
+        "license": "MIT 라이선스를 사용합니다. 재사용할 때 라이선스와 제3자 고지를 유지해 주세요.",
+        "links": "문서로 이어서 살펴보기",
+        "auth": "인증과 계정 수명주기",
+        "deployment": "Docker 배포와 운영",
+        "contracts": "타입 기반 API 계약",
+        "language": "English"
     }
 }

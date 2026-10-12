@@ -44,7 +44,7 @@ architecture-check: ui-composition-check react-performance-check ## Check pages/
 
 .PHONY: test-ui
 test-ui: ## Check component layout and tooltip behavior in Chromium
-	$(NPM) run test:e2e -- tests/e2e/component-layout.spec.ts tests/e2e/auth-smoke.spec.ts tests/e2e/admin-panel.spec.ts tests/e2e/admin-demo.spec.ts tests/e2e/inbox.spec.ts tests/e2e/support.spec.ts tests/e2e/admin-server.spec.ts tests/e2e/config-sharing.spec.ts tests/e2e/billing.spec.ts tests/e2e/runtime-modes.spec.ts tests/e2e/profile-photo.spec.ts tests/e2e/account-profile.spec.ts
+	$(NPM) run test:e2e -- tests/e2e/public-discovery.spec.ts tests/e2e/component-layout.spec.ts tests/e2e/auth-smoke.spec.ts tests/e2e/admin-panel.spec.ts tests/e2e/admin-demo.spec.ts tests/e2e/inbox.spec.ts tests/e2e/support.spec.ts tests/e2e/admin-server.spec.ts tests/e2e/config-sharing.spec.ts tests/e2e/billing.spec.ts tests/e2e/runtime-modes.spec.ts tests/e2e/profile-photo.spec.ts tests/e2e/account-profile.spec.ts
 
 .PHONY: ui-composition-check
 ui-composition-check: ## Verify shared styling and rendered showcase coverage
@@ -54,6 +54,7 @@ ui-composition-check: ## Verify shared styling and rendered showcase coverage
 .PHONY: test-routes
 test-routes: build ## Verify production lazy-route loading and recovery in Chromium
 	$(NPM) run test:e2e -- --config playwright.production.config.ts
+	$(MAKE) test-discovery
 
 .PHONY: react-performance-check
 react-performance-check: ## Guard config ownership, route splitting, memo boundaries and review policy
@@ -64,7 +65,7 @@ react-performance-check: ## Guard config ownership, route splitting, memo bounda
 .PHONY: project-config-check
 project-config-check: ## Validate optional public app branding and Tauri identity
 	node --input-type=module -e 'import { readProjectConfig } from "./scripts/project-config.mjs"; readProjectConfig();'
-	node --test scripts/project-config.test.mjs
+	node --test scripts/project-config.test.mjs scripts/public-discovery.test.mjs
 
 .PHONY: style-studio style-studio-check test-style-studio
 style-studio: ## Run explicitly enabled loopback-only local style editor
@@ -108,3 +109,7 @@ check-affected: ## Static policy/type checks plus formatting for mapped changed 
 	node scripts/check-react-performance.mjs
 	$(NPM) exec prettier -- --check $(CHECK_FILES)
 	$(NPM) run typecheck
+
+.PHONY: test-discovery
+test-discovery: ## Verify opt-in static discovery pages without application JavaScript
+	node scripts/test-discovery.mjs

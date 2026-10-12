@@ -14,3 +14,5 @@ project.local.json
 public/project-brand/
 
 .style-studio-backups/
+
+.discovery-dist/

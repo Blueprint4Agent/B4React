@@ -145,3 +145,5 @@ Notification inbox: [English](notes/notification-inbox.md) · [한국어](notes/
 - Support inquiries: [English](notes/support-inquiries.md) · [한국어](notes/ko/support-inquiries.md)
 
 - Optional WebSocket provider: [English](notes/websocket-provider.md) · [한국어](notes/ko/websocket-provider.md)
+
+Public search pages: [English](notes/discovery.md) · [한국어](notes/ko/discovery.md).

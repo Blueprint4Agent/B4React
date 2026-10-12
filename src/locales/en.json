@@ -1206,5 +1206,34 @@
                 "reply": "Select your photo on the profile page to replace it. This resolved inquiry is now closed."
             }
         ]
+    },
+    "discovery": {
+        "title": "Blueprint4Agent — FastAPI + React starter",
+        "description": "Build with Blueprint4FastAPI: an open-source FastAPI and React starter with authentication, typed API contracts and a repeatable workflow for agents and developers.",
+        "heading": "A shared starting point for your next service.",
+        "identity": "Blueprint4Agent (B4A) is the project umbrella. Blueprint4FastAPI (B4FastAPI) combines the FastAPI backend with the independently versioned B4React frontend.",
+        "about": "About B4A",
+        "nav": "Project navigation",
+        "app": "Open application",
+        "repository": "Source on GitHub",
+        "docs": "Developer guide",
+        "features": "Included foundations",
+        "start": "Run it locally",
+        "prerequisites": "Install Git, Make, Python 3.11+, uv, Node.js 24 and npm. Run the backend and frontend in separate terminals after initialization.",
+        "backend": "Terminal 1 · backend",
+        "frontend": "Terminal 2 · frontend",
+        "open": "Open http://localhost:5173. Local defaults use SQLite and in-memory Redis. Docker is needed for container deployment.",
+        "workflow": "A workflow for agents and developers",
+        "workflowBody": "Start with the repository guides, write a worklog, implement against the typed API contract, and run the change-scoped Make checks. Frontend changes are reviewed in B4React before the backend repository updates its pinned version.",
+        "boundaries": "What you configure",
+        "boundariesBody": "Email, OAuth and Stripe require your provider credentials. Before operating a service, validate secrets, domain TLS, enabled callbacks, database backups and recovery in your target environment. GitHub workflows are manually triggered. The template is not a deployment certification or security audit.",
+        "preview": "Actual interface preview",
+        "previewNote": "Local development screenshot. Optional integrations require configuration; this image does not establish a live hosted demo.",
+        "license": "MIT licensed. Keep the license and third-party notices when reusing the project.",
+        "links": "Continue with the documentation",
+        "auth": "Authentication and account lifecycle",
+        "deployment": "Docker deployment and operations",
+        "contracts": "Typed API contracts",
+        "language": "한국어"
     }
 }

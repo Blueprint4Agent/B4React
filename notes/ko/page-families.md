@@ -56,3 +56,12 @@ At mobile widths the strip stacks into compact rows. This is intentionally disti
 from settings forms, matching the user-supplied profile reference without importing
 its colors, fabricated statistics or showcase data. Edit/profile/password dialogs use
 the existing Modal family. Account remains General-style settings rows.
+
+## 정적 공개 소개
+
+/about/와 /about/ko/는 ProjectOverview의 제목, 기능 행, 미리보기 표면을 재사용합니다.
+public-discovery 래퍼는 50rem 너비와 문서 스크롤만 소유하며 앱 사이드바 없이 일반
+링크로 탐색합니다. h1/h2/h3의 의미를 지키면서 홈 타이포그래피를 공유합니다.
+API·설정·인증 상태나 React 마운트가 필요하지 않습니다. 작은 인라인 테마 스크립트는
+선택 사항으로, JavaScript 없이도 밝은 테마에서 본문과 탐색을 사용할 수 있습니다.
+/home 비교 검사는 tests/discovery/public.spec.ts에 있습니다.

@@ -236,6 +236,15 @@ export function ProjectOverview() {
             <div className="home-overview__footer">
                 <span>{t("nav.brand")}</span>
                 <p>{t("home.project.footer")}</p>
+                {import.meta.env.VITE_PUBLIC_DISCOVERY === "true" ||
+                (import.meta.env.DEV && !__PROJECT_BRAND__) ? (
+                    <a
+                        className="home-support-link"
+                        href={language === "ko" ? "/about/ko/" : "/about/"}
+                    >
+                        {t("discovery.about")}
+                    </a>
+                ) : null}
             </div>
         </div>
     );
