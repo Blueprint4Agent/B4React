@@ -520,3 +520,23 @@ test("showcase exposes transparent edit save and cancel icons", async ({ page })
         await expect(button).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     }
 });
+
+test("outside clicks discard inline profile drafts without saving", async ({ page }) => {
+    const stats = await setup(page);
+    await page.goto("/profile");
+    await page.getByRole("button", { name: "Profile User", exact: true }).click();
+    await page.locator(".profile-inline-form--name input").fill("Discard this name");
+    await page.locator(".personal-profile__privacy").click();
+    await expect(page.locator(".profile-inline-form")).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Profile User" })).toBeVisible();
+    await page
+        .getByRole("button", { name: "Building useful things, one day at a time.", exact: true })
+        .click();
+    await page.locator(".profile-inline-form--bio textarea").fill("Discard this bio");
+    await page.locator(".personal-profile__privacy").click();
+    await expect(page.locator(".profile-inline-form")).toHaveCount(0);
+    await page.getByRole("button", { name: /Seoul-teukbyeolsi/ }).click();
+    await page.locator(".personal-profile__privacy").click();
+    await expect(page.locator(".profile-inline-form")).toHaveCount(0);
+    expect(stats.writes).toBe(0);
+});

@@ -527,6 +527,22 @@ export function ShowCasePage() {
                                     label={t("showCase.demo.text12")}
                                 />
                             </ShowcaseItem>
+                            <ShowcaseItem component="FormCheckbox (mixed)">
+                                <FormCheckbox
+                                    checked={false}
+                                    indeterminate
+                                    onCheckedChange={() => {}}
+                                    label={t("inbox.selectPage")}
+                                />
+                            </ShowcaseItem>
+                            <ShowcaseItem component="FormCheckbox (disabled)">
+                                <FormCheckbox
+                                    checked
+                                    disabled
+                                    onCheckedChange={() => {}}
+                                    label={t("inbox.selectPage")}
+                                />
+                            </ShowcaseItem>
                             <ShowcaseItem component="FormCheckbox (unchecked)">
                                 <FormCheckbox
                                     checked={sampleUnchecked}

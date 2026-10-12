@@ -43,3 +43,15 @@ export async function readAllInbox(throughId: number, signal: AbortSignal): Prom
     });
     if (error || !response.ok) throw new Error("inbox_write_failed");
 }
+
+export async function updateInboxSelection(
+    ids: number[],
+    remove: boolean,
+    signal: AbortSignal,
+): Promise<void> {
+    const options = { headers: getAuthHeader(), body: { notification_ids: ids }, signal };
+    const { error, response } = remove
+        ? await apiClient.DELETE("/api/v1/inbox/selected", options)
+        : await apiClient.POST("/api/v1/inbox/read-selected", options);
+    if (error || !response.ok) throw new Error("inbox_write_failed");
+}

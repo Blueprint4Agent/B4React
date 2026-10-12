@@ -32,7 +32,23 @@
             "inquiry_status": {
                 "title": "Inquiry status changed"
             }
-        }
+        },
+        "selectItem": "Select {{title}}",
+        "selectPage": "Select all on this page",
+        "readState": "Read",
+        "selected": "{{count}} selected",
+        "readSelected": "Mark selected read",
+        "deleteSelected": "Delete selected",
+        "content": "Notification",
+        "status": "Status",
+        "received": "Received",
+        "actions": "Actions",
+        "related": "Open related page",
+        "close": "Close",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "deleteTitle": "Delete notifications",
+        "deleteConfirm": "Delete {{count}} selected notifications? This cannot be undone."
     },
     "app": {
         "loadingTitle": "Loading",

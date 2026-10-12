@@ -36,7 +36,7 @@ async function setup(page: Page) {
     );
     const summary = () => ({
         unread_count: rows.filter((row) => !row.read_at).length,
-        latest_id: Math.max(...rows.map((row) => row.id)),
+        latest_id: Math.max(0, ...rows.map((row) => row.id)),
     });
     await page.route("**/api/v1/inbox/summary", (route) => route.fulfill({ json: summary() }));
     await page.route("**/api/v1/inbox?*", (route) => {
@@ -69,6 +69,18 @@ async function setup(page: Page) {
         });
         return route.fulfill({ json: summary() });
     });
+    await page.route("**/api/v1/inbox/read-selected", (route) => {
+        const ids = route.request().postDataJSON().notification_ids;
+        rows.filter((row) => ids.includes(row.id)).forEach((row) => {
+            row.read_at = "2026-10-12T11:00:00Z";
+        });
+        return route.fulfill({ json: summary() });
+    });
+    await page.route("**/api/v1/inbox/selected", (route) => {
+        const ids = route.request().postDataJSON().notification_ids;
+        for (let i = rows.length - 1; i >= 0; i--) if (ids.includes(rows[i].id)) rows.splice(i, 1);
+        return route.fulfill({ json: summary() });
+    });
     return state;
 }
 for (const width of [390, 1440])
@@ -88,23 +100,88 @@ for (const width of [390, 1440])
             await page.goto("/settings?section=general");
             await expect(page.locator(".settings-content-card h1")).toBeVisible();
             const peer = await geometry();
+            const sidebarLinks = await page
+                .locator("#app-sidebar-navigation a")
+                .evaluateAll((links) => links.map((link) => link.getAttribute("href")));
             await page.locator(".profile-menu__trigger").click();
-            await page.getByRole("link", { name: "Notifications (22)", exact: true }).click();
+            const menuOrder = await page
+                .locator(".profile-menu__dropdown a")
+                .evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+            expect(menuOrder.indexOf("/notifications")).toBe(menuOrder.indexOf("/profile") + 1);
+            await expect(page.locator(".profile-menu__count")).toHaveText("22");
+            await page.screenshot({ path: info.outputPath("inbox-badge.png") });
+            await page
+                .getByRole("link", { name: "Notifications, Unread: 22", exact: true })
+                .click();
             await expect(page.getByText("Update 22", { exact: true })).toBeVisible();
             expect(await geometry()).toEqual(peer);
+            await expect
+                .poll(() =>
+                    page
+                        .locator("#app-sidebar-navigation a")
+                        .evaluateAll((links) => links.map((link) => link.getAttribute("href"))),
+                )
+                .toEqual(sidebarLinks);
+            const alignment = await page
+                .locator(".inbox-detail-trigger")
+                .first()
+                .evaluate((button) => {
+                    const icon = button.querySelector("svg")!.getBoundingClientRect();
+                    const text = button
+                        .querySelector(".ui-button__label > span")!
+                        .getBoundingClientRect();
+                    return Math.abs(icon.y + icon.height / 2 - text.y - text.height / 2);
+                });
+            expect(alignment).toBeLessThan(0.6);
             await page.screenshot({ path: info.outputPath("inbox.png"), fullPage: true });
             expect(
                 await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
             ).toBe(true);
             state.fail = true;
-            await page.getByRole("button", { name: "Mark read", exact: true }).first().click();
+            await page.getByRole("button", { name: "View details", exact: true }).first().click();
+            const dialog = page.getByRole("dialog");
             await expect(
-                page.getByText("Could not update notifications. Please try again."),
+                dialog.getByText("Your support request has an update.", { exact: true }),
+            ).toBeVisible();
+            await expect(dialog.getByRole("button", { name: "Delete", exact: true })).toHaveCount(
+                0,
+            );
+            await expect(
+                dialog.getByRole("button", { name: "Open related page", exact: true }),
+            ).toHaveCount(0);
+            await expect(
+                dialog.getByText("Could not update notifications. Please try again."),
             ).toBeVisible();
             expect(state.rows[0].read_at).toBeNull();
             state.fail = false;
-            await page.getByRole("button", { name: "Mark read", exact: true }).first().click();
+            await dialog.getByRole("button", { name: "Mark read", exact: true }).click();
             await expect(page.getByText("Unread: 21", { exact: true })).toBeVisible();
+            await dialog
+                .locator("footer")
+                .getByRole("button", { name: "Close", exact: true })
+                .click();
+            await page.locator(".inbox-table tbody tr").first().locator("label.checkbox").click();
+            await expect(
+                page.getByRole("checkbox", { name: "Select all on this page", exact: true }),
+            ).toHaveJSProperty("indeterminate", true);
+            await page.locator(".inbox-table thead label.checkbox").click();
+            await expect(page.getByText("20 selected", { exact: true })).toBeVisible();
+            await page.getByRole("button", { name: "Delete selected", exact: true }).click();
+            await page
+                .getByRole("dialog")
+                .getByRole("button", { name: "Cancel", exact: true })
+                .click();
+            expect(state.rows).toHaveLength(22);
+            await page.getByRole("button", { name: "Mark selected read", exact: true }).click();
+            await expect(page.getByText("Unread: 2", { exact: true })).toBeVisible();
+            await page.locator(".inbox-table thead label.checkbox").click();
+            await page.getByRole("button", { name: "Delete selected", exact: true }).click();
+            await page
+                .getByRole("dialog")
+                .getByRole("button", { name: "Delete", exact: true })
+                .click();
+            await expect(page.getByText("Update 22", { exact: true })).toHaveCount(0);
+            expect(state.rows).toHaveLength(2);
             await page.getByText("Unread only", { exact: true }).click();
             await expect(
                 page.getByRole("checkbox", { name: "Unread only", exact: true }),
@@ -141,4 +218,26 @@ test("SSE invalidation refreshes a durable new notification", async ({ page }) =
     await page.goto("/notifications");
     await expect(page.getByText("New event", { exact: true })).toBeVisible({ timeout: 10000 });
     await expect(page.getByText("Unread: 23", { exact: true })).toBeVisible();
+});
+
+test("filter refresh preserves the table until the response arrives", async ({ page }) => {
+    await setup(page);
+    await page.goto("/notifications");
+    await expect(page.getByText("Update 22", { exact: true })).toBeVisible();
+    let release!: () => void;
+    const response = new Promise<void>((resolve) => {
+        release = resolve;
+    });
+    await page.route("**/api/v1/inbox?*", async (route) => {
+        await response;
+        await route.fallback();
+    });
+    const request = page.waitForRequest((req) => req.url().includes("unread_only=true"));
+    await page.getByText("Unread only", { exact: true }).click();
+    await request;
+    await expect(page.getByText("Update 22", { exact: true })).toBeVisible();
+    await expect(page.locator(".inbox-state")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "View details" }).first()).toBeDisabled();
+    release();
+    await expect(page.getByRole("button", { name: "View details" }).first()).toBeEnabled();
 });

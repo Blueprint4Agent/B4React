@@ -1,7 +1,10 @@
-import { useId } from "react";
+import { useEffect, useId, useRef } from "react";
 
 type FormCheckboxProps = {
     checked: boolean;
+    disabled?: boolean;
+    indeterminate?: boolean;
+    hideLabel?: boolean;
     className?: string;
     id?: string;
     label: string;
@@ -10,11 +13,18 @@ type FormCheckboxProps = {
 
 export function FormCheckbox({
     checked,
+    disabled = false,
+    indeterminate = false,
+    hideLabel = false,
     className,
     id,
     label,
     onCheckedChange,
 }: FormCheckboxProps) {
+    const inputRef = useRef<HTMLInputElement>(null);
+    useEffect(() => {
+        if (inputRef.current) inputRef.current.indeterminate = indeterminate;
+    }, [indeterminate]);
     const fieldId = useId();
     const inputId = id ?? fieldId;
     const nextClassName = className ? `checkbox ${className}` : "checkbox";
@@ -22,6 +32,8 @@ export function FormCheckbox({
     return (
         <label className={nextClassName} htmlFor={inputId}>
             <input
+                ref={inputRef}
+                disabled={disabled}
                 className="checkbox__input"
                 id={inputId}
                 type="checkbox"
@@ -29,7 +41,7 @@ export function FormCheckbox({
                 onChange={(event) => onCheckedChange(event.target.checked)}
             />
             <span className="checkbox__control" aria-hidden="true" />
-            <span className="checkbox__label">{label}</span>
+            <span className={hideLabel ? "sr-only" : "checkbox__label"}>{label}</span>
         </label>
     );
 }

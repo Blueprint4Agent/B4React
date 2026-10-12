@@ -307,6 +307,7 @@ export function AppSidebar({
                                 aria-current={
                                     isSettings
                                         ? location.pathname !== "/profile" &&
+                                          location.pathname !== "/notifications" &&
                                           itemSection === activeSection
                                             ? "page"
                                             : false
@@ -316,6 +317,7 @@ export function AppSidebar({
                                     (
                                         isSettings
                                             ? location.pathname !== "/profile" &&
+                                              location.pathname !== "/notifications" &&
                                               itemSection === activeSection
                                             : isActive
                                     )
