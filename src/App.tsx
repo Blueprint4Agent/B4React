@@ -328,6 +328,8 @@ export function App() {
                         )
                     }
                 />
+                <Route path="/demo/admin" element={<AdminPage demo />} />
+                <Route path="/demo/admin/server" element={<AdminServerPage demo />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/admin/server" element={<AdminServerPage />} />
                 <Route path="/settings" element={<SettingsPage />} />

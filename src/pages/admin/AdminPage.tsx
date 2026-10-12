@@ -1,3 +1,4 @@
+import { useAppConfig } from "../../hooks/useFeatures";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
@@ -18,14 +19,20 @@ import { useCollectionQuery } from "../../hooks/collections/useCollectionQuery";
 import { getPagination, MAX_SEARCH_LENGTH } from "../../utils/collections";
 import { LoadingPage } from "../main/LoadingPage";
 
-export function AdminPage() {
+export function AdminPage({ demo = false }: { demo?: boolean }) {
+    const { data: config, loading: configLoading } = useAppConfig();
     const { user, loading } = useAuthContext();
+    if (demo) {
+        if (configLoading) return <LoadingPage />;
+        if (!config?.demo_enabled) return <Navigate to="/home" replace />;
+        return <AdminUsers key="demo" ownerId={0} demo />;
+    }
     if (loading) return <LoadingPage />;
     if (user?.role !== "admin" && user?.role !== "manager") return <Navigate to="/home" replace />;
     return <AdminUsers ownerId={user.id} />;
 }
 
-function AdminUsers({ ownerId }: { ownerId: number }) {
+function AdminUsers({ ownerId, demo = false }: { ownerId: number; demo?: boolean }) {
     const { t, i18n } = useTranslation();
     const { input, setInput, search, filters, setFilters, page, setPage, pageSize, submitSearch } =
         useCollectionQuery({ initialFilters: { role: "all", status: "all" }, pageSize: 10 });
@@ -40,7 +47,7 @@ function AdminUsers({ ownerId }: { ownerId: number }) {
         }),
         [page, pageSize, search, role, status],
     );
-    const { data, error, loading, available, reload } = useAdminUsers(ownerId, query);
+    const { data, error, loading, available, reload } = useAdminUsers(ownerId, query, demo);
     const totalPages = data
         ? getPagination(data.total, pageSize, page).totalPages
         : Math.max(1, page);
@@ -52,7 +59,7 @@ function AdminUsers({ ownerId }: { ownerId: number }) {
             <PrimaryCard className="settings-content-card admin-content">
                 <header className="settings-content-card__header">
                     <h1>{t("admin.users")}</h1>
-                    <p>{t("admin.description")}</p>
+                    <p>{t(demo ? "admin.demoDescription" : "admin.description")}</p>
                 </header>
                 <dl className="admin-summary">
                     {(

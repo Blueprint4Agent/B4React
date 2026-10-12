@@ -1,3 +1,4 @@
+import { useAppConfig } from "../../hooks/useFeatures";
 import { Database, HardDrive, MemoryStick, RefreshCw } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -15,16 +16,22 @@ import { useAdminStatus } from "../../hooks/api/admin/useAdminStatus";
 import { OAuthProviderIcon } from "../../components/features/auth/OAuthProviderIcon";
 import { LoadingPage } from "../main/LoadingPage";
 
-export function AdminServerPage() {
+export function AdminServerPage({ demo = false }: { demo?: boolean }) {
+    const { data: config, loading: configLoading } = useAppConfig();
     const { user, loading } = useAuthContext();
+    if (demo) {
+        if (configLoading) return <LoadingPage />;
+        if (!config?.demo_enabled) return <Navigate to="/home" replace />;
+        return <ServerStatus key="demo" owner={0} demo />;
+    }
     if (loading) return <LoadingPage />;
     if (user?.role !== "admin") return <Navigate to="/home" replace />;
     return <ServerStatus key={user.id} owner={user.id} />;
 }
 
-function ServerStatus({ owner }: { owner: number }) {
+function ServerStatus({ owner, demo = false }: { owner: number; demo?: boolean }) {
     const { t, i18n } = useTranslation();
-    const { data, loading, failed, stale, available, reload } = useAdminStatus(owner);
+    const { data, loading, failed, stale, available, reload } = useAdminStatus(owner, demo);
     const env = data?.environment;
     const rows = env
         ? ([
@@ -59,7 +66,9 @@ function ServerStatus({ owner }: { owner: number }) {
                                     : null}
                             </span>
                         </div>
-                        <p>{t("serverStatus.description")}</p>
+                        <p>
+                            {t(demo ? "admin.demoServerDescription" : "serverStatus.description")}
+                        </p>
                     </div>
                     <Button onClick={reload} disabled={loading || !available}>
                         {t("admin.refresh")}
@@ -127,21 +136,25 @@ function ServerStatus({ owner }: { owner: number }) {
                                         {connection.id === "database" ||
                                         connection.technology === "redis" ? (
                                             <CodeBadge className="server-connection-address">
-                                                {connection.host
-                                                    ? `${connection.host.includes(":") ? `[${connection.host}]` : connection.host}${connection.port ? `:${connection.port}` : ""}`
-                                                    : t(
-                                                          connection.technology === "sqlite"
-                                                              ? "serverStatus.localFile"
-                                                              : "serverStatus.localSocket",
-                                                      )}
+                                                {demo
+                                                    ? t("admin.demoHidden")
+                                                    : connection.host
+                                                      ? `${connection.host.includes(":") ? `[${connection.host}]` : connection.host}${connection.port ? `:${connection.port}` : ""}`
+                                                      : t(
+                                                            connection.technology === "sqlite"
+                                                                ? "serverStatus.localFile"
+                                                                : "serverStatus.localSocket",
+                                                        )}
                                             </CodeBadge>
                                         ) : null}
                                         {connection.id === "object_storage" &&
                                         connection.transport ? (
                                             <CodeBadge className="server-connection-address">
-                                                {connection.transport === "filesystem"
-                                                    ? t("serverStatus.localFile")
-                                                    : `${connection.transport.toUpperCase()} · ${t("serverStatus.port", { port: connection.port })}`}
+                                                {demo && connection.transport !== "filesystem"
+                                                    ? connection.transport.toUpperCase()
+                                                    : connection.transport === "filesystem"
+                                                      ? t("serverStatus.localFile")
+                                                      : `${connection.transport.toUpperCase()} · ${t("serverStatus.port", { port: connection.port })}`}
                                             </CodeBadge>
                                         ) : null}
                                     </div>

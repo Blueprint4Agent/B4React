@@ -137,3 +137,5 @@ Original project material is available under the [MIT License](LICENSE). Retain 
 copyright and permission notice when redistributing copies or substantial portions.
 Third-party dependencies, [brand assets](public/stack-brands/LICENSE.md) and
 [country/region data](src/data/countryRegions.LICENSE.txt) retain their own notices.
+
+Administrator demo: [English](notes/admin-demo.md) · [한국어](notes/ko/admin-demo.md).

@@ -7,5 +7,11 @@ export function profileSidebarPath(location: SidebarLocation): string {
         state && typeof state === "object" && "profileSidebarPath" in state
             ? state.profileSidebarPath
             : undefined;
-    return path === "/settings" || path === "/admin" || path === "/admin/server" ? path : "/home";
+    return path === "/settings" ||
+        path === "/admin" ||
+        path === "/admin/server" ||
+        path === "/demo/admin" ||
+        path === "/demo/admin/server"
+        ? path
+        : "/home";
 }

@@ -101,8 +101,11 @@ export function AppSidebar({
             setBusy(false);
         }
     };
+    const isDemoPanel = appConfig?.demo_enabled === true && sidebarPath.startsWith("/demo/admin");
+    const adminPath = isDemoPanel ? "/demo/admin" : "/admin";
     const isAdminPanel =
-        sidebarPath.startsWith("/admin") && (user?.role === "admin" || user?.role === "manager");
+        isDemoPanel ||
+        (sidebarPath.startsWith("/admin") && (user?.role === "admin" || user?.role === "manager"));
     const items = isAdminPanel
         ? [
               {
@@ -111,11 +114,11 @@ export function AppSidebar({
                   icon: ArrowLeft,
                   section: "back",
               },
-              { path: "/admin", label: t("admin.users"), icon: Users, section: "users" },
-              ...(user?.role === "admin"
+              { path: adminPath, label: t("admin.users"), icon: Users, section: "users" },
+              ...(isDemoPanel || user?.role === "admin"
                   ? [
                         {
-                            path: "/admin/server",
+                            path: `${adminPath}/server`,
                             label: t("serverStatus.title"),
                             icon: Server,
                             section: "server",
@@ -175,6 +178,16 @@ export function AppSidebar({
                     icon: Home,
                     section: "",
                 },
+                ...(appConfig?.demo_enabled
+                    ? [
+                          {
+                              path: "/demo/admin",
+                              label: t("admin.demo"),
+                              icon: Users,
+                              section: "demo",
+                          },
+                      ]
+                    : []),
                 ...(development
                     ? [
                           {

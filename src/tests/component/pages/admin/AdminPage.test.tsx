@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { AdminPage } from "../../../../pages/admin/AdminPage";
 import type { AdminUserList } from "../../../../hooks/api/auth/useAdminUsers";
 import i18n from "../../../../i18n";
+import { AppConfigProvider } from "../../../../hooks/AppConfigProvider";
 
 vi.mock("../../../../hooks/useAuth", () => ({
     useAuthContext: () => ({ user: { id: 1, role: "admin" }, loading: false }),
@@ -56,7 +57,11 @@ describe("admin table render isolation", () => {
         ) {
             return new NativeDateTimeFormat(...args);
         });
-        render(<AdminPage />);
+        render(
+            <AppConfigProvider>
+                <AdminPage />
+            </AppConfigProvider>,
+        );
         const initial = formats.mock.calls.length;
         expect(initial).toBe(20);
         expect(constructors).toHaveBeenCalledTimes(1);
@@ -70,13 +75,21 @@ describe("admin table render isolation", () => {
     it("still renders changed rows, language and loading/error states", async () => {
         // Given: a loaded memoized table.
         response.value = { data: payload(), loading: false, error: null };
-        const { rerender } = render(<AdminPage />);
+        const { rerender } = render(
+            <AppConfigProvider>
+                <AdminPage />
+            </AppConfigProvider>,
+        );
         // When: a fresh API snapshot and locale arrive.
         response.value = {
             ...response.value,
             data: { ...payload(), items: [{ ...payload().items[0], name: "Updated person" }] },
         };
-        rerender(<AdminPage />);
+        rerender(
+            <AppConfigProvider>
+                <AdminPage />
+            </AppConfigProvider>,
+        );
         expect(screen.getByText("Updated person")).toBeVisible();
         expect(screen.queryByText("Person 1")).not.toBeInTheDocument();
         await act(async () => {
@@ -86,7 +99,11 @@ describe("admin table render isolation", () => {
         expect(screen.getByRole("region", { name: i18n.t("admin.users") })).toBeVisible();
         expect(screen.getByText(i18n.t("recentAccounts.providers.email"))).toBeVisible();
         response.value = { data: { ...payload(), items: [] }, loading: true, error: null };
-        rerender(<AdminPage />);
+        rerender(
+            <AppConfigProvider>
+                <AdminPage />
+            </AppConfigProvider>,
+        );
         expect(screen.getByRole("region", { name: i18n.t("admin.users") })).toHaveAttribute(
             "aria-busy",
             "true",
@@ -96,7 +113,11 @@ describe("admin table render isolation", () => {
             screen.getAllByRole("status", { name: i18n.t("admin.loading") }).length,
         ).toBeGreaterThan(0);
         response.value = { ...response.value, loading: false, error: "request failed" };
-        rerender(<AdminPage />);
+        rerender(
+            <AppConfigProvider>
+                <AdminPage />
+            </AppConfigProvider>,
+        );
         expect(screen.getByRole("table")).toHaveTextContent(i18n.t("admin.loadError"));
     });
 });

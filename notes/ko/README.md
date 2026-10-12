@@ -123,3 +123,5 @@ name/short_name/identifier를 수정한 뒤 `make project-config-check`와 빌�
 상당 부분을 재배포할 때 저작권·허가 고지를 유지하세요. 제3자 의존성·
 [브랜드 자산](../../public/stack-brands/LICENSE.md)·[국가/지역 데이터](../../src/data/countryRegions.LICENSE.txt)는
 각각의 고지를 유지합니다.
+
+관리자 데모: [한국어](admin-demo.md) · [English](../admin-demo.md).

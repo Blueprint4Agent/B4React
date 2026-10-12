@@ -41,8 +41,18 @@ export function ProjectOverview() {
     const { user } = useAuthContext();
     const destinations: Record<(typeof previews)[number], string | null> = {
         components: config?.app_mode === "development" ? "/show-case" : null,
-        users: user?.role === "admin" || user?.role === "manager" ? "/admin" : null,
-        server: user?.role === "admin" ? "/admin/server" : null,
+        users:
+            user?.role === "admin" || user?.role === "manager"
+                ? "/admin"
+                : config?.demo_enabled
+                  ? "/demo/admin"
+                  : null,
+        server:
+            user?.role === "admin"
+                ? "/admin/server"
+                : config?.demo_enabled
+                  ? "/demo/admin/server"
+                  : null,
         billing: config?.billing_enabled ? (user ? "/settings?section=billing" : "/plans") : null,
     };
     const destination = destinations[preview];
