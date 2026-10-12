@@ -1170,6 +1170,9 @@
         "author": {
             "user": "작성자",
             "admin": "관리자"
-        }
+        },
+        "sent": "문의를 보냈습니다.",
+        "followUpBody": "추가 내용",
+        "followUp": "추가 내용 보내기"
     }
 }

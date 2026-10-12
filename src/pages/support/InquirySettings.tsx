@@ -1,6 +1,7 @@
 import { memo, useEffect, useState } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useToast } from "../../hooks/useToast";
 import { useAuthContext } from "../../hooks/useAuth";
 import {
     useInquiries,
@@ -86,10 +87,12 @@ function Compose({
     );
 }
 function Reply({
+    admin,
     busy,
     onSubmit,
 }: {
     busy: boolean;
+    admin: boolean;
     onSubmit: (body: string) => Promise<boolean>;
 }) {
     const { t } = useTranslation();
@@ -105,7 +108,7 @@ function Reply({
             }}
         >
             <TextareaField
-                label={t("support.replyBody")}
+                label={t(admin ? "support.replyBody" : "support.followUpBody")}
                 value={body}
                 onValueChange={setBody}
                 maxLength={4000}
@@ -114,13 +117,14 @@ function Reply({
                 disabled={busy}
             />
             <Button type="submit" disabled={busy || !body.trim()}>
-                {t("support.reply")}
+                {t(admin ? "support.reply" : "support.followUp")}
             </Button>
         </form>
     );
 }
 export function InquirySettings({ owner, admin = false }: { owner: number; admin?: boolean }) {
     const { t, i18n } = useTranslation();
+    const toast = useToast();
     const [params, setParams] = useSearchParams();
     const selectedValue = Number(params.get("inquiry"));
     const selected =
@@ -192,7 +196,10 @@ export function InquirySettings({ owner, admin = false }: { owner: number; admin
                     busy={busy || !available}
                     onSubmit={async (subject, body) => {
                         const result = await submit("create", { subject, body });
-                        if (result) select(result.id);
+                        if (result) {
+                            toast(t("support.sent"));
+                            select(result.id);
+                        }
                         return Boolean(result);
                     }}
                 />
@@ -231,6 +238,7 @@ export function InquirySettings({ owner, admin = false }: { owner: number; admin
                         {detail.status !== "closed" ? (
                             <Reply
                                 key={detail.id}
+                                admin={admin}
                                 busy={busy || !available}
                                 onSubmit={async (body) => Boolean(await submit("reply", { body }))}
                             />

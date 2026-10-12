@@ -114,15 +114,28 @@ for (const width of [390, 1440])
                     await expect(page.getByLabel("Message", { exact: true })).toHaveValue(
                         "Please review my plan.",
                     );
+                    await expect(
+                        page.getByText("Your inquiry has been sent.", { exact: true }),
+                    ).toHaveCount(0);
                     state.fail = false;
                     await page.getByRole("button", { name: "Send inquiry", exact: true }).click();
+                    await expect(
+                        page.getByText("Your inquiry has been sent.", { exact: true }),
+                    ).toBeVisible();
                 } else
                     await page.getByRole("button", { name: "Plan question", exact: true }).click();
                 await expect(
                     page.getByText("Please review my plan.", { exact: true }),
                 ).toBeVisible();
-                await page.getByLabel("Reply message", { exact: true }).fill("Confirmed reply");
-                await page.getByRole("button", { name: "Send reply", exact: true }).click();
+                await page
+                    .getByLabel(admin ? "Reply message" : "Additional message", { exact: true })
+                    .fill("Confirmed reply");
+                await page
+                    .getByRole("button", {
+                        name: admin ? "Send reply" : "Send additional message",
+                        exact: true,
+                    })
+                    .click();
                 await expect(page.getByText("Confirmed reply", { exact: true })).toBeVisible();
                 if (admin) {
                     await page.getByRole("button", { name: "Close inquiry", exact: true }).click();
