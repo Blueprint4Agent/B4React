@@ -14,6 +14,7 @@ import {
     Users,
     Server,
     ArrowLeft,
+    MessageSquare,
     Code2,
     SlidersHorizontal,
     Sun,
@@ -116,6 +117,16 @@ export function AppSidebar({
                   icon: ArrowLeft,
                   section: "back",
               },
+              ...(!isDemoPanel && user?.role === "admin"
+                  ? [
+                        {
+                            path: "/admin/inquiries",
+                            label: t("support.adminTitle"),
+                            icon: MessageSquare,
+                            section: "inquiries",
+                        },
+                    ]
+                  : []),
               { path: adminPath, label: t("admin.users"), icon: Users, section: "users" },
               ...(isDemoPanel || user?.role === "admin"
                   ? [
@@ -165,6 +176,12 @@ export function AppSidebar({
                     label: t("billing.title"),
                     icon: CreditCard,
                     section: "billing",
+                },
+                {
+                    path: "/settings?section=support",
+                    label: t("support.title"),
+                    icon: MessageSquare,
+                    section: "support",
                 },
                 {
                     path: "/settings?section=developers",
@@ -271,7 +288,9 @@ export function AppSidebar({
                     .filter(
                         (item) =>
                             (user ||
-                                !["account", "developers", "billing"].includes(item.section)) &&
+                                !["account", "developers", "billing", "support"].includes(
+                                    item.section,
+                                )) &&
                             (item.section !== "billing" || appConfig?.billing_enabled === true),
                     )
                     .map(({ path, label, icon: Icon, section: itemSection }) => (

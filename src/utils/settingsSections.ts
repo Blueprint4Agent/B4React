@@ -4,7 +4,8 @@ export type SettingsSection =
     | "general"
     | "appearance"
     | "developers"
-    | "billing";
+    | "billing"
+    | "support";
 
 export function resolveSettingsSection(
     section: string | null,
@@ -12,5 +13,6 @@ export function resolveSettingsSection(
 ): SettingsSection {
     if (section === "general" || section === "appearance" || section === "keyboard") return section;
     if (!hasAccount) return "general";
+    if (section === "support") return "support";
     return section === "billing" ? "billing" : section === "developers" ? "developers" : "account";
 }

@@ -22,6 +22,15 @@
             "plan_changed": {
                 "title": "요금제가 변경되었습니다",
                 "body": "{{plan}} 요금제가 적용되었습니다."
+            },
+            "inquiry_received": {
+                "title": "문의가 접수되었습니다"
+            },
+            "inquiry_reply": {
+                "title": "문의에 새 답변이 있습니다"
+            },
+            "inquiry_status": {
+                "title": "문의 상태가 변경되었습니다"
             }
         }
     },
@@ -1113,5 +1122,38 @@
         "localFile": "로컬 파일",
         "localSocket": "로컬 연결",
         "port": "포트 {{port}}"
+    },
+    "support": {
+        "title": "문의하기",
+        "adminTitle": "문의 관리",
+        "description": "문의를 남기고 관리자의 답변을 확인하세요.",
+        "adminDescription": "사용자의 모든 문의를 확인하고 답변합니다.",
+        "subject": "제목",
+        "body": "문의 내용",
+        "privacy": "작성자와 관리자만 볼 수 있습니다. 비밀번호나 결제 정보는 입력하지 마세요.",
+        "send": "문의 보내기",
+        "replyBody": "답변 내용",
+        "reply": "답변 보내기",
+        "new": "문의 작성",
+        "back": "문의 목록",
+        "filter": "상태",
+        "all": "모든 상태",
+        "empty": "아직 작성한 문의가 없습니다.",
+        "error": "문의를 불러오거나 변경하지 못했습니다. 상태를 확인하고 다시 시도해 주세요.",
+        "closed": "종료된 문의입니다. 추가 도움이 필요하면 새 문의를 작성해 주세요.",
+        "status": {
+            "open": "접수",
+            "in_progress": "처리 중",
+            "closed": "종료"
+        },
+        "action": {
+            "open": "다시 열기",
+            "in_progress": "처리 시작",
+            "closed": "문의 종료"
+        },
+        "author": {
+            "user": "작성자",
+            "admin": "관리자"
+        }
     }
 }

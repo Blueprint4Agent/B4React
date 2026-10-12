@@ -76,6 +76,11 @@ const PlansPage = lazy(() =>
     import("./pages/billing/PlansPage").then((module) => ({ default: module.PlansPage })),
 );
 
+const AdminInquiriesPage = lazy(() =>
+    import("./pages/support/InquirySettings").then((module) => ({
+        default: module.AdminInquiriesPage,
+    })),
+);
 const InboxPage = lazy(() =>
     import("./pages/inbox/InboxPage").then((module) => ({ default: module.InboxPage })),
 );
@@ -234,6 +239,7 @@ export function App() {
                 }
             >
                 <Route path="/home" element={<HomePage />} />
+                <Route path="/admin/inquiries" element={<AdminInquiriesPage />} />
                 <Route path="/notifications" element={<InboxPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/dashboard" element={<Navigate to={homePath} replace />} />

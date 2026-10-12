@@ -7190,3 +7190,64 @@ html[data-theme="dark"] .billing-stripe-badge .payment-brand--dark {
 .inbox-state > p {
     margin: 0;
 }
+
+.inquiry-form {
+    display: grid;
+    gap: var(--space-4);
+    max-width: 48rem;
+}
+.inquiry-form > .ui-button {
+    justify-self: start;
+}
+.inquiry-list,
+.inquiry-messages {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-3);
+}
+.inquiry-detail {
+    display: grid;
+    gap: var(--space-4);
+}
+.inquiry-detail__header,
+.inquiry-list__meta,
+.inquiry-message__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+.inquiry-detail__header h2 {
+    font-size: 1rem;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.inquiry-message.settings-row {
+    display: block;
+}
+.inquiry-message p {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    margin-bottom: 0;
+}
+.inquiry-list__meta,
+.inquiry-message__meta {
+    color: var(--text-soft);
+    font-size: 0.75rem;
+}
+.inquiry-list__link.ui-button {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    height: auto;
+    text-align: start;
+    min-width: 0;
+}
+@media (max-width: 640px) {
+    .inquiry-list > .settings-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+}
