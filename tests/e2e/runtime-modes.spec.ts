@@ -126,7 +126,7 @@ for (const width of [390, 1440])
             await page.goto("/");
             await expect(page).toHaveURL(/\/home$/);
             await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
-            await expect(page.locator(".main-page-template__link")).toHaveCount(4);
+            await expect(page.locator(".main-page-template__link")).toHaveCount(6);
             await expect(page.locator('.main-page-template__link[href="/admin"]')).toBeVisible();
             await expect(page.locator('a[href="/show-case"]')).toHaveCount(0);
             const geometry = () =>
@@ -145,6 +145,16 @@ for (const width of [390, 1440])
                         background: style.backgroundColor,
                     };
                 });
+            await expect(
+                page.locator('.main-page-template__link[href="/notifications"]'),
+            ).toBeVisible();
+            await expect(
+                page.locator('.main-page-template__link[href="/settings?section=support"]'),
+            ).toBeVisible();
+            await expect(page.locator(".home-capability")).toHaveCount(12);
+            await expect(page.locator(".home-capabilities")).toContainText(
+                "opt-in WebSocket provider template",
+            );
             const preview = page.locator(".home-preview__figure img");
             await expect(preview).toBeVisible();
             await expect
@@ -211,7 +221,7 @@ for (const width of [390, 1440])
             await page.getByRole("button", { name: "Open screen", exact: true }).click();
             await expect(page).toHaveURL(/section=billing$/);
             await page.goto("/home");
-            await expect(page.locator(".main-page-template__link")).toHaveCount(4);
+            await expect(page.locator(".main-page-template__link")).toHaveCount(6);
             await page.getByRole("button", { name: "View the screens", exact: true }).click();
             await expect
                 .poll(() =>
@@ -233,6 +243,11 @@ for (const width of [390, 1440])
                 path: info.outputPath("home.png"),
                 animations: "disabled",
                 fullPage: true,
+            });
+            await page.locator(".home-capability").last().scrollIntoViewIfNeeded();
+            await page.screenshot({
+                path: info.outputPath("home-features.png"),
+                animations: "disabled",
             });
             await page
                 .locator('.main-page-template__link[href="/settings?section=general"]')
@@ -273,7 +288,7 @@ test("Korean production home wraps long account names and hides privileged short
     await page.goto("/dashboard");
     await expect(page).toHaveURL(/\/home$/);
     await expect(page.getByRole("heading", { name: "홈", exact: true })).toBeVisible();
-    await expect(page.locator(".main-page-template__link")).toHaveCount(3);
+    await expect(page.locator(".main-page-template__link")).toHaveCount(5);
     await expect(page.locator('.main-page-template__link[href="/admin"]')).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
         true,

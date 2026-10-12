@@ -1,5 +1,9 @@
 import {
     Activity,
+    Bell,
+    MessageSquare,
+    Radio,
+    UserRound,
     Coffee,
     CreditCard,
     Database,
@@ -30,6 +34,10 @@ const capabilities = [
     { key: "storage", icon: HardDrive },
     { key: "operations", icon: Activity },
     { key: "delivery", icon: Workflow },
+    { key: "profile", icon: UserRound },
+    { key: "notifications", icon: Bell },
+    { key: "support", icon: MessageSquare },
+    { key: "realtime", icon: Radio },
 ] as const;
 
 export function ProjectOverview() {

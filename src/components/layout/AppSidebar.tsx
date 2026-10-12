@@ -7,7 +7,7 @@ import { resolveSettingsSection } from "../../utils/settingsSections";
 import {
     Coffee,
     Keyboard,
-    AppWindow,
+    Blocks,
     Home,
     CreditCard,
     BookOpen,
@@ -117,10 +117,10 @@ export function AppSidebar({
                   icon: ArrowLeft,
                   section: "back",
               },
-              ...(!isDemoPanel && user?.role === "admin"
+              ...(isDemoPanel || user?.role === "admin"
                   ? [
                         {
-                            path: "/admin/inquiries",
+                            path: `${adminPath}/inquiries`,
                             label: t("support.adminTitle"),
                             icon: MessageSquare,
                             section: "inquiries",
@@ -202,7 +202,7 @@ export function AppSidebar({
                           {
                               path: "/show-case",
                               label: t("nav.sidebar.showCase"),
-                              icon: AppWindow,
+                              icon: Blocks,
                               section: "showcase",
                           },
                       ]
@@ -385,7 +385,7 @@ export function AppSidebar({
                     showPlans={appConfig?.billing_enabled === true}
                     expanded={expanded}
                     showAdmin={user?.role === "admin" || user?.role === "manager"}
-                    showAdminDemo={appConfig?.demo_enabled === true}
+                    showAdminDemo={appConfig?.demo_enabled === true && user?.role !== "admin"}
                     inboxUnread={inboxUnread}
                     avatarLabel={user ? displayName.slice(0, 1).toUpperCase() : undefined}
                     avatarImageUrl={profileImageUrl}

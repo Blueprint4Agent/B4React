@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useToast } from "../../hooks/useToast";
@@ -19,6 +19,8 @@ import {
     StatusBadge,
     Pagination,
 } from "../../components/ui";
+import { useAppConfig } from "../../hooks/useFeatures";
+import { demoInquiries } from "./demoInquiries";
 import { LoadingPage } from "../main/LoadingPage";
 
 const Messages = memo(function Messages({ messages }: { messages: InquiryDetail["messages"] }) {
@@ -122,7 +124,15 @@ function Reply({
         </form>
     );
 }
-export function InquirySettings({ owner, admin = false }: { owner: number; admin?: boolean }) {
+export function InquirySettings({
+    owner,
+    admin = false,
+    demo = false,
+}: {
+    owner: number;
+    admin?: boolean;
+    demo?: boolean;
+}) {
     const { t, i18n } = useTranslation();
     const toast = useToast();
     const [params, setParams] = useSearchParams();
@@ -135,13 +145,14 @@ export function InquirySettings({ owner, admin = false }: { owner: number; admin
     useEffect(() => {
         setComposing(false);
     }, [selected]);
-    const { list, detail, loading, busy, error, available, submit, reload } = useInquiries(
-        owner,
-        admin,
-        page,
-        status,
-        selected,
-    );
+    const live = useInquiries(owner, admin, page, status, selected, !demo);
+    const samples = useMemo(() => demoInquiries(t), [t, i18n.resolvedLanguage]);
+    const filteredSamples = samples.filter((item) => !status || item.status === status);
+    const { busy, available, submit, reload } = live;
+    const loading = !demo && live.loading;
+    const error = !demo && live.error;
+    const list = demo ? { items: filteredSamples, total: filteredSamples.length } : live.list;
+    const detail = demo ? (samples.find((item) => item.id === selected) ?? null) : live.detail;
     const pages = Math.max(1, Math.ceil((list?.total ?? 0) / 20));
     useEffect(() => {
         if (list && page > pages) setPage(pages);
@@ -159,7 +170,15 @@ export function InquirySettings({ owner, admin = false }: { owner: number; admin
         <>
             <header className="settings-content-card__header">
                 <h1>{t(admin ? "support.adminTitle" : "support.title")}</h1>
-                <p>{t(admin ? "support.adminDescription" : "support.description")}</p>
+                <p>
+                    {t(
+                        demo
+                            ? "support.demoDescription"
+                            : admin
+                              ? "support.adminDescription"
+                              : "support.description",
+                    )}
+                </p>
             </header>
             <div className="inbox-toolbar">
                 {(selected || composing) && (
@@ -217,7 +236,7 @@ export function InquirySettings({ owner, admin = false }: { owner: number; admin
                                 {detail.requester_name} · {detail.requester_email}
                             </p>
                         )}
-                        {admin && (
+                        {admin && !demo && (
                             <div className="inbox-toolbar">
                                 {(["open", "in_progress", "closed"] as const)
                                     .filter((value) => value !== detail.status)
@@ -235,7 +254,7 @@ export function InquirySettings({ owner, admin = false }: { owner: number; admin
                             </div>
                         )}
                         <Messages messages={detail.messages} />
-                        {detail.status !== "closed" ? (
+                        {demo ? null : detail.status !== "closed" ? (
                             <Reply
                                 key={detail.id}
                                 admin={admin}
@@ -249,13 +268,17 @@ export function InquirySettings({ owner, admin = false }: { owner: number; admin
                 ) : (
                     !error && (
                         <div className="inbox-state">
-                            <Spinner label={t("admin.loading")} />
+                            {demo ? (
+                                <p>{t("support.empty")}</p>
+                            ) : (
+                                <Spinner label={t("admin.loading")} />
+                            )}
                         </div>
                     )
                 )
             ) : loading && !list ? (
                 <div className="inbox-state">
-                    <Spinner label={t("admin.loading")} />
+                    {demo ? <p>{t("support.empty")}</p> : <Spinner label={t("admin.loading")} />}
                 </div>
             ) : list?.items.length ? (
                 <>
@@ -302,15 +325,23 @@ export function InquirySettings({ owner, admin = false }: { owner: number; admin
         </>
     );
 }
-export function AdminInquiriesPage() {
+export function AdminInquiriesPage({ demo = false }: { demo?: boolean }) {
+    const { data: config, loading: configLoading } = useAppConfig();
     const { user, loading } = useAuthContext();
-    if (loading) return <LoadingPage />;
-    if (!user) return <Navigate to="/login" replace />;
-    if (user.role !== "admin") return <Navigate to="/home" replace />;
+    if (demo && configLoading) return <LoadingPage />;
+    if (demo && !config?.demo_enabled) return <Navigate to="/home" replace />;
+    if (!demo && loading) return <LoadingPage />;
+    if (!demo && !user) return <Navigate to="/login" replace />;
+    if (!demo && user?.role !== "admin") return <Navigate to="/home" replace />;
     return (
         <section className="settings-layout">
             <PrimaryCard className="settings-content-card">
-                <InquirySettings key={user.id} owner={user.id} admin />
+                <InquirySettings
+                    key={demo ? "demo" : user?.id}
+                    owner={demo ? 0 : user!.id}
+                    admin
+                    demo={demo}
+                />
             </PrimaryCard>
         </section>
     );

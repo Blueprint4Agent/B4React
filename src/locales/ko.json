@@ -1025,7 +1025,7 @@
         "project": {
             "title": "FastAPI와 React로",
             "titleAccent": "시작하는 서비스.",
-            "description": "로그인, 계정 관리, 공통 UI와 Docker 배포 구성을 담았습니다. 필요한 기능을 골라 확장하는 풀스택 프로젝트입니다.",
+            "description": "로그인부터 결제, 알림과 문의 관리까지. 공통 UI와 Docker 배포 구성을 갖춘 FastAPI·React 프로젝트입니다.",
             "explore": "화면 살펴보기",
             "included": "포함된 기능",
             "stack": "프로젝트 기술 구성",
@@ -1061,8 +1061,8 @@
             "capabilitiesNote": "프로젝트에서 지원하는 기능입니다. 외부 서비스는 별도 설정 후 활성화합니다.",
             "billingTitle": "결제와 구독",
             "billingDescription": "Stripe 기반 요금제, 결제 수단 등록, 구독 변경과 청구 내역 관리.",
-            "cacheTitle": "캐시와 실시간 연결",
-            "cacheDescription": "Redis 또는 개발용 메모리 저장소, 세션·토큰 관리와 실시간 이벤트 연결.",
+            "cacheTitle": "캐시와 세션",
+            "cacheDescription": "Redis 또는 개발용 메모리 저장소를 사용하는 캐시, 세션·토큰 관리.",
             "emailTitle": "이메일과 작업 큐",
             "emailDescription": "SMTP 이메일 인증·비밀번호 재설정과 Celery 기반 비동기 발송.",
             "storageTitle": "오브젝트 스토리지",
@@ -1070,8 +1070,22 @@
             "operationsTitle": "관리와 모니터링",
             "operationsDescription": "사용자 목록, 서버 상태, OpenTelemetry·Prometheus·Grafana 기반 관측 구성.",
             "supportLabel": "프로젝트 후원",
-            "supportTitle": "B4A 후원하기",
-            "supportDescription": "프로젝트가 도움이 되었다면, 커피 한 잔으로 개발을 응원해 주세요."
+            "supportTitle": "문의와 관리자 답변",
+            "supportDescription": "설정에서 비공개 문의를 작성하고, 관리자는 전체 문의에 답변하며 처리 상태를 관리합니다.",
+            "profileTitle": "프로필과 계정 보안",
+            "profileDescription": "프로필 사진·소개·지역 편집, 이메일 인증을 통한 비밀번호 변경과 계정 삭제.",
+            "notificationsTitle": "알림함",
+            "notificationsDescription": "가입·결제 변경·문의 알림을 한곳에서 확인하고, 선택 읽음과 삭제로 정리합니다.",
+            "realtimeTitle": "실시간 연결",
+            "realtimeDescription": "SSE로 알림을 갱신합니다. 웹소켓은 인증·재연결을 연결할 수 있는 선택형 프로바이더를 제공합니다."
+        },
+        "notifications": {
+            "title": "알림함",
+            "description": "새 알림을 확인하고 읽음·삭제로 정리하세요."
+        },
+        "support": {
+            "title": "문의하기",
+            "description": "문의 내용을 보내고 관리자의 답변을 확인하세요."
         }
     },
     "serverStatus": {
@@ -1173,6 +1187,24 @@
         },
         "sent": "문의를 보냈습니다.",
         "followUpBody": "추가 내용",
-        "followUp": "추가 내용 보내기"
+        "followUp": "추가 내용 보내기",
+        "demoDescription": "예시 데이터로 보는 문의 관리 화면입니다. 실제 문의는 표시하지 않으며 답변·상태 변경은 할 수 없습니다.",
+        "demoRequester": "예시 사용자 {{number}}",
+        "demoSamples": [
+            {
+                "subject": "로그인 안내를 받고 싶어요",
+                "body": "이메일로 로그인하는 방법을 알려주세요."
+            },
+            {
+                "subject": "요금제 변경 문의",
+                "body": "다음 결제 전에 요금제를 변경할 수 있나요?",
+                "reply": "결제 설정에서 요금제 변경을 선택할 수 있습니다. 적용 시점은 변경 확인 화면에서 확인해 주세요."
+            },
+            {
+                "subject": "프로필 사진 변경",
+                "body": "프로필 사진을 변경하는 위치가 궁금합니다.",
+                "reply": "프로필 화면에서 사진을 선택하면 변경할 수 있습니다. 해결되어 문의를 종료했습니다."
+            }
+        ]
     }
 }

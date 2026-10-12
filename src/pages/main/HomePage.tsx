@@ -1,4 +1,4 @@
-import { CreditCard, Settings2, UserRound, Users } from "lucide-react";
+import { Bell, MessageSquare, CreditCard, Settings2, UserRound, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { MainPageTemplate } from "../../components/layout/MainPageTemplate";
@@ -28,6 +28,12 @@ export function HomePage() {
                       to: user ? "/settings?section=billing" : "/plans",
                       icon: CreditCard,
                   },
+              ]
+            : []),
+        ...(user
+            ? [
+                  { key: "notifications", to: "/notifications", icon: Bell },
+                  { key: "support", to: "/settings?section=support", icon: MessageSquare },
               ]
             : []),
         { key: "preferences", to: "/settings?section=general", icon: Settings2 },
