@@ -179,7 +179,7 @@ for (const width of [390, 1440])
             ).toHaveAttribute("href", "/admin");
             await expect(
                 page.getByRole("link", { name: "Admin panel (demo)", exact: true }),
-            ).toHaveAttribute("href", "/demo/admin");
+            ).toHaveCount(0);
             await page.keyboard.press("Escape");
             await page.goto("/admin/server");
             await expect(page.getByText("SQLite", { exact: true })).toBeVisible();
@@ -192,7 +192,7 @@ test("disabled public demo hides navigation and refuses both direct routes", asy
     page.on("request", (request) => {
         if (request.url().includes("/api/v1/admin/demo/")) requests.push(request.url());
     });
-    for (const path of ["/demo/admin", "/demo/admin/server"]) {
+    for (const path of ["/demo/admin", "/demo/admin/server", "/demo/admin/inquiries"]) {
         await page.goto(path);
         await expect(page).toHaveURL(/\/home$/);
         await page.locator(".profile-menu__trigger").click();
@@ -200,5 +200,29 @@ test("disabled public demo hides navigation and refuses both direct routes", asy
             page.getByRole("link", { name: "Admin panel (demo)", exact: true }),
         ).toHaveCount(0);
     }
+    expect(requests).toEqual([]);
+});
+
+test("inquiry demo uses sample data without reading or mutating private inquiries", async ({
+    page,
+}, info) => {
+    await setupDemo(page);
+    const requests: string[] = [];
+    page.on("request", (request) => {
+        if (request.url().includes("/api/v1/inquiries")) requests.push(request.url());
+    });
+    await page.goto("/demo/admin");
+    await page.getByRole("link", { name: "Support inquiries", exact: true }).click();
+    await expect(page.getByText(/Read-only inquiry demo with sample data/)).toBeVisible();
+    await page.getByRole("button", { name: "Changing my subscription", exact: true }).click();
+    await expect(
+        page.getByText("Can I change my plan before the next payment?", { exact: true }),
+    ).toBeVisible();
+    await expect(page.getByText(/Choose a plan in billing settings/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Send reply", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Close inquiry", exact: true })).toHaveCount(0);
+    await page.reload();
+    await expect(page.getByText(/Choose a plan in billing settings/)).toBeVisible();
+    await page.screenshot({ path: info.outputPath("demo-inquiries.png"), fullPage: true });
     expect(requests).toEqual([]);
 });

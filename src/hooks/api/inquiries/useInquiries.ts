@@ -18,10 +18,11 @@ export function useInquiries(
     page: number,
     status: InquiryStatus | undefined,
     selected: number | null,
+    enabled = true,
 ) {
     const { revision, refresh } = useInboxContext();
     const { isDesktop, status: connectivity } = useServerConnectivity();
-    const available = !isDesktop || connectivity === "online";
+    const available = enabled && (!isDesktop || connectivity === "online");
     const key = JSON.stringify([owner, admin, page, status, selected]);
     const [snapshot, setSnapshot] = useState<{
         key: string;

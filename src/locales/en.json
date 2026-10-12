@@ -1025,7 +1025,7 @@
         "project": {
             "title": "FastAPI and React.",
             "titleAccent": "Ready for your service.",
-            "description": "Sign-in, account management, shared UI and Docker deployment in one project. Extend the parts your service needs.",
+            "description": "From sign-in and billing to notifications and support. A FastAPI and React project with shared UI and Docker deployment built in.",
             "explore": "View the screens",
             "included": "Included features",
             "stack": "Built with",
@@ -1061,8 +1061,8 @@
             "capabilitiesNote": "Features supported by the project. External services require separate configuration.",
             "billingTitle": "Billing and subscriptions",
             "billingDescription": "Stripe plans, payment methods, subscription changes and invoice history.",
-            "cacheTitle": "Cache and realtime",
-            "cacheDescription": "Redis or an in-memory development store, session and token management, and realtime events.",
+            "cacheTitle": "Cache and sessions",
+            "cacheDescription": "Redis or an in-memory development store for caching, sessions and token management.",
             "emailTitle": "Email and task queues",
             "emailDescription": "SMTP verification and password resets, with asynchronous delivery through Celery.",
             "storageTitle": "Object storage",
@@ -1070,8 +1070,22 @@
             "operationsTitle": "Administration and monitoring",
             "operationsDescription": "User directory, server status and OpenTelemetry, Prometheus and Grafana integration.",
             "supportLabel": "Project support",
-            "supportTitle": "Support B4A",
-            "supportDescription": "If this project helped you, you can support its continued development."
+            "supportTitle": "Inquiries and admin replies",
+            "supportDescription": "Send private inquiries from Settings. Administrators can review every inquiry, reply and track its status.",
+            "profileTitle": "Profiles and account security",
+            "profileDescription": "Edit photos, bios and locations. Verify email ownership for password changes and account deletion.",
+            "notificationsTitle": "Notification inbox",
+            "notificationsDescription": "Keep signup, billing and support updates together. Select notifications to mark them read or delete them.",
+            "realtimeTitle": "Realtime connections",
+            "realtimeDescription": "SSE refreshes notifications. An opt-in WebSocket provider template is ready for your authentication and reconnect flow."
+        },
+        "notifications": {
+            "title": "Notifications",
+            "description": "Read and organize your account updates."
+        },
+        "support": {
+            "title": "Support",
+            "description": "Send an inquiry and read administrator replies."
         }
     },
     "serverStatus": {
@@ -1173,6 +1187,24 @@
         },
         "sent": "Your inquiry has been sent.",
         "followUpBody": "Additional message",
-        "followUp": "Send additional message"
+        "followUp": "Send additional message",
+        "demoDescription": "Read-only inquiry demo with sample data. Real inquiries are never shown; replies and status changes are disabled.",
+        "demoRequester": "Sample user {{number}}",
+        "demoSamples": [
+            {
+                "subject": "Help with signing in",
+                "body": "How can I sign in using my email?"
+            },
+            {
+                "subject": "Changing my subscription",
+                "body": "Can I change my plan before the next payment?",
+                "reply": "Choose a plan in billing settings and review its effective date before confirming."
+            },
+            {
+                "subject": "Updating my profile photo",
+                "body": "Where can I update my profile photo?",
+                "reply": "Select your photo on the profile page to replace it. This resolved inquiry is now closed."
+            }
+        ]
     }
 }

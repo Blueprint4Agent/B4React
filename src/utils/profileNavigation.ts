@@ -13,7 +13,8 @@ export function profileSidebarPath(location: SidebarLocation): string {
         path === "/admin/server" ||
         path === "/admin/inquiries" ||
         path === "/demo/admin" ||
-        path === "/demo/admin/server"
+        path === "/demo/admin/server" ||
+        path === "/demo/admin/inquiries"
         ? path
         : "/home";
 }

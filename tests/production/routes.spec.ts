@@ -143,5 +143,5 @@ test("production home remains available when a secondary route chunk fails", asy
     await page.getByRole("button", { name: "Home", exact: true }).click();
     await expect(page).toHaveURL(/\/home$/);
     await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
-    await expect(page.locator(".main-page-template__link")).toHaveCount(3);
+    await expect(page.locator(".main-page-template__link")).toHaveCount(5);
 });
