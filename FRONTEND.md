@@ -745,3 +745,5 @@ Account/profile settings and email verification follow [account/profile](notes/a
 Button supports showcased `iconOnly` rectangular actions (32px, 44px for coarse pointers). TextareaField supports a CSS mirror for auto-growing inline text without script-driven geometry. Profile inline name/Bio edits retain the display footprint; the location editor uses an anchored popover.
 
 DropdownMenu `floating` reuses the viewport-positioning loop outside modals for large field lists. Profile country/region lists use the shared 18rem cap, internal scrolling and anchor clamping, preserving page height and list scroll offsets.
+
+Optional WebSocket features use [the opt-in provider template](notes/websocket-provider.md). Keep authentication/session ownership in the caller, use a stable abortable connection factory, and retain domain HTTP reconciliation. Do not replace existing SSE or mount a socket globally without a concrete endpoint and authorization contract.

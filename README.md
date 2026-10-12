@@ -143,3 +143,5 @@ Administrator demo: [English](notes/admin-demo.md) · [한국어](notes/ko/admin
 Notification inbox: [English](notes/notification-inbox.md) · [한국어](notes/ko/notification-inbox.md).
 
 - Support inquiries: [English](notes/support-inquiries.md) · [한국어](notes/ko/support-inquiries.md)
+
+- Optional WebSocket provider: [English](notes/websocket-provider.md) · [한국어](notes/ko/websocket-provider.md)
