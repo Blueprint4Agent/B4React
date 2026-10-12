@@ -131,7 +131,20 @@ for (const width of [390, 1440])
                     privateRequests.push(request.url());
             });
             await page.goto("/home");
-            await page.getByRole("link", { name: "Admin demo", exact: true }).click();
+            await expect(
+                page
+                    .locator(".app-sidebar__nav")
+                    .getByRole("link", { name: "Admin panel (demo)", exact: true }),
+            ).toHaveCount(0);
+            await page.locator(".profile-menu__trigger").click();
+            const demoEntry = page.getByRole("link", { name: "Admin panel (demo)", exact: true });
+            await expect(demoEntry).toBeVisible();
+            await expect(demoEntry).toHaveClass("profile-menu__item");
+            await page.screenshot({
+                path: info.outputPath("demo-profile-menu.png"),
+                fullPage: true,
+            });
+            await demoEntry.click();
             await expect(page.getByText(row.email, { exact: true })).toBeVisible();
             await expect(page.getByText(/Read-only demo of real user data/)).toBeVisible();
             const geometry = () =>
@@ -160,6 +173,14 @@ for (const width of [390, 1440])
             await page.goto("/admin");
             await expect(page.getByText(row.email, { exact: true })).toBeVisible();
             expect(await geometry()).toEqual(directoryGeometry);
+            await page.locator(".profile-menu__trigger").click();
+            await expect(
+                page.getByRole("link", { name: "Admin panel", exact: true }),
+            ).toHaveAttribute("href", "/admin");
+            await expect(
+                page.getByRole("link", { name: "Admin panel (demo)", exact: true }),
+            ).toHaveAttribute("href", "/demo/admin");
+            await page.keyboard.press("Escape");
             await page.goto("/admin/server");
             await expect(page.getByText("SQLite", { exact: true })).toBeVisible();
             expect(await geometry()).toEqual(statusGeometry);
@@ -174,7 +195,10 @@ test("disabled public demo hides navigation and refuses both direct routes", asy
     for (const path of ["/demo/admin", "/demo/admin/server"]) {
         await page.goto(path);
         await expect(page).toHaveURL(/\/home$/);
-        await expect(page.getByRole("link", { name: "Admin demo", exact: true })).toHaveCount(0);
+        await page.locator(".profile-menu__trigger").click();
+        await expect(
+            page.getByRole("link", { name: "Admin panel (demo)", exact: true }),
+        ).toHaveCount(0);
     }
     expect(requests).toEqual([]);
 });

@@ -178,16 +178,6 @@ export function AppSidebar({
                     icon: Home,
                     section: "",
                 },
-                ...(appConfig?.demo_enabled
-                    ? [
-                          {
-                              path: "/demo/admin",
-                              label: t("admin.demo"),
-                              icon: Users,
-                              section: "demo",
-                          },
-                      ]
-                    : []),
                 ...(development
                     ? [
                           {
@@ -372,6 +362,7 @@ export function AppSidebar({
                     showPlans={appConfig?.billing_enabled === true}
                     expanded={expanded}
                     showAdmin={user?.role === "admin" || user?.role === "manager"}
+                    showAdminDemo={appConfig?.demo_enabled === true}
                     avatarLabel={user ? displayName.slice(0, 1).toUpperCase() : undefined}
                     avatarImageUrl={profileImageUrl}
                     subscriptionTier={subscriptionTier}
