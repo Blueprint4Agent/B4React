@@ -1,4 +1,30 @@
 {
+    "inbox": {
+        "title": "알림함",
+        "description": "계정과 문의에 관한 소식을 확인합니다.",
+        "unread": "읽지 않음",
+        "unreadOnly": "읽지 않은 알림만",
+        "count": "미확인 {{count}}개",
+        "open": "내용 보기",
+        "read": "읽음 처리",
+        "readAll": "모두 읽음",
+        "empty": "표시할 알림이 없습니다.",
+        "error": "알림을 불러오거나 변경하지 못했습니다. 다시 시도해 주세요.",
+        "events": {
+            "welcome": {
+                "title": "B4A에 오신 것을 환영합니다",
+                "body": "계정이 생성되었습니다. B4A의 기능을 둘러보세요."
+            },
+            "subscription_started": {
+                "title": "구독이 시작되었습니다",
+                "body": "{{plan}} 요금제의 결제가 확인되었습니다."
+            },
+            "plan_changed": {
+                "title": "요금제가 변경되었습니다",
+                "body": "{{plan}} 요금제가 적용되었습니다."
+            }
+        }
+    },
     "app": {
         "loadingTitle": "로딩 중",
         "loadingSubtitle": "작업 공간을 준비하고 있습니다. 잠시만 기다려 주세요.",

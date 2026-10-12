@@ -7135,3 +7135,58 @@ html[data-theme="dark"] .billing-stripe-badge .payment-brand--dark {
         min-height: 2.75rem;
     }
 }
+
+.inbox-toolbar,
+.inbox-row__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+.inbox-toolbar {
+    margin-block: 20px;
+}
+.inbox-list {
+    display: grid;
+    gap: var(--space-3);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.inbox-row {
+    align-items: flex-start;
+    gap: 16px;
+}
+.inbox-row__copy {
+    min-width: 0;
+    flex: 1;
+    overflow-wrap: anywhere;
+}
+.inbox-row__copy h2 {
+    font-size: 14px;
+    margin: 0 0 8px;
+}
+.inbox-row__copy p {
+    white-space: pre-wrap;
+    margin: 0 0 8px;
+}
+.inbox-row__copy time {
+    font-size: 12px;
+}
+@media (max-width: 640px) {
+    .inbox-row {
+        flex-direction: column;
+    }
+}
+
+.inbox-state {
+    display: flex;
+    min-height: 240px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--text-soft);
+}
+.inbox-state > p {
+    margin: 0;
+}

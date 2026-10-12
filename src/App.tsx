@@ -1,3 +1,4 @@
+import { InboxProvider, useInboxContext } from "./hooks/api/inbox/InboxProvider";
 import { useSubscription } from "./hooks/api/billing/useSubscription";
 import { tierFor } from "./utils/billingPlans";
 import { useTranslation } from "react-i18next";
@@ -75,11 +76,34 @@ const PlansPage = lazy(() =>
     import("./pages/billing/PlansPage").then((module) => ({ default: module.PlansPage })),
 );
 
+const InboxPage = lazy(() =>
+    import("./pages/inbox/InboxPage").then((module) => ({ default: module.InboxPage })),
+);
+
 function AppShell({ children }: { children: ReactNode }) {
     const { user } = useAuthContext();
     const billing = useSubscription(user?.id);
     const tier = !billing.error && billing.subscription ? tierFor(billing.subscription.plan) : null;
-    return <AppLayout subscriptionTier={tier}>{children}</AppLayout>;
+    return (
+        <InboxProvider>
+            <InboxShell tier={tier}>{children}</InboxShell>
+        </InboxProvider>
+    );
+}
+
+function InboxShell({
+    children,
+    tier,
+}: {
+    children: ReactNode;
+    tier: import("./utils/billingPlans").SubscriptionTier | null;
+}) {
+    const { unread } = useInboxContext();
+    return (
+        <AppLayout subscriptionTier={tier} inboxUnread={unread}>
+            {children}
+        </AppLayout>
+    );
 }
 
 function NotFoundRoute({
@@ -210,6 +234,7 @@ export function App() {
                 }
             >
                 <Route path="/home" element={<HomePage />} />
+                <Route path="/notifications" element={<InboxPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/dashboard" element={<Navigate to={homePath} replace />} />
                 <Route

@@ -4,6 +4,7 @@ import type { SubscriptionTier } from "../../utils/billingPlans";
 import { createPortal } from "react-dom";
 import { useRecentAccounts } from "../../hooks/useRecentAccounts";
 import {
+    Bell,
     Sparkles,
     LogOut,
     Settings,
@@ -27,6 +28,7 @@ type ProfileDropdownProps = {
     showLogin?: boolean;
     showAdmin?: boolean;
     showAdminDemo?: boolean;
+    inboxUnread?: number | null;
     allowAccountSwitching?: boolean;
     avatarLabel?: string;
     avatarImageUrl?: string | null;
@@ -46,6 +48,7 @@ export function ProfileDropdown({
     showLogin = false,
     showAdmin = false,
     showAdminDemo = false,
+    inboxUnread: unread = null,
     allowAccountSwitching = false,
     avatarLabel,
     avatarImageUrl,
@@ -357,6 +360,17 @@ export function ProfileDropdown({
                             <span>{t("billing.changePlan")}</span>
                         </Link>
                     )}
+                    {!showLogin ? (
+                        <Link to="/notifications" className="profile-menu__item">
+                            <span className="profile-menu__item-icon" aria-hidden="true">
+                                <Bell />
+                            </span>
+                            <span>
+                                {t("inbox.title")}
+                                {unread ? ` (${unread > 99 ? "99+" : unread})` : ""}
+                            </span>
+                        </Link>
+                    ) : null}
                     {showAdmin ? (
                         <Link to="/admin" className="profile-menu__item">
                             <span className="profile-menu__item-icon" aria-hidden="true">

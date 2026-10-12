@@ -14,6 +14,15 @@ export const test = base.extend({
                 json: { plan: "free", status: "none", has_subscription: false },
             }),
         );
+        await context.route("**/api/v1/inbox/summary", (route) =>
+            route.fulfill({ json: { unread_count: 0, latest_id: 0 } }),
+        );
+        await context.route("**/api/v1/events/stream", (route) =>
+            route.fulfill({
+                contentType: "text/event-stream",
+                body: 'event: ping\ndata: {"type":"ping"}\n\n',
+            }),
+        );
         await use(context);
     },
 });

@@ -37,6 +37,7 @@ import { SidebarResizeHandle, SIDEBAR_DEFAULT_WIDTH } from "./SidebarResizeHandl
 type AppSidebarProps = {
     expanded: boolean;
     subscriptionTier?: SubscriptionTier | null;
+    inboxUnread?: number | null;
     width?: number;
     onWidthChange?: (width: number) => void;
     onResizingChange?: (resizing: boolean) => void;
@@ -46,6 +47,7 @@ type AppSidebarProps = {
 export function AppSidebar({
     expanded,
     subscriptionTier,
+    inboxUnread,
     onToggleExpanded,
     width = SIDEBAR_DEFAULT_WIDTH,
     onWidthChange,
@@ -363,6 +365,7 @@ export function AppSidebar({
                     expanded={expanded}
                     showAdmin={user?.role === "admin" || user?.role === "manager"}
                     showAdminDemo={appConfig?.demo_enabled === true}
+                    inboxUnread={inboxUnread}
                     avatarLabel={user ? displayName.slice(0, 1).toUpperCase() : undefined}
                     avatarImageUrl={profileImageUrl}
                     subscriptionTier={subscriptionTier}

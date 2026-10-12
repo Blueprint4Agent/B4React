@@ -1,4 +1,30 @@
 {
+    "inbox": {
+        "title": "Notifications",
+        "description": "Updates for your account and support requests.",
+        "unread": "Unread",
+        "unreadOnly": "Unread only",
+        "count": "Unread: {{count}}",
+        "open": "View details",
+        "read": "Mark read",
+        "readAll": "Mark all read",
+        "empty": "No notifications to show.",
+        "error": "Could not update notifications. Please try again.",
+        "events": {
+            "welcome": {
+                "title": "Welcome to B4A",
+                "body": "Your account is ready. Explore what B4A has to offer."
+            },
+            "subscription_started": {
+                "title": "Your subscription has started",
+                "body": "Payment for your {{plan}} plan has been confirmed."
+            },
+            "plan_changed": {
+                "title": "Your plan has changed",
+                "body": "Your {{plan}} plan is now active."
+            }
+        }
+    },
     "app": {
         "loadingTitle": "Loading",
         "loadingSubtitle": "Preparing your workspace. This will only take a moment.",
