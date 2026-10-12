@@ -1170,6 +1170,9 @@
         "author": {
             "user": "Requester",
             "admin": "Administrator"
-        }
+        },
+        "sent": "Your inquiry has been sent.",
+        "followUpBody": "Additional message",
+        "followUp": "Send additional message"
     }
 }
