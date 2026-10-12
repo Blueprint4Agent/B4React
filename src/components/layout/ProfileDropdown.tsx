@@ -26,6 +26,7 @@ type ProfileDropdownProps = {
     showPlans?: boolean;
     showLogin?: boolean;
     showAdmin?: boolean;
+    showAdminDemo?: boolean;
     allowAccountSwitching?: boolean;
     avatarLabel?: string;
     avatarImageUrl?: string | null;
@@ -44,6 +45,7 @@ export function ProfileDropdown({
     showPlans = false,
     showLogin = false,
     showAdmin = false,
+    showAdminDemo = false,
     allowAccountSwitching = false,
     avatarLabel,
     avatarImageUrl,
@@ -361,6 +363,14 @@ export function ProfileDropdown({
                                 <Shield />
                             </span>
                             <span>{t("admin.title")}</span>
+                        </Link>
+                    ) : null}
+                    {showAdminDemo ? (
+                        <Link to="/demo/admin" className="profile-menu__item">
+                            <span className="profile-menu__item-icon" aria-hidden="true">
+                                <Shield />
+                            </span>
+                            <span>{t("admin.demo")}</span>
                         </Link>
                     ) : null}
                     {showLogin ? (
