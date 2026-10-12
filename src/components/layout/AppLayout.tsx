@@ -20,9 +20,13 @@ function readSidebarWidth(): number {
     }
 }
 
-type AppLayoutProps = { children: ReactNode; subscriptionTier?: SubscriptionTier | null };
+type AppLayoutProps = {
+    children: ReactNode;
+    subscriptionTier?: SubscriptionTier | null;
+    inboxUnread?: number | null;
+};
 
-export function AppLayout({ children, subscriptionTier }: AppLayoutProps) {
+export function AppLayout({ children, subscriptionTier, inboxUnread }: AppLayoutProps) {
     const { t } = useTranslation();
     const [expanded, setExpanded] = useState(false);
     const [sidebarWidth, setSidebarWidth] = useState(readSidebarWidth);
@@ -51,6 +55,7 @@ export function AppLayout({ children, subscriptionTier }: AppLayoutProps) {
     useAppShortcuts({ toggleSidebar, openSettings, openProfile: user ? openProfile : undefined });
     const pathname = location.pathname;
     const isSettings =
+        pathname === "/notifications" ||
         pathname === "/settings" ||
         pathname === "/home" ||
         pathname === "/admin" ||
@@ -73,6 +78,7 @@ export function AppLayout({ children, subscriptionTier }: AppLayoutProps) {
             <AppSidebar
                 expanded={expanded}
                 subscriptionTier={subscriptionTier}
+                inboxUnread={inboxUnread}
                 onToggleExpanded={toggleSidebar}
                 width={sidebarWidth}
                 onWidthChange={onWidthChange}
