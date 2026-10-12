@@ -18,6 +18,7 @@ test("monolithic apps keep routes, assets, streaming and sessions beneath indepe
             unexpected.push(url.pathname);
     });
     const accounts = [];
+    const bundles: string[] = [];
     for (const [index, prefix] of prefixes.entries()) {
         const account = {
             email: `prefix-${index}-${Date.now()}@example.test`,
@@ -35,6 +36,11 @@ test("monolithic apps keep routes, assets, streaming and sessions beneath indepe
         expect(redirect.status()).toBe(308);
         expect(redirect.headers().location).toContain(prefix + "/");
         await page.goto(`${prefix}/home`);
+        await expect(page.locator('meta[name="b4-base-path"]')).toHaveAttribute("content", prefix);
+        await expect(page.locator("base[data-b4-app-base]")).toHaveAttribute("href", prefix + "/");
+        const entry = await page.locator('script[type="module"][src]').getAttribute("src");
+        expect(entry).toMatch(/^\.\/assets\//);
+        bundles.push(await (await page.request.get(prefix + entry!.slice(1))).text());
         await expect(page.locator(".app-sidebar")).toBeVisible();
         await page.reload();
         await expect(page.locator(".app-sidebar")).toBeVisible();
@@ -82,6 +88,7 @@ test("monolithic apps keep routes, assets, streaming and sessions beneath indepe
         expect(stream.type).toContain("text/event-stream");
         expect(stream.text).toContain("event:");
     }
+    expect(bundles[0]).toBe(bundles[1]);
     const cookies = await context.cookies();
     for (const prefix of prefixes)
         expect(cookies.filter((cookie) => cookie.path === prefix + "/")).toHaveLength(2);

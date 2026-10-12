@@ -143,7 +143,7 @@ export function ProjectOverview() {
                         <span className="home-preview__mode">LIGHT</span>
                     </div>
                     <img
-                        src={`${import.meta.env.BASE_URL}home-previews/${preview}-${language}.webp`}
+                        src={publicPath(`home-previews/${preview}-${language}.webp`)}
                         width="1360"
                         height="900"
                         alt={t(`home.project.${preview}Alt`)}
@@ -169,7 +169,7 @@ export function ProjectOverview() {
                             onClick={() => setPreview(item)}
                         >
                             <img
-                                src={`${import.meta.env.BASE_URL}home-previews/${item}-${language}.webp`}
+                                src={publicPath(`home-previews/${item}-${language}.webp`)}
                                 alt=""
                                 width="1360"
                                 height="900"
@@ -201,7 +201,7 @@ export function ProjectOverview() {
                     className="home-preview-viewer"
                 >
                     <img
-                        src={`${import.meta.env.BASE_URL}home-previews/${preview}-${language}.webp`}
+                        src={publicPath(`home-previews/${preview}-${language}.webp`)}
                         width="1360"
                         height="900"
                         alt={t(`home.project.${preview}Alt`)}

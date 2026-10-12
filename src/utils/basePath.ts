@@ -1,6 +1,9 @@
-/** Vite validates and embeds the mount path at build time. */
+/** The hosting server supplies this before any application modules execute. */
 export function getBasePath(): string {
-    return import.meta.env.BASE_URL.replace(/\/$/, "");
+    const runtime = document.querySelector<HTMLMetaElement>('meta[name="b4-base-path"]');
+    if (runtime) return runtime.content;
+    const built = import.meta.env.BASE_URL;
+    return built === "./" ? "" : built.replace(/\/$/, "");
 }
 
 export function publicPath(path: string): string {

@@ -130,4 +130,6 @@ name/short_name/identifier를 수정한 뒤 `make project-config-check`와 빌�
 
 ## 공개 basePath
 
-빌드 또는 Vite 실행 전에 `VITE_BASE_PATH=/my-app`을 설정합니다. 빈 값이나 `/`는 루트 배포를 유지합니다. 라우터·기본 API 주소·정적 파일·브라우저 저장소가 정규화된 경로를 사용하며 변경 시 재빌드와 재로그인이 필요합니다. 개발/데스크톱 백엔드를 별도로 사용하면 `VITE_API_BASE_URL`에 접두사를 포함한 공개 URL을 설정합니다. 데스크톱 정적 파일은 보통 `/`를 유지합니다. 빌드의 `deployment-path.json`을 모놀리식 백엔드가 런타임 경로와 비교할 수 있습니다. 프런트엔드 빌드는 부모 파일을 읽지 않습니다. `VITE_PUBLIC_SITE_URL`은 origin을 유지하고 공유/소개 URL에 접두사를 추가합니다. 루트 robots.txt 정책은 호스트 운영자가 관리합니다.
+프로덕션 빌드는 상대 경로 정적 파일과 런타임 `deployment-path.json` 계약을 생성합니다. 호스팅 백엔드는 스크립트보다 먼저 HTML head에 `<base data-b4-app-base href="/my-app/">`와 `<meta name="b4-base-path" content="/my-app">`를 넣습니다. 라우터·기본 API 주소·정적 파일·브라우저 저장소가 이 값을 동기적으로 읽습니다. 같은 빌드를 경로별로 재사용할 수 있으므로 경로 변경에 재빌드가 필요하지 않습니다. 백엔드 설정을 바꾸고 재시작·재생성한 뒤 다시 로그인합니다. B4FastAPI 모놀리식 배포는 이 HTML 주입을 처리합니다. 일반 정적 호스팅에서는 같은 HTML 계약과 SPA fallback을 제공해야 하며 기본 빌드는 `/`에서 동작합니다.
+
+`VITE_BASE_PATH`는 Vite 개발 서버에만 적용됩니다. 개발/데스크톱 백엔드를 별도로 사용하면 `VITE_API_BASE_URL`에 접두사를 포함한 공개 URL을 설정합니다. 데스크톱 정적 파일은 보통 `/`를 유지합니다. 프런트엔드 빌드는 부모 파일을 읽지 않습니다. `VITE_PUBLIC_SITE_URL`은 빌드 시 공유/소개 문서 origin이며 백엔드가 생성된 공개 URL을 런타임 공개 URL로 조정합니다. 루트 robots.txt 정책은 호스트 운영자가 관리합니다.

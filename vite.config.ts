@@ -10,11 +10,12 @@ const project = readProjectConfig();
 
 const tauriDevHost = process.env.TAURI_DEV_HOST;
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
     const env = loadEnv(mode, process.cwd(), "VITE_");
-    const basePath = normalizeBasePath(env.VITE_BASE_PATH);
+    const basePath = command === "serve" ? normalizeBasePath(env.VITE_BASE_PATH) : "";
+    const publicEnv = { ...env, VITE_BASE_PATH: basePath };
     return {
-        base: `${basePath}/`,
+        base: command === "build" ? "./" : `${basePath}/`,
         plugins: [
             react(),
             {
@@ -23,19 +24,27 @@ export default defineConfig(({ mode }) => {
                     this.emitFile({
                         type: "asset",
                         fileName: "deployment-path.json",
-                        source: JSON.stringify({ basePath }),
+                        source: JSON.stringify({
+                            version: 2,
+                            mode: "runtime",
+                            publicOrigin: env.VITE_PUBLIC_SITE_URL?.trim()
+                                ? new URL(env.VITE_PUBLIC_SITE_URL.trim()).origin
+                                : "",
+                        }),
                     });
                 },
             },
-            publicDiscoveryPlugin(project, env),
+            publicDiscoveryPlugin(project, publicEnv),
             styleStudioPlugin(process.env.B4F_STYLE_STUDIO === "1"),
             {
                 name: "project-branding",
                 transformIndexHtml: (html) =>
-                    brandHtml(html, project).replace(
-                        "</head>",
-                        () => `${sharingHtml(project, env)}\n</head>`,
-                    ),
+                    brandHtml(html, project)
+                        .replace(
+                            "<head>",
+                            `<head>\n<base data-b4-app-base href="${basePath}/">\n<meta name="b4-base-path" content="${basePath}">`,
+                        )
+                        .replace("</head>", () => `${sharingHtml(project, publicEnv)}\n</head>`),
             },
         ],
         define: { __PROJECT_BRAND__: JSON.stringify(project) },

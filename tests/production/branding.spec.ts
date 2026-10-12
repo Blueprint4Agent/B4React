@@ -39,9 +39,9 @@ for (const locale of ["en", "ko"]) {
                 "src",
                 project?.logo_url ?? "/icons/b4a-mark.svg",
             );
-            await expect(page.locator('link[rel="icon"]')).toHaveAttribute(
+            await expect(page.locator('link[rel="icon"]')).toHaveJSProperty(
                 "href",
-                project?.logo_url ?? "/icons/b4a-favicon.svg",
+                new URL(project?.logo_url ?? "/icons/b4a-favicon.svg", page.url()).href,
             );
             expect(configCalls).toBe(1);
             expect(
@@ -87,6 +87,10 @@ test("sharing metadata is present before application JavaScript runs", async ({ 
     expect(response.ok()).toBe(true);
     const html = await response.text();
     // Then: descriptive and social metadata are available in the static head.
+    expect(html.indexOf("<base data-b4-app-base")).toBeGreaterThan(-1);
+    expect(html.indexOf("<base data-b4-app-base")).toBeLessThan(
+        html.indexOf('<script type="module"'),
+    );
     expect(html).toMatch(/<meta name="description" content="[^"]+"/);
     expect(html).toMatch(/<meta property="og:title" content="[^"]+"/);
     expect(html).toContain('property="og:type" content="website"');
