@@ -336,6 +336,28 @@ export function ProfileDropdown({
                             <KeyboardShortcut keys={bindings.openProfile} />
                         </Link>
                     )}
+                    {!showLogin ? (
+                        <Link
+                            to="/notifications"
+                            state={{ profileSidebarPath: profileSidebarPath(location) }}
+                            className="profile-menu__item"
+                            aria-label={
+                                unread
+                                    ? `${t("inbox.title")}, ${t("inbox.count", { count: unread })}`
+                                    : t("inbox.title")
+                            }
+                        >
+                            <span className="profile-menu__item-icon" aria-hidden="true">
+                                <Bell />
+                            </span>
+                            <span>{t("inbox.title")}</span>
+                            {unread ? (
+                                <span className="profile-menu__count" aria-hidden="true">
+                                    {unread > 99 ? "99+" : unread}
+                                </span>
+                            ) : null}
+                        </Link>
+                    ) : null}
                     <Link
                         to="/settings"
                         className="profile-menu__item"
@@ -360,17 +382,6 @@ export function ProfileDropdown({
                             <span>{t("billing.changePlan")}</span>
                         </Link>
                     )}
-                    {!showLogin ? (
-                        <Link to="/notifications" className="profile-menu__item">
-                            <span className="profile-menu__item-icon" aria-hidden="true">
-                                <Bell />
-                            </span>
-                            <span>
-                                {t("inbox.title")}
-                                {unread ? ` (${unread > 99 ? "99+" : unread})` : ""}
-                            </span>
-                        </Link>
-                    ) : null}
                     {showAdmin ? (
                         <Link to="/admin" className="profile-menu__item">
                             <span className="profile-menu__item-icon" aria-hidden="true">
