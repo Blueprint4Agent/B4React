@@ -2,7 +2,10 @@ import { afterEach, expect, it, vi } from "vitest";
 import { getBasePath, publicPath, storageKey } from "../../../utils/basePath";
 import { resolveDefaultApiBase } from "../../../utils/apiBase";
 
-afterEach(() => vi.unstubAllEnvs());
+afterEach(() => {
+    vi.unstubAllEnvs();
+    document.querySelector('meta[name="b4-base-path"]')?.remove();
+});
 
 it("keeps root URLs and existing storage compatible", () => {
     vi.stubEnv("BASE_URL", "/");
@@ -37,4 +40,18 @@ it("retains the API prefix when resolving an OAuth start path", async () => {
     expect(getApiUrl("/api/v1/auth/oauth/google/start")).toBe(
         "https://example.test/demos/alpha/api/v1/auth/oauth/google/start",
     );
+});
+
+it("uses runtime metadata before router, API and storage initialization", () => {
+    vi.stubEnv("BASE_URL", "./");
+    expect(getBasePath()).toBe("");
+    const meta = document.createElement("meta");
+    meta.name = "b4-base-path";
+    meta.content = "/runtime/nested";
+    document.head.append(meta);
+    expect(publicPath("icons/logo.svg")).toBe("/runtime/nested/icons/logo.svg");
+    expect(storageKey("theme")).toBe("theme:/runtime/nested");
+    vi.stubEnv("BASE_URL", "/old-build/");
+    meta.content = "";
+    expect(getBasePath()).toBe("");
 });
