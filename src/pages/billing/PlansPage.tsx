@@ -1,3 +1,4 @@
+import { publicPath } from "../../utils/basePath";
 import { openSubscriptionPayment } from "../../utils/billingPlans";
 import { useEffect, useState } from "react";
 import {
@@ -318,12 +319,12 @@ export function PlansPage() {
                 >
                     <img
                         className="payment-brand--light"
-                        src="/payment-brands/powered-by-stripe-black.svg"
+                        src={publicPath("/payment-brands/powered-by-stripe-black.svg")}
                         alt="Powered by Stripe"
                     />
                     <img
                         className="payment-brand--dark"
-                        src="/payment-brands/powered-by-stripe-white.svg"
+                        src={publicPath("/payment-brands/powered-by-stripe-white.svg")}
                         alt="Powered by Stripe"
                     />
                 </a>

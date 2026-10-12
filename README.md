@@ -147,3 +147,7 @@ Notification inbox: [English](notes/notification-inbox.md) · [한국어](notes/
 - Optional WebSocket provider: [English](notes/websocket-provider.md) · [한국어](notes/ko/websocket-provider.md)
 
 Public search pages: [English](notes/discovery.md) · [한국어](notes/ko/discovery.md).
+
+## Public basePath
+
+Set `VITE_BASE_PATH=/my-app` before building or running Vite. Empty or `/` keeps root deployment. Routes, API defaults, public assets and browser storage use the canonical path; changing it requires a rebuild and fresh login. With a separate development or desktop backend, set `VITE_API_BASE_URL` to its public URL including any prefix. Desktop frontend assets normally remain at `/`. Build output includes `deployment-path.json` for a consuming monolithic backend to check against its runtime path. Never read parent files from the frontend build. `VITE_PUBLIC_SITE_URL` remains an origin; sharing/discovery URLs add the base path. The host owns root robots.txt policy.

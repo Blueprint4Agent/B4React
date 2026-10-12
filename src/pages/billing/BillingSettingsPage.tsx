@@ -1,3 +1,4 @@
+import { publicPath } from "../../utils/basePath";
 import { useInvoiceHistory } from "../../hooks/api/billing/useInvoiceHistory";
 import {
     InvoiceHistoryDialog,
@@ -542,7 +543,9 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                                                         ) : (
                                                             <img
                                                                 className="billing-link-logo"
-                                                                src="/payment-brands/link.svg"
+                                                                src={publicPath(
+                                                                    "/payment-brands/link.svg",
+                                                                )}
                                                                 alt=""
                                                                 aria-hidden="true"
                                                             />
@@ -723,12 +726,12 @@ export function BillingSettingsPage({ ownerId, email }: Props) {
                 >
                     <img
                         className="payment-brand--light"
-                        src="/payment-brands/powered-by-stripe-black.svg"
+                        src={publicPath("/payment-brands/powered-by-stripe-black.svg")}
                         alt="Powered by Stripe"
                     />
                     <img
                         className="payment-brand--dark"
-                        src="/payment-brands/powered-by-stripe-white.svg"
+                        src={publicPath("/payment-brands/powered-by-stripe-white.svg")}
                         alt="Powered by Stripe"
                     />
                 </a>

@@ -1,4 +1,5 @@
-const LANDING_STARTED_STORAGE_KEY = "b4fastapi:landing:v1:started";
+import { storageKey } from "./basePath";
+const LANDING_STARTED_STORAGE_KEY = storageKey("b4fastapi:landing:v1:started");
 
 export function hasStartedFromLanding(): boolean {
     if (typeof window === "undefined") {

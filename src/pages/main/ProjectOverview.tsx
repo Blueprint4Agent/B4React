@@ -1,3 +1,4 @@
+import { publicPath } from "../../utils/basePath";
 import {
     Activity,
     Bell,
@@ -240,7 +241,7 @@ export function ProjectOverview() {
                 (import.meta.env.DEV && !__PROJECT_BRAND__) ? (
                     <a
                         className="home-support-link"
-                        href={language === "ko" ? "/about/ko/" : "/about/"}
+                        href={publicPath(language === "ko" ? "/about/ko/" : "/about/")}
                     >
                         {t("discovery.about")}
                     </a>

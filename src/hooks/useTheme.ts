@@ -1,8 +1,9 @@
+import { storageKey } from "../utils/basePath";
 import { useEffect, useLayoutEffect, useState } from "react";
 
 export type ThemeMode = "system" | "light" | "dark";
 export type ResolvedTheme = "light" | "dark";
-const THEME_STORAGE_KEY = "blueprint4fastapi_theme";
+const THEME_STORAGE_KEY = storageKey("blueprint4fastapi_theme");
 
 function isThemeMode(value: string | null): value is ThemeMode {
     return value === "system" || value === "light" || value === "dark";

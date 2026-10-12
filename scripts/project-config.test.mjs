@@ -101,3 +101,25 @@ test("sharing URLs use the configured origin and project image only", () => {
     ])
         assert.throws(() => sharingHtml(null, { VITE_PUBLIC_SITE_URL }));
 });
+
+test("deployment paths reject ambiguous URLs and keep sharing images beneath the prefix", async () => {
+    const { normalizeBasePath } = await import("./base-path.mjs");
+    assert.equal(normalizeBasePath("/"), "");
+    assert.equal(normalizeBasePath("/demos/alpha/"), "/demos/alpha");
+    for (const value of [
+        "alpha",
+        "//alpha",
+        "/a//b",
+        "/a/../b",
+        "/a%2fb",
+        "/a?b",
+        "/a#b",
+        "https://example.test/a",
+    ])
+        assert.throws(() => normalizeBasePath(value));
+    const html = sharingHtml(null, {
+        VITE_PUBLIC_SITE_URL: "https://example.test",
+        VITE_BASE_PATH: "/demos/alpha",
+    });
+    assert.match(html, /https:\/\/example.test\/demos\/alpha\/icons\/b4a-banner.png/);
+});

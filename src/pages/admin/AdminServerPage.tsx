@@ -1,3 +1,4 @@
+import { publicPath } from "../../utils/basePath";
 import { useAppConfig } from "../../hooks/useFeatures";
 import { Database, HardDrive, MemoryStick, RefreshCw } from "lucide-react";
 import { Navigate } from "react-router-dom";
@@ -124,7 +125,9 @@ function ServerStatus({ owner, demo = false }: { owner: number; demo?: boolean }
                                         <Database />
                                     ) : (
                                         <img
-                                            src={`/stack-brands/${connection.technology}.svg`}
+                                            src={publicPath(
+                                                `/stack-brands/${connection.technology}.svg`,
+                                            )}
                                             alt=""
                                         />
                                     )}

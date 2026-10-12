@@ -1,3 +1,4 @@
+import { getBasePath } from "./basePath";
 type RuntimeLocation = Pick<Location, "hostname" | "origin" | "port" | "protocol">;
 
 export function resolveDefaultApiBase(
@@ -11,7 +12,7 @@ export function resolveDefaultApiBase(
         if (runtimeLocation.port === "5173") {
             return `${runtimeLocation.protocol}//${runtimeLocation.hostname}:8000`;
         }
-        return runtimeLocation.origin;
+        return runtimeLocation.origin + getBasePath();
     }
     return "http://localhost:8000";
 }
@@ -50,4 +51,9 @@ const API_BASE = resolveApiBase();
 
 export function getApiBase(): string {
     return API_BASE.replace(/\/+$/, "");
+}
+
+/** Backend endpoint paths are relative to the configured API deployment root. */
+export function getApiUrl(path: string): string {
+    return new URL(path.replace(/^\/+/, ""), `${getApiBase()}/`).toString();
 }

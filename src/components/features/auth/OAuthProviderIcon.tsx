@@ -1,3 +1,4 @@
+import { publicPath } from "../../../utils/basePath";
 export function OAuthProviderIcon({ provider }: { provider: string }) {
     if (provider !== "google" && provider !== "github") return null;
     return (
@@ -5,7 +6,7 @@ export function OAuthProviderIcon({ provider }: { provider: string }) {
             {(["dark", "light"] as const).map((tone) => (
                 <img
                     key={tone}
-                    src={`/icons/${provider}-mark-${tone}.svg`}
+                    src={publicPath(`/icons/${provider}-mark-${tone}.svg`)}
                     alt=""
                     className={`oauth-provider-button__logo oauth-provider-button__logo--${tone} oauth-provider-button__logo--${provider}`}
                 />

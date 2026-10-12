@@ -1,3 +1,4 @@
+import { normalizeBasePath } from "./base-path.mjs";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { sharingHtml } from "./project-config.mjs";
@@ -26,27 +27,29 @@ export function discoveryOptions(project, env = {}) {
     const key = env.VITE_INDEXNOW_KEY?.trim() || "";
     if (key && !/^[a-zA-Z0-9-]{8,128}$/.test(key))
         throw new Error("VITE_INDEXNOW_KEY must be 8-128 ASCII letters, digits or hyphens.");
-    return { origin, key };
+    return { origin, key, basePath: normalizeBasePath(env.VITE_BASE_PATH) };
 }
 
 export function discoveryAssets(options, stylesheets) {
+    const basePath = options.basePath || "";
+    const publicRoot = options.origin + basePath;
     const assets = {};
     const pages = {};
     const alternates =
         Object.entries(paths)
             .map(
                 ([locale, path]) =>
-                    `<link rel="alternate" hreflang="${locale}" href="${escape(options.origin + path)}" />`,
+                    `<link rel="alternate" hreflang="${locale}" href="${escape(publicRoot + path)}" />`,
             )
             .join("\n") +
-        `\n<link rel="alternate" hreflang="x-default" href="${escape(options.origin + paths.en)}" />`;
+        `\n<link rel="alternate" hreflang="x-default" href="${escape(publicRoot + paths.en)}" />`;
     for (const [locale, pathname] of Object.entries(paths)) {
         const data = JSON.parse(
             readFileSync(new URL(`../src/locales/${locale}.json`, import.meta.url), "utf8"),
         );
         const copy = data.discovery;
         const home = data.home.project;
-        const url = options.origin + pathname;
+        const url = publicRoot + pathname;
         const other = locale === "en" ? "ko" : "en";
         const docRoot = `${repository}/blob/main/${locale === "ko" ? "notes/ko/" : ""}`;
         const link = (href, text) => `<a href="${escape(href)}">${escape(text)}</a>`;
@@ -71,14 +74,17 @@ ${section("workflow", copy.workflow, `<p class="public-discovery__copy">${escape
 ${section("configuration", copy.boundaries, `<p class="public-discovery__copy">${escape(copy.boundariesBody)}</p>`)}
 ${section("documentation", copy.links, `<ul class="public-discovery__links"><li>${link(docRoot + "DEPLOY.md", copy.deployment)}</li><li>${link(docRoot + (locale === "ko" ? "" : "notes/") + "account-profile.md", copy.auth)}</li><li>${link(docRoot + "contracts/README.md", copy.contracts)}</li></ul>`)}
 </main><footer class="home-overview__footer"><span>Blueprint4Agent</span><p>${escape(copy.license)}</p></footer></div>`;
-        const html = `<!doctype html><html lang="${locale}"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>${escape(copy.title)}</title><meta name="description" content="${escape(copy.description)}" /><meta name="robots" content="index, follow" /><link rel="canonical" href="${escape(url)}" />${alternates}<meta property="og:type" content="website" /><meta property="og:title" content="${escape(copy.title)}" /><meta property="og:description" content="${escape(copy.description)}" /><meta property="og:url" content="${escape(url)}" /><meta property="og:image" content="${escape(options.origin)}/icons/b4a-banner.png" /><meta name="twitter:card" content="summary_large_image" /><link rel="icon" href="/icons/b4a-favicon.svg" />${stylesheets.map((file) => `<link rel="stylesheet" href="/${escape(file)}" />`).join("\n")}</head><body class="public-discovery"><script>const theme = matchMedia('(prefers-color-scheme: dark)'); const applyTheme = () => { document.documentElement.dataset.theme = theme.matches ? 'dark' : 'light'; }; applyTheme(); theme.addEventListener('change', applyTheme);</script>${body}</body></html>`;
-        assets[pathname.slice(1) + "index.html"] = html;
+        const html = `<!doctype html><html lang="${locale}"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>${escape(copy.title)}</title><meta name="description" content="${escape(copy.description)}" /><meta name="robots" content="index, follow" /><link rel="canonical" href="${escape(url)}" />${alternates}<meta property="og:type" content="website" /><meta property="og:title" content="${escape(copy.title)}" /><meta property="og:description" content="${escape(copy.description)}" /><meta property="og:url" content="${escape(url)}" /><meta property="og:image" content="${escape(publicRoot)}/icons/b4a-banner.png" /><meta name="twitter:card" content="summary_large_image" /><link rel="icon" href="/icons/b4a-favicon.svg" />${stylesheets.map((file) => `<link rel="stylesheet" href="/${escape(file)}" />`).join("\n")}</head><body class="public-discovery"><script>const theme = matchMedia('(prefers-color-scheme: dark)'); const applyTheme = () => { document.documentElement.dataset.theme = theme.matches ? 'dark' : 'light'; }; applyTheme(); theme.addEventListener('change', applyTheme);</script>${body}</body></html>`;
+        assets[pathname.slice(1) + "index.html"] = html.replace(
+            /(href|src)="\/(?!\/)/g,
+            `$1="${basePath}/`,
+        );
         pages[url] = createHash("sha256")
             .update(body + copy.title + copy.description)
             .digest("hex");
     }
     assets["robots.txt"] =
-        `User-agent: GPTBot\nDisallow: /\n\nUser-agent: ClaudeBot\nDisallow: /\n\nUser-agent: OAI-SearchBot\nUser-agent: Claude-SearchBot\nUser-agent: Claude-User\nUser-agent: PerplexityBot\nAllow: /\n\nUser-agent: *\nAllow: /\n\nSitemap: ${options.origin}/sitemap.xml\n`;
+        `User-agent: GPTBot\nDisallow: /\n\nUser-agent: ClaudeBot\nDisallow: /\n\nUser-agent: OAI-SearchBot\nUser-agent: Claude-SearchBot\nUser-agent: Claude-User\nUser-agent: PerplexityBot\nAllow: /\n\nUser-agent: *\nAllow: /\n\nSitemap: ${publicRoot}/sitemap.xml\n`;
     assets["sitemap.xml"] =
         `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${Object.keys(
             pages,
@@ -99,16 +105,20 @@ export function publicDiscoveryPlugin(project, env) {
         enforce: "post",
         configureServer(server) {
             server.middlewares.use((request, response, next) => {
-                const pathname = new URL(request.url ?? "/", "http://localhost").pathname;
+                const basePath = normalizeBasePath(env.VITE_BASE_PATH);
+                const publicPathname = new URL(request.url ?? "/", "http://localhost").pathname;
+                if (basePath && !publicPathname.startsWith(basePath + "/")) return next();
+                const pathname = publicPathname.slice(basePath.length);
                 if (request.method !== "GET" && request.method !== "HEAD") return next();
                 if (pathname === "/about" || pathname === "/about/ko") {
-                    response.writeHead(307, { Location: pathname + "/" });
+                    response.writeHead(307, { Location: basePath + pathname + "/" });
                     return response.end();
                 }
                 if (!Object.values(paths).includes(pathname)) return next();
-                const assets = discoveryAssets({ origin: "http://localhost:5173", key: "" }, [
-                    "src/styles/app.css?direct",
-                ]);
+                const assets = discoveryAssets(
+                    { origin: "http://localhost:5173", key: "", basePath },
+                    ["src/styles/app.css?direct"],
+                );
                 const html = assets[pathname.slice(1) + "index.html"]
                     .replace('content="index, follow"', 'content="noindex, nofollow"')
                     .replace(/<link rel="(?:canonical|alternate)"[^>]*>/g, "");

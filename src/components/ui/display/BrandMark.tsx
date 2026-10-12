@@ -1,3 +1,4 @@
+import { publicPath } from "../../../utils/basePath";
 type BrandMarkProps = {
     className?: string;
     variant?: "plain" | "tile";
@@ -15,16 +16,16 @@ export function BrandMark({ className, variant = "plain", tone = "auto" }: Brand
         >
             <img
                 className="brand-mark__asset brand-mark__asset--light"
-                src={__PROJECT_BRAND__?.logo_url ?? "/icons/b4a-mark.svg"}
+                src={publicPath(__PROJECT_BRAND__?.logo_url ?? "/icons/b4a-mark.svg")}
                 alt=""
             />
             <img
                 className="brand-mark__asset brand-mark__asset--dark"
-                src={
+                src={publicPath(
                     __PROJECT_BRAND__?.logo_dark_url ??
-                    __PROJECT_BRAND__?.logo_url ??
-                    "/icons/b4a-mark-dark.svg"
-                }
+                        __PROJECT_BRAND__?.logo_url ??
+                        "/icons/b4a-mark-dark.svg",
+                )}
                 alt=""
             />
         </span>

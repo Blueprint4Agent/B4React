@@ -1,3 +1,4 @@
+import { getBasePath } from "./utils/basePath";
 import { AccountSubscriptionProvider } from "./hooks/api/billing/useSubscriptionSnapshot";
 import { KeyboardShortcutsProvider } from "./hooks/useKeyboardShortcuts";
 import { ToastProvider } from "./hooks/useToast";
@@ -19,7 +20,7 @@ initializeDesktopRuntime();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
-        <BrowserRouter>
+        <BrowserRouter basename={getBasePath() || "/"}>
             <ServerConnectivityProvider>
                 <DesktopTitleBar />
                 <ToastProvider>
