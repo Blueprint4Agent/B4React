@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { AdminStatusError, getAdminStatus, type AdminStatus } from "../../../api/admin/adminApi";
 import { useServerConnectivity } from "../../connectivity/useServerConnectivity";
 
-type Snapshot = { owner: number; data: AdminStatus; received: number };
+type Snapshot = { owner: number; demo: boolean; data: AdminStatus; received: number };
 
-export function useAdminStatus(owner: number) {
+export function useAdminStatus(owner: number, demo = false) {
     const { isDesktop, status } = useServerConnectivity();
     const available = !isDesktop || status === "online";
     const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
@@ -26,16 +26,16 @@ export function useAdminStatus(owner: number) {
             timeout = window.setTimeout(() => controller?.abort(), 8000);
             setLoading(true);
             try {
-                const data = await getAdminStatus(controller.signal);
+                const data = await getAdminStatus(controller.signal, demo);
                 if (active) {
-                    setSnapshot({ owner, data, received: Date.now() });
+                    setSnapshot({ owner, demo, data, received: Date.now() });
                     setNow(Date.now());
                     setFailed(false);
                 }
             } catch (error) {
                 if (active) {
                     setFailed(true);
-                    if (error instanceof AdminStatusError && [401, 403].includes(error.status))
+                    if (error instanceof AdminStatusError && [401, 403, 404].includes(error.status))
                         setSnapshot(null);
                 }
             } finally {
@@ -61,12 +61,12 @@ export function useAdminStatus(owner: number) {
             window.removeEventListener("online", onVisible);
             document.removeEventListener("visibilitychange", onVisible);
         };
-    }, [owner, available, revision]);
+    }, [owner, available, revision, demo]);
     useEffect(() => {
         const timer = window.setInterval(() => setNow(Date.now()), 5000);
         return () => window.clearInterval(timer);
     }, []);
-    const current = snapshot?.owner === owner ? snapshot : null;
+    const current = snapshot?.owner === owner && snapshot.demo === demo ? snapshot : null;
     return {
         data: current?.data,
         loading: available && (loading || (!current && !failed)),

@@ -626,6 +626,10 @@
         "notFoundDescription": "This address may have changed or no longer exists. Return to the component library to continue."
     },
     "admin": {
+        "demoHidden": "Hidden in demo",
+        "demo": "Admin demo",
+        "demoDescription": "Read-only demo of real user data. Names, emails and IDs are replaced; dates are rounded to UTC days.",
+        "demoServerDescription": "Read-only view of real server health. Internal connection addresses are hidden; results are cached for up to 30 seconds.",
         "title": "Admin panel",
         "users": "Users",
         "description": "Review accounts and their latest successful sign-in.",

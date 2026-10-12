@@ -1,4 +1,38 @@
 export interface paths {
+    "/api/v1/admin/demo/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Demo Status */
+        get: operations["demo_status_api_v1_admin_demo_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/demo/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Demo Users */
+        get: operations["demo_users_api_v1_admin_demo_users_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/status": {
         parameters: {
             query?: never;
@@ -1018,7 +1052,7 @@ export interface components {
              * @example ADMIN_STATUS_FAILED
              * @enum {string}
              */
-            error: "ADMIN_STATUS_FAILED";
+            error: "ADMIN_DEMO_DISABLED" | "ADMIN_DEMO_FAILED" | "ADMIN_STATUS_FAILED";
             /** Message */
             message: string;
         };
@@ -1100,6 +1134,11 @@ export interface components {
             /** Bootstrap Access Token */
             bootstrap_access_token?: string | null;
             bootstrap_user?: components["schemas"]["UserResponse"] | null;
+            /**
+             * Demo Enabled
+             * @default false
+             */
+            demo_enabled: boolean;
             /** Email Enabled */
             email_enabled: boolean;
             /** Frontend Base Path */
@@ -1951,6 +1990,147 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    demo_status_api_v1_admin_demo_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStatusResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "ADMIN_DEMO_DISABLED",
+                     *         "message": "Demo is not available."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminErrorResponse"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "ADMIN_DEMO_FAILED",
+                     *         "message": "Unable to load demo data."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminErrorResponse"];
+                };
+            };
+        };
+    };
+    demo_users_api_v1_admin_demo_users_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                search?: string;
+                role?: components["schemas"]["UserRole"] | null;
+                is_active?: boolean | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserListResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "ADMIN_DEMO_DISABLED",
+                     *         "message": "Demo is not available."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "ADMIN_DEMO_FAILED",
+                     *         "message": "Unable to load demo data."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminErrorResponse"];
+                };
+            };
+        };
+    };
     status_api_v1_admin_status_get: {
         parameters: {
             query?: never;

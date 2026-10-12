@@ -54,7 +54,9 @@ export function AppLayout({ children, subscriptionTier }: AppLayoutProps) {
         pathname === "/settings" ||
         pathname === "/home" ||
         pathname === "/admin" ||
-        pathname.startsWith("/admin/");
+        pathname.startsWith("/admin/") ||
+        pathname === "/demo/admin" ||
+        pathname.startsWith("/demo/admin/");
     return (
         <div
             className={`app-shell${expanded ? " app-shell--expanded" : ""}${isSettings ? " app-shell--settings" : ""}${resizing ? " app-shell--resizing" : ""}`}

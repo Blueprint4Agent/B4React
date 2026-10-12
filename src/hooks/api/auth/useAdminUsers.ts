@@ -1,3 +1,4 @@
+import { getDemoUsers } from "../../../api/admin/adminApi";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthApi } from "./useAuthApi";
@@ -6,14 +7,14 @@ import type { AdminUserList, AdminUserQuery } from "../../../api/auth/authApi";
 export type { AdminUserQuery, AdminUserList } from "../../../api/auth/authApi";
 
 type Snapshot = { key: string; data: AdminUserList | null; error: string | null; loading: boolean };
-export function useAdminUsers(ownerId: number | undefined, query: AdminUserQuery) {
+export function useAdminUsers(ownerId: number | undefined, query: AdminUserQuery, demo = false) {
     const api = useAuthApi();
     const { t } = useTranslation();
     const { isDesktop, status } = useServerConnectivity();
     const available = ownerId !== undefined && (!isDesktop || status === "online");
     const [revision, setRevision] = useState(0);
     const reload = useCallback(() => setRevision((value) => value + 1), []);
-    const key = JSON.stringify([ownerId, query]);
+    const key = JSON.stringify([ownerId, query, demo]);
     const [snapshot, setSnapshot] = useState<Snapshot>({
         key: "",
         data: null,
@@ -30,8 +31,11 @@ export function useAdminUsers(ownerId: number | undefined, query: AdminUserQuery
             error: null,
             loading: true,
         }));
-        void api
-            .listAdminUsers(query, controller.signal)
+        void (
+            demo
+                ? getDemoUsers(query, controller.signal)
+                : api.listAdminUsers(query, controller.signal)
+        )
             .then((data) => {
                 if (current) setSnapshot({ key, data, error: null, loading: false });
             })
@@ -52,7 +56,7 @@ export function useAdminUsers(ownerId: number | undefined, query: AdminUserQuery
             current = false;
             controller.abort();
         };
-    }, [api, available, key, query, revision, t]);
+    }, [api, available, key, query, revision, t, demo]);
     useEffect(() => {
         if (!available) return;
         const onVisible = () => {
