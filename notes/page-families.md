@@ -80,3 +80,13 @@ At mobile widths the strip stacks into compact rows. This is intentionally disti
 from settings forms, matching the user-supplied profile reference without importing
 its colors, fabricated statistics or showcase data. Edit/profile/password dialogs use
 the existing Modal family. Account remains General-style settings rows.
+
+## Static public introduction
+
+The generated /about/ and /about/ko/ documents reuse ProjectOverview home hero,
+capability rows and preview surfaces. The public-discovery wrapper owns a 50rem
+column and document scrolling; navigation is semantic links without an app sidebar.
+Content has semantic h1/h2/h3 headings using the same home typography. It requires
+no API/config/auth state or React mount. The small inline theme script is optional;
+without JavaScript, all content and navigation remain available in light mode.
+Browser comparisons against /home live in tests/discovery/public.spec.ts.

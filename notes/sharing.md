@@ -16,3 +16,5 @@ The URL must be an HTTP(S) origin without credentials, a subpath, query or fragm
 These are public build inputs, never secrets. Container users must provide them to the frontend build; changing backend/container runtime environment after an image is built does not update HTML. This is site-level metadata, not route-specific rendering, a canonical URL policy, a hosted demo or a guarantee of indexing/card rendering. Share-preview caches may need refreshing after deployment.
 
 Run `make verify-plan` and `make verify`. Builder tests cover escaping, origin rejection and identity isolation; production tests inspect the raw HTML response without executing application JavaScript.
+
+For crawlable project introductions, see [public search discovery](discovery.md).

@@ -125,3 +125,5 @@ name/short_name/identifier를 수정한 뒤 `make project-config-check`와 빌�
 각각의 고지를 유지합니다.
 
 관리자 데모: [한국어](admin-demo.md) · [English](../admin-demo.md).
+
+공개 검색 페이지: [한국어](discovery.md) · [English](../discovery.md).

@@ -3,6 +3,8 @@ import react from "@vitejs/plugin-react";
 import { styleStudioPlugin } from "./scripts/style-studio.mjs";
 import { brandHtml, readProjectConfig, sharingHtml } from "./scripts/project-config.mjs";
 
+import { publicDiscoveryPlugin } from "./scripts/public-discovery.mjs";
+
 const project = readProjectConfig();
 
 const tauriDevHost = process.env.TAURI_DEV_HOST;
@@ -12,6 +14,7 @@ export default defineConfig(({ mode }) => {
     return {
         plugins: [
             react(),
+            publicDiscoveryPlugin(project, env),
             styleStudioPlugin(process.env.B4F_STYLE_STUDIO === "1"),
             {
                 name: "project-branding",
