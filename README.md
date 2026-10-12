@@ -141,3 +141,5 @@ Third-party dependencies, [brand assets](public/stack-brands/LICENSE.md) and
 Administrator demo: [English](notes/admin-demo.md) · [한국어](notes/ko/admin-demo.md).
 
 Notification inbox: [English](notes/notification-inbox.md) · [한국어](notes/ko/notification-inbox.md).
+
+- Support inquiries: [English](notes/support-inquiries.md) · [한국어](notes/ko/support-inquiries.md)

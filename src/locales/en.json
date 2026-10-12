@@ -22,6 +22,15 @@
             "plan_changed": {
                 "title": "Your plan has changed",
                 "body": "Your {{plan}} plan is now active."
+            },
+            "inquiry_received": {
+                "title": "Inquiry received"
+            },
+            "inquiry_reply": {
+                "title": "New inquiry reply"
+            },
+            "inquiry_status": {
+                "title": "Inquiry status changed"
             }
         }
     },
@@ -1113,5 +1122,38 @@
         "localFile": "Local file",
         "localSocket": "Local connection",
         "port": "Port {{port}}"
+    },
+    "support": {
+        "title": "Support",
+        "adminTitle": "Support inquiries",
+        "description": "Send an inquiry and review replies from the team.",
+        "adminDescription": "Review and reply to all user inquiries.",
+        "subject": "Subject",
+        "body": "Message",
+        "privacy": "Only you and administrators can view this conversation. Do not include passwords or payment details.",
+        "send": "Send inquiry",
+        "replyBody": "Reply message",
+        "reply": "Send reply",
+        "new": "New inquiry",
+        "back": "Back to inquiries",
+        "filter": "Status",
+        "all": "All statuses",
+        "empty": "No inquiries yet.",
+        "error": "Could not load or update this inquiry. Check its status and try again.",
+        "closed": "This inquiry is closed. Start a new inquiry if you need more help.",
+        "status": {
+            "open": "Open",
+            "in_progress": "In progress",
+            "closed": "Closed"
+        },
+        "action": {
+            "open": "Reopen",
+            "in_progress": "Start handling",
+            "closed": "Close inquiry"
+        },
+        "author": {
+            "user": "Requester",
+            "admin": "Administrator"
+        }
     }
 }

@@ -1,3 +1,4 @@
+import { InquirySettings } from "../support/InquirySettings";
 import { AccountNameSettings } from "./AccountNameSettings";
 import { useCurrentPlan } from "../../hooks/api/billing/useCurrentPlan";
 import { CurrentPlanRow } from "../../components/features/billing/CurrentPlanRow";
@@ -280,6 +281,8 @@ export function SettingsPage() {
                             ) : null}
                         </section>
                     </>
+                ) : activeMenu === "support" && user ? (
+                    <InquirySettings key={user.id} owner={user.id} />
                 ) : activeMenu === "billing" && user ? (
                     <BillingSettingsPage key={user.id} ownerId={user.id} email={user.email} />
                 ) : showDevelopers ? (
