@@ -7400,7 +7400,7 @@ body.public-discovery {
     gap: var(--space-4);
     padding-bottom: var(--space-6);
 }
-.public-discovery a {
+.public-discovery a:not(.home-resource-pill) {
     color: var(--accent);
     text-underline-offset: 0.2em;
     overflow-wrap: anywhere;

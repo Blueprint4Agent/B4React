@@ -21,8 +21,9 @@ import {
     Mail,
     Activity,
     Workflow,
+    FilePenLine,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { useAppLayout } from "../../hooks/useAppLayout";
 import { useAuthContext } from "../../hooks/useAuth";
@@ -156,8 +157,13 @@ export function ProjectOverview({ children }: { children?: ReactNode }) {
                     </h1>
                     <p className="home-hero__description">{t("home.project.description")}</p>
                     <div className="home-hero__actions">
+                        <Link className="home-resource-pill" to="/prompt-builder">
+                            <FilePenLine size={17} aria-hidden="true" />
+                            {t("home.project.promptBuilder.action")}
+                            <ArrowRight size={15} aria-hidden="true" />
+                        </Link>
                         <a
-                            className="home-resource-pill"
+                            className="home-resource-pill home-resource-pill--secondary"
                             href="https://github.com/Blueprint4Agent/B4FastAPI"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -303,6 +309,29 @@ export function ProjectOverview({ children }: { children?: ReactNode }) {
                 </section>
             </div>
             <section
+                id="home-prompt-builder"
+                className="home-workflow"
+                aria-labelledby="home-prompt-builder-title"
+            >
+                <div className="home-section-heading">
+                    <div>
+                        <h2 id="home-prompt-builder-title">
+                            {t("home.project.promptBuilder.title")}
+                        </h2>
+                        <p className="home-capabilities__note">
+                            {t("home.project.promptBuilder.description")}
+                        </p>
+                    </div>
+                </div>
+                <div className="home-hero__actions">
+                    <Link className="home-resource-pill" to="/prompt-builder">
+                        <FilePenLine size={17} aria-hidden="true" />
+                        {t("home.project.promptBuilder.action")}
+                        <ArrowRight size={15} aria-hidden="true" />
+                    </Link>
+                </div>
+            </section>
+            <section
                 id="home-capabilities"
                 tabIndex={-1}
                 className="home-capabilities"
@@ -391,6 +420,7 @@ export function ProjectOverview({ children }: { children?: ReactNode }) {
                     </div>
                     <nav aria-label={t("home.project.footerProduct")}>
                         <h2>{t("home.project.footerProduct")}</h2>
+                        <Link to="/prompt-builder">{t("home.project.promptBuilder.action")}</Link>
                         {sections.map(({ id, key }) => (
                             <a key={id} href={`${publicPath("/home")}#${id}`}>
                                 {t(`home.project.sections.${key}`)}

@@ -46,3 +46,5 @@ fixtures run through `make project-config-check`.
 Search-console ownership, WAF decisions, submissions and production deployment are
 operator tasks. IndexNow tooling and deployment arguments belong to the consuming
 backend; this repository never reads parent configuration or publishes URLs.
+
+Home introduces the prompt builder through its hero action, a compact section and footer link. Both static About languages share that introduction and a base-path-aware `/prompt-builder` link. The introduction is readable without JavaScript; the linked interactive wizard requires JavaScript. The builder produces a local template from four questions, not an automatic repository scan or service deployment.

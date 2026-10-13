@@ -17,6 +17,10 @@ test.describe("public introduction on the normal development server", () => {
             expect(response?.headers()["x-robots-tag"]).toBe("noindex, nofollow");
             await expect(page.locator("html")).toHaveAttribute("lang", locale);
             await expect(page.locator("h1")).toBeVisible();
+            await expect(page.locator("#prompt-builder a")).toHaveAttribute(
+                "href",
+                "/prompt-builder",
+            );
             await expect(page.locator("#quick-start")).toContainText("make frontend-dev");
             await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
             const css = await request.get("/src/styles/app.css?direct");

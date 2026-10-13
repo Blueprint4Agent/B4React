@@ -9,6 +9,13 @@ for (const locale of ["en", "ko"]) {
             page.on("request", (request) => requests.push(request.url()));
             await page.goto(path);
             await expect(page.locator("h1")).toBeVisible();
+            await expect(page.locator("#prompt-builder a")).toHaveAttribute(
+                "href",
+                "/prompt-builder",
+            );
+            await expect(page.locator("#prompt-builder")).toContainText(
+                locale === "ko" ? "기능과 권한" : "features and permissions",
+            );
             await expect(page.locator("#quick-start")).toContainText("make backend-dev");
             await expect(page.locator("html")).toHaveAttribute("lang", locale);
             await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
@@ -52,6 +59,22 @@ for (const locale of ["en", "ko"]) {
                         };
                     });
                 const publicStyle = await geometry();
+                const pillStyle = async (selector: string) =>
+                    page.locator(selector).evaluate((el) => {
+                        const css = getComputedStyle(el);
+                        return {
+                            color: css.color,
+                            background: css.backgroundColor,
+                            border: css.border,
+                            radius: css.borderRadius,
+                            font: css.fontSize,
+                            padding: css.padding,
+                        };
+                    });
+                const publicPill = await pillStyle("#prompt-builder a");
+                await page
+                    .locator("#prompt-builder")
+                    .screenshot({ path: info.outputPath("about-prompt.png") });
                 expect(
                     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
                 ).toBe(true);
@@ -79,16 +102,52 @@ for (const locale of ["en", "ko"]) {
                     }),
                 );
                 await page.addInitScript(
-                    (language) => localStorage.setItem("i18nextLng", language),
+                    (language) => localStorage.setItem("b4a_language", language),
                     locale,
                 );
                 await page.goto("/home");
                 await expect(page.locator(".home-preview__figure")).toBeVisible();
                 expect(await geometry()).toEqual(publicStyle);
+                const promptSection = page.locator("#home-prompt-builder");
+                await expect(promptSection).toContainText(
+                    locale === "ko" ? "기능과 권한" : "features and permissions",
+                );
+                expect(await pillStyle("#home-prompt-builder a")).toEqual(publicPill);
+                const headingStyles = await page
+                    .locator("#home-prompt-builder h2, #home-workflow h2")
+                    .evaluateAll((els) =>
+                        els.map((el) => {
+                            const css = getComputedStyle(el);
+                            return {
+                                font: css.fontSize,
+                                line: css.lineHeight,
+                                weight: css.fontWeight,
+                            };
+                        }),
+                    );
+                expect(headingStyles[0]).toEqual(headingStyles[1]);
+                await promptSection.screenshot({ path: info.outputPath("home-prompt.png") });
+                await page.locator('.home-hero a[href="/prompt-builder"]').click();
+                await expect(page).toHaveURL(/\/prompt-builder$/);
+                await expect(
+                    page.getByRole("button", {
+                        name:
+                            locale === "ko" ? "블루프린트로 시작할까요?" : "Start with Blueprint?",
+                    }),
+                ).toBeVisible();
+                await page.goto("/home");
                 const about = page.locator('a[href="/about/"], a[href="/about/ko/"]');
                 await expect(about).toBeVisible();
                 await about.click();
                 await expect(page.locator("body")).toHaveClass("public-discovery");
+                await page.locator("#prompt-builder a").click();
+                await expect(page).toHaveURL(/\/prompt-builder$/);
+                await expect(
+                    page.getByRole("button", {
+                        name:
+                            locale === "ko" ? "블루프린트로 시작할까요?" : "Start with Blueprint?",
+                    }),
+                ).toBeVisible();
             });
         }
 }

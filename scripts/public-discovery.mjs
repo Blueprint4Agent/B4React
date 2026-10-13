@@ -49,6 +49,7 @@ export function discoveryAssets(options, stylesheets) {
         );
         const copy = data.discovery;
         const home = data.home.project;
+        const prompt = home.promptBuilder;
         const url = publicRoot + pathname;
         const other = locale === "en" ? "ko" : "en";
         const docRoot = `${repository}/blob/main/${locale === "ko" ? "notes/ko/" : ""}`;
@@ -58,7 +59,8 @@ export function discoveryAssets(options, stylesheets) {
         const body = `<div class="public-discovery__wrapper">
 <nav class="public-discovery__nav" aria-label="${escape(copy.nav)}">${link("/home", copy.app)} ${link(repository, copy.repository)} <a href="${paths[other]}" lang="${other}" hreflang="${other}">${escape(copy.language)}</a></nav>
 <main class="home-overview">
-<section class="home-hero"><p class="home-eyebrow">Blueprint4Agent · B4A</p><h1>${escape(copy.heading)}</h1><p class="home-hero__description">${escape(copy.description)}</p><p class="public-discovery__copy">${escape(copy.identity)}</p><div class="home-hero__actions">${link("#quick-start", copy.start)} ${link("#features", copy.features)} ${link(docRoot + "README.md", copy.docs)}</div><div class="home-stack"><span>FastAPI</span><span>React</span><span>TypeScript</span><span>Docker</span></div></section>
+<section class="home-hero"><p class="home-eyebrow">Blueprint4Agent · B4A</p><h1>${escape(copy.heading)}</h1><p class="home-hero__description">${escape(copy.description)}</p><p class="public-discovery__copy">${escape(copy.identity)}</p><div class="home-hero__actions"><a class="home-resource-pill" href="/prompt-builder">${escape(prompt.action)}</a> ${link("#quick-start", copy.start)} ${link("#features", copy.features)} ${link(docRoot + "README.md", copy.docs)}</div><div class="home-stack"><span>FastAPI</span><span>React</span><span>TypeScript</span><span>Docker</span></div></section>
+<section id="prompt-builder" class="home-workflow" aria-labelledby="prompt-builder-title"><div class="home-section-heading"><div><h2 id="prompt-builder-title">${escape(prompt.title)}</h2><p class="home-capabilities__note">${escape(prompt.description)}</p></div></div><div class="home-hero__actions"><a class="home-resource-pill" href="/prompt-builder">${escape(prompt.action)}</a></div></section>
 ${section("features", copy.features, `<div class="home-capabilities__grid">${capabilities.map((key) => `<article class="home-capability"><span class="home-capability__top" aria-hidden="true">·</span><h3>${escape(home[key + "Title"])}</h3><p>${escape(home[key + "Description"])}</p></article>`).join("\n")}</div>`)}
 ${section("preview", copy.preview, `<figure class="home-preview__figure"><img src="/home-previews/components-${locale}.webp" width="1360" height="900" alt="${escape(home.componentsAlt)}" loading="lazy" /><figcaption>${escape(copy.previewNote)}</figcaption></figure>`)}
 ${section(
