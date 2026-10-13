@@ -1199,7 +1199,7 @@ for (const canRefresh of [true, false]) {
             ).toBeVisible();
         else
             await expect(page.locator(".profile-menu__trigger")).toHaveAttribute(
-                "title",
+                "aria-label",
                 "Log in / Sign up",
             );
         const initialDenied = denied;

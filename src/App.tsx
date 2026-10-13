@@ -1,3 +1,4 @@
+import { AppLayoutProvider } from "./hooks/useAppLayout";
 import { InboxProvider, useInboxContext } from "./hooks/api/inbox/InboxProvider";
 import { useSubscription } from "./hooks/api/billing/useSubscription";
 import { tierFor } from "./utils/billingPlans";
@@ -159,6 +160,14 @@ function AuthDialogRoute({
 }
 
 export function App() {
+    return (
+        <AppLayoutProvider>
+            <AppContent />
+        </AppLayoutProvider>
+    );
+}
+
+function AppContent() {
     const { revalidateSession } = useAuthContext();
     useTheme();
     const { t } = useTranslation();

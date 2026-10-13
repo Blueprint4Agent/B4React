@@ -1235,5 +1235,14 @@
         "deployment": "Docker 배포와 운영",
         "contracts": "타입 기반 API 계약",
         "language": "English"
+    },
+    "layout": {
+        "title": "레이아웃",
+        "description": "이 브라우저에서 레이아웃을 미리 봅니다. 서비스 기본 설정은 바뀌지 않습니다.",
+        "sidebar": "사이드바형",
+        "topnav": "상단 메뉴형",
+        "focused": "미니멀형",
+        "openMenu": "메뉴 열기",
+        "closeMenu": "메뉴 닫기"
     }
 }

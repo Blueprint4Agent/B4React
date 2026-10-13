@@ -1,3 +1,6 @@
+import { useAppLayout } from "../../hooks/useAppLayout";
+import { useAppNavigation } from "../../hooks/useAppNavigation";
+import { SectionNavigation } from "./SectionNavigation";
 import { storageKey } from "../../utils/basePath";
 import { useAuthContext } from "../../hooks/useAuth";
 import { profileSidebarPath } from "../../utils/profileNavigation";
@@ -29,7 +32,13 @@ type AppLayoutProps = {
 
 export function AppLayout({ children, subscriptionTier, inboxUnread }: AppLayoutProps) {
     const { t } = useTranslation();
-    const [expanded, setExpanded] = useState(false);
+    const { mode } = useAppLayout();
+    const { hasSections } = useAppNavigation();
+    const [sidebarExpanded, setSidebarExpanded] = useState(false);
+    const [openMenuPath, setOpenMenuPath] = useState<string | null>(null);
+    const location = useLocation();
+    const menuPath = mode + location.pathname + location.search;
+    const expanded = mode === "sidebar" ? sidebarExpanded : openMenuPath === menuPath;
     const [sidebarWidth, setSidebarWidth] = useState(readSidebarWidth);
     const [resizing, setResizing] = useState(false);
     const onWidthChange = (width: number) => {
@@ -44,10 +53,10 @@ export function AppLayout({ children, subscriptionTier, inboxUnread }: AppLayout
     const navigate = useNavigate();
     const toggleSidebar = useCallback(() => {
         setResizing(false);
-        setExpanded((value) => !value);
-    }, []);
+        if (mode === "sidebar") setSidebarExpanded((value) => !value);
+        else setOpenMenuPath((value) => (value === menuPath ? null : menuPath));
+    }, [mode, menuPath]);
     const openSettings = useCallback(() => navigate("/settings"), [navigate]);
-    const location = useLocation();
     const { user } = useAuthContext();
     const openProfile = useCallback(
         () => navigate("/profile", { state: { profileSidebarPath: profileSidebarPath(location) } }),
@@ -65,18 +74,20 @@ export function AppLayout({ children, subscriptionTier, inboxUnread }: AppLayout
         pathname.startsWith("/demo/admin/");
     return (
         <div
-            className={`app-shell${expanded ? " app-shell--expanded" : ""}${isSettings ? " app-shell--settings" : ""}${resizing ? " app-shell--resizing" : ""}`}
+            data-layout={mode}
+            className={`app-shell app-shell--${mode}${mode === "sidebar" && expanded ? " app-shell--expanded" : ""}${isSettings ? " app-shell--settings" : ""}${resizing ? " app-shell--resizing" : ""}`}
             style={{ "--sidebar-expanded-width": `${sidebarWidth}px` } as CSSProperties}
         >
-            {expanded ? (
+            {mode === "sidebar" && expanded ? (
                 <button
                     className="app-sidebar-backdrop"
                     type="button"
                     aria-label={t("nav.sidebar.toggleClose")}
-                    onClick={() => setExpanded(false)}
+                    onClick={() => setSidebarExpanded(false)}
                 />
             ) : null}
             <AppSidebar
+                mode={mode}
                 expanded={expanded}
                 subscriptionTier={subscriptionTier}
                 inboxUnread={inboxUnread}
@@ -85,8 +96,15 @@ export function AppLayout({ children, subscriptionTier, inboxUnread }: AppLayout
                 onWidthChange={onWidthChange}
                 onResizingChange={setResizing}
             />
-            <main className="app-main">
-                <div className="app-main__content">{children}</div>
+            <main
+                className={`app-main${mode !== "sidebar" && hasSections ? " app-main--workspace" : ""}`}
+            >
+                <div
+                    className={`app-main__content${mode !== "sidebar" && hasSections ? " app-workspace" : ""}`}
+                >
+                    {mode !== "sidebar" && hasSections ? <SectionNavigation /> : null}
+                    <div className="app-page-content">{children}</div>
+                </div>
             </main>
         </div>
     );

@@ -65,7 +65,7 @@ code with the compact KeyboardShortcut surface treatment. It wraps long content,
 has no interaction and is registered in the searchable showcase. Admin environment
 values pair localized meaning with the actual safe boolean or runtime-mode value.
 
-Keyboard settings reuse General row/header composition. Both app shortcuts can be customized/reset per account by clicking a key card; duplicate bindings are rejected and clicking away cancels capture. Each settings section replays the existing entry animation. Default/pill actions share the 32px dropdown height; coarse pointers retain 44px targets. Profile subscription markers use a fixed 16px circle with a centered glyph. Home/admin headers omit icons like Settings.
+Keyboard settings reuse General row/header composition. Both app shortcuts can be customized/reset per account by clicking a key card; duplicate bindings are rejected and clicking away cancels capture. Settings section changes keep the surrounding chrome stationary. Default/pill actions share the 32px dropdown height; coarse pointers retain 44px targets. Profile subscription markers use a fixed 16px circle with a centered glyph. Home/admin headers omit icons like Settings.
 
 Profile role badges belong inside the photo card. Compact option menus open toward the right from the trigger left edge and clamp to the viewport. Destructive options use red in both themes. Keyboard follows Account in the sidebar and uses toast notices for duplicate shortcuts.
 
@@ -90,3 +90,7 @@ Content has semantic h1/h2/h3 headings using the same home typography. It requir
 no API/config/auth state or React mount. The small inline theme script is optional;
 without JavaScript, all content and navigation remain available in light mode.
 Browser comparisons against /home live in tests/discovery/public.spec.ts.
+
+## Service shell variants
+
+`AppLayout`/`AppSidebar` own sidebar, top-navigation and minimal chrome; `SectionNavigation` is the canonical boxed contextual menu for non-sidebar settings/admin pages. Global navigation never embeds those section lists. On mobile the contextual box is a disclosure above content. Keep its position stable during section switches; reserve scrollbar space and disable translation on the Settings content container. Home/profile/inbox retain their existing family widths and surfaces. See [layout modes](layout-modes.md).

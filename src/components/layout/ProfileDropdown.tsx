@@ -18,11 +18,12 @@ import { useEffect, useLayoutEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
-import { KeyboardShortcut, UserAvatar } from "../ui";
+import { KeyboardShortcut, Tooltip, UserAvatar } from "../ui";
 import { shortcutAriaKeys } from "../../utils/keyboardShortcuts";
 
 type ProfileDropdownProps = {
     expanded?: boolean;
+    tooltipSide?: "right" | "bottom";
     subscriptionTier?: SubscriptionTier | null;
     showPlans?: boolean;
     showLogin?: boolean;
@@ -43,6 +44,7 @@ type ProfileDropdownProps = {
 
 export function ProfileDropdown({
     expanded = false,
+    tooltipSide = "right",
     subscriptionTier,
     showPlans = false,
     showLogin = false,
@@ -184,46 +186,52 @@ export function ProfileDropdown({
                     setMenuOpen(false);
             }}
         >
-            <button
-                ref={triggerRef}
-                type="button"
-                className="profile-menu__trigger"
-                aria-label={t(showLogin ? "authDialog.entry" : "nav.aria.openMenu")}
-                aria-haspopup="dialog"
-                aria-controls={menuOpen ? popupId : undefined}
-                aria-expanded={menuOpen}
-                onClick={() => setMenuOpen((prev) => !prev)}
-                title={displayName}
+            <Tooltip
+                content={t(showLogin ? "authDialog.entry" : "nav.aria.openMenu")}
+                side={tooltipSide}
+                disabled={menuOpen || expanded}
+                className="profile-menu__trigger-tooltip"
             >
-                {avatarLabel ? (
-                    <span className="profile-menu__avatar-wrap">
-                        <UserAvatar
-                            className="profile-menu__avatar"
-                            imageUrl={avatarImageUrl}
-                            label={avatarLabel}
-                        />
-                        {subscriptionTier && (
-                            <span
-                                className={`profile-menu__tier profile-menu__tier--${subscriptionTier}`}
-                                aria-label={t("billing.plans.profileTier", {
-                                    plan: t(`billing.plans.${subscriptionTier}.name`),
-                                })}
-                            >
-                                {subscriptionTier === "free"
-                                    ? "F"
-                                    : subscriptionTier === "plus"
-                                      ? "+"
-                                      : "P"}
-                            </span>
-                        )}
-                    </span>
-                ) : (
-                    <UserRound aria-hidden="true" />
-                )}
-                {expanded ? (
-                    <span className="profile-menu__trigger-name">{displayName}</span>
-                ) : null}
-            </button>
+                <button
+                    ref={triggerRef}
+                    type="button"
+                    className="profile-menu__trigger"
+                    aria-label={t(showLogin ? "authDialog.entry" : "nav.aria.openMenu")}
+                    aria-haspopup="dialog"
+                    aria-controls={menuOpen ? popupId : undefined}
+                    aria-expanded={menuOpen}
+                    onClick={() => setMenuOpen((prev) => !prev)}
+                >
+                    {avatarLabel ? (
+                        <span className="profile-menu__avatar-wrap">
+                            <UserAvatar
+                                className="profile-menu__avatar"
+                                imageUrl={avatarImageUrl}
+                                label={avatarLabel}
+                            />
+                            {subscriptionTier && (
+                                <span
+                                    className={`profile-menu__tier profile-menu__tier--${subscriptionTier}`}
+                                    aria-label={t("billing.plans.profileTier", {
+                                        plan: t(`billing.plans.${subscriptionTier}.name`),
+                                    })}
+                                >
+                                    {subscriptionTier === "free"
+                                        ? "F"
+                                        : subscriptionTier === "plus"
+                                          ? "+"
+                                          : "P"}
+                                </span>
+                            )}
+                        </span>
+                    ) : (
+                        <UserRound aria-hidden="true" />
+                    )}
+                    {expanded ? (
+                        <span className="profile-menu__trigger-name">{displayName}</span>
+                    ) : null}
+                </button>
+            </Tooltip>
             {menuOpen ? (
                 <div
                     ref={popupRef}

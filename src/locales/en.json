@@ -1235,5 +1235,14 @@
         "deployment": "Docker deployment and operations",
         "contracts": "Typed API contracts",
         "language": "한국어"
+    },
+    "layout": {
+        "title": "Layout",
+        "description": "Preview a layout in this browser. Your service default stays unchanged.",
+        "sidebar": "Sidebar",
+        "topnav": "Top navigation",
+        "focused": "Minimal",
+        "openMenu": "Open navigation",
+        "closeMenu": "Close navigation"
     }
 }

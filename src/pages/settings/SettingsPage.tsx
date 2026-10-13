@@ -1,3 +1,4 @@
+import { useAppLayout } from "../../hooks/useAppLayout";
 import { InquirySettings } from "../support/InquirySettings";
 import { AccountNameSettings } from "./AccountNameSettings";
 import { useCurrentPlan } from "../../hooks/api/billing/useCurrentPlan";
@@ -46,6 +47,7 @@ export function SettingsPage() {
     const { data: appConfig } = useAppConfig();
     const plan = useCurrentPlan(user?.id);
     const { themeMode, setThemeMode } = useTheme();
+    const layout = useAppLayout();
     const [searchParams, setSearchParams] = useSearchParams();
     const section =
         searchParams.has("billing_setup") ||
@@ -345,6 +347,39 @@ export function SettingsPage() {
                                     onChangeTheme={setThemeMode}
                                 />
                             </article>
+                            {layout.canPreview ? (
+                                <article className="settings-row settings-layout-row">
+                                    <div>
+                                        <h2>{t("layout.title")}</h2>
+                                        <p>{t("layout.description")}</p>
+                                    </div>
+                                    <div
+                                        className="layout-options"
+                                        role="group"
+                                        aria-label={t("layout.title")}
+                                    >
+                                        {(["sidebar", "topnav", "focused"] as const).map((mode) => (
+                                            <Button
+                                                key={mode}
+                                                appearance="text"
+                                                className="layout-option"
+                                                aria-pressed={layout.mode === mode}
+                                                onClick={() => layout.setMode(mode)}
+                                            >
+                                                <span
+                                                    className={`layout-preview layout-preview--${mode}`}
+                                                    aria-hidden="true"
+                                                >
+                                                    <i />
+                                                    <i />
+                                                    <i />
+                                                </span>
+                                                <span>{t(`layout.${mode}`)}</span>
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </article>
+                            ) : null}
                         </section>
                     </>
                 ) : (

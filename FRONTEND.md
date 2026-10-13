@@ -414,7 +414,9 @@ Settings uses the same AppSidebar instance, B4A header, collapse button, animati
 footer and colors as the app. Back to app is the first item below the header,
 followed by existing General, Appearance, Profile and Developers sections. A
 validated section query parameter drives both the sidebar selection and page.
-No separate settings navigation is rendered. Profile uses a compact photo row and
+In sidebar mode no separate settings navigation is rendered. Topnav/minimal modes use
+the shared boxed SectionNavigation instead; their global headers never embed settings
+sections. Profile uses a compact photo row and
 grouped identity fields. Settings and showcase use ThemePreviewSelector for
 system/light/dark previews, pressed state and existing local-storage persistence.
 
@@ -747,3 +749,7 @@ Button supports showcased `iconOnly` rectangular actions (32px, 44px for coarse 
 DropdownMenu `floating` reuses the viewport-positioning loop outside modals for large field lists. Profile country/region lists use the shared 18rem cap, internal scrolling and anchor clamping, preserving page height and list scroll offsets.
 
 Optional WebSocket features use [the opt-in provider template](notes/websocket-provider.md). Keep authentication/session ownership in the caller, use a stable abortable connection factory, and retain domain HTTP reconciliation. Do not replace existing SSE or mount a socket globally without a concrete endpoint and authorization contract.
+
+## Service layout modes
+
+Follow [layout modes](notes/layout-modes.md). The service default lives in `src/service.config.ts`; only explicit server development mode enables a browser-local Appearance preview. Global header links must not contain settings/admin section menus: reuse `useAppNavigation` in the boxed `SectionNavigation` instead. Minimal uses a compact transparent header, fixed menu icon before the brand and direct development resource links. Keep icon tooltips, profile/login, desktop status and role filtering in every shell. Settings cards no longer translate on section navigation; keep scrollbar space stable. No new server preference or store is introduced.
