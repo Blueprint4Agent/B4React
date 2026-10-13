@@ -1,4 +1,5 @@
 import {
+    FilePenLine,
     ArrowLeft,
     Blocks,
     Home,
@@ -124,6 +125,12 @@ export function useAppNavigation() {
                     icon: Home,
                     section: "",
                 },
+                {
+                    path: "/prompt-builder",
+                    label: t("promptBuilder.title"),
+                    icon: FilePenLine,
+                    section: "prompts",
+                },
                 ...(development
                     ? [
                           {
@@ -143,6 +150,12 @@ export function useAppNavigation() {
     );
     const globalItems = [
         { path: homePath, label: t("nav.home"), icon: Home, section: "" },
+        {
+            path: "/prompt-builder",
+            label: t("promptBuilder.title"),
+            icon: FilePenLine,
+            section: "prompts",
+        },
         ...(development
             ? [
                   {

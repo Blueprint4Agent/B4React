@@ -155,3 +155,5 @@ Production builds use relative assets and include a runtime `deployment-path.jso
 `VITE_BASE_PATH` applies only to the Vite development server. For a separate development or desktop backend, set `VITE_API_BASE_URL` to its public URL including any prefix. Desktop frontend assets normally remain at `/`. The frontend build never reads parent files. `VITE_PUBLIC_SITE_URL` is the build-time sharing/discovery origin; the backend relocates generated public URLs to its runtime public URL. The host owns root robots.txt policy.
 
 Service layouts (sidebar, top navigation, minimal): [English](notes/layout-modes.md) · [한국어](notes/ko/layout-modes.md). Set `src/service.config.ts` for deployment; preview in Settings → Appearance only when the server runs in development mode.
+
+Guided service prompts: [Prompt builder](notes/prompt-builder.md) · [한국어](notes/ko/prompt-builder.md). The production-ready navigation entry follows Home; both paths start with a feature name and multiple implementation scopes.

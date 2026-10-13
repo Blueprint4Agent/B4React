@@ -68,6 +68,7 @@ export function AppLayout({ children, subscriptionTier, inboxUnread }: AppLayout
         pathname === "/notifications" ||
         pathname === "/settings" ||
         pathname === "/home" ||
+        pathname === "/prompt-builder" ||
         pathname === "/admin" ||
         pathname.startsWith("/admin/") ||
         pathname === "/demo/admin" ||

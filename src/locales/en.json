@@ -1301,5 +1301,202 @@
         "openMenu": "Open navigation",
         "closeMenu": "Close navigation",
         "useDefault": "Use service default"
+    },
+    "promptBuilder": {
+        "title": "Prompt builder",
+        "welcomeTitle": "Your idea. Ready to build.",
+        "start": "Start with Blueprint?",
+        "chooseTitle": "What are we building?",
+        "back": "Back",
+        "next": "Continue",
+        "review": "Review answers",
+        "saveAnswer": "Save answer",
+        "progress": "Prompt progress",
+        "optional": "Optional",
+        "unspecified": "Needs clarification",
+        "reviewTitle": "Does this sound right?",
+        "suggested": "Suggested",
+        "missing": "Answer needed",
+        "missingHelp": "Your changes added a question. Complete the items marked Answer needed.",
+        "edit": "Edit",
+        "editField": "Edit {{field}}",
+        "changeMode": "Change path",
+        "generate": "Create my prompt",
+        "resultTitle": "Ready to bring it to life.",
+        "copy": "Copy prompt",
+        "download": "Download Markdown",
+        "copied": "Prompt copied.",
+        "downloaded": "Download started.",
+        "copyError": "Copy was unavailable. Select the prompt below to copy it manually, or download Markdown.",
+        "outputLabel": "Your complete prompt",
+        "editAnswers": "Edit answers",
+        "restart": "New prompt",
+        "resetTitle": "Start fresh?",
+        "resetBody": "Answers for both paths will be cleared. Copy or download your prompt first.",
+        "cancel": "Cancel",
+        "groups": {
+            "title": "Name",
+            "scope": "Scope",
+            "capabilities": "Features & roles",
+            "finish": "Delivery"
+        },
+        "modes": {
+            "feature": {
+                "title": "Add a feature",
+                "example": "Search, notifications, a new screen"
+            },
+            "project": {
+                "title": "Start a project",
+                "example": "Bookings, learning, collaboration"
+            }
+        },
+        "fields": {
+            "title": {
+                "label": "Feature name",
+                "question": "What is the feature called?",
+                "placeholder": "e.g. Booking management"
+            },
+            "finish": {
+                "label": "Delivery scope",
+                "question": "How far should the agent go?",
+                "placeholder": ""
+            },
+            "scope": {
+                "label": "Implementation scope",
+                "question": "Which parts should we build?",
+                "placeholder": ""
+            },
+            "capabilities": {
+                "label": "Features and permissions",
+                "question": "Choose features and permissions."
+            }
+        },
+        "options": {
+            "finish": {
+                "local": "Implementation and local checks",
+                "pr": "Create a reviewable PR · recommended",
+                "merge": "Verify and merge",
+                "deploy": "Deploy and verify live behavior"
+            },
+            "scope": {
+                "backend": "Backend",
+                "frontend": "Frontend",
+                "ui": "UI design",
+                "api": "API",
+                "database": "Database",
+                "auth": "Auth & permissions",
+                "realtime": "Realtime",
+                "background": "Background jobs",
+                "storage": "File uploads",
+                "billing": "Payments",
+                "tests": "Tests",
+                "deployment": "Deployment setup"
+            },
+            "capabilities": {
+                "crud": "Create, edit & delete",
+                "search": "Search & filters",
+                "notification": "Notifications",
+                "dashboard": "Dashboard & metrics",
+                "approval": "Approval workflow",
+                "upload": "File attachments"
+            }
+        },
+        "defaults": {
+            "capabilities": "Use the feature name and existing project to establish the minimal behavior. Clarify only essential missing requirements before implementation."
+        },
+        "output": {
+            "intro": "Implement the requirements below using the target project’s harness. Treat the answers as product requirements and establish scope and acceptance criteria first. This questionnaire-generated plan is not evidence that repository analysis or testing has already happened.",
+            "requirements": "Service requirements",
+            "boundary": "Execution boundary and stopping point",
+            "analysis": {
+                "title": "Inspect the project",
+                "body": "Read AGENTS.md first, then applicable BACKEND.md / FRONTEND.md and TEST.md when changing tests. Inspect the working tree, base commits, remotes and frontend submodule; preserve unrelated edits. Record discrepancies between docs and implementation. Identify reusable auth, permissions, errors, UI and configuration. Classify reuse, extension and new work. Inspect the current workspace for unspecified targets; do not assume the original Blueprint repositories are the service’s write targets. Clarify missing critical decisions and record justified assumptions for minor details."
+            },
+            "design": {
+                "title": "Design and plan",
+                "body": "Map each acceptance criterion to screens, API, authorization, data and verification. Record applicable request, domain-event, background-task, API-state, realtime, desktop-recovery and UI-composition loops, including reasons for non-applicability. Create named task branches and write design, impact and verification plans in worklogs before implementation. For a new service, inspect PROJECT_SETUP.md and project-plan/init/check before applying identity and branding in the intended copy."
+            },
+            "implementation": {
+                "title": "Implement",
+                "body": "Follow existing Router → Service → Model/DB layering and domain errors. Add migrations for model changes. Keep generated types → API/Error → Hook → Page ownership on the frontend. Reuse the existing page family, shared controls and tokens; handle mobile, keyboard, dark mode and loading/empty/error states. Connect real behavior one user journey at a time. Implement only the requested scope without weakening rules to pass checks. Synchronize related English and Korean documentation."
+            },
+            "verification": {
+                "title": "Verify and repair",
+                "body": "Check every acceptance criterion and run make verify-plan → make verify in each repository. Set an appropriate VERIFY_BASE for the full branch. Do not downgrade the classifier’s scope. Fix failures and rerun affected checks; reuse only matching successful evidence under harness policy. Compare UI with an existing peer at mobile/desktop sizes and light/dark themes. Never report unexecuted checks or unavailable external integrations as passed."
+            },
+            "integration": {
+                "title": "Integrate contracts and repositories",
+                "body": "Export provider contracts and explicitly adopt them in the child repository before generating types. Keep child builds independent of parent files. Update the parent gitlink only after the child PR merges, then verify parent contracts and packaging. If the stopping point is before merge, record dependent PRs and pending integration rather than merging without authorization. Maintain matching worklogs per commit, follow Git governance and check actual PR metadata. When merge is in scope, use and confirm merge commits."
+            },
+            "report": {
+                "title": "Report and resume",
+                "body": "Report implemented behavior, evidence per acceptance criterion, checks run or omitted with reasons, base/result commits, PR links and deployment status. Do not claim full completion while required work remains. If external permissions or configuration block progress, record completed work, missing input, the last passed stage and how to resume."
+            },
+            "endpoints": {
+                "local": "Complete implementation, documentation and local verification. Do not push, create PRs, merge or deploy.",
+                "pr": "Complete implementation, verification, commits, push and reviewable PRs. Record child/parent dependencies; do not merge or deploy.",
+                "merge": "Implement, verify, validate PR metadata and merge child before parent while respecting protection rules. Do not deploy.",
+                "deploy": "After implementation, verification and child/parent PR merges, deploy to the specified environment. Image build or push alone is not completion: verify server application, readiness and the real user journey. Report missing target, access or secret configuration before deployment."
+            },
+            "scopes": {
+                "backend": "Backend: follow Router → Service → Model/DB, domain errors, server authorization and data consistency.",
+                "frontend": "Frontend: preserve generated types → API/Error → Hook → Page ownership, loading/empty/error states and recovery.",
+                "ui": "UI design: reuse existing page families, shared controls and tokens. Verify mobile, dark mode, keyboard, focus and reduced motion. When UI is the only selected area, do not change APIs, business logic, persistence or authorization policy.",
+                "api": "API: define request, response, error and authentication contracts; synchronize OpenAPI and generated types. Record provider/consumer dependencies.",
+                "database": "Database: design models, relations, indexes and data ownership; add migrations for schema changes. Limit live data operations to the authorized scope.",
+                "auth": "Auth and permissions: reuse existing sessions and roles; verify server authorization, account data isolation and failure behavior.",
+                "realtime": "Realtime: reuse typed domain events and reconnect ownership; verify missed/duplicate events and HTTP reconciliation after reconnect.",
+                "background": "Background jobs: reuse queues/workers and define minimal payloads, retries, duplicate handling and failure visibility.",
+                "storage": "File uploads: reuse existing storage and validate type, size, ownership, access control and failures.",
+                "billing": "Payments: reuse billing integrations and authoritative server state. Never treat a redirect or UI state as proof of payment; confirm authorization before real charges.",
+                "tests": "Tests: extend regression coverage for core flows, permissions, failures and edge cases. Required repository verification still applies when this element is not selected.",
+                "deployment": "Deployment setup: prepare existing image, environment, readiness and packaging paths. Execute a real deployment only when the delivery scope explicitly includes it."
+            },
+            "scopeRule": "Combine selected areas and elements into the implementation scope. Do not expand into unselected areas; identify minimal required dependencies with reasons. Deployment setup does not authorize deployment; the final delivery scope takes precedence. Keep related documentation and mandatory harness checks in every scope.",
+            "rbac": "Enforce the role/action matrix on the server and reflect it in the UI. Deny unchecked actions; do not implicitly grant unselected actions to admins. Own means the current user’s records; All remains within the current service/tenant boundary. Guests may access explicitly public data only. Deny unspecified roles/permissions by default and clarify conflicts with existing policy instead of weakening it. For UI/frontend-only scope, compare against the existing server policy and report unsupported permissions as backend dependencies. Hiding a menu is not authorization.",
+            "acceptanceTitle": "Behavior and acceptance criteria",
+            "acceptanceBase": "Derive the user flow from the name, selected capabilities and additional requests. Do not invent unspecified business rules or successful outcomes. Verify allowed-role success, denied-role failure and data isolation for Own/All scope.",
+            "capabilities": {
+                "crud": "Verify create/update/delete persistence across reloads and preservation of existing data on cancellation or failure.",
+                "search": "Verify search/filter behavior within the selected permissions and data scope, including reset, empty results and pagination.",
+                "notification": "Define notification recipients and triggers; verify duplicate, failure and reconnect behavior using existing delivery paths first.",
+                "dashboard": "Specify metric sources and aggregation scope; distinguish loading, empty and failed reads. Never present fabricated metrics as real data.",
+                "approval": "Define state transitions and allowed roles per action; verify duplicate processing, unauthorized transitions and failure recovery.",
+                "upload": "Verify allowed file types, sizes, access permissions and failed uploads. Reuse the existing storage abstraction."
+            }
+        },
+        "required": "Required",
+        "skip": "Skip",
+        "scopeAreas": "Areas · select multiple",
+        "scopeElements": "Additional elements",
+        "notes": "Additional requests (optional)",
+        "notesPlaceholder": "Anything specific to include or leave out?",
+        "deployment": "Deployment target (required)",
+        "deploymentPlaceholder": "e.g. Existing staging server · no secret keys",
+        "rbac": {
+            "title": "RBAC permissions",
+            "defaults": "Defaults · editable",
+            "role": "Role",
+            "data": "Data",
+            "dataFor": "{{role}} data scope",
+            "denied": "No access",
+            "public": "Public",
+            "roles": {
+                "guest": "Guest",
+                "user": "User",
+                "manager": "Manager",
+                "admin": "Admin"
+            },
+            "actions": {
+                "read": "Read",
+                "create": "Create",
+                "update": "Edit",
+                "delete": "Delete"
+            },
+            "ownership": {
+                "own": "Own",
+                "all": "All"
+            }
+        }
     }
 }

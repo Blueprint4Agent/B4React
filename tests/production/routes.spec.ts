@@ -193,3 +193,25 @@ test("development can clear a saved preview and follow the deployment default", 
     await expect(page.getByRole("button", { name: "Use service default" })).toBeDisabled();
     expect(await page.evaluate(() => localStorage.getItem("blueprint_layout_preview"))).toBeNull();
 });
+
+test("production prompt builder is public and loads its own lazy chunk", async ({ page }) => {
+    await page.route("**/config", (route) =>
+        route.fulfill({ json: { ...config, app_mode: "production", login_enabled: true } }),
+    );
+    await page.route("**/api/v1/auth/refresh", (route) =>
+        route.fulfill({ status: 401, json: { detail: { error: "INVALID_TOKEN" } } }),
+    );
+    const scripts: string[] = [];
+    page.on("request", (request) => {
+        if (request.resourceType() === "script") scripts.push(request.url());
+    });
+    await page.goto("/home");
+    const link = page.locator('nav#app-sidebar-navigation a[href="/prompt-builder"]');
+    await expect(link).toBeVisible();
+    expect(scripts.some((url) => /\/PromptBuilderPage-/.test(url))).toBe(false);
+    await link.click();
+    await expect(page.getByRole("button", { name: "Start with Blueprint?" })).toBeVisible();
+    expect(scripts.some((url) => /\/PromptBuilderPage-/.test(url))).toBe(true);
+    await page.reload();
+    await expect(page.getByRole("button", { name: "Start with Blueprint?" })).toBeVisible();
+});

@@ -106,3 +106,12 @@ MainPageTemplate and Settings remain unchanged. Auth/role filtering stays in Hom
 preview state in ProjectOverview, and all three global shell modes remain supported.
 
 Home section links live in the header for topnav/minimal layouts; sidebar uses a floating capsule. Native fragment links target preview, features, workflow and use cases with a scroll offset; smooth scrolling respects reduced motion. GitHub/guide icon pills sit in the hero. Home puts the preview border on the image only and removes browser chrome; static /about keeps its existing frame. Footer product/resource/account columns reuse existing destinations and role gates. Use cases are possible applications, not customer claims.
+
+## Prompt builder
+
+`/prompt-builder` reuses MainPageTemplate and the General settings shell, header, 50rem
+width and mobile padding. Its scoped body contains a centered capsule, equal-width path
+and scope cards, one question at a time and review/output. Use existing capsule Button
+variants and form controls. The noninteractive ambient background is softly masked and
+stops with reduced motion. The global navigation entry follows Home in all runtime modes.
+`tests/e2e/prompt-builder.spec.ts` compares the General peer in Korean light/dark at 390/1440.
