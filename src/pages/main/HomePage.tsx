@@ -48,11 +48,6 @@ export function HomePage() {
                     <div className="home-account__heading">
                         <div>
                             <h2 id="home-account-title">{t("home.shortcuts")}</h2>
-                            <p>
-                                {user
-                                    ? t("home.welcome", { name: user.name.trim() || user.email })
-                                    : t("home.guestWelcome")}
-                            </p>
                         </div>
                         {!user && loginEnabled ? (
                             <Button appearance="text" onClick={() => navigate("/login")}>

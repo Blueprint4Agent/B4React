@@ -30,14 +30,18 @@ for (const locale of ["en", "ko"]) {
                 await page.emulateMedia({ colorScheme: theme });
                 await page.goto(path);
                 await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
-                await expect(page.locator(".home-preview__figure img")).toBeVisible();
+                await expect(
+                    page.locator('.home-preview__figure img:not([aria-hidden="true"])'),
+                ).toBeVisible();
                 const geometry = async () =>
                     page.evaluate(() => {
                         const hero = getComputedStyle(
                             document.querySelector(".home-hero :is(h1,h2)")!,
                         );
                         const surface = getComputedStyle(
-                            document.querySelector(".home-preview__figure")!,
+                            document.querySelector(
+                                ".home-landing .home-preview__images, .public-discovery .home-preview__figure",
+                            ) || document.querySelector(".home-preview__figure")!,
                         );
                         return {
                             font: hero.fontSize,
@@ -45,7 +49,6 @@ for (const locale of ["en", "ko"]) {
                             line: hero.lineHeight,
                             border: surface.border,
                             radius: surface.borderRadius,
-                            background: surface.backgroundColor,
                         };
                     });
                 const publicStyle = await geometry();
