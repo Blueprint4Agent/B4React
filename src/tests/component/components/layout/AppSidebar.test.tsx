@@ -34,7 +34,7 @@ vi.mock("../../../../hooks/connectivity/useServerConnectivity", () => ({
     }),
 }));
 
-describe("AppSidebar", () => {
+describe.each(["sidebar", "topnav", "focused"] as const)("AppSidebar %s", (mode) => {
     beforeEach(() => {
         currentRole = "user";
         loginEnabled = true;
@@ -48,7 +48,7 @@ describe("AppSidebar", () => {
     it("places disconnected status beside the profile control", () => {
         // Given/When: an authenticated desktop screen loses server connectivity.
         const { container } = renderWithRouter(
-            <AppSidebar expanded={false} onToggleExpanded={() => undefined} />,
+            <AppSidebar mode={mode} expanded={false} onToggleExpanded={() => undefined} />,
             "/settings",
         );
 
@@ -68,7 +68,7 @@ describe("AppSidebar", () => {
         );
         const user = userEvent.setup();
         renderWithRouter(
-            <AppSidebar expanded={false} onToggleExpanded={() => undefined} />,
+            <AppSidebar mode={mode} expanded={false} onToggleExpanded={() => undefined} />,
             "/settings",
         );
 
@@ -89,7 +89,7 @@ describe("AppSidebar", () => {
         // Given: an authenticated desktop user is offline on the main page.
         const user = userEvent.setup();
         renderWithRouter(
-            <AppSidebar expanded={false} onToggleExpanded={() => undefined} />,
+            <AppSidebar mode={mode} expanded={false} onToggleExpanded={() => undefined} />,
             "/show-case",
         );
 
@@ -108,7 +108,9 @@ describe("AppSidebar", () => {
             // Given: a bootstrap/cached identity with login disabled or config unavailable.
             loginEnabled = enabled;
             const user = userEvent.setup();
-            renderWithRouter(<AppSidebar expanded={false} onToggleExpanded={() => undefined} />);
+            renderWithRouter(
+                <AppSidebar mode={mode} expanded={false} onToggleExpanded={() => undefined} />,
+            );
             // When: opening the profile menu.
             await user.click(screen.getByRole("button", { name: "Open profile menu" }));
             // Then: identity and settings remain, but account authentication actions are absent.
@@ -125,7 +127,9 @@ describe("AppSidebar", () => {
     it("retains switching and add account when login is enabled", async () => {
         // Given: login is explicitly enabled.
         const user = userEvent.setup();
-        renderWithRouter(<AppSidebar expanded={false} onToggleExpanded={() => undefined} />);
+        renderWithRouter(
+            <AppSidebar mode={mode} expanded={false} onToggleExpanded={() => undefined} />,
+        );
         // When: opening account switching.
         await user.click(screen.getByRole("button", { name: "Open profile menu" }));
         await user.click(screen.getByRole("button", { name: "Switch account" }));
@@ -140,7 +144,9 @@ describe("AppSidebar", () => {
         currentRole = role;
         loginEnabled = false;
         const user = userEvent.setup();
-        renderWithRouter(<AppSidebar expanded={false} onToggleExpanded={() => undefined} />);
+        renderWithRouter(
+            <AppSidebar mode={mode} expanded={false} onToggleExpanded={() => undefined} />,
+        );
         // When: opening the profile menu.
         await user.click(screen.getByRole("button", { name: "Open profile menu" }));
         // Then: only administrators get the panel entry even without ordinary login.

@@ -417,3 +417,249 @@ for (const mode of ["development", "production"]) {
         }
     });
 }
+
+for (const width of [390, 1440]) {
+    for (const colorScheme of ["light", "dark"] as const) {
+        test(`layout modes preserve settings composition and navigation ${colorScheme} at ${width}`, async ({
+            page,
+        }, info) => {
+            // Given: development Appearance uses the existing settings family.
+            await page.setViewportSize({ width, height: 900 });
+            await page.emulateMedia({ colorScheme });
+            await setup(page, "user", "development");
+            let configRequests = 0;
+            page.on("request", (request) => {
+                if (new URL(request.url()).pathname === "/config") configRequests++;
+            });
+            await page.goto("/settings?section=appearance");
+            await expect(page.getByRole("group", { name: "Layout", exact: true })).toBeVisible();
+            const initialConfigRequests = configRequests;
+            for (const [mode, label] of [
+                ["sidebar", "Sidebar"],
+                ["topnav", "Top navigation"],
+                ["focused", "Minimal"],
+            ]) {
+                // When: choosing each mode without reloading the page.
+                await page.getByRole("button", { name: label, exact: true }).click();
+                await expect(page.locator(".app-shell")).toHaveAttribute("data-layout", mode);
+                await expect(
+                    page.getByRole("button", { name: label, exact: true }),
+                ).toHaveAttribute("aria-pressed", "true");
+                // Then: cards contain their preview and text, page chrome fits and fetches are not repeated.
+                for (const option of await page.locator(".layout-option").all()) {
+                    expect(
+                        await option.evaluate((node) => {
+                            const outer = node.getBoundingClientRect();
+                            return [
+                                ...node.querySelectorAll(
+                                    ".layout-preview, .ui-button__label > span",
+                                ),
+                            ].every((child) => {
+                                const inner = child.getBoundingClientRect();
+                                return (
+                                    inner.top >= outer.top &&
+                                    inner.bottom <= outer.bottom &&
+                                    inner.left >= outer.left &&
+                                    inner.right <= outer.right
+                                );
+                            });
+                        }),
+                    ).toBe(true);
+                }
+                expect(
+                    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+                ).toBe(true);
+                if (mode !== "sidebar") {
+                    await expect(
+                        page
+                            .locator(".app-header")
+                            .getByRole("link", { name: "Appearance", exact: true }),
+                    ).toHaveCount(0);
+                    await expect(page.locator(".section-navigation")).toBeVisible();
+                    const github = page
+                        .locator(".app-header")
+                        .getByRole("link", { name: "GitHub", exact: true });
+                    await github.hover();
+                    await expect(
+                        page.getByRole("tooltip", { name: "GitHub", exact: true }),
+                    ).toBeVisible();
+                    await page.mouse.move(width - 5, 850);
+                    if (mode === "focused" || width < 961) {
+                        const menu = page.locator(".app-header__toggle");
+                        await menu.hover();
+                        await expect(
+                            page.getByRole("tooltip", { name: "Open navigation", exact: true }),
+                        ).toBeVisible();
+                        await menu.click();
+                        await expect(menu).toHaveAttribute("aria-expanded", "true");
+                        await expect(page.locator(".app-header__menu")).toBeVisible();
+                        await page.keyboard.press("Escape");
+                        await expect(page.locator(".app-header__menu")).toHaveCount(0);
+                        await expect(menu).toBeFocused();
+                    }
+                    if (mode === "focused") {
+                        expect(
+                            await page
+                                .locator(".app-header")
+                                .evaluate((node) => getComputedStyle(node).backgroundColor),
+                        ).toBe("rgba(0, 0, 0, 0)");
+                    }
+                }
+                await page.locator(".profile-menu__trigger").hover();
+                await expect(
+                    page.getByRole("tooltip", { name: "Open profile menu", exact: true }),
+                ).toBeVisible();
+                await page.locator(".profile-menu__trigger").click();
+                const profile = page.getByRole("dialog", { name: "Profile menu", exact: true });
+                await expect(profile).toBeVisible();
+                const popup = await profile.boundingBox();
+                expect(popup!.x).toBeGreaterThanOrEqual(0);
+                expect(popup!.x + popup!.width).toBeLessThanOrEqual(width);
+                expect(popup!.y).toBeGreaterThanOrEqual(0);
+                expect(popup!.y + popup!.height).toBeLessThanOrEqual(900);
+                await page.keyboard.press("Escape");
+                await page.mouse.move(width - 5, 850);
+                await page.screenshot({
+                    path: info.outputPath(`${mode}-appearance.png`),
+                    animations: "disabled",
+                });
+                const menuBox = page.locator(
+                    mode === "sidebar" ? ".app-sidebar" : ".section-navigation",
+                );
+                if (mode !== "sidebar" && width < 961)
+                    await page.locator(".section-navigation__toggle").click();
+                const before = await menuBox.boundingBox();
+                await menuBox.getByRole("link", { name: "General", exact: true }).click();
+                await expect(
+                    page.getByRole("heading", { name: "General", exact: true }),
+                ).toBeVisible();
+                // The menu keeps its position; content has no repeated translate animation.
+                const after = await menuBox.boundingBox();
+                expect(after!.x).toBeCloseTo(before!.x, 0);
+                expect(after!.y).toBeCloseTo(before!.y, 0);
+                expect(
+                    await page
+                        .locator(".settings-content-card")
+                        .evaluate((node) => getComputedStyle(node).animationName),
+                ).toBe("none");
+                await page.screenshot({
+                    path: info.outputPath(`${mode}-general-peer.png`),
+                    animations: "disabled",
+                });
+                if (mode !== "sidebar" && width < 961)
+                    await page.locator(".section-navigation__toggle").click();
+                await menuBox.getByRole("link", { name: "Appearance", exact: true }).click();
+            }
+            expect(configRequests).toBe(initialConfigRequests);
+            await page.reload();
+            await expect(page.locator(".app-shell")).toHaveAttribute("data-layout", "focused");
+        });
+    }
+}
+
+for (const preview of ["topnav", "focused", "invalid"]) {
+    test(`production ignores stored layout preview ${preview}`, async ({ page }) => {
+        // Given: a stored development selection from a previous session.
+        await page.addInitScript(
+            (value) => localStorage.setItem("blueprint_layout_preview", value),
+            preview,
+        );
+        await setup(page, "user", "production");
+        // When: opening production Appearance.
+        await page.goto("/settings?section=appearance");
+        // Then: use the configured default and expose no development selector.
+        await expect(page.locator(".app-shell")).toHaveAttribute("data-layout", "sidebar");
+        await expect(page.getByRole("group", { name: "Layout", exact: true })).toHaveCount(0);
+    });
+}
+
+for (const mode of ["topnav", "focused"]) {
+    test(`${mode} guest navigation keeps login and public settings reachable`, async ({ page }) => {
+        // Given: a narrow, signed-out development service.
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.addInitScript(
+            (value) => localStorage.setItem("blueprint_layout_preview", value),
+            mode,
+        );
+        await setup(page, null, "development");
+        // When: opening the account menu and navigating to settings.
+        await page.goto("/home");
+        await page.locator(".profile-menu__trigger").click();
+        await page
+            .getByRole("dialog", { name: "Profile menu" })
+            .getByRole("link", { name: "Settings", exact: true })
+            .click();
+        // Then: private section links are absent and login remains available.
+        await page.locator(".section-navigation__toggle").click();
+        await expect(
+            page.locator(".section-navigation").getByRole("link", { name: "Account", exact: true }),
+        ).toHaveCount(0);
+        await page.locator(".profile-menu__trigger").click();
+        await page
+            .getByRole("dialog", { name: "Profile menu" })
+            .getByRole("link", { name: "Log in", exact: true })
+            .click();
+        await expect(page.locator(".auth-dialog")).toBeVisible();
+        await expect(page.locator(".app-shell")).toHaveAttribute("data-layout", mode);
+    });
+}
+
+for (const mode of ["topnav", "focused"]) {
+    for (const width of [390, 1440]) {
+        test(`${mode} keeps Korean home profile inbox and administrator pages contained at ${width}`, async ({
+            page,
+        }, info) => {
+            // Given: the compact/upper navigation mode with localized, role-filtered pages.
+            await page.setViewportSize({ width, height: 900 });
+            await page.addInitScript((value) => {
+                localStorage.setItem("blueprint_layout_preview", value);
+                localStorage.setItem("b4a_language", "ko");
+            }, mode);
+            await setup(page, "manager", "development");
+            await page.route("**/api/v1/inbox?*", (route) =>
+                route.fulfill({
+                    json: {
+                        items: [],
+                        total: 0,
+                        page: 1,
+                        page_size: 20,
+                        summary: { unread_count: 0, latest_id: 0 },
+                    },
+                }),
+            );
+            // When/Then: each page retains its own composition and the chosen chrome.
+            for (const [path, selector] of [
+                ["/home", ".home-overview"],
+                ["/profile", ".personal-profile"],
+                ["/notifications", ".inbox-page"],
+                ["/admin", ".admin-content"],
+                ["/settings?section=appearance", ".layout-options"],
+            ]) {
+                await page.goto(path);
+                await expect(page.locator(selector)).toBeVisible();
+                await expect(page.locator(".app-shell")).toHaveAttribute("data-layout", mode);
+                expect(
+                    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+                ).toBe(true);
+                if (path === "/admin") {
+                    await expect(page.locator(".section-navigation")).toBeVisible();
+                    await expect(page.locator('.app-header a[href="/admin/server"]')).toHaveCount(
+                        0,
+                    );
+                    await expect(
+                        page.locator('.section-navigation a[href="/admin/server"]'),
+                    ).toHaveCount(0);
+                }
+                if (path.includes("appearance") && width < 961) {
+                    const section = await page.locator(".section-navigation").boundingBox();
+                    const heading = await page.locator(".settings-content-card h1").boundingBox();
+                    expect(heading!.y - section!.y - section!.height).toBeLessThan(40);
+                }
+                await page.screenshot({
+                    path: info.outputPath(`${path.split("?")[0].slice(1)}-ko.png`),
+                    animations: "disabled",
+                });
+            }
+        });
+    }
+}

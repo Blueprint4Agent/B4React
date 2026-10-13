@@ -239,7 +239,9 @@ test("signed-in users add another account and retain the current session until s
     await expect(dialog).toBeVisible();
     // Existing account remains authenticated if the new login is canceled.
     await dialog.getByRole("button", { name: "Close", exact: true }).click();
-    await expect(page.locator(".profile-menu__trigger")).toHaveAttribute("title", "First account");
+    await page.locator(".profile-menu__trigger").click();
+    await expect(page.locator(".profile-menu__name")).toHaveText("First account");
+    await page.keyboard.press("Escape");
     const records = await page.evaluate(() =>
         JSON.parse(localStorage.getItem("blueprint_recent_accounts_v1") ?? "[]"),
     );

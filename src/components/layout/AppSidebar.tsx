@@ -1,41 +1,25 @@
 import { getCoffeeSupportUrl } from "../../utils/coffeeSupport";
-import { profileSidebarPath } from "../../utils/profileNavigation";
+import { useAppNavigation } from "../../hooks/useAppNavigation";
+import type { AppLayoutMode } from "../../service.config";
 import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
 import type { SubscriptionTier } from "../../utils/billingPlans";
 import { useToast } from "../../hooks/useToast";
-import { resolveSettingsSection } from "../../utils/settingsSections";
-import {
-    Coffee,
-    Keyboard,
-    Blocks,
-    Home,
-    CreditCard,
-    BookOpen,
-    Users,
-    Server,
-    ArrowLeft,
-    MessageSquare,
-    Code2,
-    SlidersHorizontal,
-    Sun,
-    UserRound,
-    PanelLeftClose,
-    PanelLeftOpen,
-} from "lucide-react";
+import { Coffee, BookOpen, PanelLeftClose, PanelLeftOpen, Menu } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, NavLink, useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
 import { useAuthContext } from "../../hooks/useAuth";
 import { useServerConnectivity } from "../../hooks/connectivity/useServerConnectivity";
 import { useAppConfig } from "../../hooks/useFeatures";
-import { BrandMark, KeyboardShortcut, Tooltip } from "../ui";
+import { BrandMark, Button, KeyboardShortcut, Tooltip } from "../ui";
 import { ConnectivityStatus } from "./ConnectivityStatus";
 import { ProfileDropdown } from "./ProfileDropdown";
 import { shortcutAriaKeys } from "../../utils/keyboardShortcuts";
 import { SidebarResizeHandle, SIDEBAR_DEFAULT_WIDTH } from "./SidebarResizeHandle";
 
 type AppSidebarProps = {
+    mode?: AppLayoutMode;
     expanded: boolean;
     subscriptionTier?: SubscriptionTier | null;
     inboxUnread?: number | null;
@@ -46,6 +30,7 @@ type AppSidebarProps = {
 };
 
 export function AppSidebar({
+    mode = "sidebar",
     expanded,
     subscriptionTier,
     inboxUnread,
@@ -55,24 +40,29 @@ export function AppSidebar({
     onResizingChange,
 }: AppSidebarProps) {
     const { t } = useTranslation();
+    const isSidebar = mode === "sidebar";
+    const chromeRef = useRef<HTMLElement>(null);
     const { bindings } = useKeyboardShortcuts();
     const toggleRef = useRef<HTMLButtonElement>(null);
     const previousExpanded = useRef(expanded);
     useEffect(() => {
         if (previousExpanded.current !== expanded) {
-            toggleRef.current?.focus({ preventScroll: true });
+            if (isSidebar) toggleRef.current?.focus({ preventScroll: true });
+            else if (!expanded)
+                document
+                    .querySelector<HTMLButtonElement>(".app-header__toggle")
+                    ?.focus({ preventScroll: true });
             previousExpanded.current = expanded;
         }
-    }, [expanded]);
+    }, [expanded, isSidebar]);
     const navigate = useNavigate();
-    const location = useLocation();
-    const sidebarPath = profileSidebarPath(location);
-    const isSettings = sidebarPath === "/settings";
-    const [searchParams] = useSearchParams();
-    const section = searchParams.has("billing_setup") ? "billing" : searchParams.get("section");
+    const navigation = useAppNavigation();
+    const showLabels = isSidebar ? expanded : true;
+    const { isSettings, isAdminPanel, isSectionActive } = navigation;
+    const items = isSidebar ? navigation.items : navigation.globalItems;
+    const Chrome = isSidebar ? "aside" : "header";
     const { profileImageUrl, user, logout } = useAuthContext();
     const showToast = useToast();
-    const activeSection = resolveSettingsSection(section, Boolean(user));
     const { data: appConfig } = useAppConfig();
     const { checkNow, isDesktop, status } = useServerConnectivity();
     const [busy, setBusy] = useState(false);
@@ -83,6 +73,25 @@ export function AppSidebar({
         import.meta.env.VITE_BUY_ME_A_COFFEE_URL,
     );
     const homePath = "/home";
+    useEffect(() => {
+        if (isSidebar || !expanded) return;
+        chromeRef.current
+            ?.querySelector<HTMLAnchorElement>(".app-header__menu a")
+            ?.focus({ preventScroll: true });
+        const close = (event: KeyboardEvent) => {
+            if (event.key === "Escape" && !document.querySelector(".profile-menu__dropdown"))
+                onToggleExpanded();
+        };
+        const outside = (event: PointerEvent) => {
+            if (!chromeRef.current?.contains(event.target as Node)) onToggleExpanded();
+        };
+        document.addEventListener("keydown", close);
+        document.addEventListener("pointerdown", outside);
+        return () => {
+            document.removeEventListener("keydown", close);
+            document.removeEventListener("pointerdown", outside);
+        };
+    }, [isSidebar, expanded, onToggleExpanded]);
     const loginEnabled = appConfig?.login_enabled === true;
     const logoutBlocked = isDesktop && status !== "online";
     const displayName =
@@ -104,115 +113,131 @@ export function AppSidebar({
             setBusy(false);
         }
     };
-    const isDemoPanel = appConfig?.demo_enabled === true && sidebarPath.startsWith("/demo/admin");
-    const adminPath = isDemoPanel ? "/demo/admin" : "/admin";
-    const isAdminPanel =
-        isDemoPanel ||
-        (sidebarPath.startsWith("/admin") && (user?.role === "admin" || user?.role === "manager"));
-    const items = isAdminPanel
-        ? [
-              {
-                  path: homePath,
-                  label: t("settings.backToApp"),
-                  icon: ArrowLeft,
-                  section: "back",
-              },
-              ...(isDemoPanel || user?.role === "admin"
-                  ? [
-                        {
-                            path: `${adminPath}/inquiries`,
-                            label: t("support.adminTitle"),
-                            icon: MessageSquare,
-                            section: "inquiries",
-                        },
-                    ]
-                  : []),
-              { path: adminPath, label: t("admin.users"), icon: Users, section: "users" },
-              ...(isDemoPanel || user?.role === "admin"
-                  ? [
-                        {
-                            path: `${adminPath}/server`,
-                            label: t("serverStatus.title"),
-                            icon: Server,
-                            section: "server",
-                        },
-                    ]
-                  : []),
-          ]
-        : isSettings
-          ? [
-                {
-                    path: homePath,
-                    label: t("settings.backToApp"),
-                    icon: ArrowLeft,
-                    section: "back",
-                },
-                {
-                    path: "/settings?section=general",
-                    label: t("settings.menu.general"),
-                    icon: SlidersHorizontal,
-                    section: "general",
-                },
-                {
-                    path: "/settings?section=appearance",
-                    label: t("settings.menu.appearance"),
-                    icon: Sun,
-                    section: "appearance",
-                },
-                {
-                    path: "/settings?section=account",
-                    label: t("settings.menu.account"),
-                    icon: UserRound,
-                    section: "account",
-                },
-                {
-                    path: "/settings?section=keyboard",
-                    label: t("settings.menu.keyboard"),
-                    icon: Keyboard,
-                    section: "keyboard",
-                },
-                {
-                    path: "/settings?section=billing",
-                    label: t("billing.title"),
-                    icon: CreditCard,
-                    section: "billing",
-                },
-                {
-                    path: "/settings?section=support",
-                    label: t("support.title"),
-                    icon: MessageSquare,
-                    section: "support",
-                },
-                {
-                    path: "/settings?section=developers",
-                    label: t("settings.menu.developers"),
-                    icon: Code2,
-                    section: "developers",
-                },
-            ]
-          : [
-                {
-                    path: homePath,
-                    label: t("nav.home"),
-                    icon: Home,
-                    section: "",
-                },
-                ...(development
-                    ? [
-                          {
-                              path: "/show-case",
-                              label: t("nav.sidebar.showCase"),
-                              icon: Blocks,
-                              section: "showcase",
-                          },
-                      ]
-                    : []),
-            ];
+
+    const navigationLinks = (
+        <>
+            {items.map(({ path, label, icon: Icon, section: itemSection }) => (
+                <Tooltip
+                    key={path}
+                    content={label}
+                    side="right"
+                    className="app-sidebar__item-tooltip"
+                    disabled={showLabels}
+                >
+                    <NavLink
+                        to={path}
+                        end={isSidebar && isAdminPanel}
+                        aria-current={
+                            isSidebar && isSettings
+                                ? isSectionActive(itemSection)
+                                    ? "page"
+                                    : false
+                                : undefined
+                        }
+                        className={({ isActive }) =>
+                            (isSidebar && isSettings ? isSectionActive(itemSection) : isActive)
+                                ? "app-sidebar__item app-sidebar__item--active"
+                                : "app-sidebar__item"
+                        }
+                        aria-label={label}
+                    >
+                        <Icon aria-hidden="true" />
+                        {showLabels ? (
+                            <span className="app-sidebar__item-label">{label}</span>
+                        ) : null}
+                    </NavLink>
+                </Tooltip>
+            ))}
+        </>
+    );
+    const resourceLinks = (
+        <div className="app-sidebar__nav app-resource-links">
+            {(development
+                ? [
+                      {
+                          href: "https://github.com/Blueprint4Agent/B4FastAPI",
+                          label: t("nav.sidebar.github"),
+                          icon: null,
+                      },
+                      {
+                          href: "https://blueprint4agent.github.io/docs",
+                          label: t("nav.sidebar.documentation"),
+                          icon: BookOpen,
+                      },
+                      ...(coffeeUrl
+                          ? [{ href: coffeeUrl, label: "Buy Me a Coffee", icon: Coffee }]
+                          : []),
+                  ]
+                : []
+            ).map(({ href, label, icon: Icon }) => (
+                <Tooltip
+                    key={href}
+                    content={label}
+                    side={isSidebar ? "right" : "bottom"}
+                    className="app-sidebar__item-tooltip"
+                    disabled={isSidebar && expanded}
+                >
+                    <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="app-sidebar__item"
+                        aria-label={label}
+                    >
+                        {Icon ? (
+                            <Icon aria-hidden="true" />
+                        ) : (
+                            <span className="app-sidebar__github-mark" aria-hidden="true" />
+                        )}
+                        {showLabels ? (
+                            <span className="app-sidebar__item-label">{label}</span>
+                        ) : null}
+                    </a>
+                </Tooltip>
+            ))}
+        </div>
+    );
+    const menuToggle = (
+        <Tooltip content={t("layout.openMenu")} side="bottom" className="app-header__menu-control">
+            <Button
+                className="app-header__toggle"
+                iconOnly
+                appearance="text"
+                aria-label={t("layout.openMenu")}
+                aria-expanded={expanded}
+                aria-controls="app-header-navigation"
+                onClick={onToggleExpanded}
+            >
+                <Menu aria-hidden="true" />
+            </Button>
+        </Tooltip>
+    );
 
     return (
-        <aside className={expanded ? "app-sidebar app-sidebar--expanded" : "app-sidebar"}>
+        <Chrome
+            ref={chromeRef}
+            className={
+                isSidebar
+                    ? expanded
+                        ? "app-sidebar app-sidebar--expanded"
+                        : "app-sidebar"
+                    : `app-header app-header--${mode}${expanded ? " app-header--open" : ""}`
+            }
+        >
             <div className="app-sidebar__header">
-                {expanded ? (
+                {!isSidebar ? (
+                    <>
+                        {menuToggle}
+                        <Link
+                            to={homePath}
+                            className="app-sidebar__brand"
+                            aria-label={t("nav.home")}
+                        >
+                            <BrandMark />
+                            <span className="app-sidebar__brand-name">{t("nav.brand")}</span>
+                        </Link>
+                    </>
+                ) : expanded ? (
                     <>
                         <Link
                             to={homePath}
@@ -273,117 +298,23 @@ export function AppSidebar({
                     </Tooltip>
                 )}
             </div>
-            <nav
-                id="app-sidebar-navigation"
-                className="app-sidebar__nav"
-                aria-label={t(
-                    isAdminPanel
-                        ? "admin.title"
-                        : isSettings
-                          ? "settings.menu.title"
-                          : "nav.sidebar.aria",
-                )}
-            >
-                {items
-                    .filter(
-                        (item) =>
-                            (user ||
-                                !["account", "developers", "billing", "support"].includes(
-                                    item.section,
-                                )) &&
-                            (item.section !== "billing" || appConfig?.billing_enabled === true),
-                    )
-                    .map(({ path, label, icon: Icon, section: itemSection }) => (
-                        <Tooltip
-                            key={path}
-                            content={label}
-                            side="right"
-                            className="app-sidebar__item-tooltip"
-                            disabled={expanded}
-                        >
-                            <NavLink
-                                to={path}
-                                end={isAdminPanel}
-                                aria-current={
-                                    isSettings
-                                        ? location.pathname !== "/profile" &&
-                                          location.pathname !== "/notifications" &&
-                                          itemSection === activeSection
-                                            ? "page"
-                                            : false
-                                        : undefined
-                                }
-                                className={({ isActive }) =>
-                                    (
-                                        isSettings
-                                            ? location.pathname !== "/profile" &&
-                                              location.pathname !== "/notifications" &&
-                                              itemSection === activeSection
-                                            : isActive
-                                    )
-                                        ? "app-sidebar__item app-sidebar__item--active"
-                                        : "app-sidebar__item"
-                                }
-                                aria-label={label}
-                            >
-                                <Icon aria-hidden="true" />
-                                {expanded ? (
-                                    <span className="app-sidebar__item-label">{label}</span>
-                                ) : null}
-                            </NavLink>
-                        </Tooltip>
-                    ))}
-            </nav>
+            {mode !== "focused" ? (
+                <nav
+                    id="app-sidebar-navigation"
+                    className="app-sidebar__nav"
+                    aria-label={isSidebar ? navigation.label : t("nav.sidebar.aria")}
+                >
+                    {navigationLinks}
+                </nav>
+            ) : null}
             <div className="app-sidebar__footer">
-                <ConnectivityStatus placement="sidebar" />
-                <div className="app-sidebar__nav">
-                    {(development
-                        ? [
-                              {
-                                  href: "https://github.com/Blueprint4Agent/B4FastAPI",
-                                  label: t("nav.sidebar.github"),
-                                  icon: null,
-                              },
-                              {
-                                  href: "https://blueprint4agent.github.io/docs",
-                                  label: t("nav.sidebar.documentation"),
-                                  icon: BookOpen,
-                              },
-                              ...(coffeeUrl
-                                  ? [{ href: coffeeUrl, label: "Buy Me a Coffee", icon: Coffee }]
-                                  : []),
-                          ]
-                        : []
-                    ).map(({ href, label, icon: Icon }) => (
-                        <Tooltip
-                            key={href}
-                            content={label}
-                            side="right"
-                            className="app-sidebar__item-tooltip"
-                            disabled={expanded}
-                        >
-                            <a
-                                href={href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="app-sidebar__item"
-                                aria-label={label}
-                            >
-                                {Icon ? (
-                                    <Icon aria-hidden="true" />
-                                ) : (
-                                    <span className="app-sidebar__github-mark" aria-hidden="true" />
-                                )}
-                                {expanded ? (
-                                    <span className="app-sidebar__item-label">{label}</span>
-                                ) : null}
-                            </a>
-                        </Tooltip>
-                    ))}
-                </div>
+                <ConnectivityStatus placement={isSidebar ? "sidebar" : "navbar"} />
+                {resourceLinks}
+
                 <ProfileDropdown
+                    tooltipSide={isSidebar ? "right" : "bottom"}
                     showPlans={appConfig?.billing_enabled === true}
-                    expanded={expanded}
+                    expanded={isSidebar && expanded}
                     showAdmin={user?.role === "admin" || user?.role === "manager"}
                     showAdminDemo={appConfig?.demo_enabled === true && user?.role !== "admin"}
                     inboxUnread={inboxUnread}
@@ -401,13 +332,22 @@ export function AppSidebar({
                     showLogin={!user && loginEnabled}
                 />
             </div>
-            {expanded && onWidthChange && onResizingChange ? (
+            {!isSidebar && expanded ? (
+                <nav
+                    id="app-header-navigation"
+                    className="app-header__menu"
+                    aria-label={t("layout.openMenu")}
+                >
+                    <div className="app-header__menu-links">{navigationLinks}</div>
+                </nav>
+            ) : null}
+            {isSidebar && expanded && onWidthChange && onResizingChange ? (
                 <SidebarResizeHandle
                     width={width}
                     onWidthChange={onWidthChange}
                     onResizingChange={onResizingChange}
                 />
             ) : null}
-        </aside>
+        </Chrome>
     );
 }
