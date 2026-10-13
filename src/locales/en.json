@@ -1085,7 +1085,55 @@
             },
             "startTitle": "Start with the source.",
             "startDescription": "Explore the repository, then follow the setup guide to run your own project.",
-            "docs": "Read the guide"
+            "docs": "Read the guide",
+            "sectionNav": "Explore this page",
+            "sections": {
+                "preview": "Preview",
+                "features": "Features",
+                "workflow": "Workflow",
+                "useCases": "Use cases"
+            },
+            "workflowTitle": "From a starting point to your service.",
+            "workflowDescription": "Keep the shared foundations. Build and verify the features that make your service different.",
+            "workflow": {
+                "prepare": {
+                    "title": "Set up your workspace",
+                    "description": "Clone the repository with its frontend submodule. Follow the guide to initialize configuration and run FastAPI and React locally."
+                },
+                "build": {
+                    "title": "Build your features",
+                    "description": "Extend the API and connect your screens using the shared components. Configure only the external services your product needs."
+                },
+                "ship": {
+                    "title": "Verify and deploy",
+                    "description": "Run the project checks and review the screens. Build the Docker image, configure your deployment environment and verify the running service."
+                }
+            },
+            "useCasesTitle": "A foundation for different kinds of services.",
+            "useCasesDescription": "Examples of what you can build on top of the included accounts, UI and operations tools.",
+            "useCases": {
+                "saas": {
+                    "title": "Subscription services",
+                    "description": "Start with accounts and Stripe billing, then add the workflows and features your subscribers use."
+                },
+                "internal": {
+                    "title": "Internal tools",
+                    "description": "Use role-based access and admin screens as a starting point for team dashboards and business workflows."
+                },
+                "portal": {
+                    "title": "Customer portals",
+                    "description": "Connect profiles, notifications and private inquiries to build a place for customers to manage their accounts and get support."
+                },
+                "prototype": {
+                    "title": "Product prototypes",
+                    "description": "Reuse existing screens and components to test a new product flow before expanding its API and operations."
+                }
+            },
+            "footerProduct": "Product",
+            "footerResources": "Resources",
+            "footerDescription": "A FastAPI and React starting point for building your own service.",
+            "pausePreview": "Pause preview rotation",
+            "playPreview": "Resume preview rotation"
         },
         "notifications": {
             "title": "Notifications",

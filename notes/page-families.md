@@ -97,10 +97,12 @@ Browser comparisons against /home live in tests/discovery/public.spec.ts.
 
 ## Home landing
 
-`HomePage` / `ProjectOverview` own the landing family: a 76rem maximum outer width,
+`HomePage` / `ProjectOverview` own the landing family: full-width surfaces with 70rem inner content,
 two-column introduction/product preview above 1100px, stacked mobile content,
-three unboxed capability groups, source/guide links and compact account navigation.
-Reuse the public introduction's hero typography and screenshot surface tokens;
+feature cards, three numbered development steps, four use cases and grouped footer navigation.
+Reuse the public introduction's hero typography and image border/radius tokens;
 Home intentionally does not share Settings card width or row geometry. The generic
 MainPageTemplate and Settings remain unchanged. Auth/role filtering stays in HomePage,
 preview state in ProjectOverview, and all three global shell modes remain supported.
+
+Home section links live in the header for topnav/minimal layouts; sidebar uses a floating capsule. Native fragment links target preview, features, workflow and use cases with a scroll offset; smooth scrolling respects reduced motion. GitHub/guide icon pills sit in the hero. Home puts the preview border on the image only and removes browser chrome; static /about keeps its existing frame. Footer product/resource/account columns reuse existing destinations and role gates. Use cases are possible applications, not customer claims.

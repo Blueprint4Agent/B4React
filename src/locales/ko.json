@@ -1085,7 +1085,55 @@
             },
             "startTitle": "코드부터 살펴보세요.",
             "startDescription": "저장소에서 구조를 확인하고, 시작 가이드를 따라 내 환경에서 실행해 보세요.",
-            "docs": "시작 가이드"
+            "docs": "시작 가이드",
+            "sectionNav": "홈 섹션 이동",
+            "sections": {
+                "preview": "화면",
+                "features": "기능",
+                "workflow": "개발 흐름",
+                "useCases": "활용 예시"
+            },
+            "workflowTitle": "준비하고, 만들고, 배포하세요.",
+            "workflowDescription": "공통 기능 위에 서비스의 핵심을 구현하고, 검증을 거쳐 내 환경에 배포합니다.",
+            "workflow": {
+                "prepare": {
+                    "title": "개발 환경 준비",
+                    "description": "프론트엔드 서브모듈과 함께 저장소를 내려받습니다. 가이드에 따라 환경 설정을 초기화하고 FastAPI와 React를 로컬에서 실행합니다."
+                },
+                "build": {
+                    "title": "서비스 기능 개발",
+                    "description": "API를 확장하고 공통 컴포넌트로 화면을 연결합니다. 결제·이메일·스토리지는 서비스에 필요한 것부터 설정합니다."
+                },
+                "ship": {
+                    "title": "검증하고 배포",
+                    "description": "프로젝트 검사와 화면 확인을 마칩니다. Docker 이미지를 빌드하고 배포 환경을 설정한 뒤, 실행된 서비스까지 확인합니다."
+                }
+            },
+            "useCasesTitle": "만들고 싶은 서비스에 맞춰 쓰세요.",
+            "useCasesDescription": "계정, 공통 UI, 운영 도구를 바탕으로 확장할 수 있는 서비스 예시입니다.",
+            "useCases": {
+                "saas": {
+                    "title": "구독형 서비스",
+                    "description": "계정과 Stripe 결제를 바탕으로 구독자가 사용할 서비스 기능과 이용 흐름을 구현합니다."
+                },
+                "internal": {
+                    "title": "내부 업무 도구",
+                    "description": "역할별 권한과 관리자 화면을 활용해 팀 대시보드와 업무 처리 도구를 구성합니다."
+                },
+                "portal": {
+                    "title": "고객 포털",
+                    "description": "프로필, 알림함, 비공개 문의를 연결해 고객이 계정을 관리하고 지원을 받는 공간을 만듭니다."
+                },
+                "prototype": {
+                    "title": "제품 프로토타입",
+                    "description": "기존 화면과 컴포넌트로 새로운 사용 흐름을 먼저 확인하고, 필요한 API와 운영 구성을 단계적으로 확장합니다."
+                }
+            },
+            "footerProduct": "제품",
+            "footerResources": "자료",
+            "footerDescription": "내 서비스를 만들기 위한 FastAPI · React 프로젝트.",
+            "pausePreview": "미리보기 자동 전환 일시정지",
+            "playPreview": "미리보기 자동 전환 재생"
         },
         "notifications": {
             "title": "알림함",

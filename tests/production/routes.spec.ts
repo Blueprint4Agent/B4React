@@ -114,7 +114,7 @@ test("production runtime redirects showcase to the guest home", async ({ page })
             .getByRole("link", { name: "GitHub", exact: true }),
     ).toHaveCount(0);
     await expect(
-        page.locator(".home-start").getByRole("link", { name: "GitHub", exact: true }),
+        page.locator(".home-hero__actions").getByRole("link", { name: "GitHub", exact: true }),
     ).toHaveAttribute("href", "https://github.com/Blueprint4Agent/B4FastAPI");
 });
 

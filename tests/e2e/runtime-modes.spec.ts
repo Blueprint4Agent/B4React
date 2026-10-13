@@ -143,7 +143,7 @@ for (const width of [390, 1440])
             await expect(page.locator(".home-capabilities")).toContainText(
                 "opt-in WebSocket provider template",
             );
-            const preview = page.locator(".home-preview__figure img");
+            const preview = page.locator('.home-preview__images > img[data-active="true"]');
             await expect(preview).toBeVisible();
             await expect
                 .poll(() =>
@@ -163,16 +163,15 @@ for (const width of [390, 1440])
                 .toBe(true);
             await page.getByRole("button", { name: "Showcase", exact: true }).click();
             await expect(preview).toHaveAttribute("src", /components-en.webp$/);
-            await expect(page.locator(".home-eyebrow")).toHaveText("B4A");
+            await expect(page.locator(".home-hero .home-eyebrow")).toHaveText("B4A");
             await expect(
                 page.getByRole("button", { name: "Open screen", exact: true }),
             ).toHaveCount(0);
             const heroActions = await page
-                .locator(".home-hero__actions > button")
+                .locator(".home-hero__actions > a")
                 .evaluateAll((buttons) =>
                     buttons.map((button) => ({
                         height: button.getBoundingClientRect().height,
-                        background: getComputedStyle(button).backgroundColor,
                         radius: getComputedStyle(button).borderRadius,
                     })),
                 );
@@ -210,14 +209,14 @@ for (const width of [390, 1440])
             await expect(page).toHaveURL(/section=billing$/);
             await page.goto("/home");
             await expect(page.locator(".home-account__link")).toHaveCount(6);
-            await page.getByRole("button", { name: "View the screens", exact: true }).click();
+            await page.locator('.home-section-nav a[href$="#home-product-preview"]').click();
             await expect
                 .poll(() =>
                     page
                         .locator("#home-product-preview")
                         .evaluate((element) => element.getBoundingClientRect().top),
                 )
-                .toBeLessThan(80);
+                .toBeLessThan(180);
             await page.getByRole("button", { name: "Server status", exact: true }).click();
             await expect(preview).toHaveAttribute("src", /server-en.webp$/);
             await expect(
@@ -373,8 +372,10 @@ for (const mode of ["development", "production"]) {
         await expect(page.locator(".home-overview")).toBeVisible();
         const link = page.getByRole("link", { name: "Buy Me a Coffee" });
         if (mode === "development") {
-            await expect(link).toHaveCount(2);
-            await expect(page.locator(".home-hero__topline .home-support-link")).toBeInViewport();
+            await expect(link).toHaveCount(1);
+            await expect(
+                page.locator(".home-overview").getByRole("link", { name: "Buy Me a Coffee" }),
+            ).toHaveCount(0);
             await expect(page.locator(".home-support")).toHaveCount(0);
             for (const element of await link.all()) {
                 await expect(element).toHaveAttribute(
@@ -647,3 +648,169 @@ for (const mode of ["topnav", "focused"]) {
         });
     }
 }
+
+for (const mode of ["sidebar", "topnav", "focused"]) {
+    for (const width of [390, 1440]) {
+        for (const theme of ["light", "dark"] as const) {
+            test(`landing capsule and footer ${mode} ${width} ${theme}`, async ({ page }, info) => {
+                // Given: a localized landing in each shell, with both motion preferences covered.
+                await page.setViewportSize({ width, height: 960 });
+                await page.emulateMedia({
+                    colorScheme: theme,
+                    reducedMotion: theme === "light" ? "reduce" : "no-preference",
+                });
+                await page.addInitScript((value) => {
+                    localStorage.setItem("blueprint_layout_preview", value);
+                    localStorage.setItem("b4a_language", "ko");
+                }, mode);
+                await setup(page, "manager", "development");
+                await page.goto("/home");
+                const capsule = page.locator(".home-section-nav");
+                await expect(capsule).toBeVisible();
+                await expect(capsule.locator("a")).toHaveCount(4);
+                if (mode !== "sidebar" && width === 1440) {
+                    const navBox = await capsule.boundingBox();
+                    const headerBox = await page.locator(".app-header").boundingBox();
+                    expect(navBox).not.toBeNull();
+                    expect(headerBox).not.toBeNull();
+                    expect(navBox!.x + navBox!.width / 2).toBeCloseTo(
+                        headerBox!.x + headerBox!.width / 2,
+                        0,
+                    );
+                    // The header's one-pixel bottom border is outside its positioning box.
+                    const borderBottom = await page
+                        .locator(".app-header")
+                        .evaluate((node) => parseFloat(getComputedStyle(node).borderBottomWidth));
+                    expect(navBox!.y + navBox!.height / 2).toBeCloseTo(
+                        headerBox!.y + (headerBox!.height - borderBottom) / 2,
+                        1,
+                    );
+                    expect(navBox!.y + navBox!.height).toBeLessThanOrEqual(
+                        headerBox!.y + headerBox!.height,
+                    );
+                    expect(await capsule.evaluate((node) => getComputedStyle(node).boxShadow)).toBe(
+                        "none",
+                    );
+                }
+
+                await expect(page.locator(".home-hero__actions a")).toHaveCount(2);
+                await expect(page.locator(".home-preview__chrome")).toHaveCount(0);
+                await expect(
+                    page.locator(".home-overview").getByRole("link", { name: "Buy Me a Coffee" }),
+                ).toHaveCount(0);
+                expect(
+                    await page
+                        .locator(".app-main")
+                        .evaluate((node) => getComputedStyle(node).scrollBehavior),
+                ).toBe(theme === "light" ? "auto" : "smooth");
+                await expect
+                    .poll(() =>
+                        page
+                            .locator('.home-preview__images > img[data-active="true"]')
+                            .evaluate(
+                                (img: HTMLImageElement) => img.complete && img.naturalWidth > 0,
+                            ),
+                    )
+                    .toBe(true);
+                await page.screenshot({
+                    path: info.outputPath("landing-top.png"),
+                    animations: "disabled",
+                });
+                // When: navigating to each section through native fragment links.
+                for (const id of [
+                    "home-capabilities",
+                    "home-workflow",
+                    "home-use-cases",
+                    "home-product-preview",
+                ]) {
+                    await capsule.locator(`a[href$="#${id}"]`).click();
+                    await expect(page).toHaveURL(new RegExp(`#${id}$`));
+                    const target = page.locator(`#${id}`);
+                    await expect
+                        .poll(async () => {
+                            const nav = await capsule.boundingBox();
+                            const box = await target.boundingBox();
+                            return box!.y >= nav!.y + nav!.height && box!.y < 400;
+                        })
+                        .toBe(true);
+                    await expect(capsule).toBeInViewport();
+                    if (id === "home-capabilities")
+                        await page.screenshot({
+                            path: info.outputPath("landing-features.png"),
+                            animations: "disabled",
+                        });
+                }
+                // Then: footer links retain permissions; keyboard navigation also reaches a section.
+                await page.locator(".home-footer").scrollIntoViewIfNeeded();
+                await expect(capsule).toBeInViewport();
+                const footerWidth = await page
+                    .locator(".home-footer")
+                    .evaluate((node) => node.getBoundingClientRect().width);
+                const mainWidth = await page
+                    .locator(".app-main")
+                    .evaluate((node) => node.clientWidth);
+                expect(footerWidth).toBeCloseTo(mainWidth, 0);
+                await expect(page.locator(".home-footer .home-account__link")).toHaveCount(6);
+                await expect(page.locator(".home-workflow__steps > li")).toHaveCount(3);
+                await expect(page.locator(".home-use-cases__grid > article")).toHaveCount(4);
+                expect(
+                    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+                ).toBe(true);
+                await page.screenshot({
+                    path: info.outputPath("landing-footer.png"),
+                    animations: "disabled",
+                });
+                const featureLink = capsule.locator('a[href$="#home-capabilities"]');
+                await featureLink.focus();
+                await page.keyboard.press("Enter");
+                await expect(page.locator("#home-capabilities")).toBeFocused();
+            });
+        }
+    }
+}
+
+test("home preview rotates while hovered and pauses explicitly or for reduced motion", async ({
+    page,
+}) => {
+    // Given: the preview is visible, with normal motion and no pointer/focus interaction.
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.clock.install();
+    await setup(page, null, "production");
+    await page.goto("/home");
+    const image = page.locator('.home-preview__images > img[data-active="true"]');
+    await expect(image).toHaveAttribute("src", /components-en.webp$/);
+    await expect(page.locator("#home-product-preview")).toBeInViewport();
+    await page.mouse.move(0, 0);
+    // When/Then: time advances through all four previews and wraps.
+    for (const preview of ["users", "server", "billing", "components"]) {
+        await page.clock.runFor(6100);
+        await expect(image).toHaveAttribute("src", new RegExp(`${preview}-en.webp$`));
+    }
+    await page.locator(".home-preview__images").hover();
+    await expect(page.locator(".home-preview__controls")).toHaveAttribute("data-rotating", "true");
+    await page.clock.runFor(6100);
+    await expect(image).toHaveAttribute("src", /users-en.webp$/);
+    // Explicit pause persists after pointer and keyboard focus leave the preview.
+    await page.getByRole("button", { name: "Pause preview rotation" }).click();
+    await page.locator('.home-section-nav a[href$="#home-product-preview"]').focus();
+    await page.mouse.move(0, 0);
+    await page.clock.runFor(7000);
+    await expect(image).toHaveAttribute("src", /users-en.webp$/);
+    await page.getByRole("button", { name: "Resume preview rotation" }).click();
+    await page.locator('.home-section-nav a[href$="#home-product-preview"]').focus();
+    await page.mouse.move(0, 0);
+    await page.clock.runFor(6100);
+    await expect(image).toHaveAttribute("src", /server-en.webp$/);
+    // An enlarged screenshot stays stable while being read.
+    await page.getByRole("button", { name: "Enlarge", exact: true }).click();
+    await page.clock.runFor(7000);
+    await expect(page.getByRole("dialog").locator("img")).toHaveAttribute("src", /server-en.webp$/);
+    await page.keyboard.press("Escape");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.locator('.home-section-nav a[href$="#home-product-preview"]').focus();
+    await page.mouse.move(0, 0);
+    await page.clock.runFor(7000);
+    await expect(image).toHaveAttribute("src", /server-en.webp$/);
+    await expect(page.getByRole("button", { name: "Pause preview rotation" })).toHaveCount(0);
+});
