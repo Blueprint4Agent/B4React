@@ -68,7 +68,7 @@ test("failed chunk can return to the default home", async ({ page }) => {
     await page.getByRole("button", { name: "Home", exact: true }).click();
     // Then: route-local failure does not poison the shell or home page.
     await expect(page).toHaveURL(/\/home$/);
-    await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
+    await expect(page.locator("#home-project-title")).toBeVisible();
 });
 
 test("plan selection loads its own production chunk and preserves currency preference", async ({
@@ -106,9 +106,16 @@ test("production runtime redirects showcase to the guest home", async ({ page })
     );
     await page.goto("/show-case");
     await expect(page).toHaveURL(/\/home$/);
-    await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
+    await expect(page.locator("#home-project-title")).toBeVisible();
     await expect(page.locator(".showcase-catalog")).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "GitHub", exact: true })).toHaveCount(0);
+    await expect(
+        page
+            .locator(".app-sidebar, .app-header")
+            .getByRole("link", { name: "GitHub", exact: true }),
+    ).toHaveCount(0);
+    await expect(
+        page.locator(".home-start").getByRole("link", { name: "GitHub", exact: true }),
+    ).toHaveAttribute("href", "https://github.com/Blueprint4Agent/B4FastAPI");
 });
 
 test("production home remains available when a secondary route chunk fails", async ({ page }) => {
@@ -142,6 +149,6 @@ test("production home remains available when a secondary route chunk fails", asy
     await expect(page.getByRole("heading", { name: "Unable to load this page" })).toBeVisible();
     await page.getByRole("button", { name: "Home", exact: true }).click();
     await expect(page).toHaveURL(/\/home$/);
-    await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
-    await expect(page.locator(".main-page-template__link")).toHaveCount(5);
+    await expect(page.locator("#home-project-title")).toBeVisible();
+    await expect(page.locator(".home-account__link")).toHaveCount(5);
 });

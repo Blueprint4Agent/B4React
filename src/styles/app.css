@@ -7803,3 +7803,195 @@ body.public-discovery {
 .profile-menu__trigger-tooltip > .ui-tooltip__trigger {
     width: 100%;
 }
+
+/* Home landing owns its editorial width; settings keep their compact shell. */
+.home-landing {
+    width: min(100%, 76rem);
+    margin-inline: auto;
+    padding: clamp(2rem, 5vw, 5rem) clamp(1.25rem, 3vw, 3rem) 2rem;
+}
+.home-landing .home-overview {
+    gap: clamp(3.5rem, 6vw, 6rem);
+}
+.home-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: center;
+}
+.home-landing .home-hero {
+    padding: 0;
+}
+.home-landing .home-hero__topline {
+    flex-wrap: wrap;
+    margin-bottom: 1.75rem;
+}
+.home-landing .home-hero__description {
+    margin-block: 1.5rem 2rem;
+}
+.home-landing .home-hero__actions {
+    gap: 0.75rem;
+}
+.home-landing .home-stack {
+    border: 0;
+    padding: 0;
+    margin-top: 2.5rem;
+    font-size: 0.6875rem;
+    gap: 0.75rem 1.25rem;
+}
+.home-landing .home-preview__thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+.home-landing .home-preview__thumbnails > .ui-button {
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    padding: 0.5rem 0.625rem;
+    min-height: 2.5rem;
+}
+.home-landing .home-preview__thumbnails > .ui-button[aria-pressed="true"] {
+    background: var(--panel);
+    box-shadow: inset 0 0 0 1px var(--panel-border);
+}
+.home-landing .home-preview__thumbnails .ui-button__label > span {
+    padding: 0;
+}
+.home-landing .home-preview__details {
+    margin-top: 1rem;
+    min-height: 6rem;
+}
+.home-landing .home-preview__details h4 {
+    font-size: 0.8125rem;
+}
+.home-landing .home-preview__details p {
+    font-size: 0.75rem;
+}
+.home-landing .home-capabilities {
+    border-top: 1px solid var(--panel-border);
+    padding-top: 2rem;
+}
+.home-landing .home-capabilities > .home-section-heading {
+    margin-bottom: 2.5rem;
+}
+.home-capability-groups {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5rem;
+}
+.home-capability-group > h3 {
+    margin: 0 0 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-soft);
+}
+.home-landing .home-capability {
+    display: block;
+    border: 0;
+    padding: 0 0 1.5rem;
+}
+.home-landing .home-capability h4 {
+    margin-bottom: 0.5rem;
+}
+.home-landing .home-capability p {
+    font-size: 0.8125rem;
+}
+.home-start {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    border-block: 1px solid var(--panel-border);
+    padding-block: 2.5rem;
+}
+.home-start h2 {
+    margin: 0 0 0.75rem;
+    font-size: clamp(1.375rem, 2vw, 1.75rem);
+    letter-spacing: -0.04em;
+}
+.home-start p,
+.home-account p {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.8;
+    color: var(--text-soft);
+    overflow-wrap: anywhere;
+}
+.home-start__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    flex-shrink: 0;
+}
+.home-start__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.75rem;
+    color: var(--text);
+    font-size: 0.8125rem;
+    text-decoration: underline;
+    text-underline-offset: 0.3rem;
+}
+.home-account__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+.home-account h2 {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+.home-account nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin-top: 1rem;
+}
+.home-account__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    color: var(--text-soft);
+    text-decoration: none;
+    font-size: 0.8125rem;
+}
+.home-account__link:hover {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 0.25rem;
+}
+@media (max-width: 1100px) {
+    .home-intro {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+    .home-landing .home-hero {
+        max-width: 40rem;
+    }
+    .home-capability-groups {
+        gap: 1.5rem;
+    }
+}
+@media (max-width: 600px) {
+    .home-capability-groups {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    .home-capability-group > h3 {
+        border-bottom: 1px solid var(--panel-border);
+        padding-bottom: 0.75rem;
+    }
+    .home-start {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .home-landing .home-preview__details {
+        min-height: 7.5rem;
+    }
+}

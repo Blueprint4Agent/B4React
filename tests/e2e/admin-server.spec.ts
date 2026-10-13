@@ -104,16 +104,13 @@ for (const width of [390, 1440])
                         font: heading.fontSize,
                     };
                 });
-            await page.goto("/home");
-            await expect(page.locator(".settings-content-card h1")).toBeVisible();
-            const home = await geometry();
+            // Home has a separate landing family; General is the settings-family peer.
             await page.goto("/settings?section=general");
             await expect(page.locator(".settings-content-card h1")).toBeVisible();
             const settings = await geometry();
             await page.goto("/admin/server");
             await expect(page.getByRole("heading", { name: "Server status" })).toBeVisible();
             await expect(page.getByText("SQLite", { exact: true })).toBeVisible();
-            expect(await geometry()).toEqual(home);
             expect(await geometry()).toEqual(settings);
             await expect(
                 page.locator(".server-status-connections .server-status-dot--ok"),
