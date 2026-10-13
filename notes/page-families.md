@@ -53,7 +53,7 @@ passing shared-control checks alone is never evidence of consistent page composi
 
 Server-unavailable recovery uses the main `AppLayout` sidebar (the showcase route is its peer), shared PanelCard typography and Button. Center one panel capped at 30rem inside the existing content area; omit the public navbar and nested warning card. Keep config retry and delayed loading behavior in the existing owners.
 
-Administrator users and server status reuse the settings/home 50rem shell,
+Administrator users and server status reuse the settings 50rem shell,
 shared header spacing and token-based surfaces. The wide user table scrolls
 inside its region instead of widening the page. Server health uses StatusBadge
 with a colored dot and text; stale snapshots stay explicitly marked. OAuth
@@ -65,7 +65,7 @@ code with the compact KeyboardShortcut surface treatment. It wraps long content,
 has no interaction and is registered in the searchable showcase. Admin environment
 values pair localized meaning with the actual safe boolean or runtime-mode value.
 
-Keyboard settings reuse General row/header composition. Both app shortcuts can be customized/reset per account by clicking a key card; duplicate bindings are rejected and clicking away cancels capture. Settings section changes keep the surrounding chrome stationary. Default/pill actions share the 32px dropdown height; coarse pointers retain 44px targets. Profile subscription markers use a fixed 16px circle with a centered glyph. Home/admin headers omit icons like Settings.
+Keyboard settings reuse General row/header composition. Both app shortcuts can be customized/reset per account by clicking a key card; duplicate bindings are rejected and clicking away cancels capture. Settings section changes keep the surrounding chrome stationary. Default/pill actions share the 32px dropdown height; coarse pointers retain 44px targets. Profile subscription markers use a fixed 16px circle with a centered glyph. Admin headers omit icons like Settings.
 
 Profile role badges belong inside the photo card. Compact option menus open toward the right from the trigger left edge and clamp to the viewport. Destructive options use red in both themes. Keyboard follows Account in the sidebar and uses toast notices for duplicate shortcuts.
 
@@ -94,3 +94,13 @@ Browser comparisons against /home live in tests/discovery/public.spec.ts.
 ## Service shell variants
 
 `AppLayout`/`AppSidebar` own sidebar, top-navigation and minimal chrome; `SectionNavigation` is the canonical boxed contextual menu for non-sidebar settings/admin pages. Global navigation never embeds those section lists. On mobile the contextual box is a disclosure above content. Keep its position stable during section switches; reserve scrollbar space and disable translation on the Settings content container. Home/profile/inbox retain their existing family widths and surfaces. See [layout modes](layout-modes.md).
+
+## Home landing
+
+`HomePage` / `ProjectOverview` own the landing family: a 76rem maximum outer width,
+two-column introduction/product preview above 1100px, stacked mobile content,
+three unboxed capability groups, source/guide links and compact account navigation.
+Reuse the public introduction's hero typography and screenshot surface tokens;
+Home intentionally does not share Settings card width or row geometry. The generic
+MainPageTemplate and Settings remain unchanged. Auth/role filtering stays in HomePage,
+preview state in ProjectOverview, and all three global shell modes remain supported.

@@ -1,7 +1,7 @@
 import { Bell, MessageSquare, CreditCard, Settings2, UserRound, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { MainPageTemplate } from "../../components/layout/MainPageTemplate";
+import { Link } from "react-router-dom";
 import { Button } from "../../components/ui";
 import { useAuthContext } from "../../hooks/useAuth";
 import { useAppConfig } from "../../hooks/useFeatures";
@@ -42,33 +42,36 @@ export function HomePage() {
             : []),
     ];
     return (
-        <MainPageTemplate
-            title={t("nav.home")}
-            description={
-                user
-                    ? t("home.welcome", { name: user.name.trim() || user.email })
-                    : t("home.guestWelcome")
-            }
-            actions={
-                !user && loginEnabled ? (
-                    <Button appearance="text" onClick={() => navigate("/login")}>
-                        {t("home.signIn")}
-                    </Button>
-                ) : undefined
-            }
-            contentPosition="before-menu"
-            menuLabel={t("home.shortcuts")}
-            menuItems={destinations
-                .filter(({ key }) => key !== "billing" || config?.billing_enabled)
-                .map(({ key, to, icon: Icon }) => ({
-                    id: key,
-                    to,
-                    icon: <Icon />,
-                    title: t(`home.${key}.title`),
-                    description: t(`home.${key}.description`),
-                }))}
-        >
-            <ProjectOverview />
-        </MainPageTemplate>
+        <div className="home-landing">
+            <ProjectOverview>
+                <section className="home-account" aria-labelledby="home-account-title">
+                    <div className="home-account__heading">
+                        <div>
+                            <h2 id="home-account-title">{t("home.shortcuts")}</h2>
+                            <p>
+                                {user
+                                    ? t("home.welcome", { name: user.name.trim() || user.email })
+                                    : t("home.guestWelcome")}
+                            </p>
+                        </div>
+                        {!user && loginEnabled ? (
+                            <Button appearance="text" onClick={() => navigate("/login")}>
+                                {t("home.signIn")}
+                            </Button>
+                        ) : null}
+                    </div>
+                    <nav aria-label={t("home.shortcuts")}>
+                        {destinations
+                            .filter(({ key }) => key !== "billing" || config?.billing_enabled)
+                            .map(({ key, to, icon: Icon }) => (
+                                <Link className="home-account__link" key={key} to={to}>
+                                    <Icon size={16} aria-hidden="true" />
+                                    {t(`home.${key}.title`)}
+                                </Link>
+                            ))}
+                    </nav>
+                </section>
+            </ProjectOverview>
+        </div>
     );
 }

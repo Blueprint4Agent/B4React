@@ -997,7 +997,7 @@
         }
     },
     "home": {
-        "welcome": "Welcome, {{name}}. Everything you need is right here.",
+        "welcome": "Signed in as {{name}}.",
         "shortcuts": "Quick links",
         "account": {
             "title": "My account",
@@ -1023,9 +1023,9 @@
         "guestWelcome": "Welcome. Choose where you would like to start.",
         "signIn": "Log in",
         "project": {
-            "title": "FastAPI and React.",
-            "titleAccent": "Ready for your service.",
-            "description": "From sign-in and billing to notifications and support. A FastAPI and React project with shared UI and Docker deployment built in.",
+            "title": "Accounts. Billing. Admin.",
+            "titleAccent": "Make the rest yours.",
+            "description": "A FastAPI and React starting point with the everyday foundations already connected. Add your own features, choose the services you need, and make it yours.",
             "explore": "View the screens",
             "included": "Included features",
             "stack": "Built with",
@@ -1077,7 +1077,15 @@
             "notificationsTitle": "Notification inbox",
             "notificationsDescription": "Keep signup, billing and support updates together. Select notifications to mark them read or delete them.",
             "realtimeTitle": "Realtime connections",
-            "realtimeDescription": "SSE refreshes notifications. An opt-in WebSocket provider template is ready for your authentication and reconnect flow."
+            "realtimeDescription": "SSE refreshes notifications. An opt-in WebSocket provider template is ready for your authentication and reconnect flow.",
+            "groups": {
+                "accounts": "For your users",
+                "experience": "Inside the product",
+                "running": "Behind the scenes"
+            },
+            "startTitle": "Start with the source.",
+            "startDescription": "Explore the repository, then follow the setup guide to run your own project.",
+            "docs": "Read the guide"
         },
         "notifications": {
             "title": "Notifications",

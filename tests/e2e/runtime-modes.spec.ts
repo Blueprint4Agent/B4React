@@ -117,7 +117,7 @@ test("unknown runtime mode does not enable developer UI", async ({ page }) => {
 
 for (const width of [390, 1440])
     for (const colorScheme of ["light", "dark"] as const) {
-        test(`production home matches settings ${colorScheme} at ${width}`, async ({
+        test(`production landing preserves shared surfaces and account routes ${colorScheme} at ${width}`, async ({
             page,
         }, info) => {
             await page.setViewportSize({ width, height: 1000 });
@@ -125,31 +125,19 @@ for (const width of [390, 1440])
             await setup(page, "manager");
             await page.goto("/");
             await expect(page).toHaveURL(/\/home$/);
-            await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
-            await expect(page.locator(".main-page-template__link")).toHaveCount(6);
-            await expect(page.locator('.main-page-template__link[href="/admin"]')).toBeVisible();
+            await expect(page.locator("#home-project-title")).toBeVisible();
+            await expect(page.locator(".home-account__link")).toHaveCount(6);
+            await expect(page.locator('.home-account__link[href="/admin"]')).toBeVisible();
             await expect(page.locator('a[href="/show-case"]')).toHaveCount(0);
             const geometry = () =>
                 page.evaluate(() => {
-                    const card = document.querySelector(".settings-content-card")!;
-                    const header = document.querySelector(".settings-content-card__header")!;
-                    const row = document.querySelector(".settings-row")!;
-                    const style = getComputedStyle(row);
-                    return {
-                        width: card.getBoundingClientRect().width,
-                        padding: getComputedStyle(card).padding,
-                        gap: getComputedStyle(header).marginBottom,
-                        rowPadding: style.padding,
-                        border: style.border,
-                        radius: style.borderRadius,
-                        background: style.backgroundColor,
-                    };
+                    const shell = document.querySelector(".home-landing, .settings-content-card")!;
+                    const style = getComputedStyle(shell);
+                    return { font: style.fontFamily, color: style.color };
                 });
+            await expect(page.locator('.home-account__link[href="/notifications"]')).toBeVisible();
             await expect(
-                page.locator('.main-page-template__link[href="/notifications"]'),
-            ).toBeVisible();
-            await expect(
-                page.locator('.main-page-template__link[href="/settings?section=support"]'),
+                page.locator('.home-account__link[href="/settings?section=support"]'),
             ).toBeVisible();
             await expect(page.locator(".home-capability")).toHaveCount(12);
             await expect(page.locator(".home-capabilities")).toContainText(
@@ -221,7 +209,7 @@ for (const width of [390, 1440])
             await page.getByRole("button", { name: "Open screen", exact: true }).click();
             await expect(page).toHaveURL(/section=billing$/);
             await page.goto("/home");
-            await expect(page.locator(".main-page-template__link")).toHaveCount(6);
+            await expect(page.locator(".home-account__link")).toHaveCount(6);
             await page.getByRole("button", { name: "View the screens", exact: true }).click();
             await expect
                 .poll(() =>
@@ -249,9 +237,7 @@ for (const width of [390, 1440])
                 path: info.outputPath("home-features.png"),
                 animations: "disabled",
             });
-            await page
-                .locator('.main-page-template__link[href="/settings?section=general"]')
-                .click();
+            await page.locator('.home-account__link[href="/settings?section=general"]').click();
             await expect(page).toHaveURL(/\/settings\?section=general$/);
             await expect(page.getByRole("heading", { name: "General", exact: true })).toBeVisible();
             await expect(page.locator(".settings-row").first()).toBeVisible();
@@ -263,9 +249,7 @@ for (const width of [390, 1440])
             });
             await page.getByRole("link", { name: "Back to app", exact: true }).click();
             await expect(page).toHaveURL(/\/home$/);
-            await page
-                .locator('.main-page-template__link[href="/settings?section=account"]')
-                .click();
+            await page.locator('.home-account__link[href="/settings?section=account"]').click();
             await expect(page).toHaveURL(/\/settings\?section=account$/);
         });
     }
@@ -287,9 +271,9 @@ test("Korean production home wraps long account names and hides privileged short
     );
     await page.goto("/dashboard");
     await expect(page).toHaveURL(/\/home$/);
-    await expect(page.getByRole("heading", { name: "홈", exact: true })).toBeVisible();
-    await expect(page.locator(".main-page-template__link")).toHaveCount(5);
-    await expect(page.locator('.main-page-template__link[href="/admin"]')).toHaveCount(0);
+    await expect(page.locator("#home-project-title")).toBeVisible();
+    await expect(page.locator(".home-account__link")).toHaveCount(5);
+    await expect(page.locator('.home-account__link[href="/admin"]')).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
         true,
     );
@@ -306,7 +290,7 @@ test("signed-out visitors use home and sign in for account access", async ({ pag
     await expect(page).toHaveURL(/\/home$/);
     await page.getByRole("button", { name: "Log in", exact: true }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
-    await expect(page.locator('.main-page-template__link[href="/admin"]')).toHaveCount(0);
+    await expect(page.locator('.home-account__link[href="/admin"]')).toHaveCount(0);
 });
 
 for (const width of [390, 1440]) {
@@ -350,7 +334,7 @@ for (const mode of ["development", "production"]) {
         for (const path of ["/", "/dashboard", "/login"]) {
             await page.goto(path);
             await expect(page).toHaveURL(/\/home$/);
-            await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
+            await expect(page.locator("#home-project-title")).toBeVisible();
         }
         const showcase = page.locator('.app-sidebar__item[href="/show-case"]');
         if (mode === "development") {

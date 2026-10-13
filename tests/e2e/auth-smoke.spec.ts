@@ -36,7 +36,7 @@ for (const width of [390, 1440]) {
         // When: entering the app without authentication.
         await page.goto("/");
         await expect(page).toHaveURL(/\/home$/);
-        await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
+        await expect(page.locator("#home-project-title")).toBeVisible();
         await page.locator(".profile-menu__trigger").click();
         await expect(page.locator(".profile-menu__guest-cta")).toBeVisible();
         await expect(page.locator(".profile-menu__dropdown")).not.toContainText(
