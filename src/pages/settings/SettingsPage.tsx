@@ -352,6 +352,13 @@ export function SettingsPage() {
                                     <div>
                                         <h2>{t("layout.title")}</h2>
                                         <p>{t("layout.description")}</p>
+                                        <Button
+                                            appearance="text"
+                                            disabled={!layout.isPreviewing}
+                                            onClick={layout.resetPreview}
+                                        >
+                                            {t("layout.useDefault")}
+                                        </Button>
                                     </div>
                                     <div
                                         className="layout-options"

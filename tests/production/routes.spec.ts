@@ -178,3 +178,18 @@ for (const layout of ["sidebar", "topnav", "focused"]) {
         await expect(page.locator(".layout-option")).toHaveCount(0);
     });
 }
+
+test("development can clear a saved preview and follow the deployment default", async ({
+    page,
+}) => {
+    await page.addInitScript(() => localStorage.setItem("blueprint_layout_preview", "sidebar"));
+    await page.route("**/config", (route) =>
+        route.fulfill({ json: { ...config, app_layout: "topnav" } }),
+    );
+    await page.goto("/settings?section=appearance");
+    await expect(page.locator(".app-shell--sidebar")).toBeVisible();
+    await page.getByRole("button", { name: "Use service default" }).click();
+    await expect(page.locator(".app-shell--topnav")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Use service default" })).toBeDisabled();
+    expect(await page.evaluate(() => localStorage.getItem("blueprint_layout_preview"))).toBeNull();
+});

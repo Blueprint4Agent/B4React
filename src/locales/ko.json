@@ -1299,6 +1299,7 @@
         "topnav": "상단 메뉴형",
         "focused": "미니멀형",
         "openMenu": "메뉴 열기",
-        "closeMenu": "메뉴 닫기"
+        "closeMenu": "메뉴 닫기",
+        "useDefault": "서비스 기본값 사용"
     }
 }
