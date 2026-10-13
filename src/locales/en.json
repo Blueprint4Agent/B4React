@@ -1299,6 +1299,7 @@
         "topnav": "Top navigation",
         "focused": "Minimal",
         "openMenu": "Open navigation",
-        "closeMenu": "Close navigation"
+        "closeMenu": "Close navigation",
+        "useDefault": "Use service default"
     }
 }

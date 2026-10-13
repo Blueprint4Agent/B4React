@@ -15,11 +15,15 @@ function readPreview(): AppLayoutMode | null {
 type LayoutContextValue = {
     mode: AppLayoutMode;
     canPreview: boolean;
+    isPreviewing: boolean;
+    resetPreview: () => void;
     setMode: (mode: AppLayoutMode) => void;
 };
 const LayoutContext = createContext<LayoutContextValue>({
     mode: serviceConfig.layout,
     canPreview: false,
+    isPreviewing: false,
+    resetPreview: () => undefined,
     setMode: () => undefined,
 });
 
@@ -39,8 +43,26 @@ export function AppLayoutProvider({ children }: { children: ReactNode }) {
         },
         [canPreview],
     );
-    const mode = canPreview && preview ? preview : serviceConfig.layout;
-    const value = useMemo(() => ({ mode, canPreview, setMode }), [mode, canPreview, setMode]);
+    const resetPreview = useCallback(() => {
+        if (!canPreview) return;
+        setPreview(null);
+        try {
+            localStorage.removeItem(preferenceKey());
+        } catch {
+            /* Session reset remains available if storage is blocked. */
+        }
+    }, [canPreview]);
+    const isPreviewing = canPreview && preview !== null;
+    const serverLayout = data?.app_layout;
+    const deploymentLayout =
+        serverLayout === "sidebar" || serverLayout === "topnav" || serverLayout === "focused"
+            ? serverLayout
+            : serviceConfig.layout;
+    const mode = canPreview && preview ? preview : deploymentLayout;
+    const value = useMemo(
+        () => ({ mode, canPreview, isPreviewing, setMode, resetPreview }),
+        [mode, canPreview, isPreviewing, setMode, resetPreview],
+    );
     return <LayoutContext.Provider value={value}>{children}</LayoutContext.Provider>;
 }
 

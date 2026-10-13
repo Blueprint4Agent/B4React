@@ -1313,6 +1313,12 @@ export interface components {
             /** Api Base Path */
             api_base_path: string;
             /**
+             * App Layout
+             * @default sidebar
+             * @enum {string}
+             */
+            app_layout: "sidebar" | "topnav" | "focused";
+            /**
              * App Mode
              * @enum {string}
              */

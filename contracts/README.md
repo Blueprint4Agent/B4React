@@ -45,3 +45,7 @@ GET reads (private no-store WebP). Display managed URLs through the auth-owned b
 hook; never put them directly in an unauthenticated img request. Failed uploads retain
 confirmed state. PATCH photo writes are retired; existing legacy image URLs remain
 supported. No automatic storage-error retry or public bucket URL is assumed.
+
+## Runtime layout
+
+`GET /config` includes optional `app_layout: sidebar | topnav | focused` with a `sidebar` default. The provider reads APP_LAYOUT at process start and returns it with Cache-Control: no-store. Older providers may omit it; clients use their source fallback. Production ignores browser layout previews. No new endpoint, account preference or data migration is involved.
