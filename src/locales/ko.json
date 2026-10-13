@@ -1133,7 +1133,12 @@
             "footerResources": "자료",
             "footerDescription": "내 서비스를 만들기 위한 FastAPI · React 프로젝트.",
             "pausePreview": "미리보기 자동 전환 일시정지",
-            "playPreview": "미리보기 자동 전환 재생"
+            "playPreview": "미리보기 자동 전환 재생",
+            "promptBuilder": {
+                "title": "아이디어를 실행할 프롬프트로.",
+                "description": "기능 추가부터 새 프로젝트까지. 이름·범위·기능과 권한·완료 방식을 고르면 프롬프트가 완성됩니다.",
+                "action": "프롬프트 만들기"
+            }
         },
         "notifications": {
             "title": "알림함",

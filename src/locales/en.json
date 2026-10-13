@@ -1133,7 +1133,12 @@
             "footerResources": "Resources",
             "footerDescription": "A FastAPI and React starting point for building your own service.",
             "pausePreview": "Pause preview rotation",
-            "playPreview": "Resume preview rotation"
+            "playPreview": "Resume preview rotation",
+            "promptBuilder": {
+                "title": "Turn an idea into a prompt to build.",
+                "description": "Add a feature or start a project. Choose a name, scope, features and permissions, then a delivery goal to create your prompt.",
+                "action": "Create a prompt"
+            }
         },
         "notifications": {
             "title": "Notifications",

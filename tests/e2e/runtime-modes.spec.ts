@@ -168,15 +168,16 @@ for (const width of [390, 1440])
                 page.getByRole("button", { name: "Open screen", exact: true }),
             ).toHaveCount(0);
             const heroActions = await page
-                .locator(".home-hero__actions > a")
+                .locator(".home-hero .home-hero__actions > a")
                 .evaluateAll((buttons) =>
                     buttons.map((button) => ({
                         height: button.getBoundingClientRect().height,
                         radius: getComputedStyle(button).borderRadius,
                     })),
                 );
-            expect(heroActions).toHaveLength(2);
+            expect(heroActions).toHaveLength(3);
             expect(heroActions[0]).toEqual(heroActions[1]);
+            expect(heroActions[0]).toEqual(heroActions[2]);
             await page.getByRole("button", { name: "Billing", exact: true }).click();
             await expect(preview).toHaveAttribute("src", /billing-en.webp$/);
             await expect
@@ -693,7 +694,7 @@ for (const mode of ["sidebar", "topnav", "focused"]) {
                     );
                 }
 
-                await expect(page.locator(".home-hero__actions a")).toHaveCount(2);
+                await expect(page.locator(".home-hero .home-hero__actions a")).toHaveCount(3);
                 await expect(page.locator(".home-preview__chrome")).toHaveCount(0);
                 await expect(
                     page.locator(".home-overview").getByRole("link", { name: "Buy Me a Coffee" }),

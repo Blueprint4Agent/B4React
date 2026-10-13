@@ -31,6 +31,8 @@ test("static pages contain localized content, reciprocal language URLs and only 
         assert.match(html, new RegExp(`<html lang="${lang}">`));
         assert.match(html, /git clone --recurse-submodules/);
         assert.match(html, /<h1>/);
+        assert.match(html, /id="prompt-builder"/);
+        assert.match(html, /href="\/prompt-builder"/);
         assert.match(html, /hreflang="en" href="https:\/\/example.test\/about\/"/);
         assert.match(html, /hreflang="ko" href="https:\/\/example.test\/about\/ko\/"/);
         assert.match(html, /rel="canonical"/);
@@ -61,6 +63,7 @@ test("prefixed public documents retain canonical URLs, assets and app navigation
     const assets = discoveryAssets(options, ["assets/app.css"]);
     const html = assets["about/index.html"];
     assert.match(html, /href="\/demos\/alpha\/home"/);
+    assert.match(html, /href="\/demos\/alpha\/prompt-builder"/);
     assert.match(html, /href="\/demos\/alpha\/assets\/app.css"/);
     assert.match(html, /https:\/\/example.test\/demos\/alpha\/about\//);
     assert.doesNotMatch(html, /(?:href|src)="\/(?:icons|home|about|assets)/);
