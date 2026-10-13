@@ -40,7 +40,7 @@ Public-preview browser coverage confirms no administrator API reads. Only the ac
 
 # Verification
 
-make verify-plan selected frontend=full, backend=False. make verify passed: 195 unit/component/integration tests, 227 UI browser cases, 10 production-route cases, 11 static-discovery cases and 3 style-studio cases, plus hook/policy/type/format checks. A focused 33-case runtime/layout pass also succeeded. Updated legacy assertions that treated Home as a Settings card or prohibited all source links; production still hides developer shell links while the landing source link is intentional. Backend/native checks were not selected because neither implementation changed. UI composition, auth/API state, realtime and desktop recovery ownership remain intact. Logs: /tmp/b4-home-verify.log and .git verification-logs; visual artifacts: /tmp/b4-home-review and /tmp/b4-home-*-dark.png.
+make verify-plan selected frontend=full, backend=False. make verify passed: 195 unit/component/integration tests, 227 UI browser cases, 10 production-route cases, 11 static-discovery cases and 3 style-studio cases, plus hook/policy/type/format checks. A focused 33-case runtime/layout pass also succeeded. Updated legacy assertions that treated Home as a Settings card or prohibited all source links; production still hides developer shell links while the landing source link is intentional. Backend/native checks were not selected because neither implementation changed. UI composition, auth/API state, realtime and desktop recovery ownership remain intact. Logs: /tmp/b4-home-verify.log and .git verification-logs; visual artifacts: /tmp/b4-home-review and /tmp/b4-home-\*-dark.png.
 
 # Page Family
 
