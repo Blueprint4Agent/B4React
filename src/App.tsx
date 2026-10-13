@@ -73,6 +73,12 @@ const HomePage = lazy(() =>
     import("./pages/main/HomePage").then((module) => ({ default: module.HomePage })),
 );
 
+const PromptBuilderPage = lazy(() =>
+    import("./pages/prompts/PromptBuilderPage").then((module) => ({
+        default: module.PromptBuilderPage,
+    })),
+);
+
 const PlansPage = lazy(() =>
     import("./pages/billing/PlansPage").then((module) => ({ default: module.PlansPage })),
 );
@@ -248,6 +254,7 @@ function AppContent() {
                 }
             >
                 <Route path="/home" element={<HomePage />} />
+                <Route path="/prompt-builder" element={<PromptBuilderPage />} />
                 <Route path="/admin/inquiries" element={<AdminInquiriesPage />} />
                 <Route path="/notifications" element={<InboxPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
