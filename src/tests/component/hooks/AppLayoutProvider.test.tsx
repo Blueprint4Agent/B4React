@@ -3,9 +3,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { AppLayoutProvider, useAppLayout } from "../../../hooks/useAppLayout";
 import { serviceConfig, type AppLayoutMode } from "../../../service.config";
 
+let deploymentLayout: string | undefined;
 let appMode: string | undefined = "development";
 vi.mock("../../../hooks/useFeatures", () => ({
-    useAppConfig: () => ({ data: appMode ? { app_mode: appMode } : null }),
+    useAppConfig: () => ({
+        data: appMode ? { app_mode: appMode, app_layout: deploymentLayout } : null,
+    }),
 }));
 function Probe() {
     const { mode, canPreview, setMode } = useAppLayout();
@@ -21,6 +24,7 @@ function Probe() {
 }
 afterEach(() => {
     appMode = "development";
+    deploymentLayout = undefined;
     serviceConfig.layout = "sidebar";
     vi.restoreAllMocks();
 });
@@ -43,6 +47,68 @@ describe("service layout ownership", () => {
             expect(screen.getByRole("button")).toBeDisabled();
         },
     );
+    it.each(["sidebar", "topnav", "focused"] as AppLayoutMode[])(
+        "uses server layout %s over source defaults and saved production previews",
+        (layout) => {
+            appMode = "production";
+            deploymentLayout = layout;
+            serviceConfig.layout = "focused";
+            localStorage.setItem("blueprint_layout_preview", "topnav");
+            render(
+                <AppLayoutProvider>
+                    <Probe />
+                </AppLayoutProvider>,
+            );
+            expect(screen.getByRole("status")).toHaveTextContent(layout);
+            expect(screen.getByRole("button")).toBeDisabled();
+        },
+    );
+    it("refreshes the deployment default without remounting a draft", () => {
+        appMode = "production";
+        deploymentLayout = "topnav";
+        const { rerender } = render(
+            <AppLayoutProvider>
+                <Probe />
+            </AppLayoutProvider>,
+        );
+        fireEvent.change(screen.getByRole("textbox"), { target: { value: "unsaved" } });
+        deploymentLayout = "focused";
+        rerender(
+            <AppLayoutProvider>
+                <Probe />
+            </AppLayoutProvider>,
+        );
+        expect(screen.getByRole("status")).toHaveTextContent("focused");
+        expect(screen.getByRole("textbox")).toHaveValue("unsaved");
+    });
+    it("lets development preview override the server without mutating its default", () => {
+        deploymentLayout = "topnav";
+        const { rerender } = render(
+            <AppLayoutProvider>
+                <Probe />
+            </AppLayoutProvider>,
+        );
+        expect(screen.getByRole("status")).toHaveTextContent("topnav");
+        fireEvent.click(screen.getByRole("button"));
+        expect(screen.getByRole("status")).toHaveTextContent("focused");
+        appMode = "production";
+        rerender(
+            <AppLayoutProvider>
+                <Probe />
+            </AppLayoutProvider>,
+        );
+        expect(screen.getByRole("status")).toHaveTextContent("topnav");
+    });
+    it("falls back for an invalid remote layout", () => {
+        appMode = "production";
+        deploymentLayout = "invalid";
+        render(
+            <AppLayoutProvider>
+                <Probe />
+            </AppLayoutProvider>,
+        );
+        expect(screen.getByRole("status")).toHaveTextContent("sidebar");
+    });
     it("preserves child drafts when switching and stops applying previews if server mode changes", () => {
         // Given: an active page draft in development.
         const { rerender } = render(

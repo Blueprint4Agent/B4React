@@ -39,7 +39,12 @@ export function AppLayoutProvider({ children }: { children: ReactNode }) {
         },
         [canPreview],
     );
-    const mode = canPreview && preview ? preview : serviceConfig.layout;
+    const serverLayout = data?.app_layout;
+    const deploymentLayout =
+        serverLayout === "sidebar" || serverLayout === "topnav" || serverLayout === "focused"
+            ? serverLayout
+            : serviceConfig.layout;
+    const mode = canPreview && preview ? preview : deploymentLayout;
     const value = useMemo(() => ({ mode, canPreview, setMode }), [mode, canPreview, setMode]);
     return <LayoutContext.Provider value={value}>{children}</LayoutContext.Provider>;
 }

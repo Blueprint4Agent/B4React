@@ -152,3 +152,29 @@ test("production home remains available when a secondary route chunk fails", asy
     await expect(page.locator("#home-project-title")).toBeVisible();
     await expect(page.locator(".home-account__link")).toHaveCount(5);
 });
+
+for (const layout of ["sidebar", "topnav", "focused"]) {
+    test(`same production artifact accepts runtime layout ${layout}`, async ({ page }) => {
+        // Given: the same build, with a deployment-specific config and stale development preview.
+        await page.addInitScript(() => localStorage.setItem("blueprint_layout_preview", "focused"));
+        await page.route("**/config", (route) =>
+            route.fulfill({
+                json: {
+                    ...config,
+                    app_mode: "production",
+                    login_enabled: true,
+                    app_layout: layout,
+                },
+            }),
+        );
+        // When: the application loads its deployment config.
+        await page.goto("/home");
+        // Then: server configuration owns the shell, without rebuilding or exposing development controls.
+        await expect(page.locator(`.app-shell--${layout}`)).toBeVisible();
+        await expect(page.locator("#home-project-title")).toBeVisible();
+        await expect(page.locator(".home-section-nav a")).toHaveCount(4);
+        await page.goto("/settings?section=appearance");
+        await expect(page.locator(`.app-shell--${layout}`)).toBeVisible();
+        await expect(page.locator(".layout-option")).toHaveCount(0);
+    });
+}

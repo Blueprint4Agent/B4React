@@ -1,6 +1,6 @@
 export type AppLayoutMode = "sidebar" | "topnav" | "focused";
 
-/** Service-wide defaults. Change layout and rebuild to publish a different shell. */
+/** Fallback for older/unavailable providers. /config app_layout owns the deployment default. */
 export const serviceConfig: { layout: AppLayoutMode } = {
     layout: "sidebar",
 };
