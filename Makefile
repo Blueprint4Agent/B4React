@@ -14,7 +14,7 @@ dev: ## Start browser development server
 	$(NPM) run dev
 build: ## Build local dist artifacts
 	$(NPM) run build
-check: architecture-check api-check project-config-check style-studio-check ## Check generated types, formatting, and TypeScript
+check: architecture-check api-check project-config-check discovery-check style-studio-check ## Check generated types, formatting, and TypeScript
 	$(NPM) run format:check
 	$(NPM) run typecheck
 test: ## Run unit, component, and integration tests
@@ -52,20 +52,22 @@ ui-composition-check: ## Verify shared styling and rendered showcase coverage
 	node --test scripts/check-ui-composition.test.mjs
 
 .PHONY: test-routes
-test-routes: build ## Verify production lazy-route loading and recovery in Chromium
-	$(NPM) run test:e2e -- --config playwright.production.config.ts
+test-routes: test-production ## Verify production routes and optional static discovery
 	$(MAKE) test-discovery
+test-production: build ## Verify production lazy-route loading and recovery in Chromium
+	$(NPM) run test:e2e -- --config playwright.production.config.ts
 
 .PHONY: react-performance-check
 react-performance-check: ## Guard config ownership, route splitting, memo boundaries and review policy
 	node scripts/check-react-performance.mjs
 	node --test scripts/check-react-performance.test.mjs
-	python3 -m unittest discover -s scripts -p 'test_*.py'
+	python3 -m unittest discover -s scripts -p 'test_performance_governance.py'
+	python3 -m unittest discover -s scripts -p 'test_page_family_governance.py'
 
 .PHONY: project-config-check
 project-config-check: ## Validate optional public app branding and Tauri identity
 	node --input-type=module -e 'import { readProjectConfig } from "./scripts/project-config.mjs"; readProjectConfig();'
-	node --test scripts/project-config.test.mjs scripts/public-discovery.test.mjs
+	node --test scripts/project-config.test.mjs
 
 .PHONY: style-studio style-studio-check test-style-studio
 style-studio: ## Run explicitly enabled loopback-only local style editor
@@ -75,7 +77,7 @@ style-studio-check: ## Verify local file access and style application fixtures
 test-style-studio: style-studio-check ## Verify style preview and apply UI in Chromium
 	$(NPM) run test:e2e -- --config playwright.style-studio.config.ts
 
-export VERIFY_BASE VERIFY_HEAD VERIFY_FULL
+export VERIFY_BASE VERIFY_HEAD VERIFY_FULL VERIFY_JOBS
 .PHONY: verify-plan verify verify-light verification-test
 verify-plan: ## Show change-scoped checks (VERIFY_BASE defaults to HEAD)
 	python3 scripts/verification.py plan
@@ -113,3 +115,17 @@ check-affected: ## Static policy/type checks plus formatting for mapped changed 
 .PHONY: test-discovery
 test-discovery: ## Verify opt-in static discovery pages without application JavaScript
 	node scripts/test-discovery.mjs
+
+.PHONY: check-app app-tooling-test discovery-check verification-harness-test test-production
+check-app: api-check ## Validate application code without unrelated tooling self-tests
+	node scripts/check-architecture.mjs
+	node scripts/check-ui-composition.mjs
+	node scripts/check-react-performance.mjs
+	$(NPM) run format:check
+	$(NPM) run typecheck
+app-tooling-test: ## Test architecture/UI/performance checker fixtures
+	node --test scripts/check-ui-composition.test.mjs scripts/check-react-performance.test.mjs
+verification-harness-test: ## Verify independent classifier, scheduler, receipts and governance fixtures
+	python3 -m unittest discover -s scripts -p 'test_*.py'
+discovery-check: ## Validate discovery and public identity fixtures
+	node --test scripts/public-discovery.test.mjs
