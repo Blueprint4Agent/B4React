@@ -46,6 +46,9 @@ test("rejects unexpected fields, invalid identifiers, unsafe paths and wrong val
         { logo_url: "https://example.com/logo.svg" },
         { logo_url: "/../logo.svg" },
         { name: 123 },
+        { default_language: "fr" },
+        { default_language: null },
+        { default_language: true },
     ])
         assert.throws(() => validateProjectConfig({ ...config, ...change }));
 });
@@ -122,4 +125,14 @@ test("deployment paths reject ambiguous URLs and keep sharing images beneath the
         VITE_BASE_PATH: "/demos/alpha",
     });
     assert.match(html, /https:\/\/example.test\/demos\/alpha\/icons\/b4a-banner.png/);
+});
+
+test("optional language overrides static HTML and omission preserves the default", () => {
+    const html = '<html lang="en"><head><title>Default</title></head></html>';
+    assert.match(brandHtml(html, config), /<html lang="en">/);
+    for (const language of ["en", "ko"]) {
+        const project = { ...config, default_language: language };
+        assert.equal(validateProjectConfig(project).default_language, language);
+        assert.match(brandHtml(html, project), new RegExp(`<html lang="${language}">`));
+    }
 });

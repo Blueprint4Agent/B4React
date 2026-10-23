@@ -1,5 +1,6 @@
 import { captureVisual } from "../fixtures/visual";
 import { expect, test } from "../fixtures/browser";
+import { readProjectConfig } from "../../scripts/project-config.mjs";
 import { member, setup } from "../fixtures/runtime";
 for (const width of [390, 1440])
     for (const colorScheme of ["light", "dark"] as const) {
@@ -59,7 +60,9 @@ for (const width of [390, 1440])
                 .toBe(true);
             await page.getByRole("button", { name: "Showcase", exact: true }).click();
             await expect(preview).toHaveAttribute("src", /components-en.webp$/);
-            await expect(page.locator(".home-hero .home-eyebrow")).toHaveText("B4A");
+            await expect(page.locator(".home-hero .home-eyebrow")).toHaveText(
+                readProjectConfig()?.name ?? "B4A",
+            );
             await expect(
                 page.getByRole("button", { name: "Open screen", exact: true }),
             ).toHaveCount(0);
@@ -85,7 +88,9 @@ for (const width of [390, 1440])
                 .toBe(true);
             const enlarge = page.getByRole("button", { name: "Enlarge", exact: true });
             await enlarge.click();
-            const viewer = page.getByRole("dialog", { name: "B4A · Billing" });
+            const viewer = page.getByRole("dialog", {
+                name: `${readProjectConfig()?.short_name ?? "B4A"} · Billing`,
+            });
             await expect(viewer).toBeVisible();
             await expect
                 .poll(() =>

@@ -142,7 +142,12 @@ export function ShowCasePage() {
                     <ShowcaseItem component="UserAvatar">
                         <div className="showcase-avatar-row">
                             <UserAvatar label="Designer" imageUrl={avatar} />
-                            <UserAvatar label="B4A" imageUrl={publicPath("/icons/b4a-mark.svg")} />
+                            <UserAvatar
+                                label={__PROJECT_BRAND__?.short_name ?? "B4A"}
+                                imageUrl={publicPath(
+                                    __PROJECT_BRAND__?.logo_url ?? "/icons/b4a-mark.svg",
+                                )}
+                            />
                             <UserAvatar label="Designer" />
                         </div>
                     </ShowcaseItem>
@@ -470,7 +475,7 @@ export function ShowCasePage() {
 
                         <ShowcaseItem component="EditableAvatar">
                             <EditableAvatar
-                                name="B4A"
+                                name={__PROJECT_BRAND__?.short_name ?? "B4A"}
                                 label={t("settings.profile.photoSelect")}
                                 onSelect={() => undefined}
                             />

@@ -12,8 +12,8 @@
         "error": "Could not update notifications. Please try again.",
         "events": {
             "welcome": {
-                "title": "Welcome to B4A",
-                "body": "Your account is ready. Explore what B4A has to offer."
+                "title": "Welcome to {{brand}}",
+                "body": "Your account is ready. Explore what {{brand}} has to offer."
             },
             "subscription_started": {
                 "title": "Your subscription has started",

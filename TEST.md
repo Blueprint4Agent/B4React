@@ -312,3 +312,5 @@ Action feedback regressions cover signup/reset-email pending and rejected reques
 Mocked Playwright suites use tests/fixtures/browser.ts to block unmocked cross-origin traffic. Development test servers override VITE_API_BASE_URL; local .env must never send fixture credentials to a developer backend. Page routes override fixture responses.
 
 Service layout coverage in runtime-modes.spec.ts verifies development previews, production isolation, role-filtered boxed sections, stable settings geometry, contained preview cards, header/profile tooltips and popovers, EN/KO routes and mobile/desktop light/dark composition. AppLayoutProvider component tests verify configured production defaults, preserved drafts and blocked/invalid storage. AppSidebar offline/session tests cover all three modes.
+
+Copy suites explicitly select English; production branding uses `languagePreference: null` to observe fresh-entry defaults. Cover a saved English choice, identical name/short_name, and exclusion of the original public introduction from configured projects.

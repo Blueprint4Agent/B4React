@@ -1,4 +1,5 @@
 import { expect, test } from "../fixtures/browser";
+import { readProjectConfig } from "../../scripts/project-config.mjs";
 
 test.describe("public introduction on the normal development server", () => {
     test.use({ javaScriptEnabled: false });
@@ -14,6 +15,13 @@ test.describe("public introduction on the normal development server", () => {
             const response = await page.goto(path);
             // Then: the actual server serves readable HTML, CSS and a noindex policy.
             expect(response?.status()).toBe(200);
+            if (readProjectConfig()) {
+                // Configured projects must not inherit the original template's public introduction.
+                expect(response?.headers()["x-robots-tag"]).toBeUndefined();
+                await expect(page.locator("#quick-start")).toHaveCount(0);
+                await expect(page.locator("title")).toHaveText(readProjectConfig().name);
+                return;
+            }
             expect(response?.headers()["x-robots-tag"]).toBe("noindex, nofollow");
             await expect(page.locator("html")).toHaveAttribute("lang", locale);
             await expect(page.locator("h1")).toBeVisible();

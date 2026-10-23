@@ -10,6 +10,7 @@ const fields = new Set([
     "identifier",
     "logo_url",
     "logo_dark_url",
+    "default_language",
 ]);
 export function validateProjectConfig(value) {
     if (!value || typeof value !== "object" || Array.isArray(value))
@@ -17,6 +18,8 @@ export function validateProjectConfig(value) {
     if (Object.keys(value).some((key) => !fields.has(key)))
         throw new Error("Project config contains unsupported fields (public identity only)");
     if (value.version !== 1) throw new Error("Project config version must be 1");
+    if (value.default_language !== undefined && !["en", "ko"].includes(value.default_language))
+        throw new Error("Project default_language must be en or ko");
     for (const [key, limit] of [
         ["name", 60],
         ["short_name", 16],
@@ -66,6 +69,11 @@ export function brandHtml(html, config) {
         /<title>[^<]*<\/title>/,
         () => `<title>${escapeHtml(config.name)}</title>`,
     );
+    if (config.default_language)
+        result = result.replace(
+            /(<html\b[^>]*\blang=)["'][^"']*["']/,
+            (_, prefix) => `${prefix}"${config.default_language}"`,
+        );
     if (config.logo_url)
         result = result.replace(
             /<link rel="icon"[^>]*\/>/,

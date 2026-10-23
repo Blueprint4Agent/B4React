@@ -145,3 +145,7 @@ name/short_name/identifier를 수정한 뒤 `make project-config-check`와 빌�
 - 문의: [한국어](support-inquiries.md) · [English](../support-inquiries.md)
 - 선택형 WebSocket: [한국어](websocket-provider.md) · [English](../websocket-provider.md)
 - 프롬프트 만들기: [한국어](prompt-builder.md) · [English](../prompt-builder.md)
+
+## 프로젝트별 브랜드와 기본 언어
+
+`readProjectConfig()`가 검증한 공개 설정을 `__PROJECT_BRAND__`로 주입합니다. 설정이 없으면 기존 템플릿을 유지하고, 있으면 이름·로고·favicon·환영 알림·쇼케이스 브랜드에 적용합니다. 선택 필드 `default_language`는 `en` 또는 `ko`이며 저장된 선택 > 프로젝트 기본값 > 브라우저 감지 > 영어 순서입니다. 원본 미리보기 화면은 신규 프로젝트 화면으로 바꾸어 주장하지 않고 원본 템플릿임을 표시합니다.

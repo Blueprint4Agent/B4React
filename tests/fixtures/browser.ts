@@ -1,8 +1,14 @@
 import { test as base, expect } from "@playwright/test";
 
 // Mocked browser suites must never reach a developer's configured backend.
-export const test = base.extend({
-    context: async ({ context, baseURL }, use) => {
+export const test = base.extend<{ languagePreference: "en" | "ko" | null }>({
+    languagePreference: ["en", { option: true }],
+    context: async ({ context, baseURL, languagePreference }, use) => {
+        if (languagePreference)
+            await context.addInitScript((language) => {
+                if (!localStorage.getItem("b4a_language"))
+                    localStorage.setItem("b4a_language", language);
+            }, languagePreference);
         await context.route("**/*", async (route) => {
             const url = new URL(route.request().url());
             if (url.origin !== new URL(baseURL!).origin) return route.abort("blockedbyclient");
