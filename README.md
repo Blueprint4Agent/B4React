@@ -3,7 +3,7 @@
 Shared React + TypeScript frontend for compatible B4 API providers. The source history
 was extracted from B4FastAPI's `src/frontend` with `git subtree split`.
 
-[한국어](notes/ko/README.md) · [Engineering guide](FRONTEND.md) · [Test guide](TEST.md)
+[한국어](notes/ko/README.md) · [Agent guide](AGENTS.md) · [Engineering guide](FRONTEND.md) · [Test guide](TEST.md)
 
 ## Development
 
@@ -59,8 +59,9 @@ connectivity; recovery revalidates session/config and restarts realtime subscrip
 
 ## Contributions
 
-Follow [AGENTS.md](AGENTS.md). Every new commit includes a worklog, with
-`make check test build` results. Imported history predates this repository's worklog policy.
+Follow [AGENTS.md](AGENTS.md). Use `make verify-plan` then `make verify` for the
+minimum safe checks selected from actual changes. Record the scope, results and reasons
+for omitted checks in the matching worklog. Imported history predates this repository's worklog policy.
 
 ## Task workflow and PR checks
 

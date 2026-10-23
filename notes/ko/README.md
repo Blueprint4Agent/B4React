@@ -3,7 +3,7 @@
 B4 API 계약을 구현하는 백엔드가 함께 사용하는 React + TypeScript 프론트입니다.
 B4FastAPI의 `src/frontend` 이력을 `git subtree split`으로 보존했습니다.
 
-[English](../../README.md) · [개발 규칙](FRONTEND.md) · [테스트 규칙](TEST.md)
+[English](../../README.md) · [에이전트 규칙](AGENTS.md) · [개발 규칙](FRONTEND.md) · [테스트 규칙](TEST.md)
 
 ## 실행
 
@@ -53,7 +53,9 @@ git submodule update --init --recursive
 
 ## 기여
 
-[AGENTS.md](../../AGENTS.md)를 따릅니다. 신규 커밋마다 worklog와 `make check test build` 결과를 기록합니다.
+[에이전트 규칙](AGENTS.md)을 따릅니다. `make verify-plan` 다음 `make verify`로 실제 변경에 필요한
+최소 안전 검사를 선택합니다. 대응 worklog에 선택 범위·결과·생략한 검사와 이유를 기록합니다.
+과거 가져온 이력에는 현재 워크로그 규칙이 적용되지 않습니다.
 
 ## 작업 절차와 PR 검사
 
@@ -133,3 +135,13 @@ name/short_name/identifier를 수정한 뒤 `make project-config-check`와 빌�
 프로덕션 빌드는 상대 경로 정적 파일과 런타임 `deployment-path.json` 계약을 생성합니다. 호스팅 백엔드는 스크립트보다 먼저 HTML head에 `<base data-b4-app-base href="/my-app/">`와 `<meta name="b4-base-path" content="/my-app">`를 넣습니다. 라우터·기본 API 주소·정적 파일·브라우저 저장소가 이 값을 동기적으로 읽습니다. 같은 빌드를 경로별로 재사용할 수 있으므로 경로 변경에 재빌드가 필요하지 않습니다. 백엔드 설정을 바꾸고 재시작·재생성한 뒤 다시 로그인합니다. B4FastAPI 모놀리식 배포는 이 HTML 주입을 처리합니다. 일반 정적 호스팅에서는 같은 HTML 계약과 SPA fallback을 제공해야 하며 기본 빌드는 `/`에서 동작합니다.
 
 `VITE_BASE_PATH`는 Vite 개발 서버에만 적용됩니다. 개발/데스크톱 백엔드를 별도로 사용하면 `VITE_API_BASE_URL`에 접두사를 포함한 공개 URL을 설정합니다. 데스크톱 정적 파일은 보통 `/`를 유지합니다. 프런트엔드 빌드는 부모 파일을 읽지 않습니다. `VITE_PUBLIC_SITE_URL`은 빌드 시 공유/소개 문서 origin이며 백엔드가 생성된 공개 URL을 런타임 공개 URL로 조정합니다. 루트 robots.txt 정책은 호스트 운영자가 관리합니다.
+
+## 추가 문서
+
+- 변경 범위별 검증: [한국어](verification.md) · [English](../verification.md)
+- 공용 컴포넌트 검수: [한국어](component-audit.md) · [English](../component-audit.md)
+- 계정·프로필: [한국어](account-profile.md) · [English](../account-profile.md)
+- 알림함: [한국어](notification-inbox.md) · [English](../notification-inbox.md)
+- 문의: [한국어](support-inquiries.md) · [English](../support-inquiries.md)
+- 선택형 WebSocket: [한국어](websocket-provider.md) · [English](../websocket-provider.md)
+- 프롬프트 만들기: [한국어](prompt-builder.md) · [English](../prompt-builder.md)
