@@ -1,8 +1,8 @@
 import "@testing-library/jest-dom/vitest";
 
-import "../i18n";
+import i18n from "../i18n";
 
-import { afterAll, afterEach, beforeAll } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
 import { cleanup } from "@testing-library/react";
 
 import { server } from "./mocks/server";
@@ -30,6 +30,10 @@ class TestResizeObserver {
 Object.defineProperty(window, "ResizeObserver", { writable: true, value: TestResizeObserver });
 
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+beforeEach(async () => {
+    // Copy suites select English explicitly; production branding tests cover fresh defaults.
+    await i18n.changeLanguage("en");
+});
 afterEach(() => {
     cleanup();
     server.resetHandlers();

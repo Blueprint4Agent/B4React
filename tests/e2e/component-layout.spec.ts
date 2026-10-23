@@ -235,6 +235,7 @@ test("compact controls preserve touch targets on coarse pointers", async ({ brow
         viewport: { width: 320, height: 800 },
         hasTouch: true,
     });
+    await context.addInitScript(() => localStorage.setItem("b4a_language", "en"));
     const page = await context.newPage();
     await page.route("**/config", (route) => route.fulfill({ json: config }));
     await page.goto("/show-case");
@@ -514,6 +515,7 @@ for (const [platform, userAgent, modifier] of [
     }) => {
         // Given: a browser with the platform's user agent.
         const context = await browser.newContext({ userAgent });
+        await context.addInitScript(() => localStorage.setItem("b4a_language", "en"));
         const page = await context.newPage();
         await page.route("**/config", (route) => route.fulfill({ json: config }));
         await page.goto("/show-case");

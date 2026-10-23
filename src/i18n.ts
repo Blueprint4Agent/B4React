@@ -1,4 +1,5 @@
 import { storageKey } from "./utils/basePath";
+import { normalizeLanguageId, resolveLanguage } from "./utils/language";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
@@ -10,44 +11,30 @@ if (project) {
     for (const locale of [en, ko]) {
         locale.landing.eyebrow = project.name;
         locale.nav.brand = project.short_name;
+        for (const key of ["componentsAlt", "usersAlt", "serverAlt", "billingAlt"] as const) {
+            locale.home.project[key] = locale.home.project[key].replace(
+                "B4A",
+                locale === en ? "Original template" : "원본 템플릿",
+            );
+        }
     }
+    en.home.project.previewNote = "Original template screens · demo data";
+    ko.home.project.previewNote = "원본 템플릿 화면 · 예시 데이터";
 }
 
-const SUPPORTED_LANGUAGE_IDS = ["en", "ko"] as const;
-type SupportedLanguageId = (typeof SUPPORTED_LANGUAGE_IDS)[number];
 const LANGUAGE_STORAGE_KEY = storageKey("b4a_language");
-
-function normalizeLanguageId(value: string | null | undefined): SupportedLanguageId | null {
-    if (!value) {
-        return null;
-    }
-    const normalized = value.split("-")[0]?.toLowerCase();
-    if (normalized === "en" || normalized === "ko") {
-        return normalized;
-    }
-    return null;
+let storedLanguage: string | null = null;
+try {
+    storedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+} catch {
+    // Blocked storage still permits an in-memory language selection.
 }
-
-function resolveInitialLanguage(): SupportedLanguageId {
-    if (typeof window !== "undefined") {
-        const stored = normalizeLanguageId(window.localStorage.getItem(LANGUAGE_STORAGE_KEY));
-        if (stored) {
-            return stored;
-        }
-        const browserFromList =
-            window.navigator.languages
-                ?.map((value) => normalizeLanguageId(value))
-                .find((value): value is SupportedLanguageId => value !== null) ?? null;
-        if (browserFromList) {
-            return browserFromList;
-        }
-        const browser = normalizeLanguageId(window.navigator.language);
-        if (browser) {
-            return browser;
-        }
-    }
-    return "en";
-}
+const initialLanguage = resolveLanguage({
+    stored: storedLanguage,
+    projectDefault: project?.default_language,
+    browserLanguages: [...(window.navigator.languages ?? []), window.navigator.language],
+});
+document.documentElement.lang = initialLanguage;
 
 void i18n.use(initReactI18next).init({
     resources: {
@@ -58,10 +45,11 @@ void i18n.use(initReactI18next).init({
             translation: ko,
         },
     },
-    lng: resolveInitialLanguage(),
+    lng: initialLanguage,
     fallbackLng: "en",
     interpolation: {
         escapeValue: false,
+        defaultVariables: { brand: project?.name ?? "B4A" },
     },
 });
 
@@ -73,7 +61,12 @@ i18n.on("languageChanged", (nextLanguage) => {
     if (!normalized) {
         return;
     }
-    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, normalized);
+    document.documentElement.lang = normalized;
+    try {
+        window.localStorage.setItem(LANGUAGE_STORAGE_KEY, normalized);
+    } catch {
+        // Keep the active language usable when persistence is unavailable.
+    }
 });
 
 export default i18n;

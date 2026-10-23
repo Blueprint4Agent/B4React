@@ -8,6 +8,7 @@ declare const __PROJECT_BRAND__: {
     identifier: string;
     logo_url?: string;
     logo_dark_url?: string;
+    default_language?: "en" | "ko";
 } | null;
 
 declare const __STYLE_STUDIO__: boolean;
