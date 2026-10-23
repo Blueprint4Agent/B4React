@@ -1,3 +1,4 @@
+import { captureVisual } from "../fixtures/visual";
 import { expect, test, type Page } from "../fixtures/browser";
 
 async function setup(page: Page, emailEnabled = true) {
@@ -75,7 +76,7 @@ for (const width of [390, 1440])
             expect(
                 await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
             ).toBe(true);
-            await page.screenshot({ path: info.outputPath("profile.png"), fullPage: true });
+            await captureVisual(page, { path: info.outputPath("profile.png"), fullPage: true });
             // When: navigation happens inside the app, it reuses the subscription owner.
             await page.locator(".profile-menu__trigger").click();
             await page.getByRole("link", { name: "Settings", exact: true }).click();
@@ -104,7 +105,7 @@ for (const width of [390, 1440])
                     };
                 });
             const account = await geometry();
-            await page.screenshot({ path: info.outputPath("account.png"), fullPage: true });
+            await captureVisual(page, { path: info.outputPath("account.png"), fullPage: true });
             const modalGeometry = () =>
                 page.getByRole("dialog").evaluate((dialog) => {
                     const code = dialog.querySelector(".account-deletion-code-row")!;
@@ -119,7 +120,10 @@ for (const width of [390, 1440])
                 });
             await page.getByRole("button", { name: "Change password", exact: true }).click();
             const passwordGeometry = await modalGeometry();
-            await page.screenshot({ path: info.outputPath("password-dialog.png"), fullPage: true });
+            await captureVisual(page, {
+                path: info.outputPath("password-dialog.png"),
+                fullPage: true,
+            });
             await page
                 .getByRole("dialog")
                 .getByRole("button", { name: "Cancel", exact: true })
@@ -135,7 +139,7 @@ for (const width of [390, 1440])
             await page.goto("/settings?section=general");
             await expect(page.locator(".settings-content-card")).toHaveCSS("opacity", "1");
             expect(await geometry()).toEqual(account);
-            await page.screenshot({ path: info.outputPath("general.png"), fullPage: true });
+            await captureVisual(page, { path: info.outputPath("general.png"), fullPage: true });
         });
     }
 
@@ -207,7 +211,7 @@ test("password modal requires emailed code, validates confirmation and clears on
     await expect(dialog.getByRole("button", { name: "Change password" })).toBeDisabled();
     await dialog.getByLabel("Confirm new password", { exact: true }).fill("NewPassword123!");
     await expect(dialog.locator(".validation-card").last()).toHaveClass(/validation-card--ok/);
-    await page.screenshot({ path: info.outputPath("password-modal.png"), fullPage: true });
+    await captureVisual(page, { path: info.outputPath("password-modal.png"), fullPage: true });
     await dialog.getByRole("button", { name: "Change password" }).click();
     await expect(dialog).toHaveCount(0);
     expect(sends).toBe(1);
@@ -252,7 +256,7 @@ test("profile bio enforces 100 characters, expands naturally and preserves sideb
     await expect(add).toHaveClass(/ui-button/);
     await expect(add).toHaveCSS("border-radius", "8px");
     await expect(dialog.getByRole("button", { name: "Remove photo" })).toBeDisabled();
-    await page.screenshot({ path: info.outputPath("profile-editor.png"), fullPage: true });
+    await captureVisual(page, { path: info.outputPath("profile-editor.png"), fullPage: true });
     await dialog.getByRole("button", { name: "Save", exact: true }).click();
     await expect(dialog).toHaveCount(0);
     // Then: every line remains visible without a fixed-height clamp.
@@ -279,7 +283,7 @@ test("name bio and country-region can be edited in place without opening a modal
     const bioForm = page.locator(".profile-inline-form--bio");
     await bioForm.getByRole("textbox", { name: "Bio" }).fill("A calm workspace.\nMade with care.");
     await expect(bioForm.getByText("33/100", { exact: true })).toBeVisible();
-    await page.screenshot({ path: info.outputPath("inline-bio.png"), fullPage: true });
+    await captureVisual(page, { path: info.outputPath("inline-bio.png"), fullPage: true });
     await bioForm.getByRole("button", { name: "Save", exact: true }).click();
     await page.getByRole("button", { name: /Seoul-teukbyeolsi/ }).click();
     const locationForm = page.locator(".personal-profile__details .profile-inline-form");
@@ -319,7 +323,7 @@ test("compact inline edits preserve metadata geometry and account names share th
     const nameWidth = (await nameInput.boundingBox())!.width;
     await nameInput.fill("Profile User                    ");
     expect((await nameInput.boundingBox())!.width).toBe(nameWidth);
-    await page.screenshot({ path: info.outputPath("compact-name.png"), fullPage: true });
+    await captureVisual(page, { path: info.outputPath("compact-name.png"), fullPage: true });
     await page
         .locator(".profile-inline-form--name")
         .getByRole("button", { name: "Cancel", exact: true })
@@ -330,7 +334,7 @@ test("compact inline edits preserve metadata geometry and account names share th
     await expect(page.locator(".profile-inline-form--bio textarea")).toHaveCSS("height", "96px");
     await page.locator(".profile-inline-form--bio textarea").fill("Introduction" + " ".repeat(80));
     await expect(page.locator(".profile-inline-form--bio textarea")).toHaveCSS("height", "96px");
-    await page.screenshot({ path: info.outputPath("compact-bio.png"), fullPage: true });
+    await captureVisual(page, { path: info.outputPath("compact-bio.png"), fullPage: true });
     await page
         .locator(".profile-inline-form--bio")
         .getByRole("button", { name: "Cancel", exact: true })
@@ -338,7 +342,7 @@ test("compact inline edits preserve metadata geometry and account names share th
     const height = (await strip.boundingBox())!.height;
     await page.getByRole("button", { name: /Seoul-teukbyeolsi/ }).click();
     expect((await strip.boundingBox())!.height).toBe(height);
-    await page.screenshot({ path: info.outputPath("location-popover.png"), fullPage: true });
+    await captureVisual(page, { path: info.outputPath("location-popover.png"), fullPage: true });
     await page
         .locator(".profile-location-popover")
         .getByRole("button", { name: "Cancel", exact: true })

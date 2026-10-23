@@ -98,21 +98,13 @@ describe("DesktopTitleBar", () => {
         expect(startDraggingMock).toHaveBeenCalledTimes(1);
     });
 
-    it("does not drag when a navbar control is pressed", () => {
-        setTauriUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)");
-        renderWithRouter(<DesktopTitleBar />, "/login");
-
-        fireEvent.mouseDown(screen.getByRole("button", { name: "Retry now" }), { button: 0 });
-
-        expect(startDraggingMock).not.toHaveBeenCalled();
-    });
-
     it("retries connectivity without starting a window drag", async () => {
         setTauriUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)");
         renderWithRouter(<DesktopTitleBar />, "/login");
         const retryButton = screen.getByRole("button", { name: "Retry now" });
 
         fireEvent.mouseDown(retryButton, { button: 0 });
+        expect(startDraggingMock).not.toHaveBeenCalled();
         await userEvent.setup().click(retryButton);
 
         expect(startDraggingMock).not.toHaveBeenCalled();

@@ -1,3 +1,4 @@
+import { captureVisual } from "../fixtures/visual";
 import { readProjectConfig } from "../../scripts/project-config.mjs";
 import { expect, test, type Locator } from "../fixtures/browser";
 
@@ -645,7 +646,10 @@ for (const colorScheme of ["light", "dark"] as const) {
                 await inactive.evaluate((e) => getComputedStyle(e).backgroundColor),
             );
             await page.mouse.move(0, 0);
-            await page.screenshot({ path: testInfo.outputPath("surfaces.png"), fullPage: false });
+            await captureVisual(page, {
+                path: testInfo.outputPath("surfaces.png"),
+                fullPage: false,
+            });
             await expectReadableHover(page.locator(".copy-field__button").first());
 
             // When: using the real shared API-key modal, including its disabled save state.
@@ -660,7 +664,7 @@ for (const colorScheme of ["light", "dark"] as const) {
             await save.hover({ force: true });
             await expect(save).toHaveCSS("background-color", disabledBackground);
             await expectReadableHover(cancel);
-            await page.screenshot({
+            await captureVisual(page, {
                 path: testInfo.outputPath("cancel-hover.png"),
                 fullPage: false,
             });
@@ -713,7 +717,10 @@ for (const width of [390, 1440]) {
         await expectReadableHover(first);
         await expectReadableHover(second);
         expect(await example.evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(true);
-        await page.screenshot({ path: testInfo.outputPath("selection-card.png"), fullPage: false });
+        await captureVisual(page, {
+            path: testInfo.outputPath("selection-card.png"),
+            fullPage: false,
+        });
     });
 }
 
@@ -747,7 +754,7 @@ for (const width of [390, 1440]) {
             expect(await textContrast(toast)).toBeGreaterThanOrEqual(4.5);
             await expect(page.locator(".ui-toast-layer")).toHaveCSS("pointer-events", "none");
             await expect(trigger).toBeFocused();
-            await page.screenshot({
+            await captureVisual(page, {
                 path: testInfo.outputPath("capsule-toast.png"),
                 fullPage: false,
             });
@@ -813,7 +820,7 @@ for (const width of [375, 1440]) {
                 }
             }
         }
-        await page.screenshot({ path: `test-results/sidebar-project-links-${width}.png` });
+        await captureVisual(page, { path: `test-results/sidebar-project-links-${width}.png` });
     });
 }
 
@@ -845,7 +852,7 @@ for (const width of [390, 1440]) {
             expect(bounds.x).toBeGreaterThanOrEqual(8);
             expect(bounds.x + bounds.width).toBeLessThanOrEqual(width - 8);
             expect(bounds.y + bounds.height).toBeLessThanOrEqual(792);
-            await page.screenshot({ path: info.outputPath("action-menu.png"), fullPage: true });
+            await captureVisual(page, { path: info.outputPath("action-menu.png"), fullPage: true });
             await page.keyboard.press("Escape");
             await expect(menu).toHaveCount(0);
             await expect(trigger).toBeFocused();
@@ -880,7 +887,10 @@ for (const width of [390, 1440]) {
             await expect(action).toHaveCSS("outline-style", "solid");
             await action.hover();
             await expect(action).toHaveCSS("text-decoration-line", "underline");
-            await page.screenshot({ path: info.outputPath("text-actions.png"), fullPage: true });
+            await captureVisual(page, {
+                path: info.outputPath("text-actions.png"),
+                fullPage: true,
+            });
             await action.click();
             await expect(page.locator(".ui-toast-layer")).toBeVisible();
             // Then: the retry example keeps its action inside the alert boundary.
@@ -897,7 +907,10 @@ for (const width of [390, 1440]) {
             expect(
                 await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
             ).toBe(true);
-            await page.screenshot({ path: info.outputPath("retry-feedback.png"), fullPage: true });
+            await captureVisual(page, {
+                path: info.outputPath("retry-feedback.png"),
+                fullPage: true,
+            });
         });
     }
 }
@@ -924,7 +937,7 @@ for (const colorScheme of ["light", "dark"] as const) {
         expect((await dollar.boundingBox())!.height).toBeLessThanOrEqual(32);
         await expectReadableHover(dollar);
         await expectReadableHover(won);
-        await page.screenshot({ path: info.outputPath("segmented-control.png") });
+        await captureVisual(page, { path: info.outputPath("segmented-control.png") });
     });
 }
 

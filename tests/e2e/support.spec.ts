@@ -1,5 +1,6 @@
+import { captureVisual } from "../fixtures/visual";
 import { expect, test, type Page } from "../fixtures/browser";
-async function setup(page: Page, admin: boolean) {
+async function setup(page: Page, admin: boolean, populated = admin) {
     const row = {
         id: 1,
         subject: "Plan question",
@@ -17,7 +18,7 @@ async function setup(page: Page, admin: boolean) {
             },
         ],
     };
-    const state = { rows: admin ? [row] : ([] as (typeof row)[]), fail: false };
+    const state = { rows: populated ? [row] : ([] as (typeof row)[]), fail: false };
     await page.route("**/config", (route) =>
         route.fulfill({
             json: {
@@ -71,10 +72,10 @@ async function setup(page: Page, admin: boolean) {
     });
     return state;
 }
-for (const width of [390, 1440])
-    for (const colorScheme of ["light", "dark"] as const)
+for (const width of [1440])
+    for (const colorScheme of ["light"] as const)
         for (const admin of [false, true]) {
-            test(`support ${admin ? "admin" : "user"} ${width} ${colorScheme}`, async ({
+            test(`support ${admin ? "admin" : "user"} mutation failure retry and persistence`, async ({
                 page,
             }, info) => {
                 const state = await setup(page, admin);
@@ -146,11 +147,64 @@ for (const width of [390, 1440])
                     ).toBeVisible();
                     await expect(page.getByLabel("Reply message", { exact: true })).toHaveCount(0);
                 }
-                await page.screenshot({ path: info.outputPath("support.png"), fullPage: true });
+                await captureVisual(page, { path: info.outputPath("support.png"), fullPage: true });
                 expect(
                     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
                 ).toBe(true);
                 await page.reload();
                 await expect(page.getByText("Confirmed reply", { exact: true })).toBeVisible();
+            });
+        }
+
+for (const width of [390, 1440])
+    for (const colorScheme of ["light", "dark"] as const)
+        for (const admin of [false, true]) {
+            test(`support prepared geometry ${admin ? "admin" : "user"} ${width} ${colorScheme}`, async ({
+                page,
+            }, info) => {
+                const state = await setup(page, admin, true);
+                state.rows[0].messages.push({
+                    id: 2,
+                    author_role: admin ? "admin" : "user",
+                    body: "Confirmed reply",
+                    created_at: state.rows[0].created_at,
+                });
+                if (admin) state.rows[0].status = "closed";
+                await page.setViewportSize({ width, height: 950 });
+                await page.emulateMedia({ colorScheme, reducedMotion: "reduce" });
+                const geometry = () =>
+                    page.locator(".settings-content-card").evaluate((el) => ({
+                        width: el.getBoundingClientRect().width,
+                        padding: getComputedStyle(el).padding,
+                        font: getComputedStyle(el.querySelector("h1")!).fontSize,
+                    }));
+                await page.goto("/settings?section=general");
+                await expect(page.locator(".settings-content-card h1")).toBeVisible();
+                const peer = await geometry();
+                await page.goto(admin ? "/admin/inquiries" : "/settings?section=support");
+                await expect(
+                    page.getByRole("heading", {
+                        name: admin ? "Support inquiries" : "Support",
+                        exact: true,
+                    }),
+                ).toBeVisible();
+                expect(await geometry()).toEqual(peer);
+                await page.getByRole("button", { name: "Plan question", exact: true }).click();
+                await expect(page.getByText("Confirmed reply", { exact: true })).toBeVisible();
+                if (admin) {
+                    await expect(
+                        page.getByText(
+                            "This inquiry is closed. Start a new inquiry if you need more help.",
+                        ),
+                    ).toBeVisible();
+                    await expect(page.getByLabel("Reply message", { exact: true })).toHaveCount(0);
+                } else
+                    await expect(
+                        page.getByLabel("Additional message", { exact: true }),
+                    ).toBeVisible();
+                expect(
+                    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+                ).toBe(true);
+                await captureVisual(page, { path: info.outputPath("support.png"), fullPage: true });
             });
         }

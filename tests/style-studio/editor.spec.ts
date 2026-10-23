@@ -1,3 +1,4 @@
+import { captureVisual } from "../fixtures/visual";
 import { expect, test } from "../fixtures/browser";
 import { readStyles } from "../../scripts/style-studio.mjs";
 for (const width of [390, 1440]) {
@@ -28,7 +29,9 @@ for (const width of [390, 1440]) {
         await page.route("**/__b4f/style-studio/apply", (route) => {
             applied++;
             if (conflict) return route.fulfill({ status: 409, json: { error: "conflict" } });
-            const body = route.request().postDataJSON();
+            const body = route.request().postDataJSON() as {
+                changes: { scope: keyof typeof snapshot.values; key: string; value: string }[];
+            };
             for (const change of body.changes)
                 snapshot.values[change.scope][change.key] = change.value;
             snapshot.revision = "a".repeat(64);
@@ -50,7 +53,7 @@ for (const width of [390, 1440]) {
             Math.abs(inputBox.y + inputBox.height / 2 - swatchBox.y - swatchBox.height / 2),
         ).toBeLessThan(1);
         expect(swatchBox.x).toBeGreaterThan(inputBox.x);
-        await page.screenshot({ path: test.info().outputPath("style-studio.png") });
+        await captureVisual(page, { path: test.info().outputPath("style-studio.png") });
         await editor.getByLabel("Panel background", { exact: true }).fill("#abcdef");
         await editor
             .locator("summary")

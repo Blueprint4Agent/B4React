@@ -1,3 +1,4 @@
+import { captureVisual } from "../fixtures/visual";
 import { expect, test } from "../fixtures/browser";
 
 for (const locale of ["en", "ko"]) {
@@ -72,13 +73,13 @@ for (const locale of ["en", "ko"]) {
                         };
                     });
                 const publicPill = await pillStyle("#prompt-builder a");
-                await page
-                    .locator("#prompt-builder")
-                    .screenshot({ path: info.outputPath("about-prompt.png") });
+                await captureVisual(page.locator("#prompt-builder"), {
+                    path: info.outputPath("about-prompt.png"),
+                });
                 expect(
                     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
                 ).toBe(true);
-                await page.screenshot({
+                await captureVisual(page, {
                     path: info.outputPath("public-introduction.png"),
                     fullPage: true,
                 });
@@ -126,7 +127,7 @@ for (const locale of ["en", "ko"]) {
                         }),
                     );
                 expect(headingStyles[0]).toEqual(headingStyles[1]);
-                await promptSection.screenshot({ path: info.outputPath("home-prompt.png") });
+                await captureVisual(promptSection, { path: info.outputPath("home-prompt.png") });
                 await page.locator('.home-hero a[href="/prompt-builder"]').click();
                 await expect(page).toHaveURL(/\/prompt-builder$/);
                 await expect(

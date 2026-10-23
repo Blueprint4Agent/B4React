@@ -7,6 +7,7 @@ export default defineConfig({
     workers: 1,
     timeout: 60_000,
     use: {
+        screenshot: "only-on-failure",
         baseURL: process.env.B4_DEPLOYMENT_TEST_URL,
         locale: "en-US",
         trace: "retain-on-failure",

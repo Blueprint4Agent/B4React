@@ -32,27 +32,18 @@ describe("LandingPage", () => {
         expect(within(nav).queryByRole("group", { name: "Theme mode" })).not.toBeInTheDocument();
     });
 
-    it("marks landing as started and routes to home when login is enabled", async () => {
-        renderLanding(true);
+    it.each([true, false])(
+        "starts at home independently of legacy loginEnabled=%s",
+        async (loginEnabled) => {
+            renderLanding(loginEnabled);
 
-        const user = userEvent.setup();
-        await user.click(screen.getByRole("button", { name: "Get started" }));
+            const user = userEvent.setup();
+            await user.click(screen.getByRole("button", { name: "Get started" }));
 
-        await waitFor(() => {
-            expect(screen.getByTestId("location")).toHaveTextContent("/home");
-        });
-        expect(window.localStorage.getItem("b4fastapi:landing:v1:started")).toBe("true");
-    });
-
-    it("marks landing as started and routes to home when login is disabled", async () => {
-        renderLanding(false);
-
-        const user = userEvent.setup();
-        await user.click(screen.getByRole("button", { name: "Get started" }));
-
-        await waitFor(() => {
-            expect(screen.getByTestId("location")).toHaveTextContent("/home");
-        });
-        expect(window.localStorage.getItem("b4fastapi:landing:v1:started")).toBe("true");
-    });
+            await waitFor(() => {
+                expect(screen.getByTestId("location")).toHaveTextContent("/home");
+            });
+            expect(window.localStorage.getItem("b4fastapi:landing:v1:started")).toBe("true");
+        },
+    );
 });
