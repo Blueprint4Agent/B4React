@@ -1,5 +1,7 @@
 # Agent Guide
 
+[한국어](notes/ko/AGENTS.md)
+
 Read `AGENTS.md`, then `FRONTEND.md`, then `TEST.md` when changing tests.
 
 B4React is an independent frontend consumed by backend repositories as a pinned Git submodule.
