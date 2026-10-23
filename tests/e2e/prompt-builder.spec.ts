@@ -1,3 +1,4 @@
+import { captureVisual } from "../fixtures/visual";
 import { expect, test, type Page } from "../fixtures/browser";
 
 async function setup(page: Page, layout = "sidebar", language = "en") {
@@ -144,7 +145,7 @@ for (const mode of ["feature", "project"] as const) {
         for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
         expect(Buffer.concat(chunks).toString("utf8")).toBe(value);
         expect(mutations).toEqual([]);
-        await page.screenshot({
+        await captureVisual(page, {
             path: info.outputPath("result.png"),
             fullPage: true,
             animations: "disabled",
@@ -185,7 +186,7 @@ for (const width of [390, 1440])
                 radius: getComputedStyle(el).borderRadius,
             }));
             expect(actual).toEqual(peer);
-            await page.screenshot({
+            await captureVisual(page, {
                 path: info.outputPath("welcome.png"),
                 fullPage: true,
                 animations: "disabled",
@@ -195,7 +196,7 @@ for (const width of [390, 1440])
                 .locator(".prompt-path-card")
                 .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().width));
             expect(Math.abs(widths[0] - widths[1])).toBeLessThan(1);
-            await page.screenshot({
+            await captureVisual(page, {
                 path: info.outputPath("paths.png"),
                 fullPage: true,
                 animations: "disabled",
@@ -213,7 +214,7 @@ for (const width of [390, 1440])
             expect(
                 await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
             ).toBe(true);
-            await page.screenshot({
+            await captureVisual(page, {
                 path: info.outputPath("question.png"),
                 fullPage: true,
                 animations: "disabled",
@@ -224,7 +225,7 @@ for (const width of [390, 1440])
             expect(
                 await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
             ).toBe(true);
-            await page.screenshot({
+            await captureVisual(page, {
                 path: info.outputPath("permissions.png"),
                 fullPage: true,
                 animations: "disabled",

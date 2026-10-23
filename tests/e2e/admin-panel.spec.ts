@@ -1,3 +1,4 @@
+import { captureVisual } from "../fixtures/visual";
 import { expect, test, type Page } from "../fixtures/browser";
 
 const admin = {
@@ -86,7 +87,7 @@ for (const width of [390, 1440]) {
         await expect(page.getByRole("navigation", { name: "Admin panel" })).toBeVisible();
         await expect(page.getByText("member1@example.com", { exact: true })).toBeVisible();
         await expect(page.getByText("No recorded sign-in", { exact: true })).toBeVisible();
-        await page.screenshot({ path: testInfo.outputPath("admin-panel.png"), fullPage: true });
+        await captureVisual(page, { path: testInfo.outputPath("admin-panel.png"), fullPage: true });
         expect(
             await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
         ).toBe(true);
@@ -152,7 +153,7 @@ for (const role of ["admin", "manager"]) {
             "height",
             "32px",
         );
-        await page.screenshot({ path: info.outputPath("profile-role.png"), fullPage: true });
+        await captureVisual(page, { path: info.outputPath("profile-role.png"), fullPage: true });
         if (role === "admin") {
             await page.goto("/admin");
             const search = page.getByRole("button", { name: "Search", exact: true });
@@ -161,7 +162,7 @@ for (const role of ["admin", "manager"]) {
             const dropdownBox = (await dropdown.boundingBox())!;
             expect(buttonBox.height).toBeCloseTo(32, 2);
             expect(buttonBox.height).toBeCloseTo(dropdownBox.height, 2);
-            await page.screenshot({
+            await captureVisual(page, {
                 path: info.outputPath("compact-admin-actions.png"),
                 fullPage: true,
             });

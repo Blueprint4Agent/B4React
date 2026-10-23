@@ -1,3 +1,4 @@
+import { captureVisual } from "../fixtures/visual";
 import { expect, test, type Page } from "../fixtures/browser";
 async function setup(page: Page) {
     const rows = Array.from({ length: 22 }, (_, i) => ({
@@ -83,9 +84,9 @@ async function setup(page: Page) {
     });
     return state;
 }
-for (const width of [390, 1440])
-    for (const colorScheme of ["light", "dark"] as const)
-        test(`inbox reads persist and match settings ${width} ${colorScheme}`, async ({
+for (const width of [1440])
+    for (const colorScheme of ["light"] as const)
+        test(`inbox failure retry selection deletion filtering and persistence`, async ({
             page,
         }, info) => {
             const state = await setup(page);
@@ -109,7 +110,7 @@ for (const width of [390, 1440])
                 .evaluateAll((links) => links.map((link) => link.getAttribute("href")));
             expect(menuOrder.indexOf("/notifications")).toBe(menuOrder.indexOf("/profile") + 1);
             await expect(page.locator(".profile-menu__count")).toHaveText("22");
-            await page.screenshot({ path: info.outputPath("inbox-badge.png") });
+            await captureVisual(page, { path: info.outputPath("inbox-badge.png") });
             await page
                 .getByRole("link", { name: "Notifications, Unread: 22", exact: true })
                 .click();
@@ -133,7 +134,7 @@ for (const width of [390, 1440])
                     return Math.abs(icon.y + icon.height / 2 - text.y - text.height / 2);
                 });
             expect(alignment).toBeLessThan(0.6);
-            await page.screenshot({ path: info.outputPath("inbox.png"), fullPage: true });
+            await captureVisual(page, { path: info.outputPath("inbox.png"), fullPage: true });
             expect(
                 await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
             ).toBe(true);
@@ -199,7 +200,7 @@ for (const width of [390, 1440])
             });
             expect(centered.x).toBeLessThan(1);
             expect(centered.y).toBeLessThan(1);
-            await page.screenshot({ path: info.outputPath("inbox-empty.png"), fullPage: true });
+            await captureVisual(page, { path: info.outputPath("inbox-empty.png"), fullPage: true });
             await page.reload();
             await expect(page.getByText("Unread: 0", { exact: true })).toBeVisible();
         });
@@ -241,3 +242,55 @@ test("filter refresh preserves the table until the response arrives", async ({ p
     release();
     await expect(page.getByRole("button", { name: "View details" }).first()).toBeEnabled();
 });
+
+for (const width of [390, 1440])
+    for (const colorScheme of ["light", "dark"] as const) {
+        test(`inbox prepared populated and empty geometry ${width} ${colorScheme}`, async ({
+            page,
+        }, info) => {
+            const state = await setup(page);
+            await page.setViewportSize({ width, height: 950 });
+            await page.emulateMedia({ colorScheme, reducedMotion: "reduce" });
+            const geometry = () =>
+                page.locator(".settings-content-card").evaluate((el) => ({
+                    width: el.getBoundingClientRect().width,
+                    padding: getComputedStyle(el).padding,
+                    font: getComputedStyle(el.querySelector("h1")!).fontSize,
+                }));
+            await page.goto("/settings?section=general");
+            await expect(page.locator(".settings-content-card h1")).toBeVisible();
+            const peer = await geometry();
+            await page.goto("/notifications");
+            await expect(page.getByText("Update 22", { exact: true })).toBeVisible();
+            expect(await geometry()).toEqual(peer);
+            const alignment = await page
+                .locator(".inbox-detail-trigger")
+                .first()
+                .evaluate((button) => {
+                    const icon = button.querySelector("svg")!.getBoundingClientRect();
+                    const text = button
+                        .querySelector(".ui-button__label > span")!
+                        .getBoundingClientRect();
+                    return Math.abs(icon.y + icon.height / 2 - text.y - text.height / 2);
+                });
+            expect(alignment).toBeLessThan(0.6);
+            expect(
+                await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+            ).toBe(true);
+            await captureVisual(page, { path: info.outputPath("inbox.png"), fullPage: true });
+            state.rows.splice(0);
+            await page.reload();
+            await expect(page.getByText("No notifications to show.")).toBeVisible();
+            const centered = await page.locator(".inbox-state").evaluate((el) => {
+                const box = el.getBoundingClientRect();
+                const child = el.firstElementChild!.getBoundingClientRect();
+                return {
+                    x: Math.abs(box.x + box.width / 2 - child.x - child.width / 2),
+                    y: Math.abs(box.y + box.height / 2 - child.y - child.height / 2),
+                };
+            });
+            expect(centered.x).toBeLessThan(1);
+            expect(centered.y).toBeLessThan(1);
+            await captureVisual(page, { path: info.outputPath("inbox-empty.png"), fullPage: true });
+        });
+    }

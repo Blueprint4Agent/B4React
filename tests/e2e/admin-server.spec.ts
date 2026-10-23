@@ -1,3 +1,4 @@
+import { captureVisual } from "../fixtures/visual";
 import { expect, test, type Page } from "../fixtures/browser";
 
 const snapshot = {
@@ -170,7 +171,7 @@ for (const width of [390, 1440])
             expect(
                 await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
             ).toBe(true);
-            await page.screenshot({
+            await captureVisual(page, {
                 path: testInfo.outputPath("server-status.png"),
                 fullPage: true,
             });

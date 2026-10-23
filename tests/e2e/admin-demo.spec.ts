@@ -1,3 +1,4 @@
+import { captureVisual } from "../fixtures/visual";
 import { expect, test, type Page } from "../fixtures/browser";
 const snapshot = {
     environment_values: {
@@ -140,7 +141,7 @@ for (const width of [390, 1440])
             const demoEntry = page.getByRole("link", { name: "Admin panel (demo)", exact: true });
             await expect(demoEntry).toBeVisible();
             await expect(demoEntry).toHaveClass("profile-menu__item");
-            await page.screenshot({
+            await captureVisual(page, {
                 path: info.outputPath("demo-profile-menu.png"),
                 fullPage: true,
             });
@@ -154,7 +155,7 @@ for (const width of [390, 1440])
                     font: getComputedStyle(el.querySelector("h1")!).fontSize,
                 }));
             const directoryGeometry = await geometry();
-            await page.screenshot({ path: info.outputPath("demo-users.png"), fullPage: true });
+            await captureVisual(page, { path: info.outputPath("demo-users.png"), fullPage: true });
             await page.getByRole("searchbox").fill("no-match");
             await page.getByRole("button", { name: "Search", exact: true }).click();
             await expect(page.getByText("No matching users.")).toBeVisible();
@@ -163,7 +164,7 @@ for (const width of [390, 1440])
             await expect(page.getByText(/Read-only view of real server health/)).toBeVisible();
             await page.getByRole("button", { name: "Refresh", exact: true }).click();
             const statusGeometry = await geometry();
-            await page.screenshot({ path: info.outputPath("demo-server.png"), fullPage: true });
+            await captureVisual(page, { path: info.outputPath("demo-server.png"), fullPage: true });
             expect(
                 await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
             ).toBe(true);
@@ -223,6 +224,6 @@ test("inquiry demo uses sample data without reading or mutating private inquirie
     await expect(page.getByRole("button", { name: "Close inquiry", exact: true })).toHaveCount(0);
     await page.reload();
     await expect(page.getByText(/Choose a plan in billing settings/)).toBeVisible();
-    await page.screenshot({ path: info.outputPath("demo-inquiries.png"), fullPage: true });
+    await captureVisual(page, { path: info.outputPath("demo-inquiries.png"), fullPage: true });
     expect(requests).toEqual([]);
 });

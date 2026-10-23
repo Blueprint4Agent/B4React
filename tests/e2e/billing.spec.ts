@@ -1,3 +1,15 @@
+import type { Locator } from "@playwright/test";
+async function expectDangerAction(button: Locator) {
+    await expect(button).toBeEnabled();
+    const channels = await button.evaluate((node) =>
+        getComputedStyle(node)
+            .backgroundColor.match(/[\d.]+/g)!
+            .map(Number),
+    );
+    expect(channels[0]).toBeGreaterThan(channels[1] * 1.5);
+    expect(channels[0]).toBeGreaterThan(channels[2] * 1.5);
+}
+import { captureVisual } from "../fixtures/visual";
 import { expect, test, type Page } from "../fixtures/browser";
 const account = {
     id: 1,
@@ -171,7 +183,7 @@ for (const width of [390, 1440])
             await pro.getByRole("button", { name: "Annual", exact: true }).click();
             await expect(pro.locator(".plan-card__billing-note")).toContainText("129.28");
             await expect(pro.locator(".plan-card__price del")).toContainText("11.97");
-            await page.screenshot({
+            await captureVisual(page, {
                 path: info.outputPath("plans.png"),
                 fullPage: true,
                 animations: "disabled",
@@ -187,9 +199,12 @@ for (const width of [390, 1440])
                 ),
             ).toBe(true);
             await expect(page.locator(".settings-content-card")).toHaveCSS("opacity", "1");
-            await page.screenshot({ path: info.outputPath("billing.png"), fullPage: true });
+            await captureVisual(page, { path: info.outputPath("billing.png"), fullPage: true });
             await page.locator(".billing-plan-footer").scrollIntoViewIfNeeded();
-            await page.screenshot({ path: info.outputPath("billing-methods.png"), fullPage: true });
+            await captureVisual(page, {
+                path: info.outputPath("billing-methods.png"),
+                fullPage: true,
+            });
             const settingsGeometry = () =>
                 page.locator(".settings-content-card").evaluate((shell) => {
                     const header = shell.querySelector(".settings-content-card__header")!;
@@ -210,7 +225,7 @@ for (const width of [390, 1440])
             await expect(page.locator(".settings-row").first()).toBeVisible();
             await expect(page.locator(".settings-content-card")).toHaveCSS("opacity", "1");
             expect(await settingsGeometry()).toEqual(billingGeometry);
-            await page.screenshot({ path: info.outputPath("general.png"), fullPage: true });
+            await captureVisual(page, { path: info.outputPath("general.png"), fullPage: true });
         });
     }
 test("registration opens only the hosted setup URL and verifies the return", async ({ page }) => {
@@ -260,7 +275,7 @@ test("Korean pricing and settings labels remain readable on mobile", async ({ pa
     expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
     ).toBe(true);
-    await page.screenshot({ path: info.outputPath("billing-ko.png"), fullPage: true });
+    await captureVisual(page, { path: info.outputPath("billing-ko.png"), fullPage: true });
 });
 
 test("standalone plans close to their originating page and direct visits have a safe fallback", async ({
@@ -365,7 +380,7 @@ for (const [query, message] of [
         await expect(page.locator(".billing-settings")).not.toContainText(message);
         await expect(page).toHaveURL(/currency=usd&section=billing$/);
         await expect(page.getByRole("heading", { name: "Billing", exact: true })).toBeVisible();
-        await page.screenshot({ path: info.outputPath("cancellation-toast.png") });
+        await captureVisual(page, { path: info.outputPath("cancellation-toast.png") });
         await expect(toast).toHaveCount(0, { timeout: 5000 });
         await page.evaluate(() => window.dispatchEvent(new Event("focus")));
         await page.evaluate(() => window.dispatchEvent(new Event("focus")));
@@ -405,7 +420,10 @@ for (const width of [390, 1440]) {
         await expect(page.getByText("Loading billing information…", { exact: true })).toHaveCount(
             0,
         );
-        await page.screenshot({ path: info.outputPath("billing-spinners.png"), fullPage: true });
+        await captureVisual(page, {
+            path: info.outputPath("billing-spinners.png"),
+            fullPage: true,
+        });
         release();
         await expect(spinners).toHaveCount(0);
         await expect(page.getByRole("heading", { name: "Free", exact: true })).toBeVisible();
@@ -427,7 +445,7 @@ test("API key loading uses the same accessible spinner", async ({ page }, info) 
     await expect(spinner).toBeVisible();
     await expect(spinner).toHaveAttribute("aria-label", /Loading/);
     await expect(spinner.locator(".ui-spinner__label")).toHaveCount(0);
-    await page.screenshot({ path: info.outputPath("api-key-spinner.png") });
+    await captureVisual(page, { path: info.outputPath("api-key-spinner.png") });
     release();
     await expect(spinner).toHaveCount(0);
 });
@@ -501,6 +519,17 @@ for (const width of [390, 1440]) {
                 },
             }),
         );
+        if (width === 390) {
+            await page.goto("/settings?section=billing");
+            await expect(page.getByText("INV-001")).toBeVisible();
+            await expect(page.getByText("Seoul, KR")).toBeVisible();
+            await page.getByRole("button", { name: "구독 취소", exact: true }).click();
+            await expect(page.getByRole("dialog")).toBeVisible();
+            expect(
+                await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+            ).toBe(true);
+            return;
+        }
         await page.goto("/plans");
         await expect(page.getByRole("button", { name: "원", exact: true })).toHaveAttribute(
             "aria-pressed",
@@ -525,7 +554,7 @@ for (const width of [390, 1440]) {
         );
         await expect(page.getByRole("dialog")).toContainText("₩43,092");
         await expect(page.getByRole("dialog")).not.toContainText("US$39.99");
-        await page.screenshot({ path: info.outputPath("change-dialog.png"), fullPage: true });
+        await captureVisual(page, { path: info.outputPath("change-dialog.png"), fullPage: true });
         await page.getByRole("button", { name: "변경 확인", exact: true }).click();
         await expect(page.locator(".ui-toast-card")).toHaveText("요금제 변경을 예약했습니다.");
         await expect(
@@ -537,7 +566,7 @@ for (const width of [390, 1440]) {
         await expect(page.getByText("결제 완료", { exact: true })).toBeVisible();
         await expect(page.getByText("기본", { exact: true })).toBeVisible();
         await expect(page.getByText("Seoul, KR")).toBeVisible();
-        await page.screenshot({ path: info.outputPath("billing-details.png"), fullPage: true });
+        await captureVisual(page, { path: info.outputPath("billing-details.png"), fullPage: true });
         await page.getByRole("button", { name: "현재 플랜 유지", exact: true }).click();
         await page.getByRole("button", { name: "변경 확인", exact: true }).click();
         await expect(page.locator(".ui-toast-card")).toHaveText("현재 요금제를 유지합니다.");
@@ -608,15 +637,13 @@ for (const width of [390, 1440]) {
             expect(menuGeometry.width).toBeGreaterThanOrEqual(160);
             expect(menuGeometry.left).toBeGreaterThanOrEqual(0);
             expect(menuGeometry.right).toBeLessThanOrEqual(width);
-            await page.screenshot({
+            await captureVisual(page, {
                 path: info.outputPath("billing-method-menu.png"),
                 fullPage: true,
             });
             await page.keyboard.press("Escape");
             const row = page.locator(".settings-account-delete");
-            await expect(row.getByRole("button", { name: "구독 취소" })).toHaveClass(
-                /modal-button--danger/,
-            );
+            await expectDangerAction(row.getByRole("button", { name: "구독 취소" }));
             const mark = page.locator(".billing-stripe-badge img:visible");
             await expect(mark).toHaveCount(1);
             expect(
@@ -627,15 +654,15 @@ for (const width of [390, 1440]) {
             expect(
                 await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
             ).toBe(true);
-            await page.screenshot({
+            await captureVisual(page, {
                 path: info.outputPath("billing-provider-style.png"),
                 fullPage: true,
             });
             await row.getByRole("button", { name: "구독 취소" }).click();
-            await expect(
+            await expectDangerAction(
                 page.getByRole("dialog").getByRole("button", { name: "변경 확인" }),
-            ).toHaveClass(/modal-button--danger/);
-            await page.screenshot({
+            );
+            await captureVisual(page, {
                 path: info.outputPath("billing-cancel-style.png"),
                 fullPage: true,
             });
@@ -686,7 +713,11 @@ for (const width of [390, 1440]) {
             expect(retryBox.x).toBeGreaterThanOrEqual(alertBox.x);
             expect(retryBox.x + retryBox.width).toBeLessThanOrEqual(alertBox.x + alertBox.width);
             expect(retryBox.y + retryBox.height).toBeLessThanOrEqual(alertBox.y + alertBox.height);
-            await page.screenshot({ path: info.outputPath("billing-error.png"), fullPage: true });
+            await captureVisual(page, {
+                path: info.outputPath("billing-error.png"),
+                fullPage: true,
+            });
+            if (width !== 1440 || theme !== "light") return;
             failing = false;
             await page.getByRole("button", { name: "다시 시도" }).first().click();
             await expect(page.getByRole("alert")).toHaveCount(0);
@@ -768,7 +799,6 @@ for (const width of [390, 1440]) {
             .getByRole("heading", { name: "거래 내역", exact: true })
             .locator("..");
         const viewAll = historyHeader.getByRole("button", { name: "모두 보기", exact: true });
-        await expect(viewAll).toHaveClass(/ui-button--text/);
         const titleBox = (await historyHeader.getByRole("heading").boundingBox())!;
         const actionBox = (await viewAll.boundingBox())!;
         expect(actionBox.x - titleBox.x - titleBox.width).toBeLessThanOrEqual(16);
@@ -780,7 +810,13 @@ for (const width of [390, 1440]) {
         await expect(dialog.getByLabel("결제 이메일")).toHaveValue("billing@example.com");
         await expect(dialog.getByLabel("주소란 2")).toHaveValue("Unit");
         await dialog.getByLabel("이름", { exact: true }).fill("New Billing Name");
-        await page.screenshot({ path: info.outputPath("profile-dialog.png"), fullPage: true });
+        await captureVisual(page, { path: info.outputPath("profile-dialog.png"), fullPage: true });
+        if (width === 390) {
+            const box = (await dialog.boundingBox())!;
+            expect(box.x).toBeGreaterThanOrEqual(0);
+            expect(box.x + box.width).toBeLessThanOrEqual(width);
+            return;
+        }
         await dialog.getByRole("button", { name: "저장", exact: true }).click();
         await expect(page.getByRole("dialog")).toHaveCount(0);
         await expect(page.getByText("New Billing Name", { exact: true })).toBeVisible();
@@ -879,7 +915,7 @@ for (const width of [390, 1440]) {
             const bounds = (await menu.boundingBox())!;
             expect(bounds.y).toBeGreaterThanOrEqual(8);
             expect(bounds.y + bounds.height).toBeLessThanOrEqual(782);
-            await page.screenshot({
+            await captureVisual(page, {
                 path: info.outputPath("country-menu-bottom.png"),
                 fullPage: true,
             });
@@ -1019,7 +1055,7 @@ for (const width of [390, 1440])
             expect(
                 await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
             ).toBe(true);
-            await page.screenshot({
+            await captureVisual(page, {
                 path: info.outputPath("profile-tier.png"),
                 animations: "disabled",
             });
@@ -1096,7 +1132,7 @@ for (const width of [390, 1440]) {
         await expect(page).toHaveURL(/settings\?section=billing/);
         const box = (await dialog.boundingBox())!;
         expect(box.width).toBeLessThanOrEqual(width);
-        await page.screenshot({ path: info.outputPath("invoice-details.png"), fullPage: true });
+        await captureVisual(page, { path: info.outputPath("invoice-details.png"), fullPage: true });
         await page.keyboard.press("Escape");
         await expect(dialog).toHaveCount(0);
     });

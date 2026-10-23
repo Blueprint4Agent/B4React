@@ -1,3 +1,4 @@
+import { captureVisual } from "../fixtures/visual";
 import { expect, test } from "../fixtures/browser";
 
 const guestConfig = {
@@ -470,7 +471,7 @@ for (const width of [390, 1440]) {
             page.getByRole("dialog").getByRole("button", { name: "Create account", exact: true }),
         ).toBeInViewport();
         expect(await close.boundingBox()).toEqual(before);
-        await page.screenshot({ path: `test-results/account-modal-${width}.png` });
+        await captureVisual(page, { path: `test-results/account-modal-${width}.png` });
     });
 }
 
