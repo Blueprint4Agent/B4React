@@ -49,3 +49,7 @@ supported. No automatic storage-error retry or public bucket URL is assumed.
 ## Runtime layout
 
 `GET /config` includes optional `app_layout: sidebar | topnav | focused` with a `sidebar` default. The provider reads APP_LAYOUT at process start and returns it with Cache-Control: no-store. Older providers may omit it; clients use their source fallback. Production ignores browser layout previews. No new endpoint, account preference or data migration is involved.
+
+## Cookie refresh CSRF
+
+Before each cookie refresh, GET `/api/v1/auth/csrf` with credentials and `X-CSRF-Bootstrap: 1`; send its `csrf_token` as `X-CSRF-Token` on POST `/api/v1/auth/refresh`. Both responses are no-store. Keep the proof request-local; bootstrap failure stops refresh. Providers must bind proofs to refresh sessions and reject absent, invalid or mismatched proofs with `403 CSRF_INVALID`. Allow only trusted CORS origins. Existing Bearer API authentication is unchanged.

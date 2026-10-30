@@ -70,7 +70,16 @@ export async function updateMe(input: UpdateProfileInput): Promise<User> {
 }
 
 export async function refresh(): Promise<RefreshPayload> {
+    // Keep the proof request-local: reloads, OAuth returns and account switches
+    // must resolve it from the current HttpOnly refresh cookies.
+    const csrf = await apiClient.GET("/api/v1/auth/csrf", {
+        headers: { "X-CSRF-Bootstrap": "1" },
+        cache: "no-store",
+    });
+    if (csrf.error || !csrf.data) throw csrf.error;
+
     const { data, error } = await apiClient.POST("/api/v1/auth/refresh", {
+        headers: { "X-CSRF-Token": csrf.data.csrf_token },
         body: {},
     });
     if (error || !data) {
