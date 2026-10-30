@@ -710,6 +710,7 @@
                     },
                     "error": {
                         "enum": [
+                            "CSRF_INVALID",
                             "PASSWORD_CHANGE_CODE_INVALID",
                             "PASSWORD_CHANGE_CODE_THROTTLED",
                             "PASSWORD_CHANGE_CODE_SEND_FAILED",
@@ -1754,6 +1755,17 @@
                 },
                 "required": ["user_id", "channel"],
                 "title": "ConnectedPayload",
+                "type": "object"
+            },
+            "CsrfTokenResponse": {
+                "properties": {
+                    "csrf_token": {
+                        "title": "Csrf Token",
+                        "type": "string"
+                    }
+                },
+                "required": ["csrf_token"],
+                "title": "CsrfTokenResponse",
                 "type": "object"
             },
             "DeleteAccountCodeResponse": {
@@ -4005,6 +4017,96 @@
                 "tags": ["Auth"]
             }
         },
+        "/api/v1/auth/csrf": {
+            "get": {
+                "description": "Returns the current refresh session's CSRF token. Requires valid refresh cookies and X-CSRF-Bootstrap: 1. Does not renew the session. Never cache this response.",
+                "operationId": "csrf_token_api_v1_auth_csrf_get",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-csrf-bootstrap",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Csrf-Bootstrap"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CsrfTokenResponse"
+                                }
+                            }
+                        },
+                        "description": "Successful Response"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "INVALID_TOKEN",
+                                        "message": "Invalid refresh token."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "detail": {
+                                        "error": "LOGIN_DISABLED",
+                                        "message": "Login is currently disabled."
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        },
+                        "description": "Validation Error"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InternalErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unexpected server error"
+                    }
+                },
+                "summary": "Csrf Token",
+                "tags": ["Auth"]
+            }
+        },
         "/api/v1/auth/forgot-password": {
             "post": {
                 "operationId": "forgot_password_api_v1_auth_forgot_password_post",
@@ -6101,9 +6203,25 @@
         },
         "/api/v1/auth/refresh": {
             "post": {
-                "description": "Refreshes the access token and extends the existing refresh session TTL. The refresh token value is retained. Non-empty JSON fields take precedence over cookies; user_id can be resolved from the session. Browser clients may send an empty JSON object.",
+                "description": "Refreshes the access token and extends the existing refresh session TTL. The refresh token value is retained. Non-empty JSON fields take precedence over cookies; user_id can be resolved from the session. Cookie-based requests require X-CSRF-Token from GET /auth/csrf. Explicit refresh_token and session_id bypass cookie authentication.",
                 "operationId": "refresh_token_api_v1_auth_refresh_post",
                 "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-csrf-token",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Csrf-Token"
+                        }
+                    },
                     {
                         "in": "cookie",
                         "name": "template_refresh_token",

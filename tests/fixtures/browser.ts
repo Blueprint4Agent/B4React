@@ -29,6 +29,9 @@ export const test = base.extend<{ languagePreference: "en" | "ko" | null }>({
                 body: 'event: ping\ndata: {"type":"ping"}\n\n',
             }),
         );
+        await context.route("**/api/v1/auth/csrf", (route) =>
+            route.fulfill({ json: { csrf_token: "fixture-csrf" } }),
+        );
         await use(context);
     },
 });

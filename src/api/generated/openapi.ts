@@ -136,6 +136,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/csrf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Csrf Token
+         * @description Returns the current refresh session's CSRF token. Requires valid refresh cookies and X-CSRF-Bootstrap: 1. Does not renew the session. Never cache this response.
+         */
+        get: operations["csrf_token_api_v1_auth_csrf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/forgot-password": {
         parameters: {
             query?: never;
@@ -378,7 +398,7 @@ export interface paths {
         put?: never;
         /**
          * Refresh Token
-         * @description Refreshes the access token and extends the existing refresh session TTL. The refresh token value is retained. Non-empty JSON fields take precedence over cookies; user_id can be resolved from the session. Browser clients may send an empty JSON object.
+         * @description Refreshes the access token and extends the existing refresh session TTL. The refresh token value is retained. Non-empty JSON fields take precedence over cookies; user_id can be resolved from the session. Cookie-based requests require X-CSRF-Token from GET /auth/csrf. Explicit refresh_token and session_id bypass cookie authentication.
          */
         post: operations["refresh_token_api_v1_auth_refresh_post"];
         delete?: never;
@@ -1356,6 +1376,7 @@ export interface components {
              * @enum {string}
              */
             error:
+                | "CSRF_INVALID"
                 | "PASSWORD_CHANGE_CODE_INVALID"
                 | "PASSWORD_CHANGE_CODE_THROTTLED"
                 | "PASSWORD_CHANGE_CODE_SEND_FAILED"
@@ -1846,6 +1867,11 @@ export interface components {
             channel: string;
             /** User Id */
             user_id: number;
+        };
+        /** CsrfTokenResponse */
+        CsrfTokenResponse: {
+            /** Csrf Token */
+            csrf_token: string;
         };
         /** DeleteAccountCodeResponse */
         DeleteAccountCodeResponse: {
@@ -3117,6 +3143,80 @@ export interface operations {
                     "application/json":
                         | components["schemas"]["AuthErrorResponse"]
                         | components["schemas"]["InternalErrorResponse"];
+                };
+            };
+        };
+    };
+    csrf_token_api_v1_auth_csrf_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-csrf-bootstrap"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CsrfTokenResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "INVALID_TOKEN",
+                     *         "message": "Invalid refresh token."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": {
+                     *         "error": "LOGIN_DISABLED",
+                     *         "message": "Login is currently disabled."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuthErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalErrorResponse"];
                 };
             };
         };
@@ -4875,7 +4975,9 @@ export interface operations {
     refresh_token_api_v1_auth_refresh_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-csrf-token"?: string | null;
+            };
             path?: never;
             cookie?: {
                 template_refresh_token?: string;

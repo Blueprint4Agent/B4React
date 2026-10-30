@@ -76,6 +76,7 @@ const AUTH_ERROR_CODE_TO_KEY: Record<AuthErrorCode, string> = {
     EMAIL_NOT_VERIFIED: "auth.errors.emailNotVerified",
     LOGIN_DISABLED: "auth.errors.loginDisabled",
     INVALID_CREDENTIALS: "auth.errors.loginFallback",
+    CSRF_INVALID: "auth.errors.invalidToken",
     INVALID_TOKEN: "auth.errors.invalidToken",
     INSUFFICIENT_ROLE: "auth.errors.insufficientRole",
     USER_NOT_FOUND: "auth.errors.userNotFound",

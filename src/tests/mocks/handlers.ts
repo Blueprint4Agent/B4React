@@ -1,6 +1,7 @@
 import { http, HttpResponse } from "msw";
 
 export const handlers = [
+    http.get(/.*\/api\/v1\/auth\/csrf$/, () => HttpResponse.json({ csrf_token: "fixture-csrf" })),
     http.get(/.*\/api\/v1\/inbox\/summary$/, () =>
         HttpResponse.json({ unread_count: 0, latest_id: 0 }),
     ),
